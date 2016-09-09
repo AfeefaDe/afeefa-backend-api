@@ -4,8 +4,8 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
 
   context 'As admin' do
     setup do
-      @admin = create(:admin)
-      @user = create(:user)
+      @admin = admin
+      @user = User.new
 
       @orga = @admin.orgas.first
     end

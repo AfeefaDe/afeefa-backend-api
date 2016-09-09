@@ -3,7 +3,7 @@ require 'test_helper'
 class UserTest < ActiveSupport::TestCase
   context 'As user' do
     setup do
-      @user = create(:user)
+      @user = valid_user
     end
 
     should 'have some basic attributes not nil' do
@@ -17,8 +17,8 @@ class UserTest < ActiveSupport::TestCase
     end
 
     should 'have orgas' do
-      orga = create(:orga)
-      role = build(:role, orga: orga, user: @user)
+      orga = Orga.first
+      role = Role.new(orga: orga, user: @user, title: Role::ORGA_MEMBER)
       @user.roles << role
       assert_equal 1, @user.reload.orgas.size
       assert_equal orga, @user.orgas.first
@@ -29,7 +29,7 @@ class UserTest < ActiveSupport::TestCase
     end
 
     should 'have role for orga' do
-      assert orga = create(:orga)
+      assert orga = Orga.first
       assert @user.save
       role = Role.new(title: Role::ORGA_ADMIN, orga: orga, user: @user)
       assert role.save
@@ -41,7 +41,7 @@ class UserTest < ActiveSupport::TestCase
     should 'be owner of things' do
       event = nil
       assert_difference('Event.count') do
-        event = create(:event)
+        event = Event.create!
       end
 
       assert_difference('@user.reload.events.count') do
@@ -55,20 +55,22 @@ class UserTest < ActiveSupport::TestCase
 
     should 'be creator of things' do
       assert_difference('@user.created_events.count') do
-        event = create(:event, creator: @user)
+        event = Event.create(creator: @user)
         assert_equal @user, event.creator
       end
     end
 
     should 'I want to update my data to keep it up to date' do
+      user = valid_user
+      user.save!
       assert_no_difference('User.count') do
-        new_forename = @user.forename+'123'
-        new_surname = @user.surname+'123'
-        assert_not_equal new_forename, @user.forename
-        assert_not_equal new_surname, @user.surname
-        @user.update(forename: new_forename, surname: new_surname)
-        assert_equal new_forename, @user.forename
-        assert_equal new_surname, @user.surname
+        new_forename = user.forename+'123'
+        new_surname = user.surname+'123'
+        assert_not_equal new_forename, user.forename
+        assert_not_equal new_surname, user.surname
+        user.update(forename: new_forename, surname: new_surname)
+        assert_equal new_forename, user.forename
+        assert_equal new_surname, user.surname
       end
     end
 
@@ -99,7 +101,7 @@ class UserTest < ActiveSupport::TestCase
   #   end
   #
   #   should 'I must not add an existing user to any orga' do
-  #     new_user = create(:user)
+  #     new_user = user
   #
   #     assert_no_difference('@my_orga.users.count') do
   #       assert_raise CanCan::AccessDenied do
@@ -134,7 +136,7 @@ class UserTest < ActiveSupport::TestCase
 
   # context 'As admin' do
   #   setup do
-  #     @admin = create(:admin)
+  #     @admin = admin
   #     @my_orga = @admin.orgas.first
   #   end
   #
@@ -147,7 +149,7 @@ class UserTest < ActiveSupport::TestCase
   #
   #   context 'interacting with an user' do
   #     setup do
-  #       @user = create(:user)
+  #       @user = user
   #     end
   #
   #     should 'I want to add an existing user to my orga' do

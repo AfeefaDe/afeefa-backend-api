@@ -6,7 +6,7 @@ class LocationTest < ActiveSupport::TestCase
     loc = Location.new
     assert_nil loc.locatable
 
-    orga = create(:orga)
+    orga = Orga.first
     loc.locatable = orga
     assert_equal orga.id, loc.locatable_id
     assert_equal 'Orga', loc.locatable_type

@@ -3,7 +3,7 @@ require 'test_helper'
 class OrgaSerializerTest < ActiveSupport::TestCase
 
   should 'have correct mapping' do
-    orga = create(:orga)
+    orga = orga
     hash = ActiveModelSerializers::SerializableResource.new(orga, {}).serializable_hash
     assert hash.key?(:data)
     assert_match orga.id.to_s, hash[:data][:links][:self]

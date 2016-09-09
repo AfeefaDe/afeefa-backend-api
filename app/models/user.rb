@@ -16,23 +16,23 @@ class User < ApplicationRecord
 
   has_many :created_events, class_name: 'Event', foreign_key: :creator_id
 
-  # def can!(ability, subject, message)
-  #   unless abilities.can? ability, subject
-  #     raise CanCan::AccessDenied.new(message, caller_locations(1, 1)[0].label)
-  #   end
-  # end
+  def can!(ability, subject, message)
+    unless abilities.can? ability, subject
+      raise CanCan::AccessDenied.new(message, caller_locations(1, 1)[0].label)
+    end
+  end
 
-  # def can?(ability, subject)
-  #   abilities.can? ability, subject
-  # end
+  def can?(ability, subject)
+    abilities.can? ability, subject
+  end
 
-  # def orga_member?(orga)
-  #   has_role_for?(orga, Role::ORGA_MEMBER)
-  # end
+  def orga_member?(orga)
+    has_role_for?(orga, Role::ORGA_MEMBER)
+  end
 
-  # def orga_admin?(orga)
-  #   has_role_for?(orga, Role::ORGA_ADMIN)
-  # end
+  def orga_admin?(orga)
+    has_role_for?(orga, Role::ORGA_ADMIN)
+  end
 
   # def create_user_and_add_to_orga(email:, forename:, surname:, orga:)
   #   can! :write_orga_structure, orga, 'You are not authorized to modify the user list of this organization!'
@@ -71,23 +71,23 @@ class User < ApplicationRecord
     # end
   end
 
-  # def belongs_to_orga?(orga)
-  #   orgas.pluck(:id).include?(orga.id)
-  # end
+  def belongs_to_orga?(orga)
+    orgas.pluck(:id).include?(orga.id)
+  end
 
   private
 
-  # def abilities
-  #   @ability ||= Ability.new(self)
-  # end
+  def abilities
+    @ability ||= Ability.new(self)
+  end
 
-  # def has_role_for?(orga, role)
-  #   if belongs_to_orga?(orga)
-  #     roles.where(orga_id: orga.id).first.try(:title) == role
-  #   else
-  #     false
-  #   end
-  # end
+  def has_role_for?(orga, role)
+    if belongs_to_orga?(orga)
+      roles.where(orga_id: orga.id).first.try(:title) == role
+    else
+      false
+    end
+  end
 
   # def update_role_for_member(member:, orga:, role:)
   #   can! :write_orga_structure, orga, 'You are not authorized to modify the user list of this organization!'

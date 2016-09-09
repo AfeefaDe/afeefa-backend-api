@@ -38,14 +38,14 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'have contact_informations' do
-    orga = create(:orga)
+    orga = Orga.first
     assert orga.contact_infos.blank?
     assert contact_info = ContactInfo.create(contactable: orga)
     assert_includes orga.reload.contact_infos, contact_info
   end
 
   should 'have categories' do
-    orga = create(:orga)
+    orga = Orga.first
     assert orga.categories.blank?
     assert category = Category.new(title: 'irgendeine komische Kategorie')
     category.orgas << orga
@@ -55,8 +55,8 @@ class OrgaTest < ActiveSupport::TestCase
 
   # context 'As admin' do
   #   setup do
-  #     @admin = create(:admin)
-  #     @user = create(:user)
+  #     @admin = admin
+  #     @user = user
   #   end
   #
   #   should 'I want to add a new member to my orga' do
@@ -152,11 +152,11 @@ class OrgaTest < ActiveSupport::TestCase
 
   # context 'As user' do
   #   setup do
-  #     @user = create(:user)
+  #     @user = user
   #   end
   #
   #   should 'I must not create a new suborga for an orga I am not a member in' do
-  #     orga = create(:orga)
+  #     orga = orga
   #
   #     assert_no_difference('orga.sub_orgas.count') do
   #       assert_raise CanCan::AccessDenied do

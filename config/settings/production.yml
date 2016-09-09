@@ -1,0 +1,8 @@
+api:
+  hosts:
+    - localhost
+    - dev-api.afeefa.de
+    - api.afeefa.de
+  protocols:
+    - https
+  admin_secret: '0815'

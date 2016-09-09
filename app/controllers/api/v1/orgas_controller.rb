@@ -14,10 +14,10 @@ class Api::V1::OrgasController < Api::V1::BaseController
   end
 
   def create
-    # params.merge!(user: current_api_v1_user)
-    # run Orga::CreateSubOrga do
-    #   head status: :created
-    # end
+    params.merge!(user: current_api_v1_user)
+    run Orga::CreateSubOrga do
+      head status: :created
+    end
   end
 
   def show

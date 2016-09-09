@@ -1,5 +1,5 @@
 class Orga < ApplicationRecord
-  class ActivateOrga < Trailblazer::Operation
+  class Activate < Trailblazer::Operation
 
     include Model
     model Orga

@@ -1,17 +1,17 @@
 require 'test_helper'
 
-class Orga::ActivatTest < ActiveSupport::TestCase
+class Orga::ActivateTest < ActiveSupport::TestCase
 
   context 'As admin' do
     setup do
-      @admin = create(:admin)
-      @user = create(:user)
+      @admin = admin
+      @user = User.new
 
       @orga = @admin.orgas.first
     end
 
     should 'I want to activate my orga' do
-      res, op = Orga::ActivateOrga.run(
+      res, op = Orga::Activate.run(
           {
               id: @orga.id,
               data: {
@@ -27,7 +27,7 @@ class Orga::ActivatTest < ActiveSupport::TestCase
     end
 
     should 'I want to deactivate my orga' do
-      res, op = Orga::ActivateOrga.run(
+      res, op = Orga::Activate.run(
           {
               id: @orga.id,
               data: {
@@ -36,7 +36,7 @@ class Orga::ActivatTest < ActiveSupport::TestCase
                       active: false
                   }
               }
-          }
+          }.merge(user: @admin)
       )
       assert(res)
       assert_equal false, op.model.active
@@ -70,8 +70,8 @@ class Orga::ActivatTest < ActiveSupport::TestCase
   #
   # context 'As user' do
   #   setup do
-  #     @user = create(:user)
-  #     @orga = create(:orga)
+  #     @user = user
+  #     @orga = orga
   #     stub_current_user(user: @user)
   #   end
   #

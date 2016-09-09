@@ -28,4 +28,35 @@ class ActiveSupport::TestCase
 
   # TODO: uncomment this if you want to use factory girl
   # include FactoryGirl::Syntax::Methods
+
+  def admin
+    Role.where(title: Role::ORGA_ADMIN).first.user
+  end
+
+  def member
+    Role.where(title: Role::ORGA_MEMBER).first.user
+  end
+
+  def valid_user
+    User.new(
+        email: "foo#{rand(0..1000)}@afeefa.de",
+        forename: 'Max',
+        surname: 'Mustermann',
+        # TODO: remove required password from device
+        password: 'abc12346'
+    )
+  end
+end
+
+class ActionController::TestCase
+  private
+
+  def stub_current_user(user: user)
+    @controller.class.any_instance.stubs(:set_user_by_token).returns(user)
+  end
+
+  def unstub_current_user
+    @controller.class.any_instance.unstub(:set_user_by_token)
+  end
+
 end

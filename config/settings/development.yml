@@ -1,0 +1,7 @@
+api:
+  hosts:
+    - localhost
+    - api.afeefa.fx
+  protocols:
+    - http
+  admin_secret: '0815'
