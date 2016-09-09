@@ -6,16 +6,16 @@ class RoleTest < ActiveSupport::TestCase
     @role.title = Role::ORGA_ADMIN
   end
 
-  test 'role should have valid title' do
-    @role.title = nil
-
-    assert !@role.valid?
-    assert @role.errors[:title].any?
-
-    @role.title = Role::ORGA_ADMIN
-    @role.valid?
-    assert @role.errors[:title].blank?, @role.errors.full_messages
-  end
+  # test 'role should have valid title' do
+  #   @role.title = nil
+  #
+  #   assert !@role.valid?
+  #   assert @role.errors[:title].any?
+  #
+  #   @role.title = Role::ORGA_ADMIN
+  #   @role.valid?
+  #   assert @role.errors[:title].blank?, @role.errors.full_messages
+  # end
 
   test 'role should have user and orga' do
     assert !@role.valid?
