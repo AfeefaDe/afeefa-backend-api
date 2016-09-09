@@ -11,15 +11,15 @@ class Api::V1::BaseController < ApplicationController
 
   rescue_from CanCan::AccessDenied do |exception|
     Rails.logger.debug "AccessDenied-Exception, message: #{exception.message}, from: #{exception.action}"
-    head status: :forbidden
+    head :forbidden
   end
 
   rescue_from ActiveRecord::RecordNotFound do
-    head status: :not_found
+    head :not_found
   end
 
   rescue_from ActiveRecord::RecordInvalid do
-    head status: :unprocessable_entity
+    head :unprocessable_entity
   end
 
   private
@@ -31,7 +31,7 @@ class Api::V1::BaseController < ApplicationController
     else
       render(
           text: "wrong host: #{host}, allowed: #{allowed_hosts.join(', ')}",
-          status: 401
+          status: :unauthorized
       )
       false
     end
@@ -44,7 +44,7 @@ class Api::V1::BaseController < ApplicationController
     else
       render(
           text: "wrong protocol: #{protocol}, allowed: #{allowed_protocols.join(', ')}",
-          status: 401
+          status: :unauthorized
       )
       false
     end
@@ -54,7 +54,7 @@ class Api::V1::BaseController < ApplicationController
     if params[:admin_secret] == Settings.api.admin_secret
       true
     else
-      head status: 403
+      head :forbidden
       false
     end
   end

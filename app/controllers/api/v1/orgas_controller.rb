@@ -14,9 +14,8 @@ class Api::V1::OrgasController < Api::V1::BaseController
   end
 
   def create
-    params.merge!(user: current_api_v1_user)
-    run Orga::CreateSubOrga do
-      head status: :created
+    res, op = Orga::CreateSubOrga.run(params.merge(user: current_api_v1_user)) do
+      head :created
     end
   end
 
@@ -25,8 +24,9 @@ class Api::V1::OrgasController < Api::V1::BaseController
   end
 
   def update
-    # @orga.update_data(member: current_api_v1_user, data: orga_params[:attributes])
-    # render json: @orga
+    Orga::Activate.run(params.merge(user: current_api_v1_user)) do
+      head :no_content
+    end
   end
 
   def destroy

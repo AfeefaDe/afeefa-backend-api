@@ -2,7 +2,7 @@ class Orga < ApplicationRecord
   class Activate < Trailblazer::Operation
 
     include Model
-    model Orga
+    model Orga, :find
 
     contract do
       property :active
@@ -10,10 +10,10 @@ class Orga < ApplicationRecord
     end
 
     def process(params)
-      validate(params[:data][:attributes]) do |orga|
+      validate(params[:data][:attributes]) do
         user = params[:user]
-        user.can! :write_orga_data, orga, 'You are not authorized to modify this organization!'
-        orga.save
+        user.can! :write_orga_data, model, 'You are not authorized to modify this organization!'
+        contract.save
       end
     end
 

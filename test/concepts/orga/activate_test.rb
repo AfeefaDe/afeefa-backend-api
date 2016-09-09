@@ -19,7 +19,8 @@ class Orga::ActivateTest < ActiveSupport::TestCase
                   attributes: {
                       active: true
                   }
-              }
+              },
+              user: @admin
           }
       )
       assert(res)
@@ -35,8 +36,9 @@ class Orga::ActivateTest < ActiveSupport::TestCase
                   attributes: {
                       active: false
                   }
-              }
-          }.merge(user: @admin)
+              },
+              user: @admin
+          }
       )
       assert(res)
       assert_equal false, op.model.active

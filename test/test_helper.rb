@@ -38,7 +38,7 @@ class ActiveSupport::TestCase
   end
 
   def valid_user
-    User.new(
+    User.create(
         email: "foo#{rand(0..1000)}@afeefa.de",
         forename: 'Max',
         surname: 'Mustermann',

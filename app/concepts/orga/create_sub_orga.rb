@@ -2,7 +2,7 @@ class Orga < ApplicationRecord
   class CreateSubOrga < Trailblazer::Operation
 
     include Model
-    model Orga
+    model Orga, :create
 
     contract do
       property :title
