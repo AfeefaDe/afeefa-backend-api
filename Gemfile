@@ -48,7 +48,9 @@ gem 'cancancan', '~> 1.10' # see https://github.com/CanCanCommunity/cancancan
 gem 'config'
 
 # json api spec
-# gem 'active_model_serializers'
+gem 'active_model_serializers'
+# if the gem above is not enough use this complex one:
+# gem 'jsonapi-resources'
 
 # tree relatiions (e.g. orga-suborga)
 gem 'acts_as_tree', '~> 2.4'

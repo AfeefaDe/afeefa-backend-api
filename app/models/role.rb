@@ -6,6 +6,6 @@ class Role < ApplicationRecord
   ORGA_MEMBER = 'orga_user'
   ROLES = [ORGA_ADMIN, ORGA_MEMBER]
 
-  validates_inclusion_of :title, within: ROLES
-  validates_presence_of :user, :orga
+  # validates_inclusion_of :title, within: ROLES
+  # validates_presence_of :user, :orga
 end
