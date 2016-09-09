@@ -22,9 +22,10 @@ gem 'puma', '~> 3.0'
 # gem 'rack-cors'
 
 # Use Unicorn as the app server
-platforms :ruby do
-  gem 'unicorn'
-end
+# platforms :ruby do
+#   gem 'unicorn'
+# end
+# TODO: use puma for production, modify deployment!
 
 ##########################
 # project relevant gems #
@@ -57,9 +58,11 @@ gem 'kaminari'
 
 # trailblazer architecture (operations)
 gem 'trailblazer-rails'
+# reform validation engine (used in reform included as contract in operations of trailblazer)
+gem 'dry-validation'
 
 # redmine integration
-gem 'airbrake', '~> 5.3'
+gem 'airbrake', '~> 5.4'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -74,6 +77,7 @@ group :development, :test do
   gem 'rails_best_practices'
   gem 'bullet'
 
+  # code coverage
   gem 'simplecov', require: false
 
   gem 'sqlite3'
@@ -86,7 +90,8 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.0.0'
 
   # Use Capistrano for deployment
-  gem 'capistrano-rails'
+  # gem 'capistrano-rails'
+  # TODO: use puma for production, modify deployment!
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
