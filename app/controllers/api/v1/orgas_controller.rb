@@ -37,9 +37,12 @@ class Api::V1::OrgasController < Api::V1::BaseController
   end
 
   def destroy
-    # current_api_v1_user.can! :write_orga_structure, @orga, 'You are not authorized to modify the structure of this organization!'
-    # @orga.destroy!
-    # head status: :no_content
+    response, operation = Orga::Operations::Delete.run(
+        params.merge(user: current_api_v1_user)
+    ) do
+      head :no_content
+    end
+    head :unprocessable_entity
   end
 
   private
