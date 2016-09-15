@@ -12,9 +12,9 @@ user4 = User.create(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsc
 user5 = User.create(email: 'benny@afeefa.de', forename: 'Benny', surname: 'Thomä', password: 'password4')
 user6 = User.create(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'password5')
 
-orga1 = Orga.create(title: 'Afeefa')
-orga2 = Orga.create(title: 'Dresden für Alle e.V.')
-orga3 = Orga.create(title: 'TU Dresden')
+orga1 = Orga.create(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa')
+orga2 = Orga.create(title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.')
+orga3 = Orga.create(title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden')
 
 
 Role.create(user: user6, orga: orga1, title: Role::ORGA_ADMIN)
