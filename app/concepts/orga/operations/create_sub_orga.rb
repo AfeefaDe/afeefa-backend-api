@@ -10,7 +10,7 @@ class Orga < ApplicationRecord
       def process(params)
         validate(params[:data][:attributes]) do |new_sub_orga_form|
           user = params[:user]
-          parent_orga = Orga.find(params[:id])
+          parent_orga = Orga.find(params[:data][:attributes][:parent_id])
           params
           user
           user.can! :write_orga_structure, parent_orga, 'You are not authorized to modify the structure of this organization!'
