@@ -12,7 +12,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'I want to create a suborga for my orga' do
-      Orga::CreateSubOrga.any_instance.expects(:process).once
+      Orga::Operations::CreateSubOrga.any_instance.expects(:process).once
       post :create, params: {
           id: @orga.id,
           data: {

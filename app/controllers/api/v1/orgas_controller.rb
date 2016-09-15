@@ -14,9 +14,13 @@ class Api::V1::OrgasController < Api::V1::BaseController
   end
 
   def create
-    res, op = Orga::CreateSubOrga.run(params.merge(user: current_api_v1_user)) do
+    Orga::Operations::CreateSubOrga.run(
+        params.merge(user: current_api_v1_user)
+    ) do
       head :created
+      return
     end
+    head :unprocessable_entity
   end
 
   def show
@@ -24,9 +28,12 @@ class Api::V1::OrgasController < Api::V1::BaseController
   end
 
   def update
-    Orga::Activate.run(params.merge(user: current_api_v1_user)) do
+    response, operation = Orga::Operations::Update.run(
+        params.merge(user: current_api_v1_user)
+    ) do
       head :no_content
     end
+    head :unprocessable_entity
   end
 
   def destroy

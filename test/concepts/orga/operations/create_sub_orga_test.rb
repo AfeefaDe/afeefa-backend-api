@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
+class Orga::Operations::CreateSubOrgaTest < ActiveSupport::TestCase
 
   context 'As admin' do
     setup do
@@ -12,7 +12,7 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
 
     should 'I want to create a new suborga for my orga' do
       assert_difference('@orga.sub_orgas.count') do
-        response, operation = Orga::CreateSubOrga.run(
+        response, operation = Orga::Operations::CreateSubOrga.run(
             {
                 id: @orga.id,
                 user: @admin,
@@ -34,7 +34,7 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
 
     should 'I must not create a invalid suborga' do
       assert_no_difference('@orga.sub_orgas.count') do
-        response, operation = Orga::CreateSubOrga.run(
+        response, operation = Orga::Operations::CreateSubOrga.run(
             {
                 id: @orga.id,
                 user: @admin,
@@ -51,7 +51,7 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
       end
 
       assert_no_difference('@orga.sub_orgas.count') do
-        response, operation = Orga::CreateSubOrga.run(
+        response, operation = Orga::Operations::CreateSubOrga.run(
             {
                 id: @orga.id,
                 user: @admin,

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Orga::UpdateTest < ActiveSupport::TestCase
+class Orga::Operations::UpdateTest < ActiveSupport::TestCase
 
   context 'As admin' do
     setup do
@@ -16,7 +16,7 @@ class Orga::UpdateTest < ActiveSupport::TestCase
 
       assert_not_equal new_orga_title, @orga.title
       assert_no_difference('Orga.count') do
-        response, operation = Orga::Update.run(
+        response, operation = Orga::Operations::Update.run(
             {
                 id: @orga.id,
                 user: @admin,
@@ -31,14 +31,14 @@ class Orga::UpdateTest < ActiveSupport::TestCase
         )
         assert(response)
         assert_instance_of(Orga, operation.model)
-        assertequal @orga.reload, operation.model
+        assert_equal @orga.reload, operation.model
         assert_equal new_orga_title, @orga.title
         assert_equal new_orga_description, @orga.description
       end
     end
 
     should 'I must not update a invalid suborga' do
-      response, operation = Orga::Update.run(
+      response, operation = Orga::Operations::Update.run(
           {
               id: @orga.id,
               user: @admin,
@@ -54,7 +54,7 @@ class Orga::UpdateTest < ActiveSupport::TestCase
       assert_not(response)
       assert_equal ['has already been taken'], operation.errors[:title]
 
-      response, operation = Orga::Update.run(
+      response, operation = Orga::Operations::Update.run(
           {
               id: @orga.id,
               user: @admin,
