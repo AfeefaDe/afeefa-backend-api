@@ -16,7 +16,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :events, only: [:show, :index]
+    resources :events, only: [:create, :show, :index]
   }
 
   namespace :api do

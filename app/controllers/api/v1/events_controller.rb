@@ -9,4 +9,12 @@ class Api::V1::EventsController < Api::V1::BaseController
     present Event::Operations::Index
     render json: @model
   end
+
+  def create
+    Event::Operations::Create.run(params) do
+      head :created
+      return
+    end
+    head :unprocessable_entity
+  end
 end
