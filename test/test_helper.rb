@@ -51,7 +51,7 @@ end
 class ActionController::TestCase
   private
 
-  def stub_current_user(user: user)
+  def stub_current_user(user:)
     @controller.class.any_instance.stubs(:set_user_by_token).returns(user)
   end
 

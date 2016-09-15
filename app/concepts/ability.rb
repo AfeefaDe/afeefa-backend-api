@@ -28,8 +28,8 @@ class Ability
     #
     # See the wiki for details:
     # https://github.com/CanCanCommunity/cancancan/wiki/Defining-Abilities
-    can :read_orga, Orga, :users => {:id => user.id}
-    can :write_orga_data, Orga, :users => {:id => user.id}
-    can :write_orga_structure, Orga, :roles => {:user_id => user.id, :title => Role::ORGA_ADMIN}
+    can :read_orga, Orga, users: { id: user.id }
+    can :write_orga_data, Orga, users: { id: user.id }
+    can :write_orga_structure, Orga, roles: { user_id: user.id, title: Role::ORGA_ADMIN }
   end
 end

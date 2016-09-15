@@ -12,7 +12,7 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
 
     should 'I want to create a new suborga for my orga' do
       assert_difference('@orga.sub_orgas.count') do
-        res, op = Orga::CreateSubOrga.run(
+        response, operation = Orga::CreateSubOrga.run(
             {
                 id: @orga.id,
                 user: @admin,
@@ -25,8 +25,8 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
                 }
             }
         )
-        assert(res)
-        assert_instance_of(Orga, op.model)
+        assert(response)
+        assert_instance_of(Orga, operation.model)
         assert_equal Orga.find_by_title('super-awesome orga'), @orga.reload.children.last
         assert @admin.orga_admin?(Orga.find_by_title('super-awesome orga'))
       end
@@ -34,7 +34,7 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
 
     should 'I must not create a invalid suborga' do
       assert_no_difference('@orga.sub_orgas.count') do
-        res, op = Orga::CreateSubOrga.run(
+        response, operation = Orga::CreateSubOrga.run(
             {
                 id: @orga.id,
                 user: @admin,
@@ -47,13 +47,11 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
                 }
             }
         )
-
-        assert_not(res)
+        assert_not(response)
       end
 
       assert_no_difference('@orga.sub_orgas.count') do
-
-        res, op = Orga::CreateSubOrga.run(
+        response, operation = Orga::CreateSubOrga.run(
             {
                 id: @orga.id,
                 user: @admin,
@@ -66,8 +64,7 @@ class Orga::CreateSubOrgaTest < ActiveSupport::TestCase
                 }
             }
         )
-
-        assert_not(res)
+        assert_not(response)
       end
     end
   end
