@@ -4,6 +4,7 @@ class User < ApplicationRecord
 
       include Model
       model User, :find
+
     end
   end
 end

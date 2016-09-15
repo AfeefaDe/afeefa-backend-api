@@ -15,7 +15,7 @@ class Orga::Operations::CreateSubOrgaTest < ActiveSupport::TestCase
         response, operation =
           Orga::Operations::CreateSubOrga.run(
             {
-              user: @admin,
+              current_user: @admin,
               data: {
                 attributes: {
                   parent_id: @orga.id,
@@ -37,7 +37,7 @@ class Orga::Operations::CreateSubOrgaTest < ActiveSupport::TestCase
       assert_no_difference('@orga.sub_orgas.count') do
         response, operation = Orga::Operations::CreateSubOrga.run(
           {
-            user: @admin,
+            current_user: @admin,
             data: {
               attributes: {
                 parent_id: @orga.id,
@@ -55,7 +55,7 @@ class Orga::Operations::CreateSubOrgaTest < ActiveSupport::TestCase
         response, operation =
           Orga::Operations::CreateSubOrga.run(
             {
-              user: @admin,
+              current_user: @admin,
               data: {
                 attributes: {
                   parent_id: @orga.id,

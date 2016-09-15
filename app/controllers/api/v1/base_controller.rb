@@ -8,6 +8,7 @@ class Api::V1::BaseController < ApplicationController
   before_action :ensure_protocol
   before_action :authenticate_api_v1_user!, except: %i(ping)
   before_action :ensure_admin_secret, only: %i(test_airbrake)
+  before_action :merge_current_user_into_params
 
   rescue_from CanCan::AccessDenied do |exception|
     Rails.logger.debug "AccessDenied-Exception, message: #{exception.message}, from: #{exception.action}"
@@ -57,6 +58,12 @@ class Api::V1::BaseController < ApplicationController
       head :forbidden
       false
     end
+  end
+
+  private
+
+  def merge_current_user_into_params
+    params.merge!(current_user: current_api_v1_user)
   end
 
 end

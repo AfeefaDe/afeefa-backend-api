@@ -5,14 +5,10 @@ class Orga < ApplicationRecord
       include Model
       model Orga, :find
 
-      contract do
-
-      end
-
       def process(params)
-        user = params[:user]
+        current_user = params[:current_user]
         orga = Orga.find(params[:id])
-        user.can! :write_orga_structure, orga, 'You are not authorized to delete an organization!'
+        current_user.can! :write_orga_structure, orga, 'You are not authorized to delete an organization!'
         parent_orga = Orga.find(orga.parent_id)
         sub_orgas = orga.sub_orgas
 

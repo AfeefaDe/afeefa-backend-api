@@ -8,20 +8,20 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       stub_current_user(user: @admin)
 
       @orga = @admin.orgas.first
-      @user_json = {forename: 'Rudi', surname: 'Dutschke', email: 'bob@afeefa.de'}
+      @user_json = { forename: 'Rudi', surname: 'Dutschke', email: 'bob@afeefa.de' }
     end
 
     should 'I want to create a suborga for my orga' do
       Orga::Operations::CreateSubOrga.any_instance.expects(:process).once
       post :create, params: {
-          id: @orga.id,
-          data: {
-              type: 'orga',
-              attributes: {
-                  title: 'some title',
-                  description: 'some description'
-              }
+        id: @orga.id,
+        data: {
+          type: 'orga',
+          attributes: {
+            title: 'some title',
+            description: 'some description'
           }
+        }
       }
       assert_response :created
     end
@@ -30,13 +30,13 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       skip 'implement update'
       Orga::Activate.any_instance.expects(:process).once
       patch :update, params: {
-          id: @orga.id,
-          data: {
-              type: 'orga',
-              attributes: {
-                  active: true
-              }
+        id: @orga.id,
+        data: {
+          type: 'orga',
+          attributes: {
+            active: true
           }
+        }
       }
       assert_response :no_content
     end
@@ -45,13 +45,13 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       skip 'implement update'
       Orga::Activate.any_instance.expects(:process).once
       patch :update, params: {
-          id: @orga.id,
-          data: {
-              type: 'orga',
-              attributes: {
-                  active: false
-              }
+        id: @orga.id,
+        data: {
+          type: 'orga',
+          attributes: {
+            active: false
           }
+        }
       }
       assert_response :no_content
     end
@@ -201,13 +201,14 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'I want to update the data of the orga' do
       desc = @orga[:description]
       patch :update, params: {
+        id: @orga.id,
+        data: {
+          type: 'orga',
           id: @orga.id,
-          data: {
-              type: 'orga',
-              id: @orga.id,
-              attributes: {
-                  title: 'newTitle'}
+          attributes: {
+            title: 'newTitle'
           }
+        }
       }
       assert_response :success
       @orga.reload
@@ -218,7 +219,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'I must not delete my orga' do
       skip 'implement delete'
       assert_no_difference 'Orga.count' do
-        delete :destroy, params: {id: @orga.id}
+        delete :destroy, params: { id: @orga.id }
       end
       assert_response :forbidden
     end
@@ -240,13 +241,13 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       desc = @orga[:description]
       upd = @orga[:updated_at]
       patch :update, params: {
+        id: @orga.id,
+        data: {
+          type: 'orga',
           id: @orga.id,
-          data: {
-              type: 'orga',
-              id: @orga.id,
-              attributes: {
-                  title: 'newTitle'}
-          }
+          attributes: {
+            title: 'newTitle' }
+        }
       }
       assert_response :forbidden
       @orga.reload

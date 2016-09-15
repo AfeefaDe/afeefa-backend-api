@@ -19,7 +19,7 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
         response, operation = Orga::Operations::Update.run(
             {
                 id: @orga.id,
-                user: @admin,
+                current_user: @admin,
                 data: {
                     attributes: {
                         title: new_orga_title,
@@ -38,13 +38,15 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
     end
 
     should 'I must not update a invalid suborga' do
+      assert orga2 = Orga.second
+
       response, operation = Orga::Operations::Update.run(
           {
               id: @orga.id,
-              user: @admin,
+              current_user: @admin,
               data: {
                   attributes: {
-                      title: @orga.title,
+                      title: orga2.title,
                       description: 'this orga is magnificent'
                   },
                   type: 'Orga'
@@ -57,7 +59,7 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
       response, operation = Orga::Operations::Update.run(
           {
               id: @orga.id,
-              user: @admin,
+              current_user: @admin,
               data: {
                   attributes: {
                       title: '123',

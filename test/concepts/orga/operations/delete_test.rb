@@ -9,7 +9,7 @@ class Orga::Operations::DeleteTest < ActiveSupport::TestCase
       @parent_orga = @admin.orgas.first
       @orga = Orga::Operations::CreateSubOrga.(
           {
-              user: @admin,
+              current_user: @admin,
               data: {
                   attributes: {
                       parent_id: @parent_orga.id,
@@ -22,7 +22,7 @@ class Orga::Operations::DeleteTest < ActiveSupport::TestCase
       ).model
       @sub_orga = Orga::Operations::CreateSubOrga.(
           {
-              user: @admin,
+              current_user: @admin,
               data: {
                   attributes: {
                       parent_id: @orga.id,
@@ -39,7 +39,7 @@ class Orga::Operations::DeleteTest < ActiveSupport::TestCase
       response, operation = Orga::Operations::Delete.run(
           {
               id: @orga.id,
-              user: @admin,
+              current_user: @admin,
               data: {
                   type: 'Orga'
               }

@@ -14,9 +14,4 @@ class Api::V1::UsersController < Api::V1::BaseController
     render json: @model
   end
 
-  private
-  def params!(params)
-    params.merge(current_user: current_api_v1_user)
-  end
-
 end

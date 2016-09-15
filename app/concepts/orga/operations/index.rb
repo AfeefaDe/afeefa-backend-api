@@ -5,9 +5,9 @@ class Orga < ApplicationRecord
 
       def model!(params)
         if params[:page]
-          orgas = Orga.page(params[:page][:number]).per(params[:page][:size])
+          Orga.page(params[:page][:number]).per(params[:page][:size])
         else
-          orgas = Orga.all
+          Orga.all
         end
       end
     end
