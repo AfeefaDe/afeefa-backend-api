@@ -9,7 +9,14 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :users, only: [:show]
+    resources :users, only: [:show] do
+      member do
+        get :list_orgas, path: 'orgas'
+        get :list_events, path: 'events'
+      end
+    end
+
+    resources :events, only: [:show, :index]
   }
 
   namespace :api do

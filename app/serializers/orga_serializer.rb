@@ -11,6 +11,6 @@ class OrgaSerializer < BaseSerializer
   end
 
   link :self do
-    "/api/v1/users/#{object.id}"
+    "/api/v1/orgas/#{object.id}"
   end
 end

@@ -46,6 +46,13 @@ class ActiveSupport::TestCase
         password: 'abc12346'
     )
   end
+
+  def event
+    Event.create(
+             title: 'TestEvent',
+             description: 'Description of TestEvent'
+    )
+  end
 end
 
 class ActionController::TestCase

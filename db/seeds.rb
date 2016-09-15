@@ -31,3 +31,14 @@ Role.create(user: user4, orga: orga3, title: Role::ORGA_ADMIN)
 Role.create(user: user1, orga: orga3, title: Role::ORGA_MEMBER)
 Role.create(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
 Role.create(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
+
+
+event1 = Event.create(title: 'Big Afeefa-Event')
+event2 = Event.create(title: 'Kuefa im AZ-Conni')
+event3 = Event.create(title: 'Playing Football')
+event4 = Event.create(title: 'Cooking for All')
+
+OwnerThingRelation.create(ownable: event1, thingable: orga1)
+OwnerThingRelation.create(ownable: event2, thingable: user1)
+OwnerThingRelation.create(ownable: event3, thingable: orga2)
+OwnerThingRelation.create(ownable: event4, thingable: user1)

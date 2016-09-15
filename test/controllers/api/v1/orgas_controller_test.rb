@@ -258,14 +258,14 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'show orga' do
-      skip 'implement show'
-      post :show, params: { id: @orga.id }
+      get :show, params: { id: @orga.id }
       expected = ActiveModelSerializers::SerializableResource.new(@orga, {}).to_json
       assert_equal expected, response.body
     end
 
     should 'I want a list of all orgas' do
       get :index
+      assert_response :ok
       expected = ActiveModelSerializers::SerializableResource.new(Orga.all, {}).to_json
       assert_equal expected, response.body
     end

@@ -1,6 +1,7 @@
 class Orga < ApplicationRecord
   module Operations
-    class Update < CreateSubOrga
+    class Update < Trailblazer::Operation
+      include Model
       model Orga, :find
 
       contract Orga::Forms::UpdateForm

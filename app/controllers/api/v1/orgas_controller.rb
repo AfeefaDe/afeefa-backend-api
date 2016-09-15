@@ -4,13 +4,8 @@ class Api::V1::OrgasController < Api::V1::BaseController
   # before_action :set_user, only: [:remove_member, :promote_member, :demote_admin, :add_member]
 
   def index
-    if params[:page]
-      @orgas = Orga.page(params[:page][:number]).per(params[:page][:size])
-    else
-      @orgas = Orga.all
-    end
-
-    render json: @orgas
+    present Orga::Operations::Index
+    render json: @model
   end
 
   def create
@@ -24,7 +19,8 @@ class Api::V1::OrgasController < Api::V1::BaseController
   end
 
   def show
-    # render json: @orga
+    present Orga::Operations::Show
+    render json: @model
   end
 
   def update
