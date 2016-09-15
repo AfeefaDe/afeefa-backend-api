@@ -11,29 +11,8 @@ class Api::V1::UsersControllerTest < ActionController::TestCase
     should 'I want to show my user' do
       get :show, params: { id: @user.id }
       assert_response :success
-      expected =
-        {
-          data: {
-            id: '1',
-            type: 'users',
-            attributes: {
-              email: 'rudi@afeefa.de',
-              forename: 'Rudi',
-              surname: 'Dutschke'
-            },
-            relationships: {
-              orgas: {
-                links: {
-                  related: '/api/v1/users/1/orgas'
-                }
-              }
-            },
-            links: {
-              self:'/api/v1/users/1'
-            }
-          }
-        }
-      assert_equal expected.to_json, response.body
+      expected = ActiveModelSerializers::SerializableResource.new(@user, {}).to_json
+      assert_equal expected, response.body
     end
 
   end

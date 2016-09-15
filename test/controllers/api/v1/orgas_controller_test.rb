@@ -264,12 +264,11 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal expected, response.body
     end
 
-    # should 'I want a list of all orgas' do
-    #   @orga2 = create(:another_orga)
-    #   get :index
-    #   expected = ActiveModelSerializers::SerializableResource.new(Orga.all, {}).to_json
-    #   assert_equal expected, response.body
-    # end
+    should 'I want a list of all orgas' do
+      get :index
+      expected = ActiveModelSerializers::SerializableResource.new(Orga.all, {}).to_json
+      assert_equal expected, response.body
+    end
 
     should 'I must not delete some orga' do
       skip 'implement delete'
