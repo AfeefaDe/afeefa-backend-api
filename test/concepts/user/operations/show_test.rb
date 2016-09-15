@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class User::ShowTest < ActiveSupport::TestCase
+class User::Operations::ShowTest < ActiveSupport::TestCase
 
   context 'As user' do
     setup do
@@ -8,7 +8,7 @@ class User::ShowTest < ActiveSupport::TestCase
     end
 
     should 'I want the details of one specific user' do
-      op = User::Show.present({id: @user.id})
+      op = User::Operations::Show.present({id: @user.id})
 
       assert_equal @user.forename, op.model.forename
       assert_equal @user.surname, op.model.surname

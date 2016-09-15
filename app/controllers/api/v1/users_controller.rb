@@ -5,12 +5,12 @@ class Api::V1::UsersController < Api::V1::BaseController
   end
 
   def list_orgas
-    present User::ListOrgas
+    present User::Operations::ListOrgas
     render json: @model
   end
 
   def list_events
-    present User::ListEvents
+    present User::Operations::ListEvents
     render json: @model
   end
 

@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class User::ListEventsTest < ActiveSupport::TestCase
+class User::Operations::ListEventsTest < ActiveSupport::TestCase
 
   context 'As admin' do
     setup do
@@ -9,14 +9,14 @@ class User::ListEventsTest < ActiveSupport::TestCase
     end
 
     should 'I want a list of all my orgas' do
-      op = User::ListEvents.present({current_user: @admin,
+      op = User::Operations::ListEvents.present({current_user: @admin,
                                      id: @admin.id})
       assert_equal @admin.events, op.model
     end
 
     should 'I want a list of all events of a different user' do
       assert_raise CanCan::AccessDenied do
-        User::ListEvents.present({current_user: @admin,
+        User::Operations::ListEvents.present({current_user: @admin,
                                   id: @member.id})
       end
     end

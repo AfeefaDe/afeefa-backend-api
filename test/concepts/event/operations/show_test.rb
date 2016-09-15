@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Event::ShowTest < ActiveSupport::TestCase
+class Event::Operations::ShowTest < ActiveSupport::TestCase
 
   context 'As admin' do
     setup do
@@ -8,7 +8,7 @@ class Event::ShowTest < ActiveSupport::TestCase
     end
 
     should 'I want the details of one specific event' do
-      op = Event::Show.present({id: @event.id})
+      op = Event::Operations::Show.present({id: @event.id})
 
       assert_equal @event.title, op.model.title
       assert_equal @event.description, op.model.description
