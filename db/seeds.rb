@@ -12,9 +12,9 @@ user4 = User.create(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsc
 user5 = User.create(email: 'benny@afeefa.de', forename: 'Benny', surname: 'Thomä', password: 'password4')
 user6 = User.create(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'password5')
 
-orga1 = Orga.create(title: 'Afeefa')
-orga2 = Orga.create(title: 'Dresden für Alle e.V.')
-orga3 = Orga.create(title: 'TU Dresden')
+orga1 = Orga.create(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa')
+orga2 = Orga.create(title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.')
+orga3 = Orga.create(title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden')
 
 
 Role.create(user: user6, orga: orga1, title: Role::ORGA_ADMIN)
@@ -31,3 +31,14 @@ Role.create(user: user4, orga: orga3, title: Role::ORGA_ADMIN)
 Role.create(user: user1, orga: orga3, title: Role::ORGA_MEMBER)
 Role.create(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
 Role.create(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
+
+
+event1 = Event.create(title: 'Big Afeefa-Event')
+event2 = Event.create(title: 'Kuefa im AZ-Conni')
+event3 = Event.create(title: 'Playing Football')
+event4 = Event.create(title: 'Cooking for All')
+
+OwnerThingRelation.create(ownable: event1, thingable: orga1)
+OwnerThingRelation.create(ownable: event2, thingable: user1)
+OwnerThingRelation.create(ownable: event3, thingable: orga2)
+OwnerThingRelation.create(ownable: event4, thingable: user1)
