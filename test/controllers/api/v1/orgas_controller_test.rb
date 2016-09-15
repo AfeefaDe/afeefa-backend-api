@@ -199,7 +199,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     # end
 
     should 'I want to update the data of the orga' do
-      skip 'implement update'
       desc = @orga[:description]
       patch :update, params: {
           id: @orga.id,
@@ -238,7 +237,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     # end
 
     should 'I want to update the data of some orga, I am not member in orga' do
-      skip 'implement update'
       desc = @orga[:description]
       upd = @orga[:updated_at]
       patch :update, params: {

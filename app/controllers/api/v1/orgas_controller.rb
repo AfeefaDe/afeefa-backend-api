@@ -28,6 +28,7 @@ class Api::V1::OrgasController < Api::V1::BaseController
         params.merge(user: current_api_v1_user)
     ) do
       head :no_content
+      return
     end
     head :unprocessable_entity
   end
