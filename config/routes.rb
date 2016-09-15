@@ -8,6 +8,8 @@ Rails.application.routes.draw do
       member do
       end
     end
+
+    resources :users, only: [:show]
   }
 
   namespace :api do
