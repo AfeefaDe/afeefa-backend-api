@@ -28,6 +28,7 @@ class Orga < ApplicationRecord
       end
 
       validates :title, presence: true, length: { minimum: 5 }
+
       # TODO: maybe refactor and write own UniquenessValidator
       validates_uniqueness_of :title
 

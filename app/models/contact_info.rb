@@ -6,7 +6,7 @@ class ContactInfo < ApplicationRecord
   FACEBOOK = 'facebook'
   TWITTER = 'twitter'
   FREE_INFO ='free_info'
-  TYPES = [ PHONE, MAIL, WEB, FACEBOOK, TWITTER, FREE_INFO ]
+  TYPES = [PHONE, MAIL, WEB, FACEBOOK, TWITTER, FREE_INFO]
 
   belongs_to :contactable, polymorphic: true
 

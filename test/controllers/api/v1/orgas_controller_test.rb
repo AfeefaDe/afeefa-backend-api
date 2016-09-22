@@ -14,14 +14,14 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'I want to create a suborga for my orga' do
       Orga::Operations::CreateSubOrga.any_instance.expects(:process).once
       post :create, params: {
-        id: @orga.id,
-        data: {
-          type: 'orga',
-          attributes: {
-            title: 'some title',
-            description: 'some description'
+          id: @orga.id,
+          data: {
+              type: 'orga',
+              attributes: {
+                  title: 'some title',
+                  description: 'some description'
+              }
           }
-        }
       }
       assert_response :created
     end
@@ -30,13 +30,13 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       skip 'implement update'
       Orga::Activate.any_instance.expects(:process).once
       patch :update, params: {
-        id: @orga.id,
-        data: {
-          type: 'orga',
-          attributes: {
-            active: true
+          id: @orga.id,
+          data: {
+              type: 'orga',
+              attributes: {
+                  active: true
+              }
           }
-        }
       }
       assert_response :no_content
     end
@@ -45,15 +45,95 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       skip 'implement update'
       Orga::Activate.any_instance.expects(:process).once
       patch :update, params: {
-        id: @orga.id,
-        data: {
-          type: 'orga',
-          attributes: {
-            active: false
+          id: @orga.id,
+          data: {
+              type: 'orga',
+              attributes: {
+                  active: false
+              }
           }
-        }
       }
       assert_response :no_content
+    end
+
+    should 'I must not create a invalid suborga' do
+      # existing title
+      post :create, params: {
+          data: {
+              attributes: {
+                  parent_id: @orga.id,
+                  title: @orga.title,
+                  description: 'this orga is magnificent'
+              },
+              type: 'orga'
+          }
+      }
+      assert_response :unprocessable_entity
+
+      # too short title
+      post :create, params: {
+          data: {
+              attributes: {
+                  parent_id: @orga.id,
+                  title: '123',
+                  description: 'this orga is very magnificent'
+              },
+              type: 'orga'
+          }
+      }
+      assert_response :unprocessable_entity
+
+      # no parent orga id
+      post :create, params: {
+          data: {
+              attributes: {
+                  title: '12345',
+                  description: 'this orga is quite magnificent'
+              },
+              type: 'orga'
+          }
+      }
+      assert_response :unprocessable_entity
+
+      # no type
+      post :create, params: {
+          data: {
+              attributes: {
+                  title: '12345',
+                  description: 'this orga is quite magnificent'
+              }
+          }
+      }
+      assert_response :unprocessable_entity
+
+      # no attributes
+      post :create, params: {
+          data: {
+              atributes: {},
+              type: 'orga'
+          }
+      }
+      assert_response :bad_request
+
+      # no attribute argument
+      post :create, params: {
+          data: {
+              type: 'orga'
+          }
+      }
+      assert_response :bad_request
+
+      # empty data
+      post :create, params: {
+          data: {}
+      }
+      assert_response :bad_request
+
+      # no data at all
+      post :create, params: {
+
+      }
+      assert_response :bad_request
     end
 
     # should 'I want to create a new member in orga' do
@@ -201,16 +281,16 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'I want to update the data of the orga' do
       desc = @orga[:description]
       patch :update, params: {
-        id: @orga.id,
-        data: {
-          type: 'orga',
           id: @orga.id,
-          attributes: {
-            title: 'newTitle'
+          data: {
+              type: 'orga',
+              id: @orga.id,
+              attributes: {
+                  title: 'newTitle'
+              }
           }
-        }
       }
-      assert_response :success
+      assert_response :no_content
       @orga.reload
       assert_equal @orga[:title], 'newTitle'
       assert_equal @orga[:description], desc
@@ -241,13 +321,13 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       desc = @orga[:description]
       upd = @orga[:updated_at]
       patch :update, params: {
-        id: @orga.id,
-        data: {
-          type: 'orga',
           id: @orga.id,
-          attributes: {
-            title: 'newTitle' }
-        }
+          data: {
+              type: 'orga',
+              id: @orga.id,
+              attributes: {
+                  title: 'newTitle' }
+          }
       }
       assert_response :forbidden
       @orga.reload
@@ -277,5 +357,4 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_response :forbidden
     end
   end
-
 end

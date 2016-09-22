@@ -7,7 +7,7 @@ module Thing
     EDIT_REQUEST = 'edit_request'
     DELETE_REQUEST = 'delete_request'
 
-    STATES = [ NEW, EDIT_REQUEST, DELETE_REQUEST ]
+    STATES = [NEW, EDIT_REQUEST, DELETE_REQUEST]
 
     has_many :owner_thing_relations, as: :ownable
     has_many :users, through: :owner_thing_relations, source: :thingable, source_type: 'User'

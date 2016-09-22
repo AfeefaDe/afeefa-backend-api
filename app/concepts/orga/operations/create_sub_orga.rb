@@ -5,7 +5,9 @@ class Orga < ApplicationRecord
       include Model
       model Orga, :create
 
-      contract Orga::Forms::CreateSubOrgaForm
+      contract Orga::Forms::CreateSubOrgaForm do
+        validates :parent_id, presence: true
+      end
 
       def process(params)
         validate(params[:data][:attributes]) do |new_sub_orga_form|
@@ -19,7 +21,6 @@ class Orga < ApplicationRecord
           parent_orga.sub_orgas << new_sub_orga_form.model
         end
       end
-
     end
   end
 end

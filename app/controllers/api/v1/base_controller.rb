@@ -7,6 +7,7 @@ class Api::V1::BaseController < ApplicationController
   before_action :ensure_host
   before_action :ensure_protocol
   before_action :authenticate_api_v1_user!, except: %i(ping)
+  before_action :ensure_structure
   before_action :ensure_admin_secret, only: %i(test_airbrake)
   before_action :merge_current_user_into_params
 
@@ -60,10 +61,21 @@ class Api::V1::BaseController < ApplicationController
     end
   end
 
+  def ensure_structure
+    unless self.request.request_method == 'GET'
+      if params.has_key? :data and params[:data].has_key? :attributes
+        return true
+      else
+        head :bad_request
+        return false
+      end
+    end
+    true
+  end
+
   private
 
   def merge_current_user_into_params
     params.merge!(current_user: current_api_v1_user)
   end
-
 end

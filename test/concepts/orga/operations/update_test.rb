@@ -25,7 +25,7 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
                         title: new_orga_title,
                         description: new_orga_description
                     },
-                    type: 'Orga'
+                    type: 'orga'
                 }
             }
         )
@@ -49,7 +49,7 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
                       title: orga2.title,
                       description: 'this orga is magnificent'
                   },
-                  type: 'Orga'
+                  type: 'orga'
               }
           }
       )
@@ -65,7 +65,7 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
                       title: '123',
                       description: 'this orga is magnificent'
                   },
-                  type: 'Orga'
+                  type: 'orga'
               }
           }
       )
