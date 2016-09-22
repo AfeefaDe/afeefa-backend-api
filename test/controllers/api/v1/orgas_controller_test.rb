@@ -14,10 +14,10 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'I want to create a suborga for my orga' do
       Orga::Operations::CreateSubOrga.any_instance.expects(:process).once
       post :create, params: {
-          id: @orga.id,
           data: {
               type: 'orga',
               attributes: {
+                  parent_id: @orga.id,
                   title: 'some title',
                   description: 'some description'
               }
@@ -167,14 +167,15 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     #   end
     # end
 
-    # should 'I want to delete my orga' do
-    #   assert_difference('Orga.count', -1) do
-    #     assert_difference('Role.count', -1) do
-    #       delete :destroy, id: @orga.id
-    #     end
-    #   end
-    #   assert_response :no_content
-    # end
+    # todo: not working…
+    should 'I want to delete my orga' do
+      assert_difference('Orga.count', -1) do
+        assert_difference('Role.count', -1) do
+          delete :destroy, id: @orga.id
+        end
+      end
+      assert_response :no_content
+    end
 
     # context 'interacting with a member' do
     #   setup do
@@ -317,7 +318,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     #   assert_response :forbidden
     # end
 
-    should 'I want to update the data of some orga, I am not member in orga' do
+    should 'I may not update the data of some orga, I am not member in orga' do
       desc = @orga[:description]
       upd = @orga[:updated_at]
       patch :update, params: {
@@ -350,7 +351,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'I must not delete some orga' do
-      skip 'implement delete'
       assert_no_difference 'Orga.count' do
         delete :destroy, params: { id: @orga.id }
       end

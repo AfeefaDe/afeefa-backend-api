@@ -15,6 +15,8 @@ class Orga < ApplicationRecord
         # move sub_orgas to parent_orga
         move_sub_orgas_to_new_parent(parent_orga, sub_orgas)
 
+        # todo: handle case: What if a user only was in this orga?
+
         orga.reload
         orga.destroy!
       end

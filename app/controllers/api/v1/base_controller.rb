@@ -62,7 +62,7 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def ensure_structure
-    unless self.request.request_method == 'GET'
+    unless %w(GET DELETE).include? self.request.request_method
       if params.has_key? :data and params[:data].has_key? :attributes
         return true
       else
