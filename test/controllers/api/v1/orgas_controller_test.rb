@@ -171,7 +171,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'I want to delete my orga' do
       assert_difference('Orga.count', -1) do
         assert_difference('Role.count', -1) do
-          delete :destroy, id: @orga.id
+          process :destroy, methode: :delete, params: { id: @orga.id }
         end
       end
       assert_response :no_content
@@ -300,7 +300,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'I must not delete my orga' do
       skip 'implement delete'
       assert_no_difference 'Orga.count' do
-        delete :destroy, params: { id: @orga.id }
+        process :destroy, methode: :delete, params: { id: @orga.id }
       end
       assert_response :forbidden
     end
@@ -352,7 +352,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
     should 'I must not delete some orga' do
       assert_no_difference 'Orga.count' do
-        delete :destroy, params: { id: @orga.id }
+        process :destroy, methode: :delete, params: { id: @orga.id }
       end
       assert_response :forbidden
     end

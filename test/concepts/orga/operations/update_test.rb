@@ -21,6 +21,7 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
                 id: @orga.id,
                 current_user: @admin,
                 data: {
+                    id: @orga.id,
                     attributes: {
                         title: new_orga_title,
                         description: new_orga_description
@@ -45,6 +46,7 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
               id: @orga.id,
               current_user: @admin,
               data: {
+                  id: @orga.id,
                   attributes: {
                       title: orga2.title,
                       description: 'this orga is magnificent'
@@ -58,9 +60,10 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
 
       response, operation = Orga::Operations::Update.run(
           {
-              id: @orga.id,
               current_user: @admin,
+              id: @orga.id,
               data: {
+                  id: @orga.id,
                   attributes: {
                       title: '123',
                       description: 'this orga is magnificent'

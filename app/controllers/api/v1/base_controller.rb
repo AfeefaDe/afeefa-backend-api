@@ -76,6 +76,6 @@ class Api::V1::BaseController < ApplicationController
   private
 
   def merge_current_user_into_params
-    params.merge!(current_user: current_api_v1_user)
+    @_params = params.merge(current_user: current_api_v1_user)
   end
 end
