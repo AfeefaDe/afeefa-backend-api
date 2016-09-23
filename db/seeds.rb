@@ -33,10 +33,10 @@ Role.create(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
 Role.create(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
 
 
-event1 = Event.create(title: 'Big Afeefa-Event')
-event2 = Event.create(title: 'Kuefa im AZ-Conni')
-event3 = Event.create(title: 'Playing Football')
-event4 = Event.create(title: 'Cooking for All')
+event1 = Event.create(title: 'Big Afeefa-Event', description: 'Eine Beschreibung Big Afeefa-Event')
+event2 = Event.create(title: 'Kuefa im AZ-Conni', description: 'Eine Beschreibung Kuefa im AZ-Conni')
+event3 = Event.create(title: 'Playing Football', description: 'Eine Beschreibung Playing Football')
+event4 = Event.create(title: 'Cooking for All', description: 'Eine Beschreibung Cooking for All')
 
 OwnerThingRelation.create(ownable: event1, thingable: orga1)
 OwnerThingRelation.create(ownable: event2, thingable: user1)
