@@ -6,7 +6,7 @@ class Api::V1::BaseController < ApplicationController
 
   before_action :ensure_host
   before_action :ensure_protocol
-  before_action :authenticate_api_v1_user!, except: %i(ping)
+  before_action :authenticate_api_v1_user!
   before_action :ensure_structure
   before_action :ensure_admin_secret, only: %i(test_airbrake)
   before_action :merge_current_user_into_params

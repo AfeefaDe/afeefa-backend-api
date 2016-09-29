@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'to_dos/show'
+
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   routes = lambda {
@@ -17,6 +19,9 @@ Rails.application.routes.draw do
     end
 
     resources :events, only: [:create, :show, :index]
+
+    get '/todos', to: 'todos#index'
+
   }
 
   namespace :api do

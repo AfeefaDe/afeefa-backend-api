@@ -5,7 +5,7 @@ class Orga < ApplicationRecord
       property :title
       property :description
       property :active
-      property :parent_id
+      property :parent_id, validates: { presence: true }
       property :category_ids
 
       collection :contact_infos do
