@@ -10,7 +10,7 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
       @orga = @admin.orgas.first
     end
 
-    should 'I want to update a new suborga for my orga' do
+    should 'I may not trigger any  update operation without meta tag' do
       new_orga_title = 'special new title'
       new_orga_description = 'new description'
 
@@ -30,21 +30,25 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
                 }
             }
         )
-        assert(response)
-        assert_instance_of(Orga, operation.model)
-        assert_equal @orga.reload, operation.model
-        assert_equal new_orga_title, @orga.title
-        assert_equal new_orga_description, @orga.description
+        assert_not(response)
+        # assert_instance_of(Orga, operation.model)
+        # assert_equal @orga.reload, operation.model
+        # assert_equal new_orga_title, @orga.title
+        # assert_equal new_orga_description, @orga.description
       end
     end
 
     should 'I must not update a invalid suborga' do
       assert orga2 = Orga.second
 
+      # title already taken
       response, operation = Orga::Operations::Update.run(
           {
               id: @orga.id,
               current_user: @admin,
+              meta: {
+                  trigger_operation: 'update-data'
+              },
               data: {
                   id: @orga.id,
                   attributes: {
@@ -58,10 +62,14 @@ class Orga::Operations::UpdateTest < ActiveSupport::TestCase
       assert_not(response)
       assert_equal ['has already been taken'], operation.errors[:title]
 
+      # title too short
       response, operation = Orga::Operations::Update.run(
           {
-              current_user: @admin,
               id: @orga.id,
+              current_user: @admin,
+              meta: {
+                  trigger_operation: 'update-data'
+              },
               data: {
                   id: @orga.id,
                   attributes: {
