@@ -3,11 +3,11 @@ module Thing
   extend ActiveSupport::Concern
 
   included do
-    NEW = 'new'
-    EDIT_REQUEST = 'edit_request'
-    DELETE_REQUEST = 'delete_request'
+    STATE_NEW = 'new' # to be approved
+    STATE_EDIT_REQUEST = 'edit_request'
+    STATE_DELETE_REQUEST = 'delete_request'
 
-    STATES = [NEW, EDIT_REQUEST, DELETE_REQUEST]
+    TODO_STATES = [STATE_NEW, STATE_EDIT_REQUEST, STATE_DELETE_REQUEST]
 
     has_many :owner_thing_relations, as: :ownable
     has_many :users, through: :owner_thing_relations, source: :thingable, source_type: 'User'
