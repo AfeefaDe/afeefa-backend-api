@@ -5,7 +5,18 @@ class Todo < ApplicationRecord
       def model!(params)
         orgas = Orga.where(state: Thing::TODO_STATES)
         events = Event.where(state: Thing::TODO_STATES)
-        {orgas: orgas, events: events}
+        result = {
+            attributes: {},
+            relationships: {
+                orgas: {
+                    data: orgas
+                },
+                events: {
+                    data: events
+                }
+            }
+        }
+        result
       end
     end
   end
