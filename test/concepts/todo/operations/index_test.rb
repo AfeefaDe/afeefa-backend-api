@@ -10,7 +10,7 @@ class Todo::Operations::IndexTest < ActiveSupport::TestCase
     end
 
     should 'I want a list my todos' do
-      another_event = Event.first
+      another_event = Event.where(state: Thing::STATE_ACTIVE).first
 
       @orga.events << Event.create(title: 'blubb')
       event = @orga.reload.events.last
