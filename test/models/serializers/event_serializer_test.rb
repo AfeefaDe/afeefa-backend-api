@@ -13,7 +13,7 @@ class EventSerializerTest < ActiveSupport::TestCase
         :title, :description, :created_at, :updated_at
     ].each do |attr|
       assert_equal(
-          e.send(attr.to_s), hash[:data][:attributes][attr.to_s.gsub('_', '-')],
+          e.send(attr.to_s), hash[:data][:attributes][attr.to_s],
           "mapping failed for attribute #{attr}"
       )
     end
