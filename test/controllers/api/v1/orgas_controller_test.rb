@@ -26,6 +26,29 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_response :created
     end
 
+    should 'I want to update the structure of the orga' do
+      new_parent_orga = Orga.last
+      desc = @orga[:description]
+      patch :update, params: {
+          id: @orga.id,
+          meta: {
+              trigger_operation: 'update_structure'
+          },
+          data: {
+              type: 'orga',
+              id: @orga.id,
+              attributes: {
+                  title: 'newTitle',
+                  parent_id: new_parent_orga.id
+              }
+          }
+      }
+      assert_response :no_content
+      @orga.reload
+      assert_equal @orga[:title], 'newTitle'
+      assert_equal @orga[:description], desc
+    end
+
     should 'I want to activate my orga' do
       skip 'implement update'
       Orga::Activate.any_instance.expects(:process).once
@@ -283,6 +306,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       desc = @orga[:description]
       patch :update, params: {
           id: @orga.id,
+          meta: {
+              trigger_operation: 'update_data'
+          },
           data: {
               type: 'orga',
               id: @orga.id,
@@ -295,6 +321,38 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       @orga.reload
       assert_equal @orga[:title], 'newTitle'
       assert_equal @orga[:description], desc
+    end
+
+    should 'I may not update the structure of the orga' do
+      patch :update, params: {
+          id: @orga.id,
+          meta: {
+              trigger_operation: 'update_all'
+          },
+          data: {
+              type: 'orga',
+              id: @orga.id,
+              attributes: {
+                  title: 'newTitle'
+              }
+          }
+      }
+      assert_response :forbidden
+
+      patch :update, params: {
+          id: @orga.id,
+          meta: {
+              trigger_operation: 'update_structure'
+          },
+          data: {
+              type: 'orga',
+              id: @orga.id,
+              attributes: {
+                  title: 'newTitle'
+              }
+          }
+      }
+      assert_response :forbidden
     end
 
     should 'I must not delete my orga' do
@@ -323,6 +381,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       upd = @orga[:updated_at]
       patch :update, params: {
           id: @orga.id,
+          meta: {
+              trigger_operation: 'update_data'
+          },
           data: {
               type: 'orga',
               id: @orga.id,

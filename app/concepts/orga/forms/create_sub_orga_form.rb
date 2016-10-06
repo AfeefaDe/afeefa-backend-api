@@ -2,6 +2,8 @@ class Orga < ApplicationRecord
   module Forms
     class CreateSubOrgaForm < Reform::Form
 
+      # property :current_user, virtual: true, populate_if_empty:
+
       property :title
       property :description
       property :active

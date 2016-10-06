@@ -13,7 +13,7 @@ class OrgaSerializerTest < ActiveSupport::TestCase
         :title, :description, :created_at, :updated_at
     ].each do |attr|
       assert_equal(
-          orga.send(attr.to_s), hash[:data][:attributes][attr.to_s.gsub('_', '-')],
+          orga.send(attr.to_s), hash[:data][:attributes][attr.to_s],
           "mapping failed for attribute #{attr}"
       )
     end
