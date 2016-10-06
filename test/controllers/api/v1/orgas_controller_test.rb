@@ -327,7 +327,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               type: 'orga',
               id: @orga.id,
               attributes: {
-                  title: 'newTitle' }
+                  title: 'newTitle'
+              }
           }
       }
       assert_response :forbidden
