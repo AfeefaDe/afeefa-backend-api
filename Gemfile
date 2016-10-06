@@ -34,7 +34,7 @@ gem 'puma', '~> 3.0'
 # user authentication
 gem 'devise' # see https://github.com/plataformatec/devise
 # api authentication stuff
-gem 'devise_token_auth'
+gem 'devise_token_auth' # https://github.com/lynndylanhurley/devise_token_auth
 
 # roll and right management
 gem 'cancancan', '~> 1.10' # see https://github.com/CanCanCommunity/cancancan
