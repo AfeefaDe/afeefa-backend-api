@@ -58,4 +58,9 @@ class Api::V1::OrgasController < Api::V1::BaseController
     end
     head :unprocessable_entity
   end
+
+  def list_users
+    present Orga::Operations::ListUsers
+    render json: @model
+  end
 end

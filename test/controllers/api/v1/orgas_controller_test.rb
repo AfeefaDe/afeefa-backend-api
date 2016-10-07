@@ -362,6 +362,13 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
       assert_response :forbidden
     end
+
+    should 'I want a list of all users of my orgas' do
+      get :list_users, params: { id: @orga.id }
+      assert_response :ok
+      expected = ActiveModelSerializers::SerializableResource.new(@orga.users, {}).to_json
+      assert_equal expected, response.body
+    end
   end
 
   context 'As user' do
