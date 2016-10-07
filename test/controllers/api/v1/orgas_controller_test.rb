@@ -303,7 +303,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     # end
 
     should 'I want to update the data of the orga' do
-      desc = @orga[:description]
+      desc = @orga.description
+      title = @orga.title+'abc123'
       patch :update, params: {
           id: @orga.id,
           meta: {
@@ -313,14 +314,14 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               type: 'orga',
               id: @orga.id,
               attributes: {
-                  title: 'newTitle'
+                  title: title
               }
           }
       }
       assert_response :no_content
       @orga.reload
-      assert_equal @orga[:title], 'newTitle'
-      assert_equal @orga[:description], desc
+      assert_equal @orga.title, title
+      assert_equal @orga.description, desc
     end
 
     should 'I may not update the structure of the orga' do

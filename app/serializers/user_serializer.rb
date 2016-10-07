@@ -1,8 +1,6 @@
 class UserSerializer < BaseSerializer
 
-  attribute 'email'
-  attribute 'forename'
-  attribute 'surname'
+  attributes :email, :forename, :surname
 
   has_many :orgas do
     link :related, "/api/v1/users/#{object.id}/orgas"

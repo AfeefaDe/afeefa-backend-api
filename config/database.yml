@@ -19,5 +19,5 @@ test:
 production:
   <<: *default
   username: afeefa
-  password: ThisIsAEvenStrongerPassword456!!
+  password: ThisIsAStrongPassword123!
   database: afeefa_production

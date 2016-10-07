@@ -13,7 +13,7 @@ class UserSerializerTest < ActiveSupport::TestCase
         :email, :forename, :surname
     ].each do |attr|
       assert_equal(
-          user.send(attr.to_s), hash[:data][:attributes][attr.to_s.gsub('_', '-')],
+          user.send(attr.to_s), hash[:data][:attributes][attr],
           "mapping failed for attribute #{attr}"
       )
     end

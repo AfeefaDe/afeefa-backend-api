@@ -1,9 +1,9 @@
 class OrgaSerializer < BaseSerializer
 
-  attribute 'title'
-  attribute 'description'
-  attribute 'created_at'
-  attribute 'updated_at'
+  attributes :title, :description, :created_at, :updated_at
+
+  belongs_to :parent, class_name: 'Orga'
+  has_many :children, clas_name: 'Orga'
 
   has_many :users do
     link :related, "/api/v1/orgas/#{object.id}/users"
