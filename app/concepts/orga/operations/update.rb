@@ -15,12 +15,7 @@ class Orga < ApplicationRecord
       end
     end
 
-    class UpdateStrucure < Trailblazer::Operation
-      include Model
-      model Orga, :find
-
-      contract Orga::Forms::UpdateForm
-
+    class UpdateStrucure < UpdateData
       def process(params)
         validate(params[:data][:attributes]) do |orga_form|
           current_user = params[:current_user]
@@ -30,11 +25,7 @@ class Orga < ApplicationRecord
       end
     end
 
-    class UpdateAll < Trailblazer::Operation
-      include Model
-      model Orga, :find
-
-      contract Orga::Forms::UpdateForm
+    class UpdateAll < UpdateData
       def process(params)
         validate(params[:data][:attributes]) do |orga_form|
           current_user = params[:current_user]
