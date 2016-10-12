@@ -14,6 +14,18 @@ class Orga < ApplicationRecord
 
   has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
+  validates :title, presence: true, length: { minimum: 5 }
+  # TODO: maybe refactor and write own UniquenessValidator
+  validates_uniqueness_of :title
+  validates_presence_of :parent_id
+
+  def move_sub_orgas_to_new_parent(parent_orga, sub_orgas)
+    sub_orgas.each do |sub_orga|
+      sub_orga.parent_orga = parent_orga
+      sub_orga.save
+    end
+  end
+
   # before_destroy :move_sub_orgas_to_parent, prepend: true
 
   # def add_new_member(new_member:, admin:)

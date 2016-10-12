@@ -7,9 +7,13 @@ class Api::V1::BaseController < ApplicationController
   before_action :ensure_host
   before_action :ensure_protocol
   before_action :authenticate_api_v1_user!
-  before_action :ensure_structure
+  #before_action :ensure_structure
   before_action :ensure_admin_secret, only: %i(test_airbrake)
   before_action :merge_current_user_into_params
+# before_action do
+#     @_request.headers['Content-Type'] = JSONAPI::MEDIA_TYPE
+#   end
+  include JSONAPI::ActsAsResourceController
 
   rescue_from CanCan::AccessDenied do |exception|
     Rails.logger.debug "AccessDenied-Exception, message: #{exception.message}, from: #{exception.action}"

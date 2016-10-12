@@ -24,10 +24,6 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 2.0)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active_model_serializers (0.10.0)
-      actionpack (>= 4.0)
-      activemodel (>= 4.0)
-      railties (>= 4.0)
     activejob (5.0.0.1)
       activesupport (= 5.0.0.1)
       globalid (>= 0.3.6)
@@ -122,6 +118,9 @@ GEM
     ice_nine (0.11.2)
     inflecto (0.0.2)
     json (2.0.2)
+    jsonapi-resources (0.8.1)
+      concurrent-ruby
+      rails (>= 4.0)
     kaminari (0.17.0)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
@@ -267,7 +266,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  active_model_serializers
   acts_as_tree (~> 2.4)
   airbrake (~> 5.4)
   bullet
@@ -278,6 +276,7 @@ DEPENDENCIES
   devise
   devise_token_auth
   dry-validation
+  jsonapi-resources
   kaminari
   listen (~> 3.0.5)
   minitest-rails

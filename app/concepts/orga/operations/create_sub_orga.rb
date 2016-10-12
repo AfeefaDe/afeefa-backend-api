@@ -5,16 +5,12 @@ class Orga < ApplicationRecord
       include Model
       model Orga, :create
 
-      contract Orga::Forms::CreateSubOrgaForm do
-        validates :parent_id, presence: true
-      end
+      contract Orga::Forms::CreateSubOrgaForm
 
       def process(params)
-        validate(params[:data][:attributes]) do |new_sub_orga_form|
+        validate(params[:data][:attributes].merge(parent_id: params[:data][:relationships][])) do |new_sub_orga_form|
           current_user = params[:current_user]
           parent_orga = Orga.find(params[:data][:attributes][:parent_id])
-          params
-          current_user
           current_user.can! :write_orga_structure, parent_orga, 'You are not authorized to modify the structure of this organization!'
           new_sub_orga_form.save
           Role.create!(user: current_user, orga: new_sub_orga_form.model, title: Role::ORGA_ADMIN)

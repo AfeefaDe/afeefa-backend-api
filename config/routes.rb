@@ -24,12 +24,16 @@ Rails.application.routes.draw do
 
   }
 
-  namespace :api do
+  scope format: false, defaults: { format: :json } do
+    namespace :api do
+      namespace :v1 do
+        #routes.call
+        mount_devise_token_auth_for 'User', at: 'users'
 
-    namespace :v1 do
-      routes.call
+        jsonapi_resources :orgas
+        jsonapi_resources :users
+      end
     end
-
   end
 
 end

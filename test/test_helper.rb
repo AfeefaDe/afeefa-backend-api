@@ -56,6 +56,11 @@ class ActiveSupport::TestCase
 end
 
 class ActionController::TestCase
+
+  setup do
+    request.class.any_instance.stubs(:content_type).returns(JSONAPI::MEDIA_TYPE)
+  end
+
   private
 
   def stub_current_user(user:)

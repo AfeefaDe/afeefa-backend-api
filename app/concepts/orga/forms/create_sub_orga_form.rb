@@ -2,10 +2,14 @@ class Orga < ApplicationRecord
   module Forms
     class CreateSubOrgaForm < Reform::Form
 
+      collection :relationships, virtual: true do
+        parent
+      end
+
       property :title
       property :description
       property :active
-      property :parent_id
+      # property :parent_id
       property :category_ids
 
       collection :contact_infos do
