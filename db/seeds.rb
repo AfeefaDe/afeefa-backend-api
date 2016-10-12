@@ -41,13 +41,13 @@ Role.create(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
 Role.create(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
 
 
-event1 = Event.create(title: 'Big Afeefa-Event', state: 'new')
+event1 = Event.create(title: 'Big Afeefa-Event', description: 'Super awesome Afeefa Event', state: 'new')
 event2 = Event.create(title: 'Kuefa im AZ-Conni', state: 'new')
-event3 = Event.create(title: 'Playing Football')
+event3 = Event.create(title: 'Playing Football', description: 'Macht Spaß')
 event4 = Event.create(title: 'Cooking for All', state: 'delete_request')
-event5 = Event.create(title: 'Sommerfest', parent_id: orga4.id, state: 'new')
+event5 = Event.create(title: 'Sommerfest', parent_id: orga4.id, description: 'Mit ganz viel Kuchen', state: 'new')
 event6 = Event.create(title: 'Deutschkurs', parent_id: orga5.id, state: 'edit_request')
-event7 = Event.create(title: 'Kulturtreff', parent_id: orga5.id, state: 'new')
+event7 = Event.create(title: 'Kulturtreff', parent_id: orga5.id, description: 'Treffen für alle Interessierten', state: 'new')
 event8 = Event.create(title: 'Offenes Netzwerktreffen Dresden für Alle', parent_id: orga2.id)
 
 OwnerThingRelation.create(ownable: event1, thingable: orga1)
