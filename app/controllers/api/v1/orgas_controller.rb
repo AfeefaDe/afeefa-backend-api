@@ -40,7 +40,7 @@ class Api::V1::OrgasController < Api::V1::BaseController
             return
           end
         when UPDATE_STRUCTURE
-          Orga::Operations::UpdateStrucure.run(params) do
+          Orga::Operations::UpdateStructure.run(params) do
             head :no_content
             return
           end

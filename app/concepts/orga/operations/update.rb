@@ -15,7 +15,7 @@ class Orga < ApplicationRecord
       end
     end
 
-    class UpdateStrucure < UpdateData
+    class UpdateStructure < UpdateData
       def process(params)
         validate(params[:data][:attributes]) do |orga_form|
           current_user = params[:current_user]
