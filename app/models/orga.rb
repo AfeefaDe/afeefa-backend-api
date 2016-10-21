@@ -26,7 +26,7 @@ class Orga < ApplicationRecord
     end
   end
 
-  # before_destroy :move_sub_orgas_to_parent, prepend: true
+  before_destroy :move_sub_orgas_to_parent, prepend: true
 
   # def add_new_member(new_member:, admin:)
   #   admin.can! :write_orga_structure, self, 'You are not authorized to modify the user list of this organization!'
@@ -53,12 +53,12 @@ class Orga < ApplicationRecord
   #   self.update(active: active)
   # end
 
-  # def move_sub_orgas_to_parent
-  #   sub_orgas.each do |suborga|
-  #      suborga.parent_orga = parent_orga
-  #      suborga.save!
-  #   end
-  #   self.reload
-  # end
+  def move_sub_orgas_to_parent
+    sub_orgas.each do |suborga|
+       suborga.parent_orga = parent_orga
+       suborga.save!
+    end
+    self.reload
+  end
 
 end

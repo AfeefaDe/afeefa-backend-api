@@ -37,7 +37,7 @@ gem 'devise' # see https://github.com/plataformatec/devise
 gem 'devise_token_auth' # https://github.com/lynndylanhurley/devise_token_auth
 
 # roll and right management
-gem 'cancancan', '~> 1.10' # see https://github.com/CanCanCommunity/cancancan
+# gem 'cancancan', '~> 1.10' # see https://github.com/CanCanCommunity/cancancan
 
 # image attachments
 # gem 'paperclip', '~> 4.3' # see https://github.com/thoughtbot/paperclip
@@ -56,15 +56,15 @@ gem 'jsonapi-resources'
 gem 'acts_as_tree', '~> 2.4'
 
 # pagination
-gem 'kaminari'
+# gem 'kaminari'
 
 # trailblazer architecture (operations)
-gem 'trailblazer-rails'
+# gem 'trailblazer-rails'
 # reform validation engine (used in reform included as contract in operations of trailblazer)
-gem 'dry-validation'
+# gem 'dry-validation'
 
 # redmine integration
-gem 'airbrake', '~> 5.4'
+# gem 'airbrake', '~> 5.4'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
