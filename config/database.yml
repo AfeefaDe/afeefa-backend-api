@@ -8,7 +8,7 @@ development:
   <<: *default
   username: afeefa
   password: ThisIsAStrongPassword123!
-  database: afeefa_development
+  database: afeefa_dev
 
 test:
   adapter: sqlite3
