@@ -29,7 +29,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               }
           }
       }
-      assert_response :created
+      assert_response :created, response.body
     end
 
     should 'I want to update the structure of the orga' do
@@ -73,7 +73,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               }
           }
       }
-      assert_response :no_content
+      assert_response :no_content, response.body
     end
 
     should 'I want to deactivate my orga' do
@@ -88,11 +88,10 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               }
           }
       }
-      assert_response :no_content
+      assert_response :no_content, response.body
     end
 
-    should 'I must not create a invalid suborga' do
-      # existing title
+    should 'I must not create a invalid suborga with existing title' do
       post :create, params: {
           data: {
               attributes: {
@@ -111,7 +110,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       }
       assert_response :unprocessable_entity, response.body
 
-      # too short title
+    end
+
+    should 'I must not create a invalid suborga with too short title' do
       post :create, params: {
           data: {
               attributes: {
@@ -128,9 +129,11 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               type: 'orgas'
           }
       }
-      assert_response :unprocessable_entity
+      assert_response :unprocessable_entity, response.body
 
-      # no parent orga
+    end
+
+    should 'I must not create a invalid suborga with no parent orga' do
       post :create, params: {
           data: {
               attributes: {
@@ -140,9 +143,11 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               type: 'orgas'
           }
       }
-      assert_response :unprocessable_entity
+      assert_response :unprocessable_entity, response.body
 
-      # no type
+    end
+
+    should 'I must not create a invalid suborga with no type' do
       post :create, params: {
           data: {
               attributes: {
@@ -153,34 +158,42 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       }
       assert_response :bad_request, response.body
 
-      # no attributes
+    end
+
+    should 'I must not create a invalid suborga with no attributes' do
       post :create, params: {
           data: {
               atributes: {},
               type: 'orgas'
           }
       }
-      assert_response :unprocessable_entity
+      assert_response :unprocessable_entity, response.body
 
-      # no attribute argument
+    end
+
+    should 'I must not create a invalid suborga with no attribute argument' do
       post :create, params: {
           data: {
               type: 'orgas'
           }
       }
-      assert_response :bad_request
+      assert_response :bad_request, response.body
 
-      # empty data
+    end
+
+    should 'I must not create a invalid suborga with empty data' do
       post :create, params: {
           data: {}
       }
-      assert_response :bad_request
+      assert_response :bad_request, response.body
 
-      # no data at all
+    end
+
+    should 'I must not create a invalid suborga with no data at all' do
       post :create, params: {
 
       }
-      assert_response :bad_request
+      assert_response :bad_request, response.body
     end
 
     # should 'I want to create a new member in orga' do

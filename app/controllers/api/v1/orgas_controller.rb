@@ -15,19 +15,17 @@ class Api::V1::OrgasController < Api::V1::BaseController
   def validate_right_read
     orga = Orga.find(params[:id])
     can_read(orga)
-    true
   end
 
   def validate_right_write_data
     orga = Orga.find(params[:id])
     can_write_data(orga)
-    true
   end
 
   def validate_right_write_structure
     orga = Orga.find(params[:id])
     can_write_structure(orga)
-    true
+    false
   end
 
   def can_read(orga)
