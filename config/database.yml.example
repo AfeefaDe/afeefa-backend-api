@@ -7,8 +7,8 @@ default: &default
 development:
   <<: *default
   username: afeefa
-  password: ThisIsAStrongPassword123!
-  database: afeefa_dev
+  password:
+  database: afeefa_development
 
 test:
   adapter: sqlite3
@@ -19,5 +19,5 @@ test:
 production:
   <<: *default
   username: afeefa
-  password: ThisIsAStrongPassword123!
+  password:
   database: afeefa_production
