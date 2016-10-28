@@ -1,14 +1,6 @@
 class Todo
   include ActiveModel::Model
 
-  def self.all
-    [new]
-  end
-
-  def self.where
-    []
-  end
-
   def id
     1
   end

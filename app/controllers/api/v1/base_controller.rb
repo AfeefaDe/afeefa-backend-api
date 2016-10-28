@@ -21,6 +21,8 @@ class Api::V1::BaseController < ApplicationController
   on_server_error do |error|
     # do custom code or debugging here
     # binding.pry
+    # pp error
+    # pp error.backtrace
   end
 
   def context

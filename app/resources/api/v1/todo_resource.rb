@@ -7,7 +7,7 @@ class Api::V1::TodoResource < Api::V1::BaseResource
   has_many :events
 
   def self.records(options = {})
-    [Todo.new]
+    TodoList.new
   end
 
   def self.apply_filter(records, filter, value, options)
