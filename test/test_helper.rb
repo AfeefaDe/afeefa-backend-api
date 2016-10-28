@@ -38,7 +38,7 @@ class ActiveSupport::TestCase
   end
 
   def valid_user
-    User.create(
+    User.create!(
       email: "foo#{rand(0..1000)}@afeefa.de",
       forename: 'Max',
       surname: 'Mustermann',
@@ -48,7 +48,7 @@ class ActiveSupport::TestCase
   end
 
   def event
-    Event.create(
+    Event.create!(
       title: 'TestEvent',
       description: 'Description of TestEvent'
     )
