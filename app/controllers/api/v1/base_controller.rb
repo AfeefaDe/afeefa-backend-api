@@ -6,7 +6,7 @@ class Api::V1::BaseController < ApplicationController
 
   before_action :ensure_host
   before_action :ensure_protocol
-  before_action :authenticate_api_v1_user!
+  # before_action :authenticate_api_v1_user!
 
   include JSONAPI::ActsAsResourceController
 
@@ -16,6 +16,11 @@ class Api::V1::BaseController < ApplicationController
 
   rescue_from ActiveRecord::RecordInvalid do
     head :unprocessable_entity
+  end
+
+  on_server_error do |error|
+    # do custom code or debugging here
+    # binding.pry
   end
 
   def context

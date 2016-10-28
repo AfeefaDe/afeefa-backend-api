@@ -68,7 +68,10 @@ gem 'acts_as_tree', '~> 2.4'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platform: :mri
+  # gem 'byebug', platform: :mri
+  gem 'pry'
+  gem 'pry-rails'
+  gem 'pry-byebug'
 
   # test framework
   gem 'minitest-rails'
