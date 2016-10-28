@@ -22,7 +22,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Hash, json['data']
     end
 
-    should 'get show related orgas' do
+    should 'get orga relation' do
       get :show_relationship, params: { todo_id: 1, relationship: 'orgas' }
       assert_response :ok
       json = JSON.parse(response.body)
@@ -37,6 +37,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal 1, json['data'].size
+      # only the relation, no attributes
+      assert_not json['data'].first.has_key?('attributes')
     end
 
   end
