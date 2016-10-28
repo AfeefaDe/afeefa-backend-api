@@ -3,9 +3,9 @@ class Orga < ApplicationRecord
 
   acts_as_tree(dependent: :restrict_with_exception)
   alias_method :sub_orgas, :children
+  alias_method :sub_orgas=, :children=
   alias_method :parent_orga, :parent
   alias_method :parent_orga=, :parent=
-  alias_method :sub_orgas=, :children=
 
   has_many :roles, dependent: :destroy
   has_many :users, through: :roles
