@@ -37,6 +37,25 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_kind_of Hash, json['data']
     end
 
+    should 'get related sub orgas' do
+      orga0 = Orga.new(title: 'Oberoberorga', description: 'Nothing goes above')
+      orga0.save(validate: false)
+
+      get :show_relationship, params: { orga_id: orga0.id, relationship: 'sub_orgas' }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 0, json['data'].count
+
+      orga1 = Orga.create(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', parent_orga: orga0)
+
+      get :show_relationship, params: { orga_id: orga0.id, relationship: 'sub_orgas' }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].count
+    end
+
   end
 
 end
