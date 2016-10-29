@@ -5,6 +5,8 @@ class CreateContactInfos < ActiveRecord::Migration
       t.string :content
 
       t.references :contactable, polymorphic: true, index: true
+
+      t.timestamps null: false
     end
   end
 end
