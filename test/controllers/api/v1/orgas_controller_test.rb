@@ -4,7 +4,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
   context 'as authorized user' do
     setup do
-      stub_current_user(user: User.first)
+      stub_current_user
     end
 
     should 'get index' do

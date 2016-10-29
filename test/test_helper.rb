@@ -29,13 +29,13 @@ class ActiveSupport::TestCase
   # TODO: uncomment this if you want to use factory girl
   # include FactoryGirl::Syntax::Methods
 
-  def admin
-    Role.where(title: Role::ORGA_ADMIN).first.user
-  end
+  # def admin
+  #   Role.where(title: Role::ORGA_ADMIN).first.user
+  # end
 
-  def member
-    Role.where(title: Role::ORGA_MEMBER).first.user
-  end
+  # def member
+  #   Role.where(title: Role::ORGA_MEMBER).first.user
+  # end
 
   def valid_user
     User.create!(
@@ -47,12 +47,12 @@ class ActiveSupport::TestCase
     )
   end
 
-  def event
-    Event.create!(
-      title: 'TestEvent',
-      description: 'Description of TestEvent'
-    )
-  end
+  # def event
+  #   Event.create!(
+  #     title: 'TestEvent',
+  #     description: 'Description of TestEvent'
+  #   )
+  # end
 end
 
 class ActionController::TestCase
@@ -63,7 +63,7 @@ class ActionController::TestCase
 
   private
 
-  def stub_current_user(user:)
+  def stub_current_user(user: valid_user)
     @controller.class.any_instance.stubs(:set_user_by_token).returns(user)
   end
 
