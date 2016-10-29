@@ -55,6 +55,9 @@ gem 'jsonapi-resources'
 # tree relatiions (e.g. orga-suborga)
 gem 'acts_as_tree', '~> 2.4'
 
+# state machine
+gem 'aasm'
+
 # pagination
 # gem 'kaminari'
 

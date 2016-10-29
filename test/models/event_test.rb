@@ -1,0 +1,37 @@
+require 'test_helper'
+
+class EventTest < ActiveSupport::TestCase
+
+  should 'set initial state for event' do
+    assert Event.new.inactive?
+    assert_equal StateMachine::INACTIVE, Event.new.state.to_sym
+  end
+
+  should 'create event' do
+    assert_difference 'Event.count' do
+      user = valid_user
+      event = Event.new(creator: user)
+      assert event.save, event.errors.full_messages
+      assert_equal user, event.creator
+      assert_nil event.parent_event
+      assert_empty event.sub_events
+    end
+  end
+
+  should 'have contact_informations' do
+    event = Event.new(creator: valid_user)
+    assert event.contact_infos.blank?
+    assert contact_info = ContactInfo.create(contactable: event), contact_info.errors
+    assert_includes event.reload.contact_infos, contact_info
+  end
+
+  should 'have categories' do
+    event = Event.new(creator: valid_user)
+    assert event.categories.blank?
+    assert category = Category.new(title: 'irgendeine komische Kategorie')
+    category.events << event
+    assert category.save, category.errors.full_messages
+    assert_includes event.reload.categories.reload, category
+  end
+
+end
