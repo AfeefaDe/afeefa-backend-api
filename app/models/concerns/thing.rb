@@ -3,7 +3,7 @@ module Thing
   extend ActiveSupport::Concern
 
   included do
-    include StateMachine
+    include Able
 
     has_many :owner_thing_relations, as: :ownable
     has_many :orgas, through: :owner_thing_relations, source: :thingable, source_type: 'Orga'
