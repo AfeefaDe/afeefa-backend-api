@@ -26,8 +26,7 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 
-  # TODO: uncomment this if you want to use factory girl
-  # include FactoryGirl::Syntax::Methods
+  include FactoryGirl::Syntax::Methods
 
   # def admin
   #   Role.where(title: Role::ORGA_ADMIN).first.user

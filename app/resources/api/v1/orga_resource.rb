@@ -4,5 +4,11 @@ class Api::V1::OrgaResource < Api::V1::BaseResource
   has_one :parent_orga, class_name: 'Orga', foreign_key: 'parent_id'
   has_many :sub_orgas, class_name: 'Orga', foreign_key: 'children_ids'
 
-  has_many :users
+  has_many :annotations
+
+  # has_many :users
+
+  filter :title, apply: ->(records, value, _options) {
+    records.where('title like ?', value)
+  }
 end

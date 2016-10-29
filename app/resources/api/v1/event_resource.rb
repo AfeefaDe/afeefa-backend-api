@@ -4,6 +4,12 @@ class Api::V1::EventResource < Api::V1::BaseResource
   has_one :parent_event, class_name: 'Event', foreign_key: 'parent_id'
   has_many :sub_events, class_name: 'Event', foreign_key: 'children_ids'
 
-  #has_many :contact_infos
+  has_many :annotations
 
+  has_one :creator, class_name: 'User'
+
+  #has_many :contact_infos
+  filter :title, apply: ->(records, value, _options) {
+    records.where('title like ?', value)
+  }
 end

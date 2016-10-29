@@ -24,9 +24,9 @@ class OrgaTest < ActiveSupport::TestCase
     end
 
     should 'have contact_informations' do
-      assert @orga.contact_infos.blank?
-      assert contact_info = ContactInfo.create(contactable: orga)
-      assert_includes @orga.reload.contact_infos, contact_info
+      assert @orga.contact_info.blank?
+      assert contact_info = ContactInfo.create(contactable: @orga)
+      assert_equal @orga.reload.contact_info, contact_info
     end
 
     should 'have categories' do

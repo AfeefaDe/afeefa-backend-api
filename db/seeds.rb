@@ -52,6 +52,7 @@ module Seeds
       event7 = Event.create!(title: 'Kulturtreff', category: 'welcome_ini', parent_id: orga5, state: 'inactive', creator: user1)
       event8 = Event.create!(title: 'Offenes Netzwerktreffen Dresden für Alle', category: 'welcome_ini', parent_id: orga2, state: 'inactive', creator: user1)
 
+      # relations
       OwnerThingRelation.create!(ownable: event1, thingable: orga1)
       OwnerThingRelation.create!(ownable: event2, thingable: user1)
       OwnerThingRelation.create!(ownable: event3, thingable: orga1)
@@ -60,6 +61,9 @@ module Seeds
       OwnerThingRelation.create!(ownable: event6, thingable: orga1)
       OwnerThingRelation.create!(ownable: event7, thingable: orga2)
       OwnerThingRelation.create!(ownable: event8, thingable: orga3)
+
+      # annotations
+      Annotation.create!(title: 'Übersetzung fehlt', annotateable: orga0)
     end
 
     # Role.create!(user: user6, orga: orga1, title: Role::ORGA_ADMIN)

@@ -12,6 +12,15 @@
 
 ActiveRecord::Schema.define(version: 20161029150322) do
 
+  create_table "annotations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.string   "title"
+    t.string   "annotateable_type"
+    t.integer  "annotateable_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.index ["annotateable_type", "annotateable_id"], name: "index_annotations_on_annotateable_type_and_annotateable_id", using: :btree
+  end
+
   create_table "categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.string   "type"
@@ -22,10 +31,11 @@ ActiveRecord::Schema.define(version: 20161029150322) do
   end
 
   create_table "contact_infos", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string  "type"
-    t.string  "content"
     t.string  "contactable_type"
     t.integer "contactable_id"
+    t.string  "mail"
+    t.string  "phone"
+    t.string  "contact_person"
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
   end
 
@@ -50,7 +60,7 @@ ActiveRecord::Schema.define(version: 20161029150322) do
     t.string   "lon"
     t.string   "street"
     t.string   "number"
-    t.string   "addition"
+    t.string   "placename"
     t.string   "zip"
     t.string   "city"
     t.string   "district"

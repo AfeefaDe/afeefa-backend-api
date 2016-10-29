@@ -34,6 +34,10 @@ Rails.application.routes.draw do
         jsonapi_resources :users
         jsonapi_resources :events
         jsonapi_resources :todos
+        jsonapi_resources :annotations
+        jsonapi_resources :contact_infos
+        jsonapi_resources :locations
+
       end
     end
   end
