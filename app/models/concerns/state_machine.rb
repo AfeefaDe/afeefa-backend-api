@@ -17,14 +17,23 @@ module StateMachine
 
       event :activate do
         transitions from: INACTIVE, to: ACTIVE
+        after do
+          touch :state_changed_at
+        end
       end
 
       event :deactivate do
         transitions from: ACTIVE, to: INACTIVE
+        after do
+          touch :state_changed_at
+        end
       end
 
       event :delete do
         transitions from: UNDELETEDS, to: DELETED
+        after do
+          touch :state_changed_at
+        end
       end
     end
 

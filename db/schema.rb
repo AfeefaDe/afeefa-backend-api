@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161029173711) do
+ActiveRecord::Schema.define(version: 20161029232522) do
 
   create_table "annotations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -31,11 +31,13 @@ ActiveRecord::Schema.define(version: 20161029173711) do
   end
 
   create_table "contact_infos", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string  "contactable_type"
-    t.integer "contactable_id"
-    t.string  "mail"
-    t.string  "phone"
-    t.string  "contact_person"
+    t.string   "contactable_type"
+    t.integer  "contactable_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.string   "mail"
+    t.string   "phone"
+    t.string   "contact_person"
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
   end
 
@@ -46,13 +48,14 @@ ActiveRecord::Schema.define(version: 20161029173711) do
     t.string   "location_type"
     t.boolean  "support_wanted"
     t.integer  "creator_id"
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
     t.integer  "parent_id"
     t.datetime "date"
-    t.boolean  "active",         default: true
+    t.boolean  "active",           default: true
     t.string   "state"
     t.string   "category"
+    t.string   "state_changed_at"
   end
 
   create_table "locations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -85,14 +88,15 @@ ActiveRecord::Schema.define(version: 20161029173711) do
   end
 
   create_table "orgas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.datetime "created_at",                               null: false
-    t.datetime "updated_at",                               null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.string   "title"
-    t.text     "description", limit: 65535
+    t.text     "description",      limit: 65535
     t.integer  "parent_id"
-    t.boolean  "active",                    default: true
+    t.boolean  "active",                         default: true
     t.string   "state"
     t.string   "category"
+    t.string   "state_changed_at"
   end
 
   create_table "owner_thing_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
