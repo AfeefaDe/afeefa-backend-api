@@ -19,14 +19,15 @@ class Orga < ApplicationRecord
   validates_uniqueness_of :title
   validates_presence_of :parent_id
 
-  def move_sub_orgas_to_new_parent(parent_orga, sub_orgas)
-    sub_orgas.each do |sub_orga|
-      sub_orga.parent_orga = parent_orga
-      sub_orga.save
-    end
-  end
-
   before_destroy :move_sub_orgas_to_parent, prepend: true
+
+  def move_sub_orgas_to_parent
+    sub_orgas.each do |suborga|
+      suborga.parent_orga = parent_orga
+      suborga.save!
+    end
+    self.reload
+  end
 
   # def add_new_member(new_member:, admin:)
   #   admin.can! :write_orga_structure, self, 'You are not authorized to modify the user list of this organization!'
@@ -52,13 +53,4 @@ class Orga < ApplicationRecord
   #   admin.can! :write_orga_structure, self, 'You are not authorized to modify the state of this organization!'
   #   self.update(active: active)
   # end
-
-  def move_sub_orgas_to_parent
-    sub_orgas.each do |suborga|
-       suborga.parent_orga = parent_orga
-       suborga.save!
-    end
-    self.reload
-  end
-
 end
