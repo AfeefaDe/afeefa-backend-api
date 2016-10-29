@@ -6,9 +6,9 @@ module Thing
     STATE_NEW = 'new'
     STATE_INACTIVE = 'inactive'
     STATE_ANNOTATED = 'annotated'
-    TODO_STATES = [STATE_NEW, STATE_INACTIVE, STATE_ANNOTATED]
-
     STATE_ACTIVE = 'active'
+
+    TODO_STATES = [STATE_NEW, STATE_INACTIVE, STATE_ANNOTATED]
 
     has_many :owner_thing_relations, as: :ownable
     has_many :users, through: :owner_thing_relations, source: :thingable, source_type: 'User'
