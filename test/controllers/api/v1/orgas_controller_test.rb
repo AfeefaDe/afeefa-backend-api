@@ -28,10 +28,10 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'get title filtered list for orgas' do
-      orga1 = create(:orga, title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', parent_orga: @orga)
-      orga2 = create(:orga, title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.', parent_orga: orga1)
-      orga3 = create(:orga, title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden', parent_orga: orga1)
-      suborga1 = create(:orga, title: 'Interkultureller Frauentreff', parent_orga: orga3, state: 'new')
+      orga1 = Orga.create(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', parent_orga: @orga)
+      orga2 = Orga.create(title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.', parent_orga: orga1)
+      orga3 = Orga.create(title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden', parent_orga: orga1)
+      suborga1 = Orga.create(title: 'Interkultureller Frauentreff', parent_orga: orga3, state: 'new')
 
       get :index, params: { filter: {title: '%Dresden%'} }
       assert_response :ok
