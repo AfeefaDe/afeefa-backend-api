@@ -86,6 +86,7 @@ group :development, :test do
   gem 'capybara'
   gem 'minitest-rails-capybara'
   gem 'timecop'
+  gem 'factory_girl_rails'
 
   gem 'rails_best_practices'
   gem 'bullet'
