@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161029161042) do
+ActiveRecord::Schema.define(version: 20161029173711) do
 
   create_table "annotations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.string   "title"
@@ -60,7 +60,7 @@ ActiveRecord::Schema.define(version: 20161029161042) do
     t.string   "lon"
     t.string   "street"
     t.string   "number"
-    t.string   "addition"
+    t.string   "placename"
     t.string   "zip"
     t.string   "city"
     t.string   "district"
