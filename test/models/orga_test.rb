@@ -20,25 +20,21 @@ class OrgaTest < ActiveSupport::TestCase
 
   context 'with existing orga' do
     setup do
-      @orga = Orga.new(title: 'FirstOrga', description: 'Nothing goes above')
-      @orga.save(validate: false)
+      @orga = Orga.create!(title: 'FirstOrga', description: 'Nothing goes above', parent_orga: Orga.first)
     end
 
     should 'have contact_informations' do
-      orga = Orga.first
-      assert orga.contact_infos.blank?
+      assert @orga.contact_infos.blank?
       assert contact_info = ContactInfo.create(contactable: orga)
-      assert_includes orga.reload.contact_infos, contact_info
+      assert_includes @orga.reload.contact_infos, contact_info
     end
 
     should 'have categories' do
-      skip 'fix root-orga vaidation'
-      orga = Orga.first
-      assert orga.categories.blank?
+      assert @orga.categories.blank?
       assert category = Category.new(title: 'irgendeine komische Kategorie')
-      category.orgas << orga
+      category.orgas << @orga
       category.save!
-      assert_includes orga.reload.categories, category
+      assert_includes @orga.reload.categories, category
     end
   end
 end
