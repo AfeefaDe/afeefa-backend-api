@@ -2,14 +2,14 @@ module StateMachine
 
   extend ActiveSupport::Concern
 
+  ACTIVE = :active
+  INACTIVE = :inactive
+  DELETED = :deleted
+  STATES = [INACTIVE, ACTIVE, DELETED]
+  UNDELETEDS = STATES - [DELETED]
+
   included do
     include AASM
-
-    ACTIVE = :active
-    INACTIVE = :inactive
-    DELETED = :deleted
-    STATES = [INACTIVE, ACTIVE, DELETED]
-    UNDELETEDS = STATES - [DELETED]
 
     aasm(column: :state) do
       state INACTIVE, initial: true
