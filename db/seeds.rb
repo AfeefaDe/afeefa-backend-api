@@ -42,7 +42,6 @@ Orga.create!(title: 'Außenstelle Adlergasse', category: 'welcome_ini', parent_o
 # Role.create!(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
 # Role.create!(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
 
-
 event1 = Event.create!(title: 'Big Afeefa-Event', state: 'active', category: 'community', creator: user1)
 event2 = Event.create!(title: 'Kuefa im AZ-Conni', state: 'active', category: 'community', creator: user1)
 event3 = Event.create!(title: 'Playing Football', state: 'active', category: 'community', creator: user1)
@@ -60,3 +59,5 @@ OwnerThingRelation.create!(ownable: event5, thingable: orga1)
 OwnerThingRelation.create!(ownable: event6, thingable: orga1)
 OwnerThingRelation.create!(ownable: event7, thingable: orga2)
 OwnerThingRelation.create!(ownable: event8, thingable: orga3)
+
+Annotation.create!(title: 'Übersetzung fehlt', annotateable: orga0)

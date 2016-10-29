@@ -1,5 +1,6 @@
 class Orga < ApplicationRecord
   include Owner
+  include Able
 
   acts_as_tree(dependent: :restrict_with_exception)
   alias_method :sub_orgas, :children
@@ -7,15 +8,13 @@ class Orga < ApplicationRecord
   alias_method :parent_orga, :parent
   alias_method :parent_orga=, :parent=
 
-  has_many :roles, dependent: :destroy
-  has_many :users, through: :roles
-  has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user
-  has_many :locations, as: :locatable
+  # has_many :roles, dependent: :destroy
+  # has_many :users, through: :roles
+  # has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user
 
-  has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
+  # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
   validates :title, presence: true, length: { minimum: 5 }
-  # TODO: maybe refactor and write own UniquenessValidator
   validates_uniqueness_of :title
   validates_presence_of :parent_id
 

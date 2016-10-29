@@ -11,8 +11,8 @@ class User < ApplicationRecord
          :validatable
   include DeviseTokenAuth::Concerns::User
 
-  has_many :roles, dependent: :destroy
-  has_many :orgas, through: :roles
+  # has_many :roles, dependent: :destroy
+  # has_many :orgas, through: :roles
 
   has_many :created_events, class_name: 'Event', foreign_key: :creator_id
 
