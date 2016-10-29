@@ -1,4 +1,6 @@
 class Orga < ApplicationRecord
+  META_ORGA_TITLE = 'META-ORGA'
+
   include Owner
   include Able
 
@@ -14,9 +16,10 @@ class Orga < ApplicationRecord
 
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
+  validate :ensure_not_meta_orga
   validates :title, presence: true, length: { minimum: 5 }
   validates_uniqueness_of :title
-  validates_presence_of :parent_id
+  validates_presence_of :parent_id, unless: :meta_orga?
 
   before_destroy :move_sub_orgas_to_parent, prepend: true
 
@@ -26,6 +29,12 @@ class Orga < ApplicationRecord
       suborga.save!
     end
     self.reload
+  end
+
+  class << self
+    def meta_orga
+      Orga.find_by_title(META_ORGA_TITLE)
+    end
   end
 
   # def add_new_member(new_member:, admin:)
@@ -52,4 +61,14 @@ class Orga < ApplicationRecord
   #   admin.can! :write_orga_structure, self, 'You are not authorized to modify the state of this organization!'
   #   self.update(active: active)
   # end
+
+  private
+
+  def ensure_not_meta_orga
+    errors.add(:base, 'META ORGA is not editable!') if meta_orga?
+  end
+
+  def meta_orga?
+    title == META_ORGA_TITLE
+  end
 end
