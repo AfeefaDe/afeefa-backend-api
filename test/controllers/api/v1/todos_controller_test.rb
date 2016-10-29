@@ -27,7 +27,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 0, json['data'].size
+      # We are creating 10 Orgas in seeds
+      assert_equal 10, json['data'].size
 
       orga0 = Orga.new(title: 'Oberoberorga', description: 'Nothing goes above')
       orga0.save(validate: false)
@@ -36,7 +37,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].size
+      # We are having 11 Orgas in seeds
+      assert_equal 11, json['data'].size
       # only the relation, no attributes
       assert_not json['data'].first.has_key?('attributes')
     end

@@ -8,15 +8,15 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'get title filtered list for events' do
-      admin = create(:admin)
+      user = create(:user)
       event0 = create(:event, title: 'Hackathon',
-                      description: 'Mate fuer alle!', creator: admin)
+                      description: 'Mate fuer alle!', creator: user)
       event1 = create(:event, title: 'Montagscafe',
                       description: 'Kaffee und so im Schauspielhaus',
-                      creator: admin)
+                      creator: user)
       event2 = create(:event, title: 'Joggen im Garten',
                       description: 'Gemeinsames Laufengehen im Grossen Garten',
-                      creator: admin)
+                      creator: user)
 
       get :index, params: { filter: {title: '%Garten%'} }
       assert_response :ok

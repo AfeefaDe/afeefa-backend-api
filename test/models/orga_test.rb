@@ -30,11 +30,9 @@ class OrgaTest < ActiveSupport::TestCase
     end
 
     should 'have categories' do
-      assert @orga.categories.blank?
-      assert category = Category.new(title: 'irgendeine komische Kategorie')
-      category.orgas << @orga
-      category.save!
-      assert_includes @orga.reload.categories, category
+      assert @orga.category.blank?
+      @orga.category = 'irgendeine komische Kategorie'
+      assert @orga.category.present?
     end
   end
 end
