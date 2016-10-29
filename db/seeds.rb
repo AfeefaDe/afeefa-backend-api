@@ -15,7 +15,7 @@ user7 = User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neuman
 
 orga0 = Orga.new(title: 'Oberoberorga', description: 'Nothing goes above', category: 'welcome_ini')
 orga0.save!(validate: false)
-orga1 = Orga.create!(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', category: 'welcome_ini', parent_orga: orga1)
+orga1 = Orga.create!(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', category: 'welcome_ini', parent_orga: orga0)
 orga2 = Orga.create!(title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.', category: 'welcome_ini', parent_orga: orga1)
 orga3 = Orga.create!(title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden', category: 'welcome_ini', parent_orga: orga1)
 orga4 = Orga.create!(title: 'Ausländerrat', state: 'inactive', category: 'welcome_ini', parent_orga: orga1)
@@ -26,21 +26,21 @@ Orga.create!(title: 'Interkultureller Frauentreff', category: 'welcome_ini', par
 Orga.create!(title: 'Außenstelle Adlergasse', category: 'welcome_ini', parent_orga: orga4, state: 'active')
 
 
-Role.create!(user: user6, orga: orga1, title: Role::ORGA_ADMIN)
-Role.create!(user: user7, orga: orga1, title: Role::ORGA_ADMIN)
-Role.create!(user: user1, orga: orga1, title: Role::ORGA_MEMBER)
-Role.create!(user: user2, orga: orga1, title: Role::ORGA_MEMBER)
-Role.create!(user: user3, orga: orga1, title: Role::ORGA_MEMBER)
-Role.create!(user: user4, orga: orga1, title: Role::ORGA_MEMBER)
-Role.create!(user: user5, orga: orga1, title: Role::ORGA_MEMBER)
-
-Role.create!(user: user3, orga: orga2, title: Role::ORGA_ADMIN)
-Role.create!(user: user1, orga: orga2, title: Role::ORGA_MEMBER)
-
-Role.create!(user: user4, orga: orga3, title: Role::ORGA_ADMIN)
-Role.create!(user: user1, orga: orga3, title: Role::ORGA_MEMBER)
-Role.create!(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
-Role.create!(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
+# Role.create!(user: user6, orga: orga1, title: Role::ORGA_ADMIN)
+# Role.create!(user: user7, orga: orga1, title: Role::ORGA_ADMIN)
+# Role.create!(user: user1, orga: orga1, title: Role::ORGA_MEMBER)
+# Role.create!(user: user2, orga: orga1, title: Role::ORGA_MEMBER)
+# Role.create!(user: user3, orga: orga1, title: Role::ORGA_MEMBER)
+# Role.create!(user: user4, orga: orga1, title: Role::ORGA_MEMBER)
+# Role.create!(user: user5, orga: orga1, title: Role::ORGA_MEMBER)
+#
+# Role.create!(user: user3, orga: orga2, title: Role::ORGA_ADMIN)
+# Role.create!(user: user1, orga: orga2, title: Role::ORGA_MEMBER)
+#
+# Role.create!(user: user4, orga: orga3, title: Role::ORGA_ADMIN)
+# Role.create!(user: user1, orga: orga3, title: Role::ORGA_MEMBER)
+# Role.create!(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
+# Role.create!(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
 
 
 event1 = Event.create!(title: 'Big Afeefa-Event', state: 'active', category: 'community', creator: user1)
