@@ -5,21 +5,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
   context 'as authorized user' do
     setup do
       stub_current_user
-      @orga = Orga.new(title: 'FirstOrga', description: 'Nothing goes above')
-      @orga.save(validate: false)
     end
 
     should 'get index' do
-      orga1 = Orga.create(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', parent_orga: @orga)
-      orga2 = Orga.create(title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.', parent_orga: orga1)
-      orga3 = Orga.create(title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden', parent_orga: orga1)
-      orga4 = Orga.create(title: 'Ausländerrat', state: 'edit_request', parent_orga: orga1)
-      orga5 = Orga.create(title: 'Frauentreff "Hand in Hand"', state: 'edit_request', parent_orga: orga1)
-      orga6 = Orga.create(title: 'Integrations- und Ausländerbeauftragte', parent_orga: orga1)
-      orga7 = Orga.create(title: 'Übersetzer Deutsch-Englisch-Französisch', state: 'edit_request', parent_orga: orga1)
-      suborga1 = Orga.create(title: 'Interkultureller Frauentreff', parent_orga: orga4, state: 'new')
-      suborga2 = Orga.create(title: 'Außenstelle Adlergasse', parent_orga: orga4, state: 'new')
-
       get :index
       assert_response :ok
       json = JSON.parse(response.body)
@@ -28,93 +16,92 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'get title filtered list for orgas' do
-      # orga1 = create(:orga, title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', parent_orga: @orga)
-      # orga2 = create(:orga, title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.', parent_orga: orga1)
-      # orga3 = create(:orga, title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden', parent_orga: orga1)
-      # suborga1 = create(:orga, title: 'Interkultureller Frauentreff', parent_orga: orga3, state: 'new')
+      count = Orga.where('title like ?', '%Dresden%').count
 
-      get :index, params: { filter: {title: '%Dresden%'} }
+      get :index, params: { filter: { title: '%Dresden%' } }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 10, json['data'].size
-    end
-
-    should 'get show' do
-      orga0 = Orga.new(title: 'Oberoberorga', description: 'Nothing goes above')
-      orga0.save(validate: false)
-
-      get :show, params: { id: orga0.id }
-      assert_response :ok
-      json = JSON.parse(response.body)
-      assert_kind_of Hash, json['data']
+      assert_equal count, json['data'].size
     end
 
     should 'get sub orga relation' do
-      orga0 = Orga.new(title: 'Oberoberorga', description: 'Nothing goes above')
-      orga0.save(validate: false)
+      count = Orga.meta_orga.sub_orgas.count
 
-      get :show_relationship, params: { orga_id: orga0.id, relationship: 'sub_orgas' }
+      get :show_relationship, params: { orga_id: Orga.meta_orga.id, relationship: 'sub_orgas' }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 0, json['data'].count
+      assert_equal count, json['data'].count
 
-      orga1 = Orga.create(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', parent_orga: orga0)
+      Orga.create!(title: 'Afeefa12345', description: 'Eine Beschreibung für Afeefa', parent_orga: Orga.meta_orga)
 
-      get :show_relationship, params: { orga_id: orga0.id, relationship: 'sub_orgas' }
+      get :show_relationship, params: { orga_id: Orga.meta_orga.id, relationship: 'sub_orgas' }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].count
+      assert_equal count + 1, json['data'].count
     end
 
     should 'get orgas related to todo' do
-      get :get_related_resources, params: { todo_id: 1, relationship: 'orgas', source: 'api/v1/todos' }
-      assert_response :ok
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].size
-
-      orga0 = Orga.new(title: 'Oberoberorga', description: 'Nothing goes above')
-      orga0.save(validate: false)
+      count = Todo.new.orgas.count
 
       get :get_related_resources, params: { todo_id: 1, relationship: 'orgas', source: 'api/v1/todos' }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 2, json['data'].size
-      assert_equal 'FirstOrga', json['data'].first['attributes']['title']
+      assert_equal count, json['data'].size
+
+      assert create(:orga)
+
+      get :get_related_resources, params: { todo_id: 1, relationship: 'orgas', source: 'api/v1/todos' }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal count + 1, json['data'].size
+      assert_equal Orga::META_ORGA_TITLE, json['data'].first['attributes']['title']
     end
 
-    should 'I want to activate my orga' do
-      skip 'Fix model test'
-      patch :update, params: {
+    context 'with given orga' do
+      setup do
+        @orga = create(:orga)
+      end
+
+      should 'get show' do
+        get :show, params: { id: @orga.id }
+        assert_response :ok
+        json = JSON.parse(response.body)
+        assert_kind_of Hash, json['data']
+      end
+
+      should 'I want to activate my orga' do
+        patch :update, params: {
           id: @orga.id,
           data: {
-              type: 'orgas',
-              attributes: {
-                  active: true
-              }
+            type: 'orgas',
+            attributes: {
+              title: 'foo' * 3,
+              active: true
+            }
           }
-      }
-      assert_response :no_content
-    end
+        }
+        assert_response :no_content, response.body
+      end
 
-    should 'I want to deactivate my orga' do
-      skip 'Fix model test'
-      patch :update, params: {
+      should 'I want to deactivate my orga' do
+        patch :update, params: {
           id: @orga.id,
           data: {
-              type: 'orgas',
-              attributes: {
-                  active: false
-              }
+            type: 'orgas',
+            attributes: {
+              title: 'bar' * 3,
+              active: false
+            }
           }
-      }
-      assert_response :no_content
+        }
+        assert_response :no_content, response.body
+      end
     end
-
   end
 
 end

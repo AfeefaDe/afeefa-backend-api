@@ -26,7 +26,7 @@ module Seeds
     User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'password3')
 
     # data for test and dev
-    unless Rails.env.production?
+    if Rails.env.development?
       # orgas
       orga1 = Orga.create!(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', category: 'welcome_ini', parent_orga: orga0)
       orga2 = Orga.create!(title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.', category: 'welcome_ini', parent_orga: orga1)
@@ -76,7 +76,7 @@ module Seeds
     #
     # Role.create!(user: user3, orga: orga2, title: Role::ORGA_ADMIN)
     # Role.create!(user: user1, orga: orga2, title: Role::ORGA_MEMBER)
-    #
+    #-
     # Role.create!(user: user4, orga: orga3, title: Role::ORGA_ADMIN)
     # Role.create!(user: user1, orga: orga3, title: Role::ORGA_MEMBER)
     # Role.create!(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
