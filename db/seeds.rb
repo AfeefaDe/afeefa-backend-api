@@ -89,33 +89,37 @@ module Seeds
       user1 = User.create!(email: 'rudi@afeefa.de', forename: 'Rudi', surname: 'Dutschke', password: 'password1')
 
       # events
-      event1 = user1.created_events.create!(title: 'Big Afeefa-Event', state: 'active', category: 'community')
+      event1 = user1.created_events.create!(
+        title: 'Big Afeefa-Event', state: 'active', category: 'community', orga: orga1)
       # OwnerThingRelation.create!(ownable: event1, thingable: orga1)
 
-      event2 = user1.created_events.create!(title: 'Kuefa im AZ-Conni', state: 'active', category: 'community')
+      event2 = user1.created_events.create!(
+        title: 'Kuefa im AZ-Conni', state: 'active', category: 'community', orga: orga1)
       # OwnerThingRelation.create!(ownable: event2, thingable: user1)
 
-      event3 = user1.created_events.create!(title: 'Playing Football', state: 'active', category: 'community')
+      event3 = user1.created_events.create!(
+        title: 'Playing Football', state: 'active', category: 'community', orga: orga1)
       # OwnerThingRelation.create!(ownable: event3, thingable: orga1)
 
-      event4 = user1.created_events.create!(title: 'Cooking for All', state: 'active', category: 'community')
+      event4 = user1.created_events.create!(
+        title: 'Cooking for All', state: 'active', category: 'community', orga: orga1)
       # OwnerThingRelation.create!(ownable: event4, thingable: orga1)
 
       event5 = user1.created_events.create!(
-        title: 'Sommerfest', category: 'welcome_ini', parent_id: orga4, state: 'inactive')
+        title: 'Sommerfest', category: 'welcome_ini', parent_id: orga4, state: 'inactive', orga: orga2)
       # OwnerThingRelation.create!(ownable: user1.created_events5, thingable: orga1)
 
       event6 = user1.created_events.create!(
-        title: 'Deutschkurs', category: 'welcome_ini', parent_id: orga5, state: 'inactive')
+        title: 'Deutschkurs', category: 'welcome_ini', parent_id: orga5, state: 'inactive', orga: orga2)
       # OwnerThingRelation.create!(ownable: event6, thingable: orga1)
 
       event7 = user1.created_events.create!(
-        title: 'Kulturtreff', category: 'welcome_ini', parent_id: orga5, state: 'inactive', creator: user1)
+        title: 'Kulturtreff', category: 'welcome_ini', parent_id: orga5, state: 'inactive', creator: user1, orga: orga3)
       # OwnerThingRelation.create!(ownable: event7, thingable: orga2)
 
       event8 = user1.created_events.create!(
         title: 'Offenes Netzwerktreffen Dresden für Alle',
-        category: 'welcome_ini', parent_id: orga2, state: 'inactive')
+        category: 'welcome_ini', parent_id: orga2, state: 'inactive', orga: orga4)
       # OwnerThingRelation.create!(ownable: event8, thingable: orga3)
     end
 
