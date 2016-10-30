@@ -5,9 +5,12 @@ module Able
   included do
     include StateMachine
 
-    has_one :location, as: :locatable
-    has_one :annotation, as: :annotatable
-    has_one :contact_info, as: :contactable
+    has_many :locations, as: :locatable
+    has_many :annotations, as: :annotatable
+    has_many :contact_infos, as: :contactable
+
+    scope :annotateds, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
+
   end
 
 end

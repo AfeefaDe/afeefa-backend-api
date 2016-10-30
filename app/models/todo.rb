@@ -6,10 +6,15 @@ class Todo
   end
 
   def orgas
-    Orga.all#where(state: Thing::TODO_STATES).map { |o| JSONAPI::ResourceSerializer.new(Api::V1::OrgaResource).serialize_to_hash(Api::V1::OrgaResource.new(o, nil)) }
+    Orga.undeleteds.annotateds.map do |orga|
+      JSONAPI::ResourceSerializer.new(Api::V1::OrgaResource).serialize_to_hash(Api::V1::OrgaResource.new(orga, nil))
+    end
   end
 
   def events
-    Event.all#where(state: Thing::TODO_STATES).map { |o| JSONAPI::ResourceSerializer.new(Api::V1::EventResource).serialize_to_hash(Api::V1::EventResource.new(o, nil)) }
+    Event.undeleteds.annotateds.map do |event|
+      JSONAPI::ResourceSerializer.new(Api::V1::EventResource).serialize_to_hash(Api::V1::EventResource.new(event, nil))
+    end
+
   end
 end

@@ -9,7 +9,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
     should 'get index' do
       get :index
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Orga.count, json['data'].size
@@ -19,7 +19,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       count = Orga.where('title like ?', '%Dresden%').count
 
       get :index, params: { filter: { title: '%Dresden%' } }
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal count, json['data'].size
@@ -29,7 +29,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       count = Orga.root_orga.sub_orgas.count
 
       get :show_relationship, params: { orga_id: Orga.root_orga.id, relationship: 'sub_orgas' }
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal count, json['data'].count
@@ -37,7 +37,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       Orga.create!(title: 'Afeefa12345', description: 'Eine Beschreibung für Afeefa', parent_orga: Orga.root_orga)
 
       get :show_relationship, params: { orga_id: Orga.root_orga.id, relationship: 'sub_orgas' }
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal count + 1, json['data'].count
@@ -47,7 +47,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       count = Todo.new.orgas.count
 
       get :get_related_resources, params: { todo_id: 1, relationship: 'orgas', source: 'api/v1/todos' }
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal count, json['data'].size
@@ -55,7 +55,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert create(:orga)
 
       get :get_related_resources, params: { todo_id: 1, relationship: 'orgas', source: 'api/v1/todos' }
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal count + 1, json['data'].size
@@ -69,7 +69,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'get show' do
         get :show, params: { id: @orga.id }
-        assert_response :ok
+        assert_response :ok, response.body
         json = JSON.parse(response.body)
         assert_kind_of Hash, json['data']
       end
@@ -104,23 +104,26 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'I want to create a new orga' do
         post :create, params: {
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'some title',
-              description: 'some description'
-            },
-            relationships: {
-              parent_orga: {
-                data: {
-                  id: @orga.id,
-                  type: 'orgas'
+            data: {
+                type: 'orgas',
+                attributes: {
+                    title: 'some title',
+                    description: 'some description',
+                    state_transition: 'activate'
+                },
+                relationships: {
+                    parent_orga: {
+                        data: {
+                            id: @orga.id,
+                            type: 'orgas'
+                        }
+                    }
                 }
-              }
             }
-          }
         }
         assert_response :created, response.body
+        json = JSON.parse(response.body)
+        assert_equal StateMachine::ACTIVE, json['data']['attributes']['state']
       end
 
       should 'An orga should only change allowed states' do
