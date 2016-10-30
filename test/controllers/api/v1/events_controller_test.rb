@@ -75,14 +75,22 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
               state_transition: 'activate'
             },
             relationships: {
-              ownables: [
+              orgas:
                 {
-                  data: {
-                    id: create(:orga).id,
-                    type: 'orgas'
-                  }
+                  data:
+                    [
+                      {
+                        id: create(:orga).id,
+                        type: 'orgas'
+                      }
+                    ]
+                },
+              creator: {
+                data: {
+                  id: @controller.current_api_v1_user.id,
+                  type: 'users'
                 }
-              ]
+              }
             }
           }
         }
