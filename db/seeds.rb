@@ -15,7 +15,11 @@ module Seeds
     Event.delete_all
 
     # orgas
-    unless Orga.root_orga
+    if Orga.root_orga
+      orga0 = Orga.root_orga
+      orga0.update!(title: Orga::ROOT_ORGA_TITLE)
+      orga0.save!(validate: false)
+    else
       orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE)
       orga0.save!(validate: false)
     end
