@@ -91,14 +91,28 @@ module Seeds
       # events
       event1 = user1.created_events.create!(
         title: 'Big Afeefa-Event', state: 'active', category: 'community', orga: orga1)
+      event1.locations.create!(
+          lat: '51.123456', lon: '13.123456',
+          street: 'Diese komische Straße', number: '11abc',
+          placename: 'äh, dort um die ecke',
+          zip: '01309', city: 'Dresden',
+          locatable: orga1)
+      event1.contact_infos.create!(
+          mail: 'test@example.com',
+          phone: '0123 -/ 456789',
+          contact_person: 'Frau Max Müller',
+          contactable: orga1)
+      event1.annotations.create!(title: 'Übersetzung fehlerhaft')
       # OwnerThingRelation.create!(ownable: event1, thingable: orga1)
 
       event2 = user1.created_events.create!(
         title: 'Kuefa im AZ-Conni', state: 'active', category: 'community', orga: orga1)
+      event2.annotations.create!(title: 'Übersetzung zu stumpf')
       # OwnerThingRelation.create!(ownable: event2, thingable: user1)
 
       event3 = user1.created_events.create!(
         title: 'Playing Football', state: 'active', category: 'community', orga: orga1)
+      event3.annotations.create!(title: 'Ich frage mich, was das soll!?')
       # OwnerThingRelation.create!(ownable: event3, thingable: orga1)
 
       event4 = user1.created_events.create!(
