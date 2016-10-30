@@ -128,6 +128,30 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       end
 
+      should 'ignore given state on orga create' do
+        post :create, params: {
+          data: {
+            type: 'orgas',
+            attributes: {
+              title: 'some title',
+              description: 'some description',
+              state: StateMachine::ACTIVE.to_s
+            },
+            relationships: {
+              parent_orga: {
+                data: {
+                  id: @orga.id,
+                  type: 'orgas'
+                }
+              }
+            }
+          }
+        }
+        assert_response :created, response.body
+        assert @orga.reload.inactive?
+        json = JSON.parse(response.body)
+        assert_equal StateMachine::INACTIVE.to_s, json['data']['attributes']['state']
+      end
     end
   end
 

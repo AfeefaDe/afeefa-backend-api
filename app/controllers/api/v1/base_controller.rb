@@ -6,7 +6,8 @@ class Api::V1::BaseController < ApplicationController
 
   before_action :ensure_host
   before_action :ensure_protocol
-  # before_action :authenticate_api_v1_user!
+  before_action :authenticate_api_v1_user!
+  before_action :remove_state_attribute
 
   include JSONAPI::ActsAsResourceController
 
@@ -64,5 +65,9 @@ class Api::V1::BaseController < ApplicationController
       head :forbidden
       false
     end
+  end
+
+  def remove_state_attribute
+    params.try(:[], :data).try(:[], :attributes).try(:delete, :state)
   end
 end
