@@ -12,7 +12,7 @@ class Api::V1::ContactInfosControllerTest < ActionController::TestCase
         @orga = create(:orga)
       end
 
-      should 'I want to create a new orga' do
+      should 'I want to create a new contact info' do
         post :create, params: {
           data: {
             type: 'contact_infos',
@@ -20,6 +20,14 @@ class Api::V1::ContactInfosControllerTest < ActionController::TestCase
               mail: 'test@example.com',
               phone: '0123 -/ 456789',
               contact_person: 'Herr Max Müller'
+            },
+            relationships: {
+                contactable: {
+                    data: {
+                        type: 'orgas',
+                        id: @orga.id
+                    }
+                }
             }
           }
         }
