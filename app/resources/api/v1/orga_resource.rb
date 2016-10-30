@@ -11,8 +11,16 @@ class Api::V1::OrgaResource < Api::V1::BaseResource
   has_many :locations, class_name: 'Location'
   has_many :contact_infos, class_name: 'ContactInfo'
 
+  filter :todo, apply: ->(records, value, _options) {
+    records.annotated
+  }
+
   filter :title, apply: ->(records, value, _options) {
-    records.where('title LIKE ? or description LIKE ?', "%#{value[0]}%", "%#{value[0]}%")
+    records.where('title LIKE ?', "%#{value[0]}%")
+  }
+
+  filter :description, apply: ->(records, value, _options) {
+    records.where('description LIKE ?', "%#{value[0]}%")
   }
 
 end

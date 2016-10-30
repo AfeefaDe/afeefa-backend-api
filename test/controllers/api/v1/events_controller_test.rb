@@ -27,31 +27,11 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                       description: 'Gemeinsames Laufengehen im Grossen Garten',
                       creator: user, orga: orga)
 
-      get :index, params: { filter: { title: '%Garten%' } }
+      get :index, params: { filter: { title: 'Garten' } }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal 1, json['data'].size
-    end
-
-    should 'get events related to todo' do
-      count = Todo.new.events.count
-
-      get :get_related_resources, params: { todo_id: 1, relationship: 'events', source: 'api/v1/todos' }
-      assert_response :ok, response.body
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal count, json['data'].size
-
-      assert create(:event)
-
-      get :get_related_resources, params: { todo_id: 1, relationship: 'events', source: 'api/v1/todos' }
-      assert_response :ok, response.body
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal count + 1, json['data'].size
-      assert_equal Todo.new.events.first.title, json['data'].first['attributes']['title']
-      assert_equal Todo.new.events.last.title, json['data'].last['attributes']['title']
     end
 
     should 'ensure creator for event on create' do

@@ -18,7 +18,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'get title filtered list for orgas' do
       count = Orga.where('title like ?', '%Dresden%').count
 
-      get :index, params: { filter: { title: '%Dresden%' } }
+      get :index, params: { filter: { title: 'Dresden' } }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
@@ -41,25 +41,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal count + 1, json['data'].count
-    end
-
-    should 'get orgas related to todo' do
-      count = Todo.new.orgas.count
-
-      get :get_related_resources, params: { todo_id: 1, relationship: 'orgas', source: 'api/v1/todos' }
-      assert_response :ok, response.body
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal count, json['data'].size
-
-      assert create(:orga)
-
-      get :get_related_resources, params: { todo_id: 1, relationship: 'orgas', source: 'api/v1/todos' }
-      assert_response :ok, response.body
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal count + 1, json['data'].size
-      assert_equal Orga::ROOT_ORGA_TITLE, json['data'].first['attributes']['title']
     end
 
     context 'with given orga' do
