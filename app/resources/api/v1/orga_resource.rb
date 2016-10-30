@@ -9,6 +9,6 @@ class Api::V1::OrgaResource < Api::V1::BaseResource
   has_many :contact_infos, class_name: 'ContactInfo'
 
   filter :title, apply: ->(records, value, _options) {
-    records.where('title like ?', value)
+    records.where('title LIKE ? or description LIKE ?', "%#{value[0]}%", "%#{value[0]}%")
   }
 end
