@@ -52,7 +52,7 @@ module StateMachine
       self.state_changed_at = created_at
     end
 
-    before_update do
+    before_save do
       send("#{state_transition}!") if state_transition.present?
     end
 

@@ -74,34 +74,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_kind_of Hash, json['data']
       end
 
-      should 'I want to activate my orga' do
-        patch :update, params: {
-          id: @orga.id,
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'foo' * 3,
-              active: true
-            }
-          }
-        }
-        assert_response :no_content, response.body
-      end
-
-      should 'I want to deactivate my orga' do
-        patch :update, params: {
-          id: @orga.id,
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'bar' * 3,
-              active: false
-            }
-          }
-        }
-        assert_response :no_content, response.body
-      end
-
       should 'I want to create a new orga' do
         post :create, params: {
             data: {
@@ -123,7 +95,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         }
         assert_response :created, response.body
         json = JSON.parse(response.body)
-        assert_equal StateMachine::ACTIVE, json['data']['attributes']['state']
+        assert_equal StateMachine::ACTIVE.to_s, json['data']['attributes']['state']
       end
 
       should 'An orga should only change allowed states' do
