@@ -6,7 +6,7 @@ module Able
     include StateMachine
 
     has_one :location, as: :locatable
-    has_one :annotation, as: :annotateable
+    has_one :annotation, as: :annotatable
     has_one :contact_info, as: :contactable
   end
 
