@@ -9,7 +9,8 @@ module Able
     has_many :annotations, as: :annotatable
     has_many :contact_infos, as: :contactable
 
-    scope :annotated, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
+    scope :annotated, -> { joins(:annotations) }
+    scope :unannotated, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
 
   end
 
