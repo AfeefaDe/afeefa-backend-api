@@ -1,5 +1,5 @@
 class Orga < ApplicationRecord
-  META_ORGA_TITLE = 'META-ORGA'
+  ROOT_ORGA_TITLE = 'ROOT-ORGA'
 
   include Owner
   include Able
@@ -16,12 +16,14 @@ class Orga < ApplicationRecord
 
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
-  validate :ensure_not_meta_orga
+  validate :ensure_not_root_orga
   validates :title, presence: true, length: { minimum: 5 }
   validates_uniqueness_of :title
-  validates_presence_of :parent_id, unless: :meta_orga?
+  validates_presence_of :parent_id, unless: :root_orga?
 
   before_destroy :move_sub_orgas_to_parent, prepend: true
+
+  scope :without_root, -> { where.not(title: ROOT_ORGA_TITLE) }
 
   def move_sub_orgas_to_parent
     sub_orgas.each do |suborga|
@@ -32,8 +34,8 @@ class Orga < ApplicationRecord
   end
 
   class << self
-    def meta_orga
-      Orga.find_by_title(META_ORGA_TITLE)
+    def root_orga
+      Orga.find_by_title(ROOT_ORGA_TITLE)
     end
   end
 
@@ -64,11 +66,11 @@ class Orga < ApplicationRecord
 
   private
 
-  def ensure_not_meta_orga
-    errors.add(:base, 'META ORGA is not editable!') if meta_orga?
+  def ensure_not_root_orga
+    errors.add(:base, 'META ORGA is not editable!') if root_orga?
   end
 
-  def meta_orga?
-    title == META_ORGA_TITLE
+  def root_orga?
+    title == ROOT_ORGA_TITLE
   end
 end

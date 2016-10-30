@@ -10,13 +10,15 @@ module Seeds
 
   def self.recreate_all
     # clean up
-    Orga.delete_all
+    Orga.without_root.delete_all
     User.delete_all
     Event.delete_all
 
     # orgas
-    orga0 = Orga.new(title: Orga::META_ORGA_TITLE)
-    orga0.save!(validate: false)
+    unless Orga.root_orga
+      orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE)
+      orga0.save!(validate: false)
+    end
 
     # users
     User.create!(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'password5')

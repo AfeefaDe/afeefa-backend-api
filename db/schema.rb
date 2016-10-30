@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161029232522) do
+ActiveRecord::Schema.define(version: 20161030102105) do
 
   create_table "annotations", force: :cascade do |t|
     t.string   "title"
