@@ -74,7 +74,7 @@ module Seeds
       Annotation.create!(title: 'Übersetzung fehlt', annotatable: orga4)
       Annotation.create!(title: 'bla', annotatable: orga5)
 
-      Location.create!()
+      Location.create!(locatable: orga1)
     end
 
     # Role.create!(user: user6, orga: orga1, title: Role::ORGA_ADMIN)
