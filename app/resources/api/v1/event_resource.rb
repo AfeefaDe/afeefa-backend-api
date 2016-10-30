@@ -24,4 +24,8 @@ class Api::V1::EventResource < Api::V1::BaseResource
     records.where('title LIKE ? or description LIKE ?', "%#{value[0]}%", "%#{value[0]}%")
   }
 
+  before_create do
+    @model.creator_id = context[:current_user].id
+  end
+
 end

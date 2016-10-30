@@ -61,15 +61,15 @@ class User < ApplicationRecord
   #   update_role_for_member member: member, orga: orga, role: Role::ORGA_MEMBER
   # end
 
-  class << self
-    # def current
-    #   @user
-    # end
-
-    # def current=(user)
-    #   @user = user
-    # end
-  end
+  # class << self
+  #   def current
+  #     @user
+  #   end
+  #   #
+  #   def current=(user)
+  #     @user = user
+  #   end
+  # end
 
   def belongs_to_orga?(orga)
     orgas.pluck(:id).include?(orga.id)

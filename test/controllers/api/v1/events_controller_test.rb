@@ -54,6 +54,67 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal Todo.new.events.last.title, json['data'].last['attributes']['title']
     end
 
+    should 'ensure creator for event on create' do
+      post :create, params: {
+        data: {
+          type: 'events',
+          attributes: {
+            title: 'some title',
+            description: 'some description',
+            state_transition: 'activate'
+          },
+          relationships: {
+            orga:
+              {
+                data:
+                  {
+                    id: create(:another_orga).id,
+                    type: 'orgas'
+                  }
+              }
+          }
+        }
+      }
+      assert_response :created, response.body
+      assert @controller.current_api_v1_user, Event.last.creator
+      json = JSON.parse(response.body)
+      assert json['data']['relationships']['creator']
+    end
+
+    should 'ignore given creator for event' do
+      post :create, params: {
+        data: {
+          type: 'events',
+          attributes: {
+            title: 'some title',
+            description: 'some description',
+            state_transition: 'activate'
+          },
+          relationships: {
+            orga:
+              {
+                data:
+                  {
+                    id: create(:another_orga).id,
+                    type: 'orgas'
+                  }
+              },
+            creator: {
+              data: {
+                id: '123',
+                type: 'users'
+              }
+            }
+          }
+        }
+      }
+      assert_response :created, response.body
+      assert_not_equal 123, Event.last.creator_id
+      assert @controller.current_api_v1_user, Event.last.creator
+      json = JSON.parse(response.body)
+      assert json['data']['relationships']['creator']
+    end
+
     context 'with given event' do
       setup do
         @event = create(:event)
@@ -83,13 +144,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                       id: create(:another_orga).id,
                       type: 'orgas'
                     }
-                },
-              creator: {
-                data: {
-                  id: @controller.current_api_v1_user.id,
-                  type: 'users'
                 }
-              }
             }
           }
         }

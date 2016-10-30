@@ -7,7 +7,7 @@ class Api::V1::BaseController < ApplicationController
   before_action :ensure_host
   before_action :ensure_protocol
   before_action :authenticate_api_v1_user!
-  before_action :remove_state_attribute
+  before_action :permit_params
 
   include JSONAPI::ActsAsResourceController
 
@@ -67,7 +67,8 @@ class Api::V1::BaseController < ApplicationController
     end
   end
 
-  def remove_state_attribute
+  def permit_params
     params.try(:[], :data).try(:[], :attributes).try(:delete, :state)
+    params.try(:[], :data).try(:[], :relationships).try(:delete, :creator)
   end
 end
