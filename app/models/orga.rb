@@ -25,14 +25,6 @@ class Orga < ApplicationRecord
 
   scope :without_root, -> { where.not(title: ROOT_ORGA_TITLE) }
 
-  def move_sub_orgas_to_parent
-    sub_orgas.each do |suborga|
-      suborga.parent_orga = parent_orga
-      suborga.save!
-    end
-    self.reload
-  end
-
   class << self
     def root_orga
       Orga.find_by_title(ROOT_ORGA_TITLE)
@@ -65,6 +57,14 @@ class Orga < ApplicationRecord
   # end
 
   private
+
+  def move_sub_orgas_to_parent
+    sub_orgas.each do |suborga|
+      suborga.parent_orga = parent_orga
+      suborga.save!
+    end
+    self.reload
+  end
 
   def ensure_not_root_orga
     errors.add(:base, 'META ORGA is not editable!') if root_orga?

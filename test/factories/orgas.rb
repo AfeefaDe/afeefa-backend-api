@@ -11,10 +11,8 @@ FactoryGirl.define do
 
     factory :active_orga do
       title 'an active orga'
-
       state StateMachine::ACTIVE
     end
-
 
     factory :orga_with_admin do
 
