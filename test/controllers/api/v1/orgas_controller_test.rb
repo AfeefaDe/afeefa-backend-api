@@ -76,71 +76,71 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'I want to activate my orga' do
         patch :update, params: {
-            id: @orga.id,
-            data: {
-                type: 'orgas',
-                attributes: {
-                    title: 'foo' * 3,
-                    active: true
-                }
+          id: @orga.id,
+          data: {
+            type: 'orgas',
+            attributes: {
+              title: 'foo' * 3,
+              active: true
             }
+          }
         }
         assert_response :no_content, response.body
       end
 
       should 'I want to deactivate my orga' do
         patch :update, params: {
-            id: @orga.id,
-            data: {
-                type: 'orgas',
-                attributes: {
-                    title: 'bar' * 3,
-                    active: false
-                }
+          id: @orga.id,
+          data: {
+            type: 'orgas',
+            attributes: {
+              title: 'bar' * 3,
+              active: false
             }
+          }
         }
         assert_response :no_content, response.body
       end
 
       should 'I want to create a new orga' do
         post :create, params: {
-            data: {
-                type: 'orgas',
-                attributes: {
-                    title: 'some title',
-                    description: 'some description'
-                },
-                relationships: {
-                    parent_orga: {
-                        data: {
-                            id: @orga.id,
-                            type: 'orgas'
-                        }
-                    }
+          data: {
+            type: 'orgas',
+            attributes: {
+              title: 'some title',
+              description: 'some description'
+            },
+            relationships: {
+              parent_orga: {
+                data: {
+                  id: @orga.id,
+                  type: 'orgas'
                 }
+              }
             }
+          }
         }
         assert_response :created, response.body
       end
 
       should 'An orga should only change allowed states' do
-
         # allowed transition active -> inactive
         active_orga = create(:active_orga)
         assert active_orga.active?
-
         last_state_change = active_orga.state_changed_at
         last_update = active_orga.state_changed_at
 
+        sleep(1)
+
         process :update, methode: :patch, params: {
+          id: active_orga.id,
+          data: {
             id: active_orga.id,
-            data: {
-                id: active_orga.id,
-                type: 'orgas',
-                attributes: {
-                    state_transition: 'deactivate'
-                }
+            type: 'orgas',
+            attributes: {
+              state_transition: 'deactivate'
             }
+          }
         }
 
         assert_response :ok, response.body
