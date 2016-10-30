@@ -34,5 +34,19 @@ class OrgaTest < ActiveSupport::TestCase
       @orga.category = 'irgendeine komische Kategorie'
       assert @orga.category.present?
     end
+
+    should 'deactivate orga' do
+      orga = create(:active_orga)
+      assert orga.active?
+      orga.deactivate!
+      assert orga.inactive?
+    end
+
+    should 'activate orga' do
+      orga = create(:another_orga)
+      assert orga.inactive?
+      orga.activate!
+      assert orga.active?
+    end
   end
 end

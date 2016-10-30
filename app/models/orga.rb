@@ -16,6 +16,8 @@ class Orga < ApplicationRecord
 
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
+  attr_accessor :state_transition
+
   validate :ensure_not_root_orga
   validates :title, presence: true, length: { minimum: 5 }
   validates_uniqueness_of :title

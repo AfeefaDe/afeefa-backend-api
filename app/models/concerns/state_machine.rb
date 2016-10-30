@@ -16,6 +16,9 @@ module StateMachine
       state ACTIVE, DELETED
 
       event :activate do
+        before do
+          self.state_transition = nil
+        end
         transitions from: INACTIVE, to: ACTIVE
         after do
           touch :state_changed_at
@@ -23,6 +26,9 @@ module StateMachine
       end
 
       event :deactivate do
+        before do
+          self.state_transition = nil
+        end
         transitions from: ACTIVE, to: INACTIVE
         after do
           touch :state_changed_at
@@ -30,11 +36,22 @@ module StateMachine
       end
 
       event :delete do
+        before do
+          self.state_transition = nil
+        end
         transitions from: UNDELETEDS, to: DELETED
         after do
           touch :state_changed_at
         end
       end
+    end
+
+    before_create do
+      self.state_changed_at = created_at
+    end
+
+    before_update do
+      send("#{state_transition}!") if state_transition.present?
     end
 
   end

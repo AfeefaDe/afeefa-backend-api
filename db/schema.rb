@@ -55,7 +55,7 @@ ActiveRecord::Schema.define(version: 20161030102105) do
     t.boolean  "active",           default: true
     t.string   "state"
     t.string   "category"
-    t.string   "state_changed_at"
+    t.datetime "state_changed_at"
   end
 
   create_table "locations", force: :cascade do |t|
@@ -96,7 +96,7 @@ ActiveRecord::Schema.define(version: 20161030102105) do
     t.boolean  "active",           default: true
     t.string   "state"
     t.string   "category"
-    t.string   "state_changed_at"
+    t.datetime "state_changed_at"
   end
 
   create_table "owner_thing_relations", force: :cascade do |t|
