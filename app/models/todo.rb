@@ -6,10 +6,10 @@ class Todo
   end
 
   def orgas
-    Orga.undeleteds.annotateds
+    Orga.undeleted.annotated
   end
 
   def events
-    Event.undeleteds.annotateds
+    Event.undeleted.annotated
   end
 end

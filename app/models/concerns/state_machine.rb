@@ -6,7 +6,7 @@ module StateMachine
   INACTIVE = :inactive
   DELETED = :deleted
   STATES = [INACTIVE, ACTIVE, DELETED]
-  UNDELETEDS = STATES - [DELETED]
+  undeleted = STATES - [DELETED]
 
   included do
     include AASM
@@ -39,14 +39,14 @@ module StateMachine
         before do
           self.state_transition = nil
         end
-        transitions from: UNDELETEDS, to: DELETED
+        transitions from: undeleted, to: DELETED
         after do
           touch :state_changed_at
         end
       end
     end
 
-    scope :undeleteds, -> { where(state: UNDELETEDS) }
+    scope :undeleted, -> { where(state: undeleted) }
 
     attr_accessor :state_transition
 

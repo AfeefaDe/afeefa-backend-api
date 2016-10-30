@@ -48,8 +48,6 @@ gem 'devise_token_auth' # https://github.com/lynndylanhurley/devise_token_auth
 gem 'config'
 
 # json api spec
-#gem 'active_model_serializers'
-# if the gem above is not enough use this complex one:
 gem 'jsonapi-resources'
 
 # tree relatiions (e.g. orga-suborga)
@@ -60,11 +58,6 @@ gem 'aasm'
 
 # pagination
 # gem 'kaminari'
-
-# trailblazer architecture (operations)
-# gem 'trailblazer-rails'
-# reform validation engine (used in reform included as contract in operations of trailblazer)
-# gem 'dry-validation'
 
 # redmine integration
 # gem 'airbrake', '~> 5.4'

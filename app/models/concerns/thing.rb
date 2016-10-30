@@ -5,8 +5,10 @@ module Thing
   included do
     include Able
 
-    has_many :owner_thing_relations, as: :ownable
-    has_many :orgas, through: :owner_thing_relations, source: :thingable, source_type: 'Orga'
+    # not for now:
+    # has_many :owner_thing_relations, as: :ownable
+    # has_many :orgas, through: :owner_thing_relations, source: :thingable, source_type: 'Orga'
+    belongs_to :orga
     # has_many :users, through: :owner_thing_relations, source: :thingable, source_type: 'User'
 
     # has_many :thing_category_relations, as: :catable

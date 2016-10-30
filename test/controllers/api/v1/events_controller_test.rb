@@ -17,14 +17,15 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'get title filtered list for events' do
       user = create(:user)
+      orga = create(:orga)
       event0 = create(:event, title: 'Hackathon',
-                      description: 'Mate fuer alle!', creator: user)
+                      description: 'Mate fuer alle!', creator: user, orga: orga)
       event1 = create(:event, title: 'Montagscafe',
                       description: 'Kaffee und so im Schauspielhaus',
-                      creator: user)
+                      creator: user, orga: orga)
       event2 = create(:event, title: 'Joggen im Garten',
                       description: 'Gemeinsames Laufengehen im Grossen Garten',
-                      creator: user)
+                      creator: user, orga: orga)
 
       get :index, params: { filter: { title: '%Garten%' } }
       assert_response :ok
@@ -75,15 +76,13 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
               state_transition: 'activate'
             },
             relationships: {
-              orgas:
+              orga:
                 {
                   data:
-                    [
-                      {
-                        id: create(:orga).id,
-                        type: 'orgas'
-                      }
-                    ]
+                    {
+                      id: create(:another_orga).id,
+                      type: 'orgas'
+                    }
                 },
               creator: {
                 data: {
@@ -101,7 +100,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       should 'An event should only change allowed states' do
         # allowed transition active -> inactive
-        active_event = create(:active_event)
+        orga = create(:another_orga)
+        active_event = create(:active_event, orga: orga)
         assert active_event.active?
         last_state_change = active_event.state_changed_at
         last_update = active_event.state_changed_at
@@ -140,15 +140,13 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
               state: StateMachine::ACTIVE.to_s
             },
             relationships: {
-              orgas:
+              orga:
                 {
                   data:
-                    [
-                      {
-                        id: create(:orga).id,
-                        type: 'orgas'
-                      }
-                    ]
+                    {
+                      id: create(:another_orga).id,
+                      type: 'orgas'
+                    }
                 },
               creator: {
                 data: {

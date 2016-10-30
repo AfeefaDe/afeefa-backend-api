@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class EventTest < ActiveSupport::TestCase
+class StateMachineTest < ActiveSupport::TestCase
 
   should 'set initial state for event' do
     assert Event.new.inactive?
@@ -32,7 +32,6 @@ class EventTest < ActiveSupport::TestCase
     user = create(:user)
     orga = create(:orga)
     event = Event.new(creator: user, orga: orga)
-    assert event.category.blank?
     event.category = 'irgendeine komische Kategorie'
     assert event.category.present?
   end
