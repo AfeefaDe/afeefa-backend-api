@@ -147,7 +147,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
         json = JSON.parse(response.body)
 
-        assert last_state_change < json['data']['attributes']['state_changed_at']
+        assert last_state_change < json['data']['attributes']['state_changed_at'], "#{last_state_change} is not newer than #{json['data']['attributes']['state_changed_at']}"
         assert last_update < json['data']['attributes']['updated_at']
         assert active_orga.reload.inactive?
 

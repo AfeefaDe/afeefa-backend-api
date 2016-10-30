@@ -22,12 +22,12 @@ class Api::V1::ContactInfosControllerTest < ActionController::TestCase
               contact_person: 'Herr Max Müller'
             },
             relationships: {
-                contactable: {
-                    data: {
-                        type: 'orgas',
-                        id: @orga.id
-                    }
+              contactable: {
+                data: {
+                  type: 'orgas',
+                  id: @orga.id
                 }
+              }
             }
           }
         }
