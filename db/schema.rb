@@ -14,11 +14,11 @@ ActiveRecord::Schema.define(version: 20161030102105) do
 
   create_table "annotations", force: :cascade do |t|
     t.string   "title"
-    t.string   "annotateable_type"
-    t.integer  "annotateable_id"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
-    t.index ["annotateable_type", "annotateable_id"], name: "index_annotations_on_annotateable_type_and_annotateable_id"
+    t.string   "annotatable_type"
+    t.integer  "annotatable_id"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["annotatable_type", "annotatable_id"], name: "index_annotations_on_annotatable_type_and_annotatable_id"
   end
 
   create_table "categories", force: :cascade do |t|
