@@ -69,7 +69,7 @@ module Seeds
       OwnerThingRelation.create!(ownable: event8, thingable: orga3)
 
       # annotations
-      Annotation.create!(title: 'Übersetzung fehlt', annotateable: orga0)
+      Annotation.create!(title: 'Übersetzung fehlt', annotatable: orga0)
     end
 
     # Role.create!(user: user6, orga: orga1, title: Role::ORGA_ADMIN)
