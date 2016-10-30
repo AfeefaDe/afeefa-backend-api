@@ -12,7 +12,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 10, json['data'].size
+      assert_equal Orga.count, json['data'].size
     end
 
     should 'get title filtered list for orgas' do
