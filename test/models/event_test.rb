@@ -20,9 +20,9 @@ class EventTest < ActiveSupport::TestCase
 
   should 'have contact_informations' do
     event = Event.new(creator: valid_user)
-    assert event.contact_info.blank?
+    assert event.contact_infos.blank?
     assert contact_info = ContactInfo.create(contactable: event), contact_info.errors
-    assert_equal event.reload.contact_info, contact_info
+    assert_includes event.reload.contact_infos, contact_info
   end
 
   should 'have categories' do

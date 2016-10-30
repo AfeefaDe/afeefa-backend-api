@@ -48,6 +48,8 @@ module StateMachine
 
     scope :undeleteds, -> { where(state: UNDELETEDS) }
 
+    attr_accessor :state_transition
+
     before_create do
       self.state_changed_at = created_at
     end

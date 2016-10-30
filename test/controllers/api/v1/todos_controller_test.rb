@@ -24,8 +24,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
 
     should 'get orga relation' do
       get :show_relationship, params: { todo_id: 1, relationship: 'orgas' }
-      assert_response :ok
       json = JSON.parse(response.body)
+      assert_response :ok
       assert_kind_of Array, json['data']
       assert_equal Todo.new.orgas.count, json['data'].size
 
@@ -33,7 +33,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       orga0.save(validate: false)
 
       get :show_relationship, params: { todo_id: 1, relationship: 'orgas' }
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Todo.new.orgas.count, json['data'].size
