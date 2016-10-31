@@ -6,6 +6,8 @@ class Api::V1::EntryResource < Api::V1::BaseResource
   attributes :title, :description, :created_at, :updated_at,
              :state_changed_at, :state, :category
 
+  # TODO: handle paging of this resource
+
   has_many :annotations
   has_many :locations
   has_many :contact_infos
