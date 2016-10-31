@@ -2,57 +2,202 @@ require 'test_helper'
 
 class Api::V1::EventsControllerTest < ActionController::TestCase
 
-  context 'As Admin' do
+  context 'as authorized user' do
     setup do
-      @event = Event.first
-      @admin = admin
-      stub_current_user(user: @admin)
-
-      @orga = @admin.orgas.first
-      @user_json = {forename: 'Rudi', surname: 'Dutschke', email: 'bob@afeefa.de'}
+      stub_current_user
     end
 
-    should 'I want to get a list of all events' do
+    should 'get index' do
       get :index
-      assert_response :ok
-      expected = ActiveModelSerializers::SerializableResource.new(Event.all, {})
-      assert_equal expected.to_json, response.body
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal Event.count, json['data'].size
     end
 
+    should 'get title filtered list for events' do
+      user = create(:user)
+      orga = create(:orga)
+      event0 = create(:event, title: 'Hackathon',
+                      description: 'Mate fuer alle!', creator: user, orga: orga)
+      event1 = create(:event, title: 'Montagscafe',
+                      description: 'Kaffee und so im Schauspielhaus',
+                      creator: user, orga: orga)
+      event2 = create(:event, title: 'Joggen im Garten',
+                      description: 'Gemeinsames Laufengehen im Grossen Garten',
+                      creator: user, orga: orga)
 
-    should 'I want the details of one specifc event' do
-      get :show, params: { id: @event.id }
+      get :index, params: { filter: { title: 'Garten' } }
       assert_response :ok
-      expected = ActiveModelSerializers::SerializableResource.new(Event.find(@event.id), {})
-      assert_equal expected.to_json, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
     end
 
-    should 'I want to create an event for my orga' do
-      Event::Operations::Create.any_instance.expects(:process).once
+    should 'ensure creator for event on create' do
       post :create, params: {
-          owner: @orga,
-          data: {
-              type: 'Event',
-              attributes: {
-                  title: 'some title',
-                  description: 'some description'
+        data: {
+          type: 'events',
+          attributes: {
+            title: 'some title',
+            description: 'some description',
+            state_transition: 'activate'
+          },
+          relationships: {
+            orga:
+              {
+                data:
+                  {
+                    id: create(:another_orga).id,
+                    type: 'orgas'
+                  }
               }
           }
+        }
       }
-      assert_response :created
+      assert_response :created, response.body
+      assert @controller.current_api_v1_user, Event.last.creator
+      json = JSON.parse(response.body)
+      assert json['data']['relationships']['creator']
     end
 
-    should 'I want to create an event for my orga, it\'s invalid' do
+    should 'ignore given creator for event' do
       post :create, params: {
-          owner: @orga,
-          data: {
-              type: 'Event',
-              attributes: {
-                  description: 'some description'
+        data: {
+          type: 'events',
+          attributes: {
+            title: 'some title',
+            description: 'some description',
+            state_transition: 'activate'
+          },
+          relationships: {
+            orga:
+              {
+                data:
+                  {
+                    id: create(:another_orga).id,
+                    type: 'orgas'
+                  }
+              },
+            creator: {
+              data: {
+                id: '123',
+                type: 'users'
               }
+            }
           }
+        }
       }
-      assert_response :unprocessable_entity
+      assert_response :created, response.body
+      assert_not_equal 123, Event.last.creator_id
+      assert @controller.current_api_v1_user, Event.last.creator
+      json = JSON.parse(response.body)
+      assert json['data']['relationships']['creator']
+    end
+
+    context 'with given event' do
+      setup do
+        @event = create(:event)
+      end
+
+      should 'get show' do
+        get :show, params: { id: @event.id }
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_kind_of Hash, json['data']
+      end
+
+      should 'I want to create a new event' do
+        post :create, params: {
+          data: {
+            type: 'events',
+            attributes: {
+              title: 'some title',
+              description: 'some description',
+              state_transition: 'activate'
+            },
+            relationships: {
+              orga:
+                {
+                  data:
+                    {
+                      id: create(:another_orga).id,
+                      type: 'orgas'
+                    }
+                }
+            }
+          }
+        }
+        assert_response :created, response.body
+        json = JSON.parse(response.body)
+        assert_equal StateMachine::ACTIVE.to_s, json['data']['attributes']['state']
+      end
+
+      should 'An event should only change allowed states' do
+        # allowed transition active -> inactive
+        orga = create(:another_orga)
+        active_event = create(:active_event, orga: orga)
+        assert active_event.active?
+        last_state_change = active_event.state_changed_at
+        last_update = active_event.state_changed_at
+
+        sleep(1)
+
+        process :update, methode: :patch, params: {
+          id: active_event.id,
+          data: {
+            id: active_event.id,
+            type: 'events',
+            attributes: {
+              state_transition: 'deactivate'
+            }
+          }
+        }
+
+        assert_response :ok, response.body
+
+        json = JSON.parse(response.body)
+
+        assert(
+          last_state_change < json['data']['attributes']['state_changed_at'],
+          "#{last_state_change} is not newer than #{json['data']['attributes']['state_changed_at']}")
+        assert last_update < json['data']['attributes']['updated_at']
+        assert active_event.reload.inactive?
+      end
+
+      should 'ignore given state on event create' do
+        post :create, params: {
+          data: {
+            type: 'events',
+            attributes: {
+              title: 'some title',
+              description: 'some description',
+              state: StateMachine::ACTIVE.to_s
+            },
+            relationships: {
+              orga:
+                {
+                  data:
+                    {
+                      id: create(:another_orga).id,
+                      type: 'orgas'
+                    }
+                },
+              creator: {
+                data: {
+                  id: @controller.current_api_v1_user.id,
+                  type: 'users'
+                }
+              }
+            }
+          }
+        }
+        assert_response :created, response.body
+        assert @event.reload.inactive?
+        json = JSON.parse(response.body)
+        assert_equal StateMachine::INACTIVE.to_s, json['data']['attributes']['state']
+      end
     end
   end
+
 end

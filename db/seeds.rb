@@ -3,54 +3,157 @@
 #
 # Examples:
 #
-#   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
-#   Character.create(name: 'Luke', movie: movies.first)
-user1 = User.create(email: 'rudi@afeefa.de', forename: 'Rudi', surname: 'Dutschke', password: 'password1')
-user2 = User.create(email: 'steve@afeefa.de', forename: 'Steve', surname: 'Reinke', password: 'password1')
-user3 = User.create(email: 'joschka@afeefa.de', forename: 'Joschka', surname: 'Heinrich', password: 'password2')
-user4 = User.create(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'password3')
-user5 = User.create(email: 'benny@afeefa.de', forename: 'Benny', surname: 'Thomä', password: 'password4')
-user6 = User.create(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'password5')
-user7 = User.create(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'password1')
+#   movies = Movie.create!([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
+#   Character.create!(name: 'Luke', movie: movies.first)
 
-orga1 = Orga.create(title: 'Afeefa', description: 'Eine Beschreibung für Afeefa')
-orga2 = Orga.create(title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.')
-orga3 = Orga.create(title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden')
-orga4 = Orga.create(title: 'Ausländerrat', state: 'edit_request')
-orga5 = Orga.create(title: 'Frauentreff "Hand in Hand"', state: 'edit_request')
-orga6 = Orga.create(title: 'Integrations- und Ausländerbeauftragte')
-orga7 = Orga.create(title: 'Übersetzer Deutsch-Englisch-Französisch', state: 'edit_request')
-suborga1 = Orga.create(title: 'Interkultureller Frauentreff', parent_id: orga4.id, state: 'new')
-suborga2 = Orga.create(title: 'Außenstelle Adlergasse', parent_id: orga4.id, state: 'new')
+module Seeds
 
+  def self.recreate_all
+    # clean up
+    Orga.without_root.delete_all
+    User.delete_all
+    Event.delete_all
 
-Role.create(user: user6, orga: orga1, title: Role::ORGA_ADMIN)
-Role.create(user: user7, orga: orga1, title: Role::ORGA_ADMIN)
-Role.create(user: user1, orga: orga1, title: Role::ORGA_MEMBER)
-Role.create(user: user2, orga: orga1, title: Role::ORGA_MEMBER)
-Role.create(user: user3, orga: orga1, title: Role::ORGA_MEMBER)
-Role.create(user: user4, orga: orga1, title: Role::ORGA_MEMBER)
-Role.create(user: user5, orga: orga1, title: Role::ORGA_MEMBER)
+    # orgas
+    if Orga.root_orga
+      orga0 = Orga.root_orga
+      orga0.title = Orga::ROOT_ORGA_TITLE
+      orga0.save!(validate: false)
+    else
+      orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE)
+      orga0.save!(validate: false)
+    end
 
-Role.create(user: user3, orga: orga2, title: Role::ORGA_ADMIN)
-Role.create(user: user1, orga: orga2, title: Role::ORGA_MEMBER)
+    # users
+    User.create!(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'password5')
+    User.create!(email: 'joschka@afeefa.de', forename: 'Joschka', surname: 'Heinrich', password: 'password2')
+    User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'password1')
+    User.create!(email: 'steve@afeefa.de', forename: 'Steve', surname: 'Reinke', password: 'password1')
+    User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'password3')
 
-Role.create(user: user4, orga: orga3, title: Role::ORGA_ADMIN)
-Role.create(user: user1, orga: orga3, title: Role::ORGA_MEMBER)
-Role.create(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
-Role.create(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
+    # data for test and dev
+    if Rails.env.development?
+      orga1 = orga0.sub_orgas.create!(
+        title: 'Afeefa', description: 'Eine Beschreibung für Afeefa', category: 'welcome_ini')
+      orga1.sub_orgas.create!(
+        title: 'Integrations- und Ausländerbeauftragte', category: 'welcome_ini')
+      orga1.sub_orgas.create!(
+        title: 'Übersetzer Deutsch-Englisch-Französisch', state: 'inactive', category: 'welcome_ini')
+      orga1.locations.create!(
+        lat: '51.123456', lon: '17.123456',
+        street: 'Diese komische Straße', number: '11abc',
+        placename: 'äh, dort um die ecke',
+        zip: '01309', city: 'Dresden',
+        locatable: orga1)
+      orga1.contact_infos.create!(
+        mail: 'test@example.com',
+        phone: '0123 -/ 456789',
+        contact_person: 'Herr Max Müller',
+        contactable: orga1)
+      orga1.annotations.create!(title: 'Übersetzung fehlt')
 
+      orga2 = orga1.sub_orgas.create!(
+        title: 'Dresden für Alle e.V.', description: 'Eine Beschreibung für Dresden für Alle e.V.',
+        category: 'welcome_ini')
+      orga2.locations.create!(
+        lat: '51.123456', lon: '17.123456',
+        street: 'Bischofsweg', number: '3',
+        zip: '01307', city: 'Dresden')
+      orga2.contact_infos.create!(
+        mail: 'team@dresdenfueralle123.com',
+        phone: '0123 -/ 456789',
+        contact_person: 'Herr Max Mustermann')
+      orga2.annotations.create!(title: 'Hier is was ganz kaputt...')
 
-event1 = Event.create(title: 'Big Afeefa-Event', description: 'Super awesome Afeefa Event', state: 'new')
-event2 = Event.create(title: 'Kuefa im AZ-Conni', state: 'new')
-event3 = Event.create(title: 'Playing Football', description: 'Macht Spaß')
-event4 = Event.create(title: 'Cooking for All', state: 'delete_request')
-event5 = Event.create(title: 'Sommerfest', parent_id: orga4.id, description: 'Mit ganz viel Kuchen', state: 'new')
-event6 = Event.create(title: 'Deutschkurs', parent_id: orga5.id, state: 'edit_request')
-event7 = Event.create(title: 'Kulturtreff', parent_id: orga5.id, description: 'Treffen für alle Interessierten', state: 'new')
-event8 = Event.create(title: 'Offenes Netzwerktreffen Dresden für Alle', parent_id: orga2.id)
+      orga3 = orga1.sub_orgas.create!(
+        title: 'TU Dresden', description: 'Eine Beschreibung für TU Dresden', category: 'welcome_ini')
+      orga3.locations.create!(
+        lat: '51.123456', lon: '17.123456',
+        street: 'Zellescher Weg', number: '1',
+        zip: '01307', city: 'Dresden')
+      orga3.contact_infos.create!(
+        mail: 'kontakt@tu-dd-0815.com',
+        phone: '0123 -/ 456789',
+        contact_person: 'Frau Frieda Blubb')
 
-OwnerThingRelation.create(ownable: event1, thingable: orga1)
-OwnerThingRelation.create(ownable: event2, thingable: user1)
-OwnerThingRelation.create(ownable: event3, thingable: orga2)
-OwnerThingRelation.create(ownable: event4, thingable: user1)
+      orga4 = orga1.sub_orgas.create!(title: 'Ausländerrat', state: 'inactive', category: 'welcome_ini')
+      orga4.sub_orgas.create!(title: 'Interkultureller Frauentreff', category: 'welcome_ini', parent_orga: orga4, state: 'inactive')
+      orga4.sub_orgas.create!(title: 'Außenstelle Adlergasse', category: 'welcome_ini', parent_orga: orga4, state: 'active')
+      orga4.annotations.create!(title: 'foo bar')
+
+      orga5 = orga1.sub_orgas.create!(title: 'Frauentreff "Hand in Hand"', state: 'inactive', category: 'welcome_ini')
+      orga5.annotations.create!(title: 'blablabla')
+
+      # users
+      User.create!(email: 'benny@afeefa.de', forename: 'Benny', surname: 'Thomä', password: 'password4')
+      user1 = User.create!(email: 'rudi@afeefa.de', forename: 'Rudi', surname: 'Dutschke', password: 'password1')
+
+      # events
+      event1 = user1.created_events.create!(
+        title: 'Big Afeefa-Event', state: 'active', category: 'community', orga: orga1)
+      event1.locations.create!(
+          lat: '51.123456', lon: '13.123456',
+          street: 'Diese komische Straße', number: '11abc',
+          placename: 'äh, dort um die ecke',
+          zip: '01309', city: 'Dresden',
+          locatable: orga1)
+      event1.contact_infos.create!(
+          mail: 'test@example.com',
+          phone: '0123 -/ 456789',
+          contact_person: 'Frau Max Müller',
+          contactable: orga1)
+      event1.annotations.create!(title: 'Übersetzung fehlerhaft')
+      # OwnerThingRelation.create!(ownable: event1, thingable: orga1)
+
+      event2 = user1.created_events.create!(
+        title: 'Kuefa im AZ-Conni', state: 'active', category: 'community', orga: orga1)
+      event2.annotations.create!(title: 'Übersetzung zu stumpf')
+      # OwnerThingRelation.create!(ownable: event2, thingable: user1)
+
+      event3 = user1.created_events.create!(
+        title: 'Playing Football', state: 'active', category: 'community', orga: orga1)
+      event3.annotations.create!(title: 'Ich frage mich, was das soll!?')
+      # OwnerThingRelation.create!(ownable: event3, thingable: orga1)
+
+      event4 = user1.created_events.create!(
+        title: 'Cooking for All', state: 'active', category: 'community', orga: orga1)
+      # OwnerThingRelation.create!(ownable: event4, thingable: orga1)
+
+      event5 = user1.created_events.create!(
+        title: 'Sommerfest', category: 'welcome_ini', parent_id: orga4, state: 'inactive', orga: orga2)
+      # OwnerThingRelation.create!(ownable: user1.created_events5, thingable: orga1)
+
+      event6 = user1.created_events.create!(
+        title: 'Deutschkurs', category: 'welcome_ini', parent_id: orga5, state: 'inactive', orga: orga2)
+      # OwnerThingRelation.create!(ownable: event6, thingable: orga1)
+
+      event7 = user1.created_events.create!(
+        title: 'Kulturtreff', category: 'welcome_ini', parent_id: orga5, state: 'inactive', creator: user1, orga: orga3)
+      # OwnerThingRelation.create!(ownable: event7, thingable: orga2)
+
+      event8 = user1.created_events.create!(
+        title: 'Offenes Netzwerktreffen Dresden für Alle',
+        category: 'welcome_ini', parent_id: orga2, state: 'inactive', orga: orga4)
+      # OwnerThingRelation.create!(ownable: event8, thingable: orga3)
+    end
+
+    # Role.create!(user: user6, orga: orga1, title: Role::ORGA_ADMIN)
+    # Role.create!(user: user7, orga: orga1, title: Role::ORGA_ADMIN)
+    # Role.create!(user: user1, orga: orga1, title: Role::ORGA_MEMBER)
+    # Role.create!(user: user2, orga: orga1, title: Role::ORGA_MEMBER)
+    # Role.create!(user: user3, orga: orga1, title: Role::ORGA_MEMBER)
+    # Role.create!(user: user4, orga: orga1, title: Role::ORGA_MEMBER)
+    # Role.create!(user: user5, orga: orga1, title: Role::ORGA_MEMBER)
+    #
+    # Role.create!(user: user3, orga: orga2, title: Role::ORGA_ADMIN)
+    # Role.create!(user: user1, orga: orga2, title: Role::ORGA_MEMBER)
+    #
+    # Role.create!(user: user4, orga: orga3, title: Role::ORGA_ADMIN)
+    # Role.create!(user: user1, orga: orga3, title: Role::ORGA_MEMBER)
+    # Role.create!(user: user3, orga: orga3, title: Role::ORGA_MEMBER)
+    # Role.create!(user: user5, orga: orga3, title: Role::ORGA_MEMBER)
+  end
+
+end
+
+Seeds.recreate_all

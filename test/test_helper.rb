@@ -26,39 +26,43 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 
-  # TODO: uncomment this if you want to use factory girl
-  # include FactoryGirl::Syntax::Methods
+  include FactoryGirl::Syntax::Methods
 
-  def admin
-    Role.where(title: Role::ORGA_ADMIN).first.user
-  end
+  # def admin
+  #   Role.where(title: Role::ORGA_ADMIN).first.user
+  # end
 
-  def member
-    Role.where(title: Role::ORGA_MEMBER).first.user
-  end
+  # def member
+  #   Role.where(title: Role::ORGA_MEMBER).first.user
+  # end
 
   def valid_user
-    User.create(
-        email: "foo#{rand(0..1000)}@afeefa.de",
-        forename: 'Max',
-        surname: 'Mustermann',
-        # TODO: remove required password from device
-        password: 'abc12346'
+    User.create!(
+      email: "foo#{rand(0..1000)}@afeefa.de",
+      forename: 'Max',
+      surname: 'Mustermann',
+      # TODO: remove required password from device
+      password: 'abc12346'
     )
   end
 
-  def event
-    Event.create(
-             title: 'TestEvent',
-             description: 'Description of TestEvent'
-    )
-  end
+  # def event
+  #   Event.create!(
+  #     title: 'TestEvent',
+  #     description: 'Description of TestEvent'
+  #   )
+  # end
 end
 
 class ActionController::TestCase
+
+  setup do
+    request.class.any_instance.stubs(:content_type).returns(JSONAPI::MEDIA_TYPE)
+  end
+
   private
 
-  def stub_current_user(user:)
+  def stub_current_user(user: valid_user)
     @controller.class.any_instance.stubs(:set_user_by_token).returns(user)
   end
 

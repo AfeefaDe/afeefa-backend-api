@@ -37,7 +37,7 @@ gem 'devise' # see https://github.com/plataformatec/devise
 gem 'devise_token_auth' # https://github.com/lynndylanhurley/devise_token_auth
 
 # roll and right management
-gem 'cancancan', '~> 1.10' # see https://github.com/CanCanCommunity/cancancan
+# gem 'cancancan', '~> 1.10' # see https://github.com/CanCanCommunity/cancancan
 
 # image attachments
 # gem 'paperclip', '~> 4.3' # see https://github.com/thoughtbot/paperclip
@@ -48,27 +48,26 @@ gem 'cancancan', '~> 1.10' # see https://github.com/CanCanCommunity/cancancan
 gem 'config'
 
 # json api spec
-gem 'active_model_serializers'
-# if the gem above is not enough use this complex one:
-# gem 'jsonapi-resources'
+gem 'jsonapi-resources'
 
 # tree relatiions (e.g. orga-suborga)
 gem 'acts_as_tree', '~> 2.4'
 
-# pagination
-gem 'kaminari'
+# state machine
+gem 'aasm'
 
-# trailblazer architecture (operations)
-gem 'trailblazer-rails'
-# reform validation engine (used in reform included as contract in operations of trailblazer)
-gem 'dry-validation'
+# pagination
+# gem 'kaminari'
 
 # redmine integration
-gem 'airbrake', '~> 5.4'
+# gem 'airbrake', '~> 5.4'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platform: :mri
+  # gem 'byebug', platform: :mri
+  gem 'pry'
+  gem 'pry-rails'
+  gem 'pry-byebug'
 
   # test framework
   gem 'minitest-rails'
@@ -80,6 +79,7 @@ group :development, :test do
   gem 'capybara'
   gem 'minitest-rails-capybara'
   gem 'timecop'
+  gem 'factory_girl_rails'
 
   gem 'rails_best_practices'
   gem 'bullet'

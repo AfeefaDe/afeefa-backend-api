@@ -7,14 +7,9 @@ class Api::V1::BaseController < ApplicationController
   before_action :ensure_host
   before_action :ensure_protocol
   before_action :authenticate_api_v1_user!
-  before_action :ensure_structure
-  before_action :ensure_admin_secret, only: %i(test_airbrake)
-  before_action :merge_current_user_into_params
+  before_action :permit_params
 
-  rescue_from CanCan::AccessDenied do |exception|
-    Rails.logger.debug "AccessDenied-Exception, message: #{exception.message}, from: #{exception.action}"
-    head :forbidden
-  end
+  include JSONAPI::ActsAsResourceController
 
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
@@ -22,6 +17,17 @@ class Api::V1::BaseController < ApplicationController
 
   rescue_from ActiveRecord::RecordInvalid do
     head :unprocessable_entity
+  end
+
+  on_server_error do |error|
+    # do custom code or debugging here
+    # binding.pry
+    # pp error
+    # pp error.backtrace
+  end
+
+  def context
+    { current_user: current_api_v1_user }
   end
 
   private
@@ -61,21 +67,8 @@ class Api::V1::BaseController < ApplicationController
     end
   end
 
-  def ensure_structure
-    unless %w(GET DELETE).include? self.request.request_method
-      if params.has_key? :data and params[:data].has_key? :attributes
-        return true
-      else
-        head :bad_request
-        return false
-      end
-    end
-    true
-  end
-
-  private
-
-  def merge_current_user_into_params
-    @_params = params.merge(current_user: current_api_v1_user)
+  def permit_params
+    params.try(:[], :data).try(:[], :attributes).try(:delete, :state)
+    params.try(:[], :data).try(:[], :relationships).try(:delete, :creator)
   end
 end
