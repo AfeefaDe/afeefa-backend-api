@@ -4,6 +4,6 @@ api:
     - dev-api.afeefa.de
     - api.afeefa.de
   protocols:
-    #- https
-    - http
+    - https
+#    - http
   admin_secret: '0815'
