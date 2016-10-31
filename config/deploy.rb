@@ -54,7 +54,7 @@ namespace :deploy do
       # Here we can do anything such as:
       within release_path do
         api =
-            if fetch(:stage) == 'production'
+            if fetch(:stage).to_s == 'production'
               'api'
             else
               'dev-api'
