@@ -67,4 +67,3 @@ namespace :deploy do
 end
 
 after 'deploy', 'deploy:restart'
-# TODO: copy or symlink config for production
