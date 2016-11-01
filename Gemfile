@@ -7,12 +7,12 @@ gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
 # Use mysql2 as the database for Active Record
 gem 'mysql2'
 # Use Unicorn as the app server
-platforms :ruby do
-  gem 'unicorn'
-end
+# platforms :ruby do
+#   gem 'unicorn'
+# end
 # TODO: use puma for production, modify deployment!
 # Use Puma as the app server
-# gem 'puma', '~> 3.0'
+gem 'puma', '~> 3.0'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
 # Use Redis adapter to run Action Cable in production
@@ -61,12 +61,14 @@ gem 'aasm'
 # redmine integration
 # gem 'airbrake', '~> 5.4'
 
+# comfortable rails console and debugger, also useful in production:
+gem 'pry'
+gem 'pry-rails'
+gem 'pry-byebug'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   # gem 'byebug', platform: :mri
-  gem 'pry'
-  gem 'pry-rails'
-  gem 'pry-byebug'
 
   # test framework
   gem 'minitest-rails'
