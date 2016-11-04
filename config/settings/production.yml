@@ -3,4 +3,5 @@ api:
     - 'dev-backend.afeefa.de'
   protocols:
     - 'https'
+    - 'http'
   admin_secret: '0815-DaS-IsT-EiN-SiChErEs-PaSsWoRt!'
