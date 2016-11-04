@@ -162,7 +162,7 @@ module Seeds
     marketentries = json['marketentries']
 
     # TODO: Einige Datensätze gibt es mehrfach (duplicate title):
-    # Rails.logger.info marketentries.map{|x|x['name']}.sort
+    # pp marketentries.map{|x|x['name']}.sort
 
     marketentries.each do |orga|
       # TODO: Later we can use 'area' to set the geographically rights
@@ -173,17 +173,17 @@ module Seeds
         parent: Orga.root_orga
       )
       if new_orga.save
-        # Rails.logger.info "Orga created: #{new_orga.id}, #{new_orga.title}"
+        # pp "Orga created: #{new_orga.id}, #{new_orga.title}"
       else
-        Rails.logger.info 'Orga could not be created!'
-        Rails.logger.info new_orga.title
-        Rails.logger.info new_orga.errors.messages
+        pp 'Orga could not be created!'
+        pp new_orga.title
+        pp new_orga.errors.messages
         next
       end
 
       locations = orga['location']
       # if (count = locations.size) > 1
-      #   Rails.logger.info "Orga #{orga.id} has #{count} locations but only the first could be migrated"
+      #   pp "Orga #{orga.id} has #{count} locations but only the first could be migrated"
       # end
       # if location = locations.first
       if locations.each do |location|
@@ -201,11 +201,11 @@ module Seeds
           country: 'Deutschland',
         )
         if new_location.save
-          # Rails.logger.info "Location for Orga #{new_orga.id} created: #{new_location.id}, #{new_location.street}"
+          # pp "Location for Orga #{new_orga.id} created: #{new_location.id}, #{new_location.street}"
         else
-          Rails.logger.info 'Location could not be created!'
-          Rails.logger.info new_location.street
-          Rails.logger.info new_location.errors.messages
+          pp 'Location could not be created!'
+          pp new_location.street
+          pp new_location.errors.messages
           next
         end
       end
@@ -217,11 +217,11 @@ module Seeds
         contact_person: json['speakerPublic']
       )
       if new_contact_info.save
-        # Rails.logger.info "Location for Orga #{new_contact_info.id} created: #{new_contact_info.id}, #{new_contact_info.mail}"
+        # pp "Location for Orga #{new_contact_info.id} created: #{new_contact_info.id}, #{new_contact_info.mail}"
       else
-        Rails.logger.info 'Location could not be created!'
-        Rails.logger.info new_contact_info.mail
-        Rails.logger.info new_contact_info.errors.messages
+        pp 'Location could not be created!'
+        pp new_contact_info.mail
+        pp new_contact_info.errors.messages
         next
       end
     end
