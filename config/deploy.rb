@@ -64,6 +64,37 @@ namespace :deploy do
     end
   end
 
+  task :stop do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      # Here we can do anything such as:
+      within release_path do
+        api =
+            if fetch(:stage).to_s == 'production'
+              'api'
+            else
+              'dev-api'
+            end
+        execute "svc -d ~/service/#{api}" # maybe we can use -h instead of -du
+      end
+    end
+  end
+
+  task :start do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      # Here we can do anything such as:
+      within release_path do
+        api =
+            if fetch(:stage).to_s == 'production'
+              'api'
+            else
+              'dev-api'
+            end
+        execute "svc -u ~/service/#{api}" # maybe we can use -h instead of -du
+      end
+    end
+  end
+
 end
 
 after 'deploy', 'deploy:restart'
+after 'deploy:rollback', 'deploy:restart'
