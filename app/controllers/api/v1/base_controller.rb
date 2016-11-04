@@ -1,14 +1,13 @@
 class Api::V1::BaseController < ApplicationController
 
   include DeviseTokenAuth::Concerns::SetUserByToken
+  include JSONAPI::ActsAsResourceController
+  include CrossOriginHeader
 
   respond_to :json
 
-  before_action :set_access_control_headers
   before_action :authenticate_api_v1_user!
   before_action :permit_params
-
-  include JSONAPI::ActsAsResourceController
 
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
@@ -30,21 +29,6 @@ class Api::V1::BaseController < ApplicationController
   end
 
   private
-
-  def set_access_control_headers
-    allowed_hosts = Settings.api.hosts
-    allowed_protocols = Settings.api.protocols
-    access_control_allow_origin = []
-
-    allowed_protocols.each do |protocol|
-      allowed_hosts.each do |host|
-        access_control_allow_origin << "#{protocol}://#{host}"
-      end
-    end
-
-    headers['Access-Control-Allow-Origin'] = access_control_allow_origin.join(' | ')
-    headers['Access-Control-Request-Method']= '*'
-  end
 
   # def ensure_host
   #   allowed_hosts = Settings.api.hosts

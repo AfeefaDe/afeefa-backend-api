@@ -28,7 +28,11 @@ Rails.application.routes.draw do
     namespace :api do
       namespace :v1 do
         #routes.call
-        mount_devise_token_auth_for 'User', at: 'users'
+        mount_devise_token_auth_for 'User',
+          at: 'users',
+          controllers: {
+            sessions: 'api/v1/sessions'
+          }
 
         jsonapi_resources :orgas
         jsonapi_resources :users
