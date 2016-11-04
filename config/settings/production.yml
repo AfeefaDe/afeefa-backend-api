@@ -1,6 +1,6 @@
 api:
   hosts:
-    - 'dev-backend.afeefa.de'
+    - '*'
   protocols:
-    - 'http'
+    - '*'
   admin_secret: '0815-DaS-IsT-EiN-SiChErEs-PaSsWoRt!'
