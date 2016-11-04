@@ -34,7 +34,7 @@ class Api::V1::BaseController < ApplicationController
   def set_access_control_headers
     allowed_hosts = Settings.api.hosts
     allowed_protocols = Settings.api.protocols
-    access_control_allow_origin = ''
+    access_control_allow_origin = []
 
     allowed_protocols.each do |protocol|
       allowed_hosts.each do |host|
