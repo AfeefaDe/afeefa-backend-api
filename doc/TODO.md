@@ -3,3 +3,4 @@
 * readme for api
 * Livedaten
 * Airbrake Integration
+* handle multiple cors headers...
