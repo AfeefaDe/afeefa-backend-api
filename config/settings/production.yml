@@ -1,9 +1,6 @@
 api:
   hosts:
-    - localhost
-    - dev-api.afeefa.de
-    - api.afeefa.de
+    - 'dev-backend.afeefa.de'
   protocols:
-    - https
-#    - http
-  admin_secret: '0815'
+    - 'https'
+  admin_secret: '0815-DaS-IsT-EiN-SiChErEs-PaSsWoRt!'

@@ -4,8 +4,7 @@ class Api::V1::BaseController < ApplicationController
 
   respond_to :json
 
-  before_action :ensure_host
-  before_action :ensure_protocol
+  before_action :set_access_control_headers
   before_action :authenticate_api_v1_user!
   before_action :permit_params
 
@@ -32,31 +31,46 @@ class Api::V1::BaseController < ApplicationController
 
   private
 
-  def ensure_host
+  def set_access_control_headers
     allowed_hosts = Settings.api.hosts
-    if (host = request.host).in?(allowed_hosts)
-      true
-    else
-      render(
-          text: "wrong host: #{host}, allowed: #{allowed_hosts.join(', ')}",
-          status: :unauthorized
-      )
-      false
+    allowed_protocols = Settings.api.protocols
+    access_control_allow_origin = ''
+
+    allowed_protocols.each do |protocol|
+      allowed_hosts.each do |host|
+        access_control_allow_origin << "#{protocol}://#{host}"
+      end
     end
+
+    headers['Access-Control-Allow-Origin'] = access_control_allow_origin.join(' | ')
+    headers['Access-Control-Request-Method']= '*'
   end
 
-  def ensure_protocol
-    allowed_protocols = Settings.api.protocols
-    if (protocol = request.protocol.gsub(/:.*/, '')).in?(allowed_protocols)
-      true
-    else
-      render(
-          text: "wrong protocol: #{protocol}, allowed: #{allowed_protocols.join(', ')}",
-          status: :unauthorized
-      )
-      false
-    end
-  end
+  # def ensure_host
+  #   allowed_hosts = Settings.api.hosts
+  #   if (host = request.host).in?(allowed_hosts)
+  #     true
+  #   else
+  #     render(
+  #       text: "wrong host: #{host}, allowed: #{allowed_hosts.join(', ')}",
+  #       status: :unauthorized
+  #     )
+  #     false
+  #   end
+  # end
+  #
+  # def ensure_protocol
+  #   allowed_protocols = Settings.api.protocols
+  #   if (protocol = request.protocol.gsub(/:.*/, '')).in?(allowed_protocols)
+  #     true
+  #   else
+  #     render(
+  #       text: "wrong protocol: #{protocol}, allowed: #{allowed_protocols.join(', ')}",
+  #       status: :unauthorized
+  #     )
+  #     false
+  #   end
+  # end
 
   def ensure_admin_secret
     if params[:admin_secret] == Settings.api.admin_secret

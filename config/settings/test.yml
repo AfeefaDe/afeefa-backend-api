@@ -1,6 +1,6 @@
 api:
   hosts:
-    - test.host
+    - '*'
   protocols:
-    - http
+    - '*'
   admin_secret: '0815'
