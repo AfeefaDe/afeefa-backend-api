@@ -26,17 +26,18 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'get sub orga relation' do
-      count = Orga.root_orga.sub_orgas.count
+      orga = create(:orga_with_sub_orga)
+      count = orga.sub_orgas.count
 
-      get :show_relationship, params: { orga_id: Orga.root_orga.id, relationship: 'sub_orgas' }
+      get :show_relationship, params: { orga_id: orga.id, relationship: 'sub_orgas' }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal count, json['data'].count
 
-      Orga.create!(title: 'Afeefa12345', description: 'Eine Beschreibung für Afeefa', parent_orga: Orga.root_orga)
+      Orga.create!(title: 'Afeefa12345', description: 'Eine Beschreibung für Afeefa', parent_orga: orga)
 
-      get :show_relationship, params: { orga_id: Orga.root_orga.id, relationship: 'sub_orgas' }
+      get :show_relationship, params: { orga_id: orga.id, relationship: 'sub_orgas' }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']

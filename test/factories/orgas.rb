@@ -1,7 +1,6 @@
 FactoryGirl.define do
 
   factory :orga do
-
     title 'an orga'
     parent_orga { Orga.root_orga }
 
@@ -14,8 +13,23 @@ FactoryGirl.define do
       state StateMachine::ACTIVE
     end
 
-    factory :orga_with_admin do
+    factory :orga_with_sub_orga do
+      transient do
+        sub_orgas { [build(:orga)] }
+      end
 
+      after(:build) do |orga, evaluator|
+        evaluator.sub_orgas.each do |sub_orga|
+          sub_orga.parent_orga = orga
+        end
+      end
+
+      after(:create) do |orga|
+        orga.sub_orgas.map(&:save!)
+      end
+    end
+
+    factory :orga_with_admin do
       title 'orga with admin'
 
       transient do
@@ -29,8 +43,8 @@ FactoryGirl.define do
       end
 
       after(:create) do |orga|
-        orga.roles.map(&:save)
-        orga.users.map(&:save)
+        orga.roles.map(&:save!)
+        orga.users.map(&:save!)
       end
     end
   end

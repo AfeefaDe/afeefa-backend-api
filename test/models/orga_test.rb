@@ -2,6 +2,10 @@ require 'test_helper'
 
 class OrgaTest < ActiveSupport::TestCase
 
+  should 'has root orga' do
+    assert Orga.root_orga, 'root orga does not exist or scope is wrong'
+  end
+
   context 'with new orga' do
     setup do
       @my_orga = Orga.new
@@ -20,7 +24,7 @@ class OrgaTest < ActiveSupport::TestCase
 
   context 'with existing orga' do
     setup do
-      @orga = Orga.create!(title: 'FirstOrga', description: 'Nothing goes above', parent_orga: Orga.first)
+      @orga = Orga.create!(title: 'FirstOrga', description: 'Nothing goes above', parent_orga: Orga.root_orga)
     end
 
     should 'have contact_informations' do
@@ -48,5 +52,12 @@ class OrgaTest < ActiveSupport::TestCase
       orga.activate!
       assert orga.active?
     end
+
+    should 'have default scope which excludes root orga' do
+      assert_equal Orga.unscoped.count - 1, Orga.count
+      assert_includes Orga.unscoped, Orga.root_orga
+      assert_not_includes Orga.all, Orga.root_orga
+    end
   end
+
 end

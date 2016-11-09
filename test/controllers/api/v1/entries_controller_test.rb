@@ -12,7 +12,8 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].size
+      # root orga should not be shown
+      assert_equal 0, json['data'].size
     end
 
     should 'get filter title and description' do

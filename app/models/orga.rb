@@ -24,10 +24,11 @@ class Orga < ApplicationRecord
   before_destroy :move_sub_orgas_to_parent, prepend: true
 
   scope :without_root, -> { where.not(title: ROOT_ORGA_TITLE) }
+  default_scope { without_root }
 
   class << self
     def root_orga
-      Orga.find_by_title(ROOT_ORGA_TITLE)
+      Orga.unscoped.find_by_title(ROOT_ORGA_TITLE)
     end
   end
 
