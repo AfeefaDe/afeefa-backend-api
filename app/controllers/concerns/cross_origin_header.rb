@@ -10,7 +10,7 @@ module CrossOriginHeader
 
     def update_auth_header
       super
-      pp response.headers
+      pp "#{request.url} delivered the following headers:\n#{response.headers}"
     end
 
     private
