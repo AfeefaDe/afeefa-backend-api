@@ -2,7 +2,7 @@ class Api::V1::BaseController < ApplicationController
 
   include DeviseTokenAuth::Concerns::SetUserByToken
   include JSONAPI::ActsAsResourceController
-  include CrossOriginHeader
+  include CustomHeaders
 
   respond_to :json
 
