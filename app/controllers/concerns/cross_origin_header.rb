@@ -3,7 +3,15 @@ module CrossOriginHeader
   extend ActiveSupport::Concern
 
   included do
-    before_action :set_access_control_headers
+    # actually we do not want a CORS header
+    # before_action :set_access_control_headers
+
+    protected
+
+    def update_auth_header
+      super
+      pp response.headers
+    end
 
     private
 
