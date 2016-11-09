@@ -11,6 +11,14 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
     assert_response :unauthorized, response.body
     assert response.headers.key?('Access-Control-Allow-Origin')
     assert '*', response.headers['Access-Control-Allow-Origin']
+
+    expected =
+      {
+        errors: [
+          'Ungültige Anmeldeinformationen. Bitte versuchen Sie es erneut.'
+        ]
+      }.to_json
+    assert_equal expected, response.body
   end
 
 end
