@@ -23,7 +23,7 @@ module Seeds
       orga0.title = Orga::ROOT_ORGA_TITLE
       orga0.save!(validate: false)
     else
-      orga0 = Orga.create!(title: Orga::ROOT_ORGA_TITLE)
+      orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE)
       orga0.save!(validate: false)
     end
 
