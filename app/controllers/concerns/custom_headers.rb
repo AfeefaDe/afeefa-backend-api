@@ -35,7 +35,7 @@ module CustomHeaders
       # headers['Access-Control-Request-Method']= '*'
 
       # no caching please:
-      headers['Cache-control']= 'private, max-age=0, no-cache'
+      headers['Cache-Control']= 'private, max-age=0, no-cache'
     end
 
   end
