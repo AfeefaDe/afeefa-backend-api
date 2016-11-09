@@ -9,7 +9,9 @@ module CustomHeaders
 
     def update_auth_header
       super
-      Rails.logger.info "#{request.url}\ndelivered the following access-token in header:\n#{response.headers['access-token']}"
+      Rails.logger.debug(
+        "#{request.url}\ndelivered the following access-token in header: #{response.headers['access-token']}"
+      )
     end
 
     private
