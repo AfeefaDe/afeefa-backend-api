@@ -1,14 +1,17 @@
 class Orga < ApplicationRecord
   ROOT_ORGA_TITLE = 'ROOT-ORGA'
 
+  # INCLUDES
   include Owner
   include Able
 
+  # ATTRIBUTES AND ASSOCIATIONS
   acts_as_tree(dependent: :restrict_with_exception)
   alias_method :sub_orgas, :children
   alias_method :sub_orgas=, :children=
   alias_method :parent_orga, :parent
   alias_method :parent_orga=, :parent=
+  alias_attribute :parent_orga_id, :parent_id
 
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
@@ -16,13 +19,17 @@ class Orga < ApplicationRecord
 
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
-  validate :ensure_not_root_orga
+  # VALIDATIONS
+  validate :add_root_orga_edit_error, if: -> { root_orga? }
   validates :title, presence: true, length: { minimum: 5 }
   validates_uniqueness_of :title
   validates_presence_of :parent_id, unless: :root_orga?
 
+  # HOOKS
+  before_validation :set_parent_orga_as_default, if: -> { parent_orga.blank? }
   before_destroy :move_sub_orgas_to_parent, prepend: true
 
+  # SCOPES
   scope :without_root, -> { where.not(title: ROOT_ORGA_TITLE) }
   default_scope { without_root }
 
@@ -57,7 +64,19 @@ class Orga < ApplicationRecord
   #   self.update(active: active)
   # end
 
+  def root?
+    root_orga?
+  end
+
+  def root_orga?
+    title == ROOT_ORGA_TITLE
+  end
+
   private
+
+  def set_parent_orga_as_default
+    self.parent_orga = Orga.root_orga
+  end
 
   def move_sub_orgas_to_parent
     sub_orgas.each do |suborga|
@@ -67,11 +86,8 @@ class Orga < ApplicationRecord
     self.reload
   end
 
-  def ensure_not_root_orga
-    errors.add(:base, 'META ORGA is not editable!') if root_orga?
+  def add_root_orga_edit_error
+    errors.add(:base, 'ROOT ORGA is not editable!')
   end
 
-  def root_orga?
-    title == ROOT_ORGA_TITLE
-  end
 end

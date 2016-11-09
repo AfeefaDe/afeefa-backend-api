@@ -130,9 +130,49 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           }
         }
         assert_response :created, response.body
-        assert @orga.reload.inactive?
+        assert_equal 'some title', Orga.last.title
+        assert Orga.last.inactive?
         json = JSON.parse(response.body)
         assert_equal StateMachine::INACTIVE.to_s, json['data']['attributes']['state']
+      end
+
+      should 'set default orga on orga create without parent relation' do
+        post :create, params: {
+          data: {
+            type: 'orgas',
+            attributes: {
+              title: 'some title',
+              description: 'some description'
+            }
+          }
+        }
+        assert_response :created, response.body
+        assert_equal 'some title', Orga.last.title
+        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
+      end
+
+      should 'set default orga on orga create with parent relation with id nil' do
+        skip 'jsonapi gem does not support this'
+        post :create, params: {
+          data: {
+            type: 'orgas',
+            attributes: {
+              title: 'some title',
+              description: 'some description'
+            },
+            relationships: {
+              parent_orga: {
+                data: {
+                  id: nil,
+                  type: 'orgas'
+                }
+              }
+            }
+          }
+        }
+        assert_response :created, response.body
+        assert_equal 'some title', Orga.last.title
+        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
       end
     end
   end

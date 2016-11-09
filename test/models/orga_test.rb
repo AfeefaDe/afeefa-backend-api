@@ -20,6 +20,13 @@ class OrgaTest < ActiveSupport::TestCase
         assert_equal nil, @my_orga.send(attr)
       end
     end
+
+    should 'set root orga as parent if no parent given' do
+      @my_orga.title = 'foo' * 3
+      assert_nil @my_orga.parent_orga
+      assert @my_orga.save, @my_orga.errors.messages
+      assert_equal Orga.root_orga.id, @my_orga.reload.parent_orga_id
+    end
   end
 
   context 'with existing orga' do
