@@ -2,7 +2,26 @@ FactoryGirl.define do
 
   factory :orga do
     title 'an orga'
+    description 'this is a short description of this orga'
+
+    category { Able::CATEGORIES.first }
     parent_orga { Orga.root_orga }
+
+    # handle contact_infos
+    transient do
+      contact_infos { [build(:contact_info)] }
+    end
+
+    after(:build) do |orga, evaluator|
+      evaluator.contact_infos.each do |contact_info|
+        contact_info.contactable = orga
+      end
+    end
+
+    after(:create) do |orga|
+      orga.contact_infos.map(&:save!)
+    end
+    # handle contact_infos end
 
     factory :another_orga do
       title 'another orga'

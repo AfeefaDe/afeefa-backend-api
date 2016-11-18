@@ -41,6 +41,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           attributes: {
             title: 'some title',
             description: 'some description',
+            category: Able::CATEGORIES.first,
             state_transition: 'activate'
           },
           relationships: {
@@ -68,6 +69,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           attributes: {
             title: 'some title',
             description: 'some description',
+            category: Able::CATEGORIES.first,
             state_transition: 'activate'
           },
           relationships: {
@@ -114,6 +116,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
+              category: Able::CATEGORIES.first,
               state_transition: 'activate'
             },
             relationships: {
@@ -172,6 +175,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
+              category: Able::CATEGORIES.first,
               state: StateMachine::ACTIVE.to_s
             },
             relationships: {
@@ -204,7 +208,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
             type: 'events',
             attributes: {
               title: 'some title',
-              description: 'some description'
+              description: 'some description',
+              category: Able::CATEGORIES.first,
             }
           }
         }
@@ -219,7 +224,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
             type: 'events',
             attributes: {
               title: 'some title',
-              description: 'some description'
+              description: 'some description',
+              category: Able::CATEGORIES.first,
             }
           }
         }
@@ -235,7 +241,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
             type: 'events',
             attributes: {
               title: 'some title',
-              description: 'some description'
+              description: 'some description',
+              category: Able::CATEGORIES.first,
             },
             relationships: {
               orga: {

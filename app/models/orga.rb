@@ -21,8 +21,6 @@ class Orga < ApplicationRecord
 
   # VALIDATIONS
   validate :add_root_orga_edit_error, if: -> { root_orga? }
-  validates :title, presence: true, length: { minimum: 5 }
-  validates_uniqueness_of :title
   validates_presence_of :parent_id, unless: :root_orga?
 
   # HOOKS

@@ -10,8 +10,8 @@ class EventTest < ActiveSupport::TestCase
   context 'with new event' do
     setup do
       @user = create(:user)
-      orga = create(:orga)
-      @event = Event.new(orga: orga, creator: @user)
+      @orga = create(:orga)
+      @event = build(:event, orga: @orga, creator: @user)
     end
 
     should 'create event' do
@@ -25,13 +25,14 @@ class EventTest < ActiveSupport::TestCase
 
     should 'have contact_informations' do
       assert @event.contact_infos.blank?
-      assert contact_info = ContactInfo.create(contactable: @event), contact_info.errors
+      assert @event.save
+      assert contact_info = create(:contact_info, contactable: @event), contact_info.errors
       assert_includes @event.reload.contact_infos, contact_info
     end
 
     should 'have categories' do
-      assert @event.category.blank?
-      @event.category = 'irgendeine komische Kategorie'
+      @event = build(:event, category: nil, orga: @orga)
+      @event.category = Able::CATEGORIES.last
       assert @event.category.present?
     end
   end

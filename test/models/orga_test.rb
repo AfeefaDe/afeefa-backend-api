@@ -6,43 +6,37 @@ class OrgaTest < ActiveSupport::TestCase
     assert Orga.root_orga, 'root orga does not exist or scope is wrong'
   end
 
-  context 'with new orga' do
-    setup do
-      @my_orga = Orga.new
-    end
+  should 'validate attributes' do
+    orga = Orga.new
+    assert_not orga.valid?
+    assert_match 'blank', orga.errors[:title].first
+    assert_match 'blank', orga.errors[:description].first
+    assert_match 'inclusion', orga.errors[:category].first
+  end
 
-    should 'orga attributes' do
-      nil_defaults = [:title, :description]
-      (nil_defaults).each do |attr|
-        assert @my_orga.respond_to?(attr), "orga does not respond to #{attr}"
-      end
-      nil_defaults.each do |attr|
-        assert_equal nil, @my_orga.send(attr)
-      end
-    end
-
-    should 'set root orga as parent if no parent given' do
-      @my_orga.title = 'foo' * 3
-      assert_nil @my_orga.parent_orga
-      assert @my_orga.save, @my_orga.errors.messages
-      assert_equal Orga.root_orga.id, @my_orga.reload.parent_orga_id
-    end
+  should 'set root orga as parent if no parent given' do
+    orga = build(:orga, parent_orga_id: nil)
+    assert orga.save, orga.errors.messages
+    assert_equal Orga.root_orga.id, orga.reload.parent_orga_id
   end
 
   context 'with existing orga' do
     setup do
-      @orga = Orga.create!(title: 'FirstOrga', description: 'Nothing goes above', parent_orga: Orga.root_orga)
+      @orga = build(:orga, title: 'FirstOrga', description: 'Nothing goes above', parent_orga: Orga.root_orga)
+      assert @orga.valid?, @orga.errors.messages
     end
 
     should 'have contact_informations' do
       assert @orga.contact_infos.blank?
-      assert contact_info = ContactInfo.create(contactable: @orga)
+      assert @orga.save
+      assert contact_info = create(:contact_info, contactable: @orga)
       assert_includes @orga.reload.contact_infos, contact_info
     end
 
     should 'have categories' do
-      assert @orga.category.blank?
-      @orga.category = 'irgendeine komische Kategorie'
+      @orga = build(:orga, category: nil)
+      @orga.category.blank?
+      @orga.category = Able::CATEGORIES.last
       assert @orga.category.present?
     end
 

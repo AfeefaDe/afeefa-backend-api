@@ -35,7 +35,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal count, json['data'].count
 
-      Orga.create!(title: 'Afeefa12345', description: 'Eine Beschreibung für Afeefa', parent_orga: orga)
+      create(:orga, title: 'Afeefa12345', description: 'Eine Beschreibung für Afeefa', parent_orga: orga)
 
       get :show_relationship, params: { orga_id: orga.id, relationship: 'sub_orgas' }
       assert_response :ok, response.body
@@ -63,6 +63,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 attributes: {
                     title: 'some title',
                     description: 'some description',
+                    category: Able::CATEGORIES.first,
                     state_transition: 'activate'
                 },
                 relationships: {
@@ -117,6 +118,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
+              category: Able::CATEGORIES.first,
               state: StateMachine::ACTIVE.to_s
             },
             relationships: {
@@ -142,7 +144,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             type: 'orgas',
             attributes: {
               title: 'some title',
-              description: 'some description'
+              description: 'some description',
+              category: Able::CATEGORIES.first,
             }
           }
         }
@@ -158,7 +161,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             type: 'orgas',
             attributes: {
               title: 'some title',
-              description: 'some description'
+              description: 'some description',
+              category: Able::CATEGORIES.first,
             },
             relationships: {
               parent_orga: {
