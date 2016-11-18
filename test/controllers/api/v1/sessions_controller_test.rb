@@ -9,8 +9,8 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 
     post :create, params: { user: 'foo', password: 'bar' }
     assert_response :unauthorized, response.body
-    assert response.headers.key?('Access-Control-Allow-Origin')
-    assert '*', response.headers['Access-Control-Allow-Origin']
+    assert response.headers.key?('Cache-Control')
+    assert 'private, max-age=0, no-cache', response.headers['Cache-Control']
 
     expected =
       {

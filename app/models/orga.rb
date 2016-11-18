@@ -33,12 +33,14 @@ class Orga < ApplicationRecord
   scope :without_root, -> { where.not(title: ROOT_ORGA_TITLE) }
   default_scope { without_root }
 
+  # CLASS METHODS
   class << self
     def root_orga
       Orga.unscoped.find_by_title(ROOT_ORGA_TITLE)
     end
   end
 
+  # INSTANCE METHODS
   # def add_new_member(new_member:, admin:)
   #   admin.can! :write_orga_structure, self, 'You are not authorized to modify the user list of this organization!'
   #   if new_member.belongs_to_orga?(self)

@@ -8,6 +8,9 @@
 
 module Seeds
 
+  class EntryImportError < StandardError
+  end
+
   def self.recreate_all
     # clean up
     Orga.without_root.delete_all
@@ -28,11 +31,13 @@ module Seeds
     end
 
     # users
+    User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'password1')
     User.create!(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'password5')
     User.create!(email: 'joschka@afeefa.de', forename: 'Joschka', surname: 'Heinrich', password: 'password2')
-    User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'password1')
     User.create!(email: 'steve@afeefa.de', forename: 'Steve', surname: 'Reinke', password: 'password1')
     User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'password3')
+    User.create!(email: 'alex@afeefa.de', forename: 'Alex', surname: 'Weiß', password: 'password1')
+    User.create!(email: 'friedrich@afeefa.de', forename: 'Friedrich', surname: 'Weise', password: 'password1')
 
     # data for test and dev
     # if Rails.env.development?
@@ -163,73 +168,153 @@ module Seeds
 
     # TODO: Einige Datensätze gibt es mehrfach (duplicate title):
     # pp marketentries.map{|x|x['name']}.sort
+    entries = {
+      orga: {
+        count: 0,
+        created: 0,
+        failed: 0
+      },
+      market_entry: {
+        count: 0,
+        created: 0,
+        failed: 0
+      },
+      event: {
+        count: 0,
+        created: 0,
+        failed: 0
+      },
+      poi: {
+        count: 0,
+        created: 0,
+        failed: 0
+      }
+    }
 
-    marketentries.each do |orga|
+    marketentries.each do |entry|
       # TODO: Later we can use 'area' to set the geographically rights
-      new_orga = Orga.new(
-        title: orga['name'],
-        description: orga['description'],
-        category: orga['category']['name'],
-        parent: Orga.root_orga
-      )
-      if new_orga.save
-        # pp "Orga created: #{new_orga.id}, #{new_orga.title}"
-      else
-        pp 'Orga could not be created!'
-        pp new_orga.title
-        pp new_orga.errors.messages
-        next
-      end
+      # TODO: Parse for type and import entries according to type!
+      type =
+        case entry['type']
+          when 0
+            :orga
+          when 1
+            # pp 'Marketentries are not supported yet.'
+            next
+            :market_entry
+          when 2
+            :event
+          when 3
+            # pp 'Pois are not supported yet.'
+            next
+            :poi
+          else
+            pp 'Unknown type!'
+        end
+      entries[type][:count] += 1
 
-      locations = orga['location']
-      # if (count = locations.size) > 1
-      #   pp "Orga #{orga.id} has #{count} locations but only the first could be migrated"
-      # end
-      # if location = locations.first
-      if locations.each do |location|
-        new_location = Location.new(
-          locatable: new_orga,
-          lat: location['lat'],
-          lon: location['lon'],
-          street: location['street'],
-          number: 'Die Hausnummer steht aktuell in der Straße mit drin.',
-          placename: location['placename'],
-          zip: location['zip'],
-          city: location['city'],
-          district: location['district'],
-          state: 'Sachsen',
-          country: 'Deutschland',
+      new_entry =
+        case type
+          when :orga
+            Orga.new(
+              title: entry['name'],
+              description: entry['description'],
+              category: entry['category']['name'],
+              parent: Orga.root_orga
+            )
+          when :market_entry
+            #   MarketEntry.new(
+            #     title: entry['name'],
+            #     description: entry['description'],
+            #     category: entry['category']['name'],
+            #     parent: Orga.root_orga
+            #   )
+          when :event
+            Event.new(
+              title: entry['name'],
+              description: entry['description'],
+              category: entry['category']['name'],
+              orga: Orga.root_orga,
+              creator: User.first
+            )
+          when :poi
+            #   Poi.new(
+            #     title: entry['name'],
+            #     description: entry['description'],
+            #     category: entry['category']['name'],
+            #     parent: Orga.root_orga
+            #   )
+        end
+
+      begin
+        if new_entry.save
+          entries[type][:created] += 1
+          # pp "Orga created: #{new_entry.id}, #{new_entry.title}"
+        else
+          raise EntryImportError
+        end
+
+        locations = entry['location']
+        # if (count = locations.size) > 1
+        #   pp "Orga #{orga.id} has #{count} locations but only the first could be migrated"
+        # end
+        # if location = locations.first
+        if locations.each do |location|
+          new_location = Location.new(
+            locatable: new_entry,
+            lat: location['lat'],
+            lon: location['lon'],
+            street: location['street'],
+            number: 'Die Hausnummer steht aktuell in der Straße mit drin.',
+            placename: location['placename'],
+            zip: location['zip'],
+            city: location['city'],
+            district: location['district'],
+            state: 'Sachsen',
+            country: 'Deutschland',
+          )
+          if new_location.save
+            # pp "Location for Orga #{new_entry.id} created: #{new_location.id}, #{new_location.street}"
+          else
+            pp 'Location could not be created!'
+            pp new_location.street
+            pp new_location.errors.messages
+            next
+          end
+        end
+        end
+        new_contact_info = ContactInfo.new(
+          contactable: new_entry,
+          mail: json['mail'],
+          phone: json['phone'],
+          contact_person: json['speakerPublic']
         )
-        if new_location.save
-          # pp "Location for Orga #{new_orga.id} created: #{new_location.id}, #{new_location.street}"
+        if new_contact_info.save
+          # pp "Location for Orga #{new_contact_info.id} created: #{new_contact_info.id}, #{new_contact_info.mail}"
         else
           pp 'Location could not be created!'
-          pp new_location.street
-          pp new_location.errors.messages
+          pp new_contact_info.mail
+          pp new_contact_info.errors.messages
           next
         end
-      end
-      end
-      new_contact_info = ContactInfo.new(
-        contactable: new_orga,
-        mail: json['mail'],
-        phone: json['phone'],
-        contact_person: json['speakerPublic']
-      )
-      if new_contact_info.save
-        # pp "Location for Orga #{new_contact_info.id} created: #{new_contact_info.id}, #{new_contact_info.mail}"
-      else
-        pp 'Location could not be created!'
-        pp new_contact_info.mail
-        pp new_contact_info.errors.messages
+      rescue ActiveRecord::ValueTooLong, EntryImportError
+        entries[type][:failed] += 1
+        pp 'Entry could not be created!'
+        pp new_entry.title
+        new_entry.valid?
+        pp new_entry.errors.messages
         next
       end
     end
+
+    pp 'statistic:'
+    pp entries
   end
 
 end
 
 Seeds.recreate_all
-Seeds.marketentries_from_json
-# TODO: Parse for type and import entries according to type!
+unless Rails.env.test?
+  Seeds.marketentries_from_json
+end
 # TODO: Discuss user logins for production!

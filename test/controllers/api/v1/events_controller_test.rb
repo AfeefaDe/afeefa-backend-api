@@ -197,6 +197,60 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         json = JSON.parse(response.body)
         assert_equal StateMachine::INACTIVE.to_s, json['data']['attributes']['state']
       end
+
+      should 'set default orga on orga create without orga relation' do
+        post :create, params: {
+          data: {
+            type: 'events',
+            attributes: {
+              title: 'some title',
+              description: 'some description'
+            }
+          }
+        }
+        assert_response :created, response.body
+        assert_equal 'some title', Event.last.title
+        assert_equal Orga.root_orga.id, Event.last.orga_id
+      end
+
+      should 'set default orga on event create without orga relation' do
+        post :create, params: {
+          data: {
+            type: 'events',
+            attributes: {
+              title: 'some title',
+              description: 'some description'
+            }
+          }
+        }
+        assert_response :created, response.body
+        assert_equal 'some title', Event.last.title
+        assert_equal Orga.root_orga.id, Event.last.orga_id
+      end
+
+      should 'set default orga on event create with orga relation with id nil' do
+        skip 'jsonapi gem does not support this'
+        post :create, params: {
+          data: {
+            type: 'events',
+            attributes: {
+              title: 'some title',
+              description: 'some description'
+            },
+            relationships: {
+              orga: {
+                data: {
+                  id: nil,
+                  type: 'orgas'
+                }
+              }
+            }
+          }
+        }
+        assert_response :created, response.body
+        assert_equal 'some title', Orga.last.title
+        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
+      end
     end
   end
 
