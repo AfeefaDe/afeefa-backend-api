@@ -69,4 +69,21 @@ class Api::V1::BaseController < ApplicationController
     params.try(:[], :data).try(:[], :attributes).try(:delete, :state)
     params.try(:[], :data).try(:[], :relationships).try(:delete, :creator)
   end
+
+  def render_results(operation_results)
+    response_doc = create_response_document(operation_results)
+    content = response_doc.contents
+
+    if content.blank? || content.key?(:data) && content[:data].nil?
+      error =
+        JSONAPI::Exceptions::RecordNotFound.new(params[:id].presence || '(id not given)')
+      render_errors(error.errors)
+    else
+      super
+    end
+  end
+
+  def render_errors(errors)
+    super
+  end
 end

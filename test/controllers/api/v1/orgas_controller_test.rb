@@ -15,34 +15,24 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal Orga.count, json['data'].size
     end
 
-    should 'get title filtered list for orgas' do
-      count = Orga.where('title like ?', '%Dresden%').count
-
-      get :index, params: { filter: { title: 'Dresden' } }
-      assert_response :ok, response.body
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal count, json['data'].size
+    should 'not get show root_orga' do
+      not_existing_id = 999
+      assert Orga.where(id: not_existing_id).blank?
+      get :show, params: { id: not_existing_id }
+      assert_response :not_found, response.body
     end
 
-    should 'get sub orga relation' do
-      orga = create(:orga_with_sub_orga)
-      count = orga.sub_orgas.count
-
-      get :show_relationship, params: { orga_id: orga.id, relationship: 'sub_orgas' }
-      assert_response :ok, response.body
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal count, json['data'].count
-
-      create(:orga, title: 'Afeefa12345', description: 'Eine Beschreibung für Afeefa', parent_orga: orga)
-
-      get :show_relationship, params: { orga_id: orga.id, relationship: 'sub_orgas' }
-      assert_response :ok, response.body
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal count + 1, json['data'].count
-    end
+      should 'not get related_resource for root_orga' do
+        event =
+          create(:event, title: 'Hackathon',
+            description: 'Mate fuer alle!', creator: User.first, orga: Orga.root_orga)
+        get :get_related_resource, params: {
+          event_id: event.id,
+          relationship: 'orga',
+          source: 'api/v1/events'
+        }
+        assert_response :not_found, response.body
+      end
 
     context 'with given orga' do
       setup do
@@ -58,23 +48,23 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'I want to create a new orga' do
         post :create, params: {
-            data: {
-                type: 'orgas',
-                attributes: {
-                    title: 'some title',
-                    description: 'some description',
-                    category: Able::CATEGORIES.first,
-                    state_transition: 'activate'
-                },
-                relationships: {
-                    parent_orga: {
-                        data: {
-                            id: @orga.id,
-                            type: 'orgas'
-                        }
-                    }
+          data: {
+            type: 'orgas',
+            attributes: {
+              title: 'some title',
+              description: 'some description',
+              category: Able::CATEGORIES.first,
+              state_transition: 'activate'
+            },
+            relationships: {
+              parent_orga: {
+                data: {
+                  id: @orga.id,
+                  type: 'orgas'
                 }
+              }
             }
+          }
         }
         assert_response :created, response.body
         json = JSON.parse(response.body)
@@ -178,6 +168,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal 'some title', Orga.last.title
         assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
       end
+
     end
   end
 
