@@ -18,8 +18,8 @@ module Able
     scope :unannotated, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
 
     # VALIDATIONS
-    validates :locations, length: { minimum: 1 }
-    validates :contact_infos, length: { minimum: 1 }
+    # validates :locations, length: { minimum: 1 }
+    # validates :contact_infos, length: { minimum: 1 }
 
     validates :title, presence: true, length: { maximum: 150 }
     validates_uniqueness_of :title
