@@ -1,4 +1,4 @@
-module Afeefa
+module Neos
   class Orga < Entry
 
     default_scope { where(type: 0) }

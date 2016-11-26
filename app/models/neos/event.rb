@@ -1,4 +1,4 @@
-module Afeefa
+module Neos
   class Event < Entry
 
     default_scope { where(type: 2) }
