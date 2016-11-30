@@ -2,6 +2,15 @@ require 'test_helper'
 
 class EventTest < ActiveSupport::TestCase
 
+  should 'validate attributes' do
+    event = Event.new
+    assert_not event.valid?
+    assert_match 'muss ausgefüllt werden', event.errors[:title].first
+    assert_match 'muss ausgefüllt werden', event.errors[:description].first
+    assert_match 'ist kein gültiger Wert', event.errors[:category].first
+    assert_match 'muss ausgefüllt werden', event.errors[:date].first
+  end
+
   should 'set initial state for event' do
     assert Event.new.inactive?
     assert_equal StateMachine::INACTIVE, Event.new.state.to_sym
@@ -24,10 +33,11 @@ class EventTest < ActiveSupport::TestCase
     end
 
     should 'have contact_informations' do
-      assert @event.contact_infos.blank?
-      assert @event.save
-      assert contact_info = create(:contact_info, contactable: @event), contact_info.errors
-      assert_includes @event.reload.contact_infos, contact_info
+      event = build(:event, orga: @orga, creator: @user, contact_infos: [])
+      assert event.contact_infos.blank?
+      assert event.save
+      assert contact_info = create(:contact_info, contactable: event), contact_info.errors
+      assert_includes event.reload.contact_infos, contact_info
     end
 
     should 'have categories' do

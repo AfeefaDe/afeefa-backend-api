@@ -3,25 +3,22 @@ FactoryGirl.define do
   factory :event do
       title 'an event'
       description 'description of an event'
+      date { I18n.l(Date.tomorrow) }
       creator { User.first }
       association :orga, factory: :orga
       category { Able::CATEGORIES.first }
 
-      # handle contact_infos
-      transient do
-        contact_infos { [build(:contact_info)] }
-      end
+      contact_infos { [build(:contact_info)] }
+      locations { [build(:location)] }
 
-      after(:build) do |event, evaluator|
-        evaluator.contact_infos.each do |contact_info|
-          contact_info.contactable = event
+      after(:build) do |event|
+        event.contact_infos.each do |ci|
+          ci.contactable = event
+        end
+        event.locations.each do |l|
+          l.locatable = event
         end
       end
-
-      after(:create) do |event|
-        event.contact_infos.map(&:save!)
-      end
-      # handle contact_infos end
 
       factory :another_event do
         title 'another event'

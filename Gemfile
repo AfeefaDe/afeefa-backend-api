@@ -30,6 +30,8 @@ end
 # project relevant gems #
 ########################
 
+# translation
+gem 'rails-i18n', '~> 5.0.0' # For 5.0.x
 # user authentication
 gem 'devise' # see https://github.com/plataformatec/devise
 # api authentication stuff

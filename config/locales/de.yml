@@ -1,0 +1,6 @@
+de:
+  api:
+    attributes:
+      title: Titel
+      description: Beschreibung
+      date: Datum

@@ -7,4 +7,6 @@ class Event < ApplicationRecord
   alias_method :parent_event=, :parent=
   alias_method :sub_events=, :children=
 
+  validates :date, presence: true
+
 end

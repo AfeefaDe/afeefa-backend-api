@@ -22,7 +22,8 @@ class StateMachineTest < ActiveSupport::TestCase
   should 'have contact_informations' do
     user = create(:user)
     orga = create(:orga)
-    event = build(:event, creator: user, orga: orga)
+    event = build(:event, creator: user, orga: orga, contact_infos: [])
+    event.save
     assert event.contact_infos.blank?
     assert contact_info = create(:contact_info, contactable: event), contact_info.errors
     assert_includes event.reload.contact_infos, contact_info

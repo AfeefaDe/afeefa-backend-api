@@ -8,6 +8,7 @@ module Able
 
     # CONSTANTS
     CATEGORIES = ['jobs', 'donation', 'leisure', 'language', 'community', 'general', 'medic', 'consultation']
+    SUB_CATEGORIES = ['jobs', 'donation', 'leisure', 'language', 'community', 'general', 'medic', 'consultation']
 
     # ATTRIBUTES AND ASSOCIATIONS
     has_many :locations, as: :locatable
@@ -18,8 +19,8 @@ module Able
     scope :unannotated, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
 
     # VALIDATIONS
-    # validates :locations, length: { minimum: 1 }
-    # validates :contact_infos, length: { minimum: 1 }
+    validates :locations, length: { minimum: 1 }, on: :update
+    validates :contact_infos, length: { minimum: 1 }, on: :update
 
     validates :title, presence: true, length: { maximum: 150 }
     validates_uniqueness_of :title

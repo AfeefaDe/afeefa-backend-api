@@ -9,9 +9,9 @@ class OrgaTest < ActiveSupport::TestCase
   should 'validate attributes' do
     orga = Orga.new
     assert_not orga.valid?
-    assert_match 'blank', orga.errors[:title].first
-    assert_match 'blank', orga.errors[:description].first
-    assert_match 'inclusion', orga.errors[:category].first
+    assert_match 'muss ausgefüllt werden', orga.errors[:title].first
+    assert_match 'muss ausgefüllt werden', orga.errors[:description].first
+    assert_match 'ist kein gültiger Wert', orga.errors[:category].first
   end
 
   should 'set root orga as parent if no parent given' do
@@ -27,10 +27,11 @@ class OrgaTest < ActiveSupport::TestCase
     end
 
     should 'have contact_informations' do
-      assert @orga.contact_infos.blank?
-      assert @orga.save
-      assert contact_info = create(:contact_info, contactable: @orga)
-      assert_includes @orga.reload.contact_infos, contact_info
+      orga = build(:orga, contact_infos: [])
+      assert orga.contact_infos.blank?
+      assert orga.save
+      assert contact_info = create(:contact_info, contactable: orga)
+      assert_includes orga.reload.contact_infos, contact_info
     end
 
     should 'have categories' do

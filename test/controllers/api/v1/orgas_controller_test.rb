@@ -22,17 +22,17 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_response :not_found, response.body
     end
 
-      should 'not get related_resource for root_orga' do
-        event =
-          create(:event, title: 'Hackathon',
-            description: 'Mate fuer alle!', creator: User.first, orga: Orga.root_orga)
-        get :get_related_resource, params: {
-          event_id: event.id,
-          relationship: 'orga',
-          source: 'api/v1/events'
-        }
-        assert_response :not_found, response.body
-      end
+    should 'not get related_resource for root_orga' do
+      event =
+        create(:event, title: 'Hackathon',
+          description: 'Mate fuer alle!', creator: User.first, orga: Orga.root_orga)
+      get :get_related_resource, params: {
+        event_id: event.id,
+        relationship: 'orga',
+        source: 'api/v1/events'
+      }
+      assert_response :not_found, response.body
+    end
 
     context 'with given orga' do
       setup do
@@ -44,6 +44,30 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_response :ok, response.body
         json = JSON.parse(response.body)
         assert_kind_of Hash, json['data']
+      end
+
+      should 'fail for invalid' do
+        post :create, params: {
+          data: {
+            type: 'orgas',
+            attributes: {
+              title: 'some title',
+              category: Able::CATEGORIES.first,
+              state_transition: 'activate'
+            },
+            relationships: {
+              parent_orga: {
+                data: {
+                  id: @orga.id,
+                  type: 'orgas'
+                }
+              }
+            }
+          }
+        }
+        assert_response :unprocessable_entity, response.body
+        json = JSON.parse(response.body)
+        assert_equal 'Beschreibung - muss ausgefüllt werden', json['errors'].first['detail']
       end
 
       should 'I want to create a new orga' do
@@ -168,7 +192,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal 'some title', Orga.last.title
         assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
       end
-
     end
   end
 
