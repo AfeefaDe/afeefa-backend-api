@@ -51,23 +51,21 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           data: {
             type: 'orgas',
             attributes: {
-              title: 'some title',
-              category: Able::CATEGORIES.first,
-              state_transition: 'activate'
             },
             relationships: {
-              parent_orga: {
-                data: {
-                  id: @orga.id,
-                  type: 'orgas'
-                }
-              }
             }
           }
         }
         assert_response :unprocessable_entity, response.body
         json = JSON.parse(response.body)
-        assert_equal 'Beschreibung - muss ausgefüllt werden', json['errors'].first['detail']
+        assert_equal(
+          [
+            'Titel - muss ausgefüllt werden',
+            'Beschreibung - muss ausgefüllt werden',
+            'Kategorie - ist kein gültiger Wert'
+          ],
+          json['errors'].map { |x| x['detail'] }
+        )
       end
 
       should 'I want to create a new orga' do

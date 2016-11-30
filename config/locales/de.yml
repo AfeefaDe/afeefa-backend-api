@@ -1,6 +1,21 @@
 de:
   api:
-    attributes:
+    attributes: &attributes
+      orga: Organisation
+      event: Veranstaltung
+      category: Kategorie
+      location: Ort
+      contact_info: Kontaktinformation
       title: Titel
       description: Beschreibung
       date: Datum
+      creator: Autor
+      contact_person: Kontaktperson
+      phone: Telefon
+      mail: E-Mail-Adresse
+  activerecord:
+    attributes:
+      orga:
+        <<: *attributes
+      event:
+        <<: *attributes

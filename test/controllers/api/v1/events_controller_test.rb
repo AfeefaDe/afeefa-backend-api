@@ -274,31 +274,22 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         data: {
           type: 'events',
           attributes: {
-            title: 'some title',
-            description: 'some description',
-            category: Able::CATEGORIES.first,
           },
           relationships: {
-            orga:
-              {
-                data:
-                  {
-                    id: create(:another_orga).id,
-                    type: 'orgas'
-                  }
-              },
-            creator: {
-              data: {
-                id: @controller.current_api_v1_user.id,
-                type: 'users'
-              }
-            }
           }
         }
       }
       assert_response :unprocessable_entity, response.body
       json = JSON.parse(response.body)
-      assert_equal 'Datum - muss ausgefüllt werden', json['errors'].first['detail']
+      assert_equal(
+        [
+          'Titel - muss ausgefüllt werden',
+          'Beschreibung - muss ausgefüllt werden',
+          'Kategorie - ist kein gültiger Wert',
+          'Datum - muss ausgefüllt werden'
+        ],
+        json['errors'].map { |x| x['detail'] }
+      )
     end
   end
 
