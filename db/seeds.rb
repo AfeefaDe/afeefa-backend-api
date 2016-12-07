@@ -43,6 +43,12 @@ end
 
 Seeds.recreate_all
 unless Rails.env.test?
-  Neos::Migration.migrate
+  begin
+    Neos::Migration.migrate
+  rescue ActiveRecord::NoDatabaseError => _exception
+    pp 'Migration of old db data could not be processed because the db configured in database.yml could not be found.'
+  rescue ActiveRecord::AdapterNotSpecified => _exception
+    pp 'Migration of old db data could not be processed because no db is configured in database.yml.'
+  end
 end
 # TODO: Discuss user logins for production!
