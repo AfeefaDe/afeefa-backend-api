@@ -26,15 +26,16 @@ class Api::V1::BaseResource < JSONAPI::Resource
         else
           case value
             when Hash
-              # if value.fetch(:id) && value.fetch(:type)
-              #   replace_polymorphic_to_one_link(relationship_type.to_s, value.fetch(:id), value.fetch(:type))
+              if value.fetch(:id) && value.fetch(:type)
+                replace_polymorphic_to_one_link(relationship_type.to_s, value.fetch(:id), value.fetch(:type))
+              # TODO: Do we need that? Is it possible to create polymorphic objects? → Maybe locatable, contactable?
               # elsif value.fetch(:type)
               #   # create polymorphic
               #   handle_associated_object_creation(:to_one, relationship_type, value)
-              # else
-              #   # create
+              else
+                # create
                 handle_associated_object_creation(:to_one, relationship_type, value)
-              # end
+              end
             when Integer, String
               value = { id: value }
           end
@@ -69,7 +70,7 @@ class Api::V1::BaseResource < JSONAPI::Resource
 
   def handle_associated_object_creation(association_type, relationship_type, values)
     sanitized_attributes =
-      values[:attributes].reject { |attr, _value| attr.in?(%i(type __id__)) }
+      (values[:attributes].presence || {}).reject { |attr, _value| attr.in?(%i(type __id__)) }
     associated_object =
       if values.key?(:id)
         relationship_type.to_s.singularize.camelcase.constantize.find(values[:id])
