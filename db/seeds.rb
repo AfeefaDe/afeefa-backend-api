@@ -46,9 +46,9 @@ unless Rails.env.test?
   begin
     Neos::Migration.migrate
   rescue ActiveRecord::NoDatabaseError => _exception
-    pp 'Migration of old db data could not be processed because the db configured in database.yml could not be found.'
+    pp %q(Migration of live db data could not be processed because the db configured in database.yml could not be found. Is db connection 'afeefa' defined correctly? And did you import the db dump from repository?)
   rescue ActiveRecord::AdapterNotSpecified => _exception
-    pp 'Migration of old db data could not be processed because no db is configured in database.yml.'
+    pp %q(Migration of live db data could not be processed because no db is configured in database.yml. Is db connection 'afeefa' defined correctly? And did you import the db dump from repository?)
   end
 end
 # TODO: Discuss user logins for production!
