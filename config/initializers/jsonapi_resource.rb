@@ -46,7 +46,9 @@ JSONAPI::RequestParser.class_eval do
     # }
     raw.merge(
       type: unformat_key(raw['type']).to_s
-    ).deep_symbolize_keys
+    ).
+      to_unsafe_h. # TODO: Permit the params and use to_h
+      deep_symbolize_keys
   end
 
   def parse_to_many_links_object(raw)
@@ -62,25 +64,7 @@ JSONAPI::RequestParser.class_eval do
     else
       fail JSONAPI::Exceptions::InvalidLinksObject.new
     end
-    # binding.pry
     links_object
   end
 
-  # def parse_add_operation(data)
-  #   Array.wrap(data).each do |params|
-  #     verify_type(params[:type])
-  #
-  #     data = parse_params(params, creatable_fields)
-  #     binding.pry
-  #     @operations.push JSONAPI::Operation.new(:create_resource,
-  #       @resource_klass,
-  #       context: @context,
-  #       data: data,
-  #       fields: @fields,
-  #       include_directives: @include_directives
-  #     )
-  #   end
-  # rescue JSONAPI::Exceptions::Error => e
-  #   @errors.concat(e.errors)
-  # end
 end

@@ -5,7 +5,9 @@ de:
       event: Veranstaltung
       category: Kategorie
       location: Ort
+      locations: Ortsangaben
       contact_info: Kontaktinformation
+      contact_infos: Kontaktinformationen
       title: Titel
       description: Beschreibung
       date: Datum

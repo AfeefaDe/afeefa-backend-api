@@ -35,28 +35,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'ensure creator for event on create' do
-      post :create, params: {
-        data: {
-          type: 'events',
-          attributes: {
-            title: 'some title',
-            description: 'some description',
-            date: I18n.l(Date.tomorrow),
-            category: Able::CATEGORIES.first,
-            state_transition: 'activate'
-          },
-          relationships: {
-            orga:
-              {
-                data:
-                  {
-                    id: create(:another_orga).id,
-                    type: 'orgas'
-                  }
-              }
-          }
-        }
-      }
+      params = parse_json_file(file: 'create_event_without_orga.json')
+      post :create, params: params
       assert_response :created, response.body
       assert @controller.current_api_v1_user, Event.last.creator
       json = JSON.parse(response.body)
@@ -64,34 +44,16 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'ignore given creator for event' do
-      post :create, params: {
-        data: {
-          type: 'events',
-          attributes: {
-            title: 'some title',
-            description: 'some description',
-            date: I18n.l(Date.tomorrow),
-            category: Able::CATEGORIES.first,
-            state_transition: 'activate'
-          },
-          relationships: {
-            orga:
-              {
-                data:
-                  {
-                    id: create(:another_orga).id,
-                    type: 'orgas'
-                  }
-              },
-            creator: {
-              data: {
-                id: '123',
-                type: 'users'
-              }
-            }
+      params = parse_json_file(file: 'create_event_without_orga.json')
+      params['data']['relationships'].merge!(
+        'creator' => {
+          data: {
+            id: '123',
+            type: 'users'
           }
         }
-      }
+      )
+      post :create, params: params
       assert_response :created, response.body
       assert_not_equal 123, Event.last.creator_id
       assert @controller.current_api_v1_user, Event.last.creator
@@ -113,28 +75,10 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'I want to create a new event' do
-      post :create, params: {
-        data: {
-          type: 'events',
-          attributes: {
-            title: 'some title',
-            description: 'some description',
-            date: I18n.l(Date.tomorrow),
-            category: Able::CATEGORIES.first,
-            state_transition: 'activate'
-          },
-          relationships: {
-            orga:
-              {
-                data:
-                  {
-                    id: create(:another_orga).id,
-                    type: 'orgas'
-                  }
-              }
-          }
-        }
-      }
+      params = parse_json_file(file: 'create_event_without_orga.json')
+      params['data']['attributes'].
+        merge!('state_transition' => 'activate')
+      post :create, params: params
       assert_response :created, response.body
       json = JSON.parse(response.body)
       assert_equal StateMachine::ACTIVE.to_s, json['data']['attributes']['state']
@@ -174,34 +118,9 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'ignore given state on event create' do
       assert_difference 'Event.count' do
-        post :create, params: {
-          data: {
-            type: 'events',
-            attributes: {
-              title: 'some title',
-              description: 'some description',
-              date: I18n.l(Date.tomorrow),
-              category: Able::CATEGORIES.first,
-              state: StateMachine::ACTIVE.to_s
-            },
-            relationships: {
-              orga:
-                {
-                  data:
-                    {
-                      id: create(:another_orga).id,
-                      type: 'orgas'
-                    }
-                },
-              creator: {
-                data: {
-                  id: @controller.current_api_v1_user.id,
-                  type: 'users'
-                }
-              }
-            }
-          }
-        }
+        params = parse_json_file(file: 'create_event_without_orga.json')
+        params['data']['attributes'].merge!('state' => StateMachine::ACTIVE.to_s)
+        post :create, params: params
         assert_response :created, response.body
       end
       assert Event.last.inactive?
@@ -209,35 +128,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal StateMachine::INACTIVE.to_s, json['data']['attributes']['state']
     end
 
-    should 'set default orga on orga create without orga relation' do
-      post :create, params: {
-        data: {
-          type: 'events',
-          attributes: {
-            title: 'some title',
-            description: 'some description',
-            date: I18n.l(Date.tomorrow),
-            category: Able::CATEGORIES.first,
-          }
-        }
-      }
-      assert_response :created, response.body
-      assert_equal 'some title', Event.last.title
-      assert_equal Orga.root_orga.id, Event.last.orga_id
-    end
-
     should 'set default orga on event create without orga relation' do
-      post :create, params: {
-        data: {
-          type: 'events',
-          attributes: {
-            title: 'some title',
-            description: 'some description',
-            date: I18n.l(Date.tomorrow),
-            category: Able::CATEGORIES.first,
-          }
-        }
-      }
+      post :create, params: parse_json_file(file: 'create_event_without_orga.json')
       assert_response :created, response.body
       assert_equal 'some title', Event.last.title
       assert_equal Orga.root_orga.id, Event.last.orga_id
@@ -270,26 +162,34 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'fail for invalid' do
-      post :create, params: {
-        data: {
-          type: 'events',
-          attributes: {
-          },
-          relationships: {
-          }
-        }
-      }
-      assert_response :unprocessable_entity, response.body
-      json = JSON.parse(response.body)
-      assert_equal(
-        [
-          'Titel - muss ausgefüllt werden',
-          'Beschreibung - muss ausgefüllt werden',
-          'Kategorie - ist kein gültiger Wert',
-          'Datum - muss ausgefüllt werden'
-        ],
-        json['errors'].map { |x| x['detail'] }
-      )
+      assert_no_difference 'Event.count' do
+        assert_no_difference 'Annotation.count' do
+          assert_no_difference 'ContactInfo.count' do
+            assert_no_difference 'Location.count' do
+              post :create, params: {
+                data: {
+                  type: 'events',
+                  attributes: {
+                  },
+                  relationships: {
+                  }
+                }
+              }
+              assert_response :unprocessable_entity, response.body
+              json = JSON.parse(response.body)
+              assert_equal(
+                [
+                  'Titel - muss ausgefüllt werden',
+                  'Beschreibung - muss ausgefüllt werden',
+                  'Kategorie - ist kein gültiger Wert',
+                  'Datum - muss ausgefüllt werden'
+                ],
+                json['errors'].map { |x| x['detail'] }
+              )
+            end
+          end
+        end
+      end
     end
   end
 

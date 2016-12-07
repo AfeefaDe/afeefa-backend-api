@@ -2,21 +2,10 @@
   "data": {
     "attributes": {
       "title": "some title",
-//      "state": null,
-//      "state_transition": null,
       "description": "some description",
-//      "created_at": null,
-//      "updated_at": null,
-//      "state_changed_at": null,
       "category": "medic"
     },
     "relationships": {
-//      "parent_orga": {
-//        "data": {
-//          "type": "orgas",
-//          "id": "8"
-//        }
-//      },
       "contact_infos": {
         "data": [
           {

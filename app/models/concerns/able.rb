@@ -15,14 +15,12 @@ module Able
     has_many :annotations, as: :annotatable
     has_many :contact_infos, as: :contactable
 
-    accepts_nested_attributes_for :locations, :annotations, :contact_infos
-
     scope :annotated, -> { joins(:annotations) }
     scope :unannotated, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
 
     # VALIDATIONS
-    validates :locations, length: { minimum: 1 }, on: :update
-    validates :contact_infos, length: { minimum: 1 }, on: :update
+    validates :locations, presence: true, on: :update
+    validates :contact_infos, presence: true, on: :update
 
     validates :title, presence: true, length: { maximum: 150 }
     validates_uniqueness_of :title

@@ -3,15 +3,10 @@
     "attributes": {
       "title": "some title",
       "description": "some description",
+      "date": "2016-12-12",
       "category": "medic"
     },
     "relationships": {
-//      "parent_orga": {
-//        "data": {
-//          "type": "orgas",
-//          "id": "8"
-//        }
-//      },
       "contact_infos": {
         "data": [
           {
@@ -28,7 +23,6 @@
       "annotations": {
         "data": [
           {
-//            "id": "<annotation_id_1>",
             "attributes": {
               "title": "iwjofwjfiowj",
               "__id__": "64internal_model"
@@ -59,6 +53,6 @@
         ]
       }
     },
-    "type": "orgas"
+    "type": "events"
   }
 }
