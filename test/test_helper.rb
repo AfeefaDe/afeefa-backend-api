@@ -28,14 +28,6 @@ class ActiveSupport::TestCase
 
   include FactoryGirl::Syntax::Methods
 
-  # def admin
-  #   Role.where(title: Role::ORGA_ADMIN).first.user
-  # end
-
-  # def member
-  #   Role.where(title: Role::ORGA_MEMBER).first.user
-  # end
-
   def valid_user
     User.create!(
       email: "foo#{rand(0..1000)}@afeefa.de",
@@ -45,13 +37,6 @@ class ActiveSupport::TestCase
       password: 'abc12346'
     )
   end
-
-  # def event
-  #   Event.create!(
-  #     title: 'TestEvent',
-  #     description: 'Description of TestEvent'
-  #   )
-  # end
 end
 
 class ActionController::TestCase
@@ -68,6 +53,12 @@ class ActionController::TestCase
 
   def unstub_current_user
     @controller.class.any_instance.unstub(:set_user_by_token)
+  end
+
+  def parse_json_file(file: 'create_orga_with_nested_models.json')
+    content = File.read(Rails.root.join('test', 'data', file))
+    yield content if block_given?
+    JSON.parse(content)
   end
 
 end

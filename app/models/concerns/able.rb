@@ -15,6 +15,8 @@ module Able
     has_many :annotations, as: :annotatable
     has_many :contact_infos, as: :contactable
 
+    accepts_nested_attributes_for :locations, :annotations, :contact_infos
+
     scope :annotated, -> { joins(:annotations) }
     scope :unannotated, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
 

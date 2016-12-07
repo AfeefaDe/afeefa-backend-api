@@ -1,0 +1,52 @@
+{
+  "data": {
+    "id": "<id>",
+    "attributes": {
+      "title": "some title",
+//      "state": null,
+//      "state_transition": null,
+      "description": "some description",
+//      "created_at": null,
+//      "updated_at": null,
+//      "state_changed_at": null,
+      "category": "medic"
+    },
+    "relationships": {
+//      "parent_orga": {
+//        "data": {
+//          "type": "orgas",
+//          "id": "8"
+//        }
+//      },
+//      "contact_infos": {
+//        "data": [
+//          {
+//            "id": "<contact_info_id_1>",
+//            "type": "contact_infos"
+//          }
+//        ]
+//      },
+      "annotations": {
+        "data": [
+          {
+            "id": "<annotation_id_1>",
+            "type": "annotations"
+//          },
+//          {
+//            "id": "<annotation_id_2>",
+//            "type": "annotations"
+          }
+        ]
+//      },
+//      "locations": {
+//        "data": [
+//          {
+//            "id": "<location_id_1>",
+//            "type": "locations"
+//          }
+//        ]
+      }
+    },
+    "type": "orgas"
+  }
+}

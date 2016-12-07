@@ -69,6 +69,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'I want to create a new orga' do
+        Orga.any_instance.stubs(:valid?).returns(true)
+
         post :create, params: {
           data: {
             type: 'orgas',
@@ -124,6 +126,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'ignore given state on orga create' do
+        Orga.any_instance.stubs(:valid?).returns(true)
+
         post :create, params: {
           data: {
             type: 'orgas',
@@ -151,16 +155,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'set default orga on orga create without parent relation' do
-        post :create, params: {
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'some title',
-              description: 'some description',
-              category: Able::CATEGORIES.first,
-            }
-          }
-        }
+        post :create,
+          params: parse_json_file(file: 'create_orga_without_parent.json')
         assert_response :created, response.body
         assert_equal 'some title', Orga.last.title
         assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
@@ -189,6 +185,50 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_response :created, response.body
         assert_equal 'some title', Orga.last.title
         assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
+      end
+
+      should 'create orga with nested attributes' do
+        assert_difference 'Orga.count' do
+          assert_difference 'ContactInfo.count' do
+            post :create, params: parse_json_file
+            assert_response :created, response.body
+          end
+        end
+        assert_equal 'some title', Orga.last.title
+        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
+        assert_equal '377436332', ContactInfo.last.phone
+        assert_equal Orga.last, ContactInfo.last.contactable
+        assert_equal 2, Orga.last.annotations.count
+      end
+
+      should 'update orga with nested attributes' do
+        orga = create(:orga, title: 'foobar')
+        assert Annotation.create(title: 'annotation123', annotatable: orga)
+        annotation = Annotation.last
+
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'ContactInfo.count' do
+            post :update,
+              params: {
+                id: orga.id,
+              }.merge(
+                parse_json_file(
+                  file: 'update_orga_with_nested_models.json'
+                ) do |payload|
+                  payload.gsub!('<id>', orga.id.to_s)
+                  payload.gsub!('some title', orga.title)
+                  payload.gsub!('<annotation_id_1>', annotation.id.to_s)
+                  pp JSON.parse(payload)
+                end
+              )
+            assert_response :ok, response.body
+          end
+        end
+        assert_equal 'some title', Orga.last.title
+        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
+        assert_equal '377436332', ContactInfo.last.phone
+        assert_equal Orga.last, ContactInfo.last.contactable
+        assert_equal 2, Orga.last.annotations.count
       end
     end
   end

@@ -13,6 +13,7 @@ class Orga < ApplicationRecord
   alias_method :parent_orga=, :parent=
   alias_attribute :parent_orga_id, :parent_id
 
+  # has_many :events
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
   # has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user

@@ -10,10 +10,11 @@ class Api::V1::OrgaResource < Api::V1::BaseResource
   has_many :annotations, class_name: 'Annotation'
   has_many :locations, class_name: 'Location'
   has_many :contact_infos, class_name: 'ContactInfo'
+  # has_many :events, class_name: 'Event'
 
   # paginator :offset
 
-  filter :todo, apply: ->(records, value, _options) {
+  filter :todo, apply: ->(records, _value, _options) {
     records.annotated
   }
 
