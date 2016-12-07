@@ -1,52 +1,51 @@
 {
-  "data": {
-    "id": "<id>",
-    "attributes": {
-      "title": "some title",
-//      "state": null,
-//      "state_transition": null,
-      "description": "some description",
-//      "created_at": null,
-//      "updated_at": null,
-//      "state_changed_at": null,
-      "category": "medic"
+  "data":{
+    "id":"<id>",
+    "attributes":{
+      "title":"Ein Test 3",
+      "state":"inactive",
+      "state_transition":null,
+      "description":"wufheo",
+      "created_at":"2016-12-07T15:26:55.000Z",
+      "updated_at":"2016-12-07T15:26:55.000Z",
+      "state_changed_at":"2016-12-07T15:26:55.000Z",
+      "category":"leisure"
     },
-    "relationships": {
-//      "parent_orga": {
-//        "data": {
-//          "type": "orgas",
-//          "id": "8"
-//        }
-//      },
-//      "contact_infos": {
-//        "data": [
+    "relationships":{
+//      "contact_infos":{
+//        "data":[
 //          {
-//            "id": "<contact_info_id_1>",
-//            "type": "contact_infos"
+//            "attributes":{
+//
+//            },
+//            "type":"contact_infos",
+//            "id":"<contact_info_id_1>"
 //          }
 //        ]
 //      },
-      "annotations": {
-        "data": [
+      "annotations":{
+        "data":[
           {
-            "id": "<annotation_id_1>",
-            "type": "annotations"
-//          },
-//          {
-//            "id": "<annotation_id_2>",
-//            "type": "annotations"
+            "attributes":{
+              "title":"Hallo Welt 2"
+            },
+            "type":"annotations",
+            "id":"<annotation_id_1>"
           }
         ]
 //      },
-//      "locations": {
-//        "data": [
+//      "locations":{
+//        "data":[
 //          {
-//            "id": "<location_id_1>",
-//            "type": "locations"
+//            "attributes":{
+//
+//            },
+//            "type":"locations",
+//            "id":"<location_id_1>"
 //          }
 //        ]
       }
     },
-    "type": "orgas"
+    "type":"orgas"
   }
 }

@@ -211,35 +211,40 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal 2, Orga.last.annotations.count
       end
 
-      # should 'update orga with nested attributes' do
-      #   orga = create(:orga, title: 'foobar')
-      #   assert Annotation.create(title: 'annotation123', annotatable: orga)
-      #   annotation = Annotation.last
-      #
-      #   assert_no_difference 'Orga.count' do
-      #     assert_no_difference 'ContactInfo.count' do
-      #       post :update,
-      #         params: {
-      #           id: orga.id,
-      #         }.merge(
-      #           parse_json_file(
-      #             file: 'update_orga_with_nested_models.json'
-      #           ) do |payload|
-      #             payload.gsub!('<id>', orga.id.to_s)
-      #             payload.gsub!('some title', orga.title)
-      #             payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-      #             # pp JSON.parse(payload)
-      #           end
-      #         )
-      #       assert_response :ok, response.body
-      #     end
-      #   end
-      #   assert_equal 'some title', Orga.last.title
-      #   assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
-      #   assert_equal '377436332', ContactInfo.last.phone
-      #   assert_equal Orga.last, ContactInfo.last.contactable
-      #   assert_equal 2, Orga.last.annotations.count
-      # end
+      should 'update orga with nested attributes' do
+        orga = create(:orga, title: 'foobar')
+        assert Annotation.create(title: 'annotation123', annotatable: orga)
+        annotation = Annotation.last
+
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'ContactInfo.count' do
+            assert_no_difference 'Location.count' do
+              assert_no_difference 'Annotation.count' do
+                post :update,
+                  params: {
+                    id: orga.id,
+                  }.merge(
+                    parse_json_file(
+                      file: 'update_orga_with_nested_models.json'
+                    ) do |payload|
+                      payload.gsub!('<id>', orga.id.to_s)
+                      payload.gsub!('<annotation_id_1>', annotation.id.to_s)
+                      # pp JSON.parse(payload)
+                    end
+                  )
+                assert_response :ok, response.body
+              end
+            end
+          end
+        end
+        assert_equal 'Ein Test 3', Orga.last.title
+        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
+        assert_equal '0123456789', ContactInfo.last.phone
+        assert_equal Orga.last, ContactInfo.last.contactable
+        assert_equal 1, Orga.last.annotations.count
+        assert_equal annotation.reload, Orga.last.annotations.first
+        assert_equal 'Hallo Welt 2', annotation.reload.title
+      end
     end
   end
 

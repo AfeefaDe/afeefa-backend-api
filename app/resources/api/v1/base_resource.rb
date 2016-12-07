@@ -26,15 +26,15 @@ class Api::V1::BaseResource < JSONAPI::Resource
         else
           case value
             when Hash
-              if value.fetch(:id) && value.fetch(:type)
-                replace_polymorphic_to_one_link(relationship_type.to_s, value.fetch(:id), value.fetch(:type))
-              elsif value.fetch(:type)
-                # create polymorphic
+              # if value.fetch(:id) && value.fetch(:type)
+              #   replace_polymorphic_to_one_link(relationship_type.to_s, value.fetch(:id), value.fetch(:type))
+              # elsif value.fetch(:type)
+              #   # create polymorphic
+              #   handle_associated_object_creation(:to_one, relationship_type, value)
+              # else
+              #   # create
                 handle_associated_object_creation(:to_one, relationship_type, value)
-              else
-                # create
-                handle_associated_object_creation(:to_one, relationship_type, value)
-              end
+              # end
             when Integer, String
               value = { id: value }
           end
@@ -46,8 +46,9 @@ class Api::V1::BaseResource < JSONAPI::Resource
       end if field_data[:to_one]
 
       field_data[:to_many].each do |relationship_type, values|
+        # _model.send("#{relationship_type}=", [])
         values.each do |data|
-          next if data.key?(:id)
+          # next if data.key?(:id)
           handle_associated_object_creation(:to_many, relationship_type, data)
         end
         # binding.pry
@@ -70,7 +71,13 @@ class Api::V1::BaseResource < JSONAPI::Resource
     sanitized_attributes =
       values[:attributes].reject { |attr, _value| attr.in?(%i(type __id__)) }
     associated_object =
-      relationship_type.to_s.singularize.camelcase.constantize.new(sanitized_attributes)
+      if values.key?(:id)
+        relationship_type.to_s.singularize.camelcase.constantize.find(values[:id])
+      else
+        relationship_type.to_s.singularize.camelcase.constantize.new
+      end
+    associated_object.assign_attributes(sanitized_attributes)
+    # binding.pry
     if association_type == :to_one
       _model.send("#{relationship_type}=", associated_object)
     elsif association_type == :to_many
