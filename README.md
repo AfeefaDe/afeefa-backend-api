@@ -7,9 +7,12 @@ cp config/database.yml.example config/database.yml
 vi config/database.yml
 * configure dbname, user, password
 
+```
+RAILS_ENV=[test|development|production] (default=development)
 rake db:create
 rake db:migrate
 rake db:seed
+```
 
 for usage of live db dump:
 * create db connection for resource defined in database.yml under key 'afeefa'
