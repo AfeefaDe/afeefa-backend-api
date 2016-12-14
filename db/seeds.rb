@@ -19,6 +19,14 @@ module Seeds
 
     Annotation.delete_all
 
+    # sub categories
+    Able::SUB_CATEGORIES.each do |category|
+      Category.create!(
+        title: category,
+        is_sub_category: true
+      )
+    end
+
     # orgas
     if Orga.root_orga
       orga0 = Orga.root_orga

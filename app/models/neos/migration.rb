@@ -3,12 +3,30 @@ module Neos
 
     class << self
       def migrate
+        Neos::Category.where(locale: :de).each do |category|
+          new_category = ::Category.new(
+            title: category.name,
+            is_sub_category: false
+          )
+          unless new_category.save
+            pp "Category is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
+            new_category.save(validate: false)
+          end
+        end
+
         Neos::Orga.where(locale: :de).each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
               title: orga.name,
               description: orga.description,
-              category: orga.subcategory || orga.category && orga.category.name,
+              sub_category:
+                if orga.subcategory
+                  ::Category.find_by_title(orga.subcategory)
+                end,
+              category:
+                if orga.category
+                  ::Category.find_by_title(orga.category.name)
+                end,
               parent: parent_or_root_orga(orga.parent)
             )
           end
@@ -19,7 +37,14 @@ module Neos
             ::Event.new(
               title: event.name,
               description: event.description,
-              category: event.subcategory || event.category && event.category.name,
+              sub_category:
+                if event.subcategory
+                  ::Category.find_by_title(event.subcategory)
+                end,
+              category:
+                if event.category
+                  ::Category.find_by_title(event.category.name)
+                end,
               date: event.datefrom,
               orga: parent_or_root_orga(event.parent)
             )

@@ -7,7 +7,6 @@ module Able
     include StateMachine
 
     # CONSTANTS
-    CATEGORIES = ['jobs', 'donation', 'leisure', 'language', 'community', 'general', 'medic', 'consultation']
     SUB_CATEGORIES = ['jobs', 'donation', 'leisure', 'language', 'community', 'general', 'medic', 'consultation']
 
     # ATTRIBUTES AND ASSOCIATIONS
