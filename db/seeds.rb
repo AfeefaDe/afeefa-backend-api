@@ -19,14 +19,14 @@ module Seeds
 
     Annotation.delete_all
 
-    Categori.delete_all
+    Category.delete_all
 
     # sub categories
     Able::SUB_CATEGORIES.each do |main_category, categories|
       categories.each do |category|
         Category.create!(
-          title: category,
-          parent_id: Category.find_by_name(main_category).try(:id),
+          title: category[:name],
+          # parent_id: Category.find_by_title(main_category).try(:id),
           is_sub_category: true
         )
       end
