@@ -3,6 +3,17 @@ module Neos
 
     class << self
       def migrate
+        Neos::Orga.distinct(:subcategory).pluck(:subcategory).reject(&:blank?).each do |category|
+          new_category = ::Category.new(
+            title: category,
+            is_sub_category: true
+          )
+          unless new_category.save
+            pp "SubCategory is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
+            new_category.save(validate: false)
+          end
+        end
+
         Neos::Category.where(locale: :de).each do |category|
           new_category = ::Category.new(
             title: category.name,
@@ -67,6 +78,12 @@ module Neos
       def create_entry_and_handle_validation(entry)
         new_entry = yield
         unless new_entry.valid?
+          unless new_entry.save
+            unless new_entry.save(validate: false)
+              raise "Entry not creatable: #{new_entry.errors.messages}"
+            end
+            create_annotations(new_entry, new_entry.errors.full_messages)
+          end
           if new_entry.errors.key?(:category)
             create_annotations(new_entry, "Kategorie fehlerhaft: #{new_entry.category} ist nicht erlaubt.")
           end
@@ -77,12 +94,6 @@ module Neos
           if new_entry.description.size > 254
             create_annotations(new_entry, 'Die Beschreibung ist länger als 255 Zeichen und wurde abgeschnitten.')
             new_entry.description = new_entry.description[0..254]
-          end
-          unless new_entry.save
-            unless new_entry.save(validate: false)
-              raise "Entry not creatable: #{new_entry.errors.messages}"
-            end
-            create_annotations(new_entry, new_entry.errors.full_messages)
           end
           entry.locations.each do |location|
             create_location(new_entry, location)
@@ -107,11 +118,11 @@ module Neos
             state: 'Sachsen',
             country: 'Deutschland',
           )
-        if new_location.number.blank?
-          create_annotations(new_entry, 'Hausnummer fehlt')
-        end
         unless new_location.save
           create_annotations(new_entry, new_location.errors.full_messages)
+        end
+        if new_location.number.blank?
+          create_annotations(new_entry, 'Hausnummer fehlt')
         end
       end
 

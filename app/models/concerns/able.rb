@@ -6,9 +6,6 @@ module Able
     # INCLUDES
     include StateMachine
 
-    # CONSTANTS
-    SUB_CATEGORIES = ['jobs', 'donation', 'leisure', 'language', 'community', 'general', 'medic', 'consultation']
-
     # ATTRIBUTES AND ASSOCIATIONS
     has_many :locations, as: :locatable
     has_many :annotations, as: :annotatable

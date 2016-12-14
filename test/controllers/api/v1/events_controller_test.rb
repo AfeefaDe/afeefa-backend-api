@@ -144,7 +144,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
             title: 'some title',
             description: 'some description',
             date: I18n.l(Date.tomorrow),
-            category: Able::CATEGORIES.first,
+            category: Category.main_categories.first,
           },
           relationships: {
             orga: {

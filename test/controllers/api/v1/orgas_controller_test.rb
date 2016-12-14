@@ -77,7 +77,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
-              category: Able::CATEGORIES.first,
+              category: Category.main_categories.first,
               state_transition: 'activate'
             },
             relationships: {
@@ -134,7 +134,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
-              category: Able::CATEGORIES.first,
+              category: Category.main_categories.first,
               state: StateMachine::ACTIVE.to_s
             },
             relationships: {
@@ -170,7 +170,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
-              category: Able::CATEGORIES.first,
+              category: Category.main_categories.first,
             },
             relationships: {
               parent_orga: {

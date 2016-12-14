@@ -4,6 +4,7 @@ de:
       orga: Organisation
       event: Veranstaltung
       category: Kategorie
+      category: Unterkategorie
       location: Ort
       locations: Ortsangaben
       contact_info: Kontaktinformation
