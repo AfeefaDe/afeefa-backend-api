@@ -41,6 +41,7 @@ Rails.application.routes.draw do
         jsonapi_resources :annotations
         jsonapi_resources :contact_infos
         jsonapi_resources :locations
+        jsonapi_resources :categories
 
       end
     end
