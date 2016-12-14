@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161214102616) do
+ActiveRecord::Schema.define(version: 20161214123018) do
 
   create_table "annotations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -44,16 +44,16 @@ ActiveRecord::Schema.define(version: 20161214102616) do
 
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
-    t.string   "description"
+    t.text     "description",      limit: 65535
     t.string   "public_speaker"
     t.string   "location_type"
     t.boolean  "support_wanted"
     t.integer  "creator_id"
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.integer  "parent_id"
     t.datetime "date"
-    t.boolean  "active",           default: true
+    t.boolean  "active",                         default: true
     t.string   "state"
     t.datetime "state_changed_at"
     t.integer  "orga_id"

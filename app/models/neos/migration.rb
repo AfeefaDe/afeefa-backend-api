@@ -87,14 +87,6 @@ module Neos
           if new_entry.errors.key?(:category)
             create_annotations(new_entry, "Kategorie fehlerhaft: #{new_entry.category} ist nicht erlaubt.")
           end
-          if new_entry.title.size > 254
-            create_annotations(new_entry, 'Der Titel ist länger als 255 Zeichen und wurde abgeschnitten.')
-            new_entry.title = new_entry.title[0..254]
-          end
-          if new_entry.description.size > 254
-            create_annotations(new_entry, 'Die Beschreibung ist länger als 255 Zeichen und wurde abgeschnitten.')
-            new_entry.description = new_entry.description[0..254]
-          end
           entry.locations.each do |location|
             create_location(new_entry, location)
           end

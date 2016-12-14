@@ -4,7 +4,7 @@ de:
       orga: Organisation
       event: Veranstaltung
       category: Kategorie
-      category: Unterkategorie
+      sub_category: Unterkategorie
       location: Ort
       locations: Ortsangaben
       contact_info: Kontaktinformation
@@ -21,4 +21,6 @@ de:
       orga:
         <<: *attributes
       event:
+        <<: *attributes
+      contact_info:
         <<: *attributes
