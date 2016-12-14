@@ -2,7 +2,6 @@ class Api::V1::EventResource < Api::V1::BaseResource
 
   attributes :title, :description, :created_at, :updated_at,
              :state_changed_at, :state, :state_transition,
-             :category,
              # not for now:
              # :public_speaker, :location_type, :support_wanted,
              :date
@@ -19,6 +18,9 @@ class Api::V1::EventResource < Api::V1::BaseResource
   has_one :orga
 
   has_one :creator, class_name: 'User'
+
+  belongs_to :category
+  belongs_to :sub_category, class_name: 'Category'
 
   before_create do
     @model.creator_id = context[:current_user].id
