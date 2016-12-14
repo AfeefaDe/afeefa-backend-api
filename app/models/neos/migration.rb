@@ -3,16 +3,17 @@ module Neos
 
     class << self
       def migrate
-        Neos::Orga.distinct(:subcategory).pluck(:subcategory).reject(&:blank?).each do |category|
-          new_category = ::Category.new(
-            title: category,
-            is_sub_category: true
-          )
-          unless new_category.save
-            puts "SubCategory is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
-            new_category.save(validate: false)
-          end
-        end
+        # list of sub categories defined in able.rb and created in seeds.rb
+        # Neos::Orga.distinct(:subcategory).pluck(:subcategory).reject(&:blank?).each do |category|
+        #   new_category = ::Category.new(
+        #     title: category,
+        #     is_sub_category: true
+        #   )
+        #   unless new_category.save
+        #     puts "SubCategory is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
+        #     new_category.save(validate: false)
+        #   end
+        # end
 
         Neos::Category.where(locale: :de).each do |category|
           new_category = ::Category.new(
