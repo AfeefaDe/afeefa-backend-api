@@ -58,6 +58,12 @@ module Seeds
     User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'password3')
     User.create!(email: 'alex@afeefa.de', forename: 'Alex', surname: 'Weiß', password: 'password1')
     User.create!(email: 'friedrich@afeefa.de', forename: 'Friedrich', surname: 'Weise', password: 'password1')
+
+    # annotations
+    Annotation.create!(title: 'Eintrag fehlerhaft')
+    Annotation.create!(title: 'Eintrag gemeldet')
+    Annotation.create!(title: 'Übersetzung fehlt')
+    Annotation.create!(title: 'Migration nur teilweise erfolgreich')
   end
 
 end

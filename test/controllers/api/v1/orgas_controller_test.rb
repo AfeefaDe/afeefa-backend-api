@@ -231,8 +231,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'update orga with nested attributes' do
         orga = create(:orga, title: 'foobar')
-        assert Annotation.create(title: 'annotation123', annotatable: orga)
-        annotation = Annotation.last
+        orga.annotations.create(title: 'annotation123')
+        annotation = orga.annotations.last
 
         assert_no_difference 'Orga.count' do
           assert_no_difference 'ContactInfo.count' do

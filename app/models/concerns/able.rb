@@ -79,8 +79,11 @@ module Able
 
     # ATTRIBUTES AND ASSOCIATIONS
     has_many :locations, as: :locatable
-    has_many :annotations, as: :annotatable
     has_many :contact_infos, as: :contactable
+
+    has_many :annotation_able_relations, as: :entry
+    has_many :annotations, through: :annotation_able_relations
+
     belongs_to :category, optional: true
     belongs_to :sub_category, class_name: 'Category', optional: true
 
