@@ -8,7 +8,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'get index' do
-      get :index
+      get :index, params: { includes: ['annotations', 'categories', 'sub_categories'] }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
