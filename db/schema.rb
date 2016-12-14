@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161214182550) do
+ActiveRecord::Schema.define(version: 20161214184833) do
 
   create_table "annotation_able_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "annotation_id"
     t.string  "entry_type"
     t.integer "entry_id"
+    t.text    "detail",        limit: 65535
     t.index ["annotation_id"], name: "index_annotation_able_relations_on_annotation_id", using: :btree
     t.index ["entry_type", "entry_id"], name: "index_annotation_able_relations_on_entry_type_and_entry_id", using: :btree
   end

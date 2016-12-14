@@ -126,12 +126,13 @@ module Neos
         end
       end
 
-      def create_annotations(new_entry, titles)
-        [titles].flatten.each do |title|
+      def create_annotations(new_entry, details)
+        [details].flatten.each do |detail|
           annotation =
-            Annotation.new(
-              annotatable: new_entry,
-              title: title[0..254]
+            AnnotationAbleRelation.new(
+              entry: new_entry,
+              annotation: Annotation.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
+              detail: detail
             )
           unless annotation.save
             puts "Annotation is not valid, but we will save it. Errors: #{annotation.errors.full_messages}"

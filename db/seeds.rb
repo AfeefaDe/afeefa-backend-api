@@ -63,6 +63,7 @@ module Seeds
     Annotation.create!(title: 'Eintrag fehlerhaft')
     Annotation.create!(title: 'Eintrag gemeldet')
     Annotation.create!(title: 'Übersetzung fehlt')
+    # Be careful with changes, replace usages this annotation title!
     Annotation.create!(title: 'Migration nur teilweise erfolgreich')
   end
 
