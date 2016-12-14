@@ -7,7 +7,7 @@ class EventTest < ActiveSupport::TestCase
     assert_not event.valid?
     assert_match 'muss ausgefüllt werden', event.errors[:title].first
     assert_match 'muss ausgefüllt werden', event.errors[:description].first
-    assert_match 'ist kein gültiger Wert', event.errors[:category].first
+    assert_match 'muss ausgefüllt werden', event.errors[:category].first
     assert_match 'muss ausgefüllt werden', event.errors[:date].first
   end
 
@@ -41,9 +41,14 @@ class EventTest < ActiveSupport::TestCase
     end
 
     should 'have categories' do
-      @event = build(:event, category: nil, orga: @orga)
-      @event.category = Able::CATEGORIES.last
-      assert @event.category.present?
+      @event = build(:event, category: nil, sub_category: nil, orga: @orga)
+      @event.category.blank?
+      @event.sub_category.blank?
+      @event.category = category = create(:category)
+      @event.sub_category = sub_category = create(:sub_category)
+      assert @event.save
+      assert_equal category, @event.reload.category
+      assert_equal sub_category, @event.reload.sub_category
     end
   end
 

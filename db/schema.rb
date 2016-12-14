@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161030201843) do
+ActiveRecord::Schema.define(version: 20161214102616) do
 
   create_table "annotations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -25,8 +25,9 @@ ActiveRecord::Schema.define(version: 20161030201843) do
     t.string   "title"
     t.string   "type"
     t.integer  "parent_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.boolean  "is_sub_category"
     t.index ["parent_id"], name: "index_categories_on_parent_id", using: :btree
   end
 
@@ -54,10 +55,13 @@ ActiveRecord::Schema.define(version: 20161030201843) do
     t.datetime "date"
     t.boolean  "active",           default: true
     t.string   "state"
-    t.string   "category"
     t.datetime "state_changed_at"
     t.integer  "orga_id"
+    t.integer  "category_id"
+    t.integer  "sub_category_id"
+    t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
+    t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
   end
 
   create_table "locations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -97,8 +101,11 @@ ActiveRecord::Schema.define(version: 20161030201843) do
     t.integer  "parent_id"
     t.boolean  "active",                         default: true
     t.string   "state"
-    t.string   "category"
     t.datetime "state_changed_at"
+    t.integer  "category_id"
+    t.integer  "sub_category_id"
+    t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
+    t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end
 
   create_table "owner_thing_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

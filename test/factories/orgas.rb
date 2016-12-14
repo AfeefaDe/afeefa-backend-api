@@ -4,11 +4,12 @@ FactoryGirl.define do
     title 'an orga'
     description 'this is a short description of this orga'
 
-    category { Able::CATEGORIES.first }
     parent_orga { Orga.root_orga }
 
     contact_infos { [build(:contact_info)] }
     locations { [build(:location)] }
+    association :category, factory: :category
+    association :sub_category, factory: :sub_category
 
     after(:build) do |orga|
       orga.contact_infos.each do |ci|

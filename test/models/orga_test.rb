@@ -11,7 +11,7 @@ class OrgaTest < ActiveSupport::TestCase
     assert_not orga.valid?
     assert_match 'muss ausgefüllt werden', orga.errors[:title].first
     assert_match 'muss ausgefüllt werden', orga.errors[:description].first
-    assert_match 'ist kein gültiger Wert', orga.errors[:category].first
+    assert_match 'muss ausgefüllt werden', orga.errors[:category].first
   end
 
   should 'set root orga as parent if no parent given' do
@@ -35,10 +35,14 @@ class OrgaTest < ActiveSupport::TestCase
     end
 
     should 'have categories' do
-      @orga = build(:orga, category: nil)
+      @orga = build(:orga, category: nil, sub_category: nil)
       @orga.category.blank?
-      @orga.category = Able::CATEGORIES.last
-      assert @orga.category.present?
+      @orga.sub_category.blank?
+      @orga.category = category = create(:category)
+      @orga.sub_category = sub_category = create(:sub_category)
+      assert @orga.save
+      assert_equal category, @orga.reload.category
+      assert_equal sub_category, @orga.reload.sub_category
     end
 
     should 'deactivate orga' do
