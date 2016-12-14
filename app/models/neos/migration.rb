@@ -9,7 +9,7 @@ module Neos
             is_sub_category: true
           )
           unless new_category.save
-            pp "SubCategory is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
+            puts "SubCategory is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
             new_category.save(validate: false)
           end
         end
@@ -20,7 +20,7 @@ module Neos
             is_sub_category: false
           )
           unless new_category.save
-            pp "Category is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
+            puts "Category is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
             new_category.save(validate: false)
           end
         end
@@ -100,6 +100,11 @@ module Neos
           end
           create_contact_info(new_entry, entry)
         end
+      rescue => exception
+        puts '-------------------------------------------------------'
+        puts "Entry could not be created for the following exception: #{exception.message}"
+        puts 'Backtrace:'
+        puts exception.backtrace.join("\n")
       end
 
       def create_location(new_entry, location)
@@ -147,7 +152,7 @@ module Neos
               title: title[0..254]
             )
           unless annotation.save
-            pp "Annotation is not valid, but we will save it. Errors: #{annotation.errors.full_messages}"
+            puts "Annotation is not valid, but we will save it. Errors: #{annotation.errors.full_messages}"
             annotation.save(validate: false)
           end
         end
