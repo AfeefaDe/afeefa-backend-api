@@ -19,8 +19,8 @@ class Api::V1::EventResource < Api::V1::BaseResource
 
   has_one :creator, class_name: 'User'
 
-  belongs_to :category
-  belongs_to :sub_category, class_name: 'Category'
+  has_one :category
+  has_one :sub_category, class_name: 'Category'
 
   before_create do
     @model.creator_id = context[:current_user].id

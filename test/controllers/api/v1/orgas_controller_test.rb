@@ -77,7 +77,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
-              category: Category.main_categories.first,
               state_transition: 'activate'
             },
             relationships: {
@@ -85,6 +84,12 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 data: {
                   id: @orga.id,
                   type: 'orgas'
+                }
+              },
+              category: {
+                data: {
+                  type: 'categories',
+                  id: Category.main_categories.first.id.to_s
                 }
               }
             }
@@ -134,7 +139,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
-              category: Category.main_categories.first,
               state: StateMachine::ACTIVE.to_s
             },
             relationships: {
@@ -142,6 +146,12 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 data: {
                   id: @orga.id,
                   type: 'orgas'
+                }
+              },
+              category: {
+                data: {
+                  type: 'categories',
+                  id: Category.main_categories.first.id.to_s
                 }
               }
             }
@@ -155,8 +165,12 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'set default orga on orga create without parent relation' do
-        post :create,
-          params: parse_json_file(file: 'create_orga_without_parent.json')
+        params =
+          parse_json_file(file: 'create_orga_without_parent.json') do |payload|
+            payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+            payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+          end
+        post :create, params: params
         assert_response :created, response.body
         assert_equal 'some title', Orga.last.title
         assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
@@ -170,13 +184,18 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             attributes: {
               title: 'some title',
               description: 'some description',
-              category: Category.main_categories.first,
             },
             relationships: {
               parent_orga: {
                 data: {
                   id: nil,
                   type: 'orgas'
+                }
+              },
+              category: {
+                data: {
+                  type: 'categories',
+                  id: Category.main_categories.first.id.to_s
                 }
               }
             }
@@ -188,19 +207,19 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'create orga with nested attributes' do
-        annotation = Annotation.new(title: '000', annotatable: Orga.last)
-        assert annotation.save
-
         assert_difference 'Orga.count' do
           assert_difference 'Annotation.count', 2 do
             assert_difference 'ContactInfo.count' do
-              params = parse_json_file do |payload|
-                payload.gsub!('<annotation_id_1>', annotation.id.to_s)
+              assert_difference 'Location.count' do
+                params = parse_json_file do |payload|
+                  payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                  payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+                end
+                post :create, params: params
+                assert_response :created, response.body
+                get :show, params: { id: Orga.last.id }
+                assert_response :ok, response.body
               end
-              post :create, params: params
-              assert_response :created, response.body
-              get :show, params: { id: Orga.last.id }
-              assert_response :ok, response.body
             end
           end
         end
@@ -208,7 +227,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
         assert_equal '377436332', ContactInfo.last.phone
         assert_equal Orga.last, ContactInfo.last.contactable
-        assert_equal 2, Orga.last.annotations.count
       end
 
       should 'update orga with nested attributes' do
@@ -229,7 +247,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                     ) do |payload|
                       payload.gsub!('<id>', orga.id.to_s)
                       payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-                      # pp JSON.parse(payload)
+                      payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                      payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
                     end
                   )
                 assert_response :ok, response.body

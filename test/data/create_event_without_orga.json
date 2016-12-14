@@ -3,56 +3,73 @@
     "attributes": {
       "title": "some title",
       "description": "some description",
-      "date": "2016-12-12",
-      "category": "medic"
+      "date": "2016-12-12"
     },
-    "relationships": {
-      "contact_infos": {
-        "data": [
+    "relationships":{
+      //      "parent_orga":{
+      //        "data":{
+      //          "type":"orgas",
+      //          "id":"683"
+      //        }
+      //      },
+      "category":{
+        "data":{
+          "type":"categories",
+          "id":"<category_id>"
+        }
+      },
+      "sub_category":{
+        "data":{
+          "type":"categories",
+          "id":"<sub_category_id>"
+        }
+      },
+      "contact_infos":{
+        "data":[
           {
-            "attributes": {
-              "mail": "weisefred@example.com",
-              "phone": "377436332",
-              "contact_person": "Max Mustermann",
-              "__id__": "62internal_model"
+            "attributes":{
+              "mail":"weisefred@googlemail.com",
+              "phone":"377436332",
+              "contact_person":"Friedrich Weise",
+              "__id__":"204internal-model"
             },
-            "type": "contact_infos"
+            "type":"contact_infos"
           }
         ]
       },
-      "annotations": {
-        "data": [
+      "annotations":{
+        "data":[
           {
-            "attributes": {
-              "title": "iwjofwjfiowj",
-              "__id__": "64internal_model"
+            "attributes":{
+              "title":"iwpfjwfpeijwpiefj",
+              "__id__":"206internal-model"
             },
-            "type": "annotations"
+            "type":"annotations"
           },
           {
-            "attributes": {
-              "title": "xyz",
-              "__id__": "123internal_model"
+            "attributes":{
+              "title":"andere Anmerkung",
+              "__id__":"217internal-model"
             },
-            "type": "annotations"
+            "type":"annotations"
           }
         ]
       },
-      "locations": {
-        "data": [
+      "locations":{
+        "data":[
           {
-            "attributes": {
-              "street": "Hauptstraße",
-              "number": "8",
-              "city": "Beierfeld",
-              "placename": "wifojiojfoiw",
-              "__id__": "63internal_model"
+            "attributes":{
+              "street":"Ernst Nier Straße 8",
+              "number":"Ernst Nier Straße 8",
+              "city":"Beierfeld",
+              "placename":"",
+              "__id__":"205internal-model"
             },
-            "type": "locations"
+            "type":"locations"
           }
         ]
       }
     },
-    "type": "events"
+    "type":"events"
   }
 }

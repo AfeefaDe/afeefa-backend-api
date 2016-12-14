@@ -35,7 +35,10 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'ensure creator for event on create' do
-      params = parse_json_file(file: 'create_event_without_orga.json')
+      params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
+        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+      end
       post :create, params: params
       assert_response :created, response.body
       assert @controller.current_api_v1_user, Event.last.creator
@@ -44,7 +47,10 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'ignore given creator for event' do
-      params = parse_json_file(file: 'create_event_without_orga.json')
+      params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
+        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+      end
       params['data']['relationships'].merge!(
         'creator' => {
           data: {
@@ -75,7 +81,10 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'I want to create a new event' do
-      params = parse_json_file(file: 'create_event_without_orga.json')
+      params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
+        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+      end
       params['data']['attributes'].
         merge!('state_transition' => 'activate')
       post :create, params: params
@@ -118,7 +127,10 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'ignore given state on event create' do
       assert_difference 'Event.count' do
-        params = parse_json_file(file: 'create_event_without_orga.json')
+        params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
+          payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+          payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+        end
         params['data']['attributes'].merge!('state' => StateMachine::ACTIVE.to_s)
         post :create, params: params
         assert_response :created, response.body
@@ -129,7 +141,11 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'set default orga on event create without orga relation' do
-      post :create, params: parse_json_file(file: 'create_event_without_orga.json')
+      params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
+        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+      end
+      post :create, params: params
       assert_response :created, response.body
       assert_equal 'some title', Event.last.title
       assert_equal Orga.root_orga.id, Event.last.orga_id

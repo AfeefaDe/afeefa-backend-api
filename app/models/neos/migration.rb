@@ -4,6 +4,7 @@ module Neos
     class << self
       def migrate
         Neos::Category.where(locale: :de).each do |category|
+          next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(
             title: category.name,
             is_sub_category: false

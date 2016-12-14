@@ -21,12 +21,20 @@ module Seeds
 
     Category.delete_all
 
-    # sub categories
+    # categories and sub categories
     Able::SUB_CATEGORIES.each do |main_category, categories|
+      unless new_main_category = Category.find_by_title(main_category)
+        new_main_category =
+          Category.create!(
+            title: main_category,
+            is_sub_category: false
+          )
+      end
+
       categories.each do |category|
         Category.create!(
           title: category[:name],
-          # parent_id: Category.find_by_title(main_category).try(:id),
+          parent_id: new_main_category.id,
           is_sub_category: true
         )
       end

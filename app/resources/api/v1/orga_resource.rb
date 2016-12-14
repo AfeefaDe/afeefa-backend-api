@@ -11,8 +11,8 @@ class Api::V1::OrgaResource < Api::V1::BaseResource
   has_many :contact_infos, class_name: 'ContactInfo'
   # has_many :events, class_name: 'Event'
 
-  belongs_to :category
-  belongs_to :sub_category, class_name: 'Category'
+  has_one :category
+  has_one :sub_category, class_name: 'Category'
 
   # paginator :offset
 
