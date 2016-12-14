@@ -7,8 +7,12 @@ class EventTest < ActiveSupport::TestCase
     assert_not event.valid?
     assert_match 'muss ausgefüllt werden', event.errors[:title].first
     assert_match 'muss ausgefüllt werden', event.errors[:description].first
-    assert_match 'muss ausgefüllt werden', event.errors[:category].first
     assert_match 'muss ausgefüllt werden', event.errors[:date].first
+    event.description = '-' * 351
+    assert_not event.valid?
+    assert_match 'ist zu lang', event.errors[:description].first
+
+    assert_match 'muss ausgefüllt werden', event.errors[:category].first
   end
 
   should 'set initial state for event' do

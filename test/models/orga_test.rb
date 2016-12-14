@@ -11,6 +11,10 @@ class OrgaTest < ActiveSupport::TestCase
     assert_not orga.valid?
     assert_match 'muss ausgefüllt werden', orga.errors[:title].first
     assert_match 'muss ausgefüllt werden', orga.errors[:description].first
+    orga.description = '-' * 351
+    assert_not orga.valid?
+    assert_match 'ist zu lang', orga.errors[:description].first
+
     assert_match 'muss ausgefüllt werden', orga.errors[:category].first
   end
 

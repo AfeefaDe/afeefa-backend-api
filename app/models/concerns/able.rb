@@ -97,7 +97,7 @@ module Able
 
     validates :title, presence: true, length: { maximum: 150 }
     validates_uniqueness_of :title
-    validates :description, presence: true, length: { maximum: 150 }
+    validates :description, presence: true, length: { maximum: 350 }
   end
 
 end
