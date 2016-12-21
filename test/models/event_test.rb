@@ -54,6 +54,18 @@ class EventTest < ActiveSupport::TestCase
       assert_equal category, @event.reload.category
       assert_equal sub_category, @event.reload.sub_category
     end
+
+    should 'soft delete event' do
+      # TODO: What should we do with associated objects?
+      assert @event.save
+      assert_not @event.reload.deleted?
+      assert_no_difference 'Event.count' do
+        assert_difference 'Event.undeleted.count', -1 do
+          @event.delete!
+        end
+      end
+      assert @event.reload.deleted?
+    end
   end
 
 end

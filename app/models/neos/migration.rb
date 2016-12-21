@@ -70,7 +70,7 @@ module Neos
         unless new_entry.valid?
           unless new_entry.save
             unless new_entry.save(validate: false)
-              raise "Entry not creatable: #{new_entry.errors.messages}"
+              fail "Entry not creatable: #{new_entry.errors.messages}"
             end
             create_annotations(new_entry, new_entry.errors.full_messages)
           end

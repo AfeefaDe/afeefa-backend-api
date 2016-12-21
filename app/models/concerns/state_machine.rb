@@ -41,9 +41,16 @@ module StateMachine
           touch :state_changed_at
         end
       end
-    end
 
-    scope :undeleted, -> { where(state: UNDELETEDS) }
+      event :restore do
+        before do
+        end
+        transitions from: DELETED, to: INACTIVE
+        after do
+          touch :state_changed_at
+        end
+      end
+    end
 
     attr_accessor :active
 
@@ -59,6 +66,16 @@ module StateMachine
       end
     end
 
+    # soft destroyable
+    scope :undeleted, -> { where(state: UNDELETEDS) }
+    # TODO: How to really destroy?
+    # TODO: What should we do with associated objects?
+    def destroy
+      delete!
+    end
+    def restore
+      restore!
+    end
   end
 
 end

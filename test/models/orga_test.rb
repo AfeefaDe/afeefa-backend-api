@@ -68,6 +68,18 @@ class OrgaTest < ActiveSupport::TestCase
       assert_includes Orga.unscoped, Orga.root_orga
       assert_not_includes Orga.all, Orga.root_orga
     end
+
+    should 'soft delete orga' do
+      # TODO: What should we do with associated objects?
+      assert @orga.save
+      assert_not @orga.reload.deleted?
+      assert_no_difference 'Orga.count' do
+        assert_difference 'Orga.undeleted.count', -1 do
+          @orga.delete!
+        end
+      end
+      assert @orga.reload.deleted?
+    end
   end
 
 end

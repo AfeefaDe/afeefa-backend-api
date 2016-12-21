@@ -269,6 +269,27 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal annotation.reload, Orga.last.annotations.first
         assert_equal 'Hallo Welt 2', annotation.reload.title
       end
+
+      should 'soft destroy orga' do
+        # TODO: What should we do with associated objects?
+        assert_not @orga.reload.deleted?
+        assert_no_difference 'Orga.count' do
+          assert_difference 'Orga.undeleted.count', -1 do
+            assert_no_difference 'ContactInfo.count' do
+              assert_no_difference 'Location.count' do
+                assert_no_difference 'Annotation.count' do
+                  delete :destroy,
+                    params: {
+                      id: @orga.id,
+                    }
+                  assert_response :no_content, response.body
+                end
+              end
+            end
+          end
+        end
+        assert @orga.reload.deleted?
+      end
     end
   end
 

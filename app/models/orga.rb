@@ -26,7 +26,8 @@ class Orga < ApplicationRecord
 
   # HOOKS
   before_validation :set_parent_orga_as_default, if: -> { parent_orga.blank? }
-  before_destroy :move_sub_orgas_to_parent, prepend: true
+  # TODO: What should we do with associated objects?
+  # before_destroy :move_sub_orgas_to_parent, prepend: true
 
   # SCOPES
   scope :without_root, -> { where.not(title: ROOT_ORGA_TITLE) }

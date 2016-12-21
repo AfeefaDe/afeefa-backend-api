@@ -26,10 +26,10 @@
       "annotations": {
         "data": [
           {
-//            "attributes": {
+            "attributes": {
 //              "title": "Hallo Welt 2",
 //              "__id__": "206internal-model"
-//            },
+            },
             "type": "annotations",
             "id": "<annotation_id_1>"
           }

@@ -10,7 +10,7 @@ class Api::V1::BaseResource < JSONAPI::Resource
             key = key[:id]
             super
           else
-            raise 'Actually we can not handle hashes without attribtues.'
+            fail 'Actually we can not handle hashes without attribtues.'
           end
         end
       else

@@ -245,6 +245,27 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal 'annotation123', annotation.reload.title
       assert_equal Category.main_categories.first.id, event.category_id
     end
+
+    should 'soft destroy event' do
+      # TODO: What should we do with associated objects?
+      assert_not @event.reload.deleted?
+      assert_no_difference 'Event.count' do
+        assert_difference 'Event.undeleted.count', -1 do
+          assert_no_difference 'ContactInfo.count' do
+            assert_no_difference 'Location.count' do
+              assert_no_difference 'Annotation.count' do
+                delete :destroy,
+                  params: {
+                    id: @event.id,
+                  }
+                assert_response :no_content, response.body
+              end
+            end
+          end
+        end
+      end
+      assert @event.reload.deleted?
+    end
   end
 
 end
