@@ -6,18 +6,17 @@ module StateMachine
   INACTIVE = :inactive
   DELETED = :deleted
   STATES = [INACTIVE, ACTIVE, DELETED]
-  undeleted = STATES - [DELETED]
+  UNDELETEDS = STATES - [DELETED]
 
   included do
     include AASM
 
     aasm(column: :state) do
       state INACTIVE, initial: true
-      state ACTIVE, DELETED
+      state *(STATES - [INACTIVE])
 
       event :activate do
         before do
-          self.state_transition = nil
         end
         transitions from: INACTIVE, to: ACTIVE
         after do
@@ -27,7 +26,6 @@ module StateMachine
 
       event :deactivate do
         before do
-          self.state_transition = nil
         end
         transitions from: ACTIVE, to: INACTIVE
         after do
@@ -37,25 +35,28 @@ module StateMachine
 
       event :delete do
         before do
-          self.state_transition = nil
         end
-        transitions from: undeleted, to: DELETED
+        transitions from: UNDELETEDS, to: DELETED
         after do
           touch :state_changed_at
         end
       end
     end
 
-    scope :undeleted, -> { where(state: undeleted) }
+    scope :undeleted, -> { where(state: UNDELETEDS) }
 
-    attr_accessor :state_transition
+    attr_accessor :active
 
     before_create do
       self.state_changed_at = created_at
     end
 
     before_save do
-      send("#{state_transition}!") if state_transition.present?
+      if !active? && active.to_s == 'true'
+        activate!
+      elsif !inactive? && active.to_s == 'false'
+        deactivate!
+      end
     end
 
   end

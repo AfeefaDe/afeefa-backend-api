@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161214184833) do
+ActiveRecord::Schema.define(version: 20161221115623) do
 
   create_table "annotation_able_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "annotation_id"
@@ -57,11 +57,10 @@ ActiveRecord::Schema.define(version: 20161214184833) do
     t.string   "location_type"
     t.boolean  "support_wanted"
     t.integer  "creator_id"
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.integer  "parent_id"
     t.datetime "date"
-    t.boolean  "active",                         default: true
     t.string   "state"
     t.datetime "state_changed_at"
     t.integer  "orga_id"
@@ -102,12 +101,11 @@ ActiveRecord::Schema.define(version: 20161214184833) do
   end
 
   create_table "orgas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.string   "title"
     t.text     "description",      limit: 65535
     t.integer  "parent_id"
-    t.boolean  "active",                         default: true
     t.string   "state"
     t.datetime "state_changed_at"
     t.integer  "category_id"

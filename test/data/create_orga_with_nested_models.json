@@ -1,79 +1,78 @@
 {
-  "data":{
-    "attributes":{
-      "title":"some title",
-      "state":null,
-      "state_transition":null,
-      "description":"iwefowihjf",
-      "created_at":null,
-      "updated_at":null,
-      "state_changed_at":null
+  "data": {
+    "attributes": {
+      "title": "some title",
+      //      "active":true,
+      "description": "iwefowihjf",
+      "created_at": null,
+      "updated_at": null,
+      "state_changed_at": null
     },
-    "relationships":{
+    "relationships": {
       //      "parent_orga":{
       //        "data":{
       //          "type":"orgas",
       //          "id":"683"
       //        }
       //      },
-      "category":{
-        "data":{
-          "type":"categories",
-          "id":"<category_id>"
+      "category": {
+        "data": {
+          "type": "categories",
+          "id": "<category_id>"
         }
       },
-      "sub_category":{
-        "data":{
-          "type":"categories",
-          "id":"<sub_category_id>"
+      "sub_category": {
+        "data": {
+          "type": "categories",
+          "id": "<sub_category_id>"
         }
       },
-      "contact_infos":{
-        "data":[
+      "contact_infos": {
+        "data": [
           {
-            "attributes":{
-              "mail":"weisefred@googlemail.com",
-              "phone":"377436332",
-              "contact_person":"Friedrich Weise",
-              "__id__":"204internal-model"
+            "attributes": {
+              "mail": "weisefred@googlemail.com",
+              "phone": "377436332",
+              "contact_person": "Friedrich Weise",
+              "__id__": "204internal-model"
             },
-            "type":"contact_infos"
+            "type": "contact_infos"
           }
         ]
       },
-      "annotations":{
-        "data":[
+      "annotations": {
+        "data": [
           {
-            "attributes":{
-              "title":"iwpfjwfpeijwpiefj",
-              "__id__":"206internal-model"
+            "attributes": {
+              "title": "iwpfjwfpeijwpiefj",
+              "__id__": "206internal-model"
             },
-            "type":"annotations"
+            "type": "annotations"
           },
           {
-            "attributes":{
-              "title":"andere Anmerkung",
-              "__id__":"217internal-model"
+            "attributes": {
+              "title": "andere Anmerkung",
+              "__id__": "217internal-model"
             },
-            "type":"annotations"
+            "type": "annotations"
           }
         ]
       },
-      "locations":{
-        "data":[
+      "locations": {
+        "data": [
           {
-            "attributes":{
-              "street":"Ernst Nier Straße 8",
-              "number":"Ernst Nier Straße 8",
-              "city":"Beierfeld",
-              "placename":"",
-              "__id__":"205internal-model"
+            "attributes": {
+              "street": "Ernst Nier Straße 8",
+              "number": "Ernst Nier Straße 8",
+              "city": "Beierfeld",
+              "placename": "",
+              "__id__": "205internal-model"
             },
-            "type":"locations"
+            "type": "locations"
           }
         ]
       }
     },
-    "type":"orgas"
+    "type": "orgas"
   }
 }

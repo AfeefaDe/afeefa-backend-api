@@ -86,11 +86,14 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
       end
       params['data']['attributes'].
-        merge!('state_transition' => 'activate')
-      post :create, params: params
-      assert_response :created, response.body
+        merge!('active' => true)
+      assert_difference 'Event.count' do
+        post :create, params: params
+        assert_response :created, response.body
+      end
       json = JSON.parse(response.body)
-      assert_equal StateMachine::ACTIVE.to_s, json['data']['attributes']['state']
+      assert_equal StateMachine::ACTIVE.to_s, Event.last.state
+      assert_equal true, json['data']['attributes']['active']
     end
 
     should 'An event should only change allowed states' do
@@ -101,7 +104,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       last_state_change = active_event.state_changed_at
       last_update = active_event.state_changed_at
 
-      sleep(1)
+      sleep 1
 
       process :update, methode: :patch, params: {
         id: active_event.id,
@@ -109,7 +112,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           id: active_event.id,
           type: 'events',
           attributes: {
-            state_transition: 'deactivate'
+            active: false
           }
         }
       }
@@ -137,7 +140,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       end
       assert Event.last.inactive?
       json = JSON.parse(response.body)
-      assert_equal StateMachine::INACTIVE.to_s, json['data']['attributes']['state']
+      assert_equal false, json['data']['attributes']['active']
     end
 
     should 'set default orga on event create without orga relation' do

@@ -4,13 +4,16 @@ class Api::V1::EntryResource < Api::V1::BaseResource
   abstract
 
   attributes :title, :description, :created_at, :updated_at,
-             :state_changed_at, :state, :category
+             :state_changed_at, :active
 
   # TODO: handle paging of this resource
 
   has_many :annotations
   has_many :locations
   has_many :contact_infos
+
+  has_one :category
+  has_one :sub_category, class_name: 'Category'
 
   class << self
     def find(filters, options = {})

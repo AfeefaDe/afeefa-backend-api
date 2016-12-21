@@ -71,33 +71,36 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       should 'I want to create a new orga' do
         Orga.any_instance.stubs(:valid?).returns(true)
 
-        post :create, params: {
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'some title',
-              description: 'some description',
-              state_transition: 'activate'
-            },
-            relationships: {
-              parent_orga: {
-                data: {
-                  id: @orga.id,
-                  type: 'orgas'
-                }
+        assert_difference 'Orga.count' do
+          post :create, params: {
+            data: {
+              type: 'orgas',
+              attributes: {
+                title: 'some title',
+                description: 'some description',
+                active: true
               },
-              category: {
-                data: {
-                  type: 'categories',
-                  id: Category.main_categories.first.id.to_s
+              relationships: {
+                parent_orga: {
+                  data: {
+                    id: @orga.id,
+                    type: 'orgas'
+                  }
+                },
+                category: {
+                  data: {
+                    type: 'categories',
+                    id: Category.main_categories.first.id.to_s
+                  }
                 }
               }
             }
           }
-        }
-        assert_response :created, response.body
+          assert_response :created, response.body
+        end
         json = JSON.parse(response.body)
-        assert_equal StateMachine::ACTIVE.to_s, json['data']['attributes']['state']
+        assert_equal StateMachine::ACTIVE.to_s, Orga.last.state
+        assert_equal true, json['data']['attributes']['active']
       end
 
       should 'An orga should only change allowed states' do
@@ -107,7 +110,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         last_state_change = active_orga.state_changed_at
         last_update = active_orga.state_changed_at
 
-        sleep(1)
+        sleep 1
 
         process :update, methode: :patch, params: {
           id: active_orga.id,
@@ -115,7 +118,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             id: active_orga.id,
             type: 'orgas',
             attributes: {
-              state_transition: 'deactivate'
+              active: false
             }
           }
         }
@@ -127,41 +130,43 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert last_state_change < json['data']['attributes']['state_changed_at'], "#{last_state_change} is not newer than #{json['data']['attributes']['state_changed_at']}"
         assert last_update < json['data']['attributes']['updated_at']
         assert active_orga.reload.inactive?
-
       end
 
       should 'ignore given state on orga create' do
         Orga.any_instance.stubs(:valid?).returns(true)
 
-        post :create, params: {
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'some title',
-              description: 'some description',
-              state: StateMachine::ACTIVE.to_s
-            },
-            relationships: {
-              parent_orga: {
-                data: {
-                  id: @orga.id,
-                  type: 'orgas'
-                }
+        assert_difference 'Orga.count' do
+          post :create, params: {
+            data: {
+              type: 'orgas',
+              attributes: {
+                title: 'some title',
+                description: 'some description',
+                # state: StateMachine::ACTIVE.to_s
+                # active: false
               },
-              category: {
-                data: {
-                  type: 'categories',
-                  id: Category.main_categories.first.id.to_s
+              relationships: {
+                parent_orga: {
+                  data: {
+                    id: @orga.id,
+                    type: 'orgas'
+                  }
+                },
+                category: {
+                  data: {
+                    type: 'categories',
+                    id: Category.main_categories.first.id.to_s
+                  }
                 }
               }
             }
           }
-        }
-        assert_response :created, response.body
+          assert_response :created, response.body
+        end
         assert_equal 'some title', Orga.last.title
-        assert Orga.last.inactive?
         json = JSON.parse(response.body)
-        assert_equal StateMachine::INACTIVE.to_s, json['data']['attributes']['state']
+        assert Orga.last.inactive?
+        assert_equal false, json['data']['attributes']['active']
       end
 
       should 'set default orga on orga create without parent relation' do
