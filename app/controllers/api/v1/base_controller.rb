@@ -24,10 +24,6 @@ class Api::V1::BaseController < ApplicationController
     # pp error.backtrace
   end
 
-  def context
-    { current_user: current_api_v1_user }
-  end
-
   private
 
   # def ensure_host
@@ -81,6 +77,15 @@ class Api::V1::BaseController < ApplicationController
     else
       super
     end
+  end
+
+  def context
+    { current_user: current_api_v1_user }
+  end
+
+  def render_results(operation_results)
+    # binding.pry
+    super
   end
 
   def render_errors(errors)

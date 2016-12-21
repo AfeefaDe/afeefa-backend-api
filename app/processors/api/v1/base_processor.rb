@@ -5,4 +5,9 @@ class Api::V1::BaseProcessor < JSONAPI::Processor
     super
   end
 
+  def update_resource
+    # binding.pry
+    super
+  end
+
 end

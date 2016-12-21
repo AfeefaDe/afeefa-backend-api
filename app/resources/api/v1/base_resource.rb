@@ -2,12 +2,18 @@ class Api::V1::BaseResource < JSONAPI::Resource
 
   class << self
     def verify_key(key, context = nil)
-      if key.is_a?(Hash) && key.key?(:attributes)
-        key
-      else
-        if key.is_a?(Hash)
-          raise 'Actually we can not handle hashes without attribtues.'
+      if key.is_a?(Hash)
+        if key.key?(:attributes)
+          key
+        else
+          if key.key?(:id)
+            key = key[:id]
+            super
+          else
+            raise 'Actually we can not handle hashes without attribtues.'
+          end
         end
+      else
         super
       end
     end
@@ -17,7 +23,7 @@ class Api::V1::BaseResource < JSONAPI::Resource
     ActiveRecord::Base.transaction do
       # initialize model
       super(field_data.reject { |key, _value| key.in?(%i(to_one to_many)) })
-      _model.save #!
+      _model.save # TODO: save!
 
       # handle associations
       field_data[:to_one].each do |relationship_type, value|
@@ -28,10 +34,10 @@ class Api::V1::BaseResource < JSONAPI::Resource
             when Hash
               if value.fetch(:id) && value.fetch(:type)
                 replace_polymorphic_to_one_link(relationship_type.to_s, value.fetch(:id), value.fetch(:type))
-              # TODO: Do we need that? Is it possible to create polymorphic objects? → Maybe locatable, contactable?
-              # elsif value.fetch(:type)
-              #   # create polymorphic
-              #   handle_associated_object_creation(:to_one, relationship_type, value)
+                # TODO: Do we need that? Is it possible to create polymorphic objects? → Maybe locatable, contactable?
+                # elsif value.fetch(:type)
+                #   # create polymorphic
+                #   handle_associated_object_creation(:to_one, relationship_type, value)
               else
                 # create
                 handle_associated_object_creation(:to_one, relationship_type, value)
@@ -39,36 +45,33 @@ class Api::V1::BaseResource < JSONAPI::Resource
             when Integer, String
               value = { id: value }
           end
+          # TODO: Does this work correctly?
+          relationship_key_value = value[:id]
+          replace_to_one_link(relationship_type, relationship_key_value)
         end
-        # TODO: Does this work correctly?
-        # binding.pry
-        relationship_key_value = value[:id]
-        replace_to_one_link(relationship_type, relationship_key_value)
       end if field_data[:to_one]
 
       field_data[:to_many].each do |relationship_type, values|
         _model.send("#{relationship_type}=", [])
-        values.each do |data|
-          # next if data.key?(:id)
+        values.map! do |data|
           handle_associated_object_creation(:to_many, relationship_type, data)
         end
-        # binding.pry
         relationship_key_values = values.map { |v| v[:id] }
         replace_to_many_links(relationship_type, relationship_key_values)
       end if field_data[:to_many]
-      # binding.pry
-      # _model.save!
     end
   end
 
   def _replace_to_many_links(relationship_type, relationship_key_values, options)
-    # binding.pry
     super
   end
 
   private
 
   def handle_associated_object_creation(association_type, relationship_type, values)
+    if values.is_a?(Fixnum)
+      values = { id: values }
+    end
     sanitized_attributes =
       (values[:attributes].presence || {}).reject { |attr, _value| attr.in?(%i(type __id__)) }
     associated_object =
@@ -78,13 +81,12 @@ class Api::V1::BaseResource < JSONAPI::Resource
         relationship_type.to_s.singularize.camelcase.constantize.new
       end
     associated_object.assign_attributes(sanitized_attributes)
-    # binding.pry
     if association_type == :to_one
       _model.send("#{relationship_type}=", associated_object)
     elsif association_type == :to_many
       _model.send(relationship_type) << associated_object
     end
-    associated_object.save #!
+    associated_object.save # TODO: save!
     values.merge!(id: associated_object.id)
   end
 
