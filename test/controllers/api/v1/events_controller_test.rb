@@ -220,7 +220,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_no_difference 'ContactInfo.count' do
           assert_no_difference 'Location.count' do
             assert_no_difference 'Annotation.count' do
-              post :update,
+              patch :update,
                 params: {
                   id: event.id,
                 }.merge(
@@ -292,6 +292,31 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         end
       end
       assert_not @event.reload.deleted?
+    end
+
+    should 'update an event without creator and set the creator automatically' do
+      assert @event = create(:event)
+      @event.creator = nil
+      assert @event.save(validate: false)
+      @event.annotations.create(title: 'annotation123')
+      annotation = @event.annotations.last
+
+      assert_no_difference 'Event.count' do
+        patch :update,
+          params: {
+            id: @event.id,
+          }.merge(
+            parse_json_file(
+              file: 'update_event_without_sub_category.json'
+            ) do |payload|
+              payload.gsub!('<id>', @event.id.to_s)
+              payload.gsub!('<annotation_id_1>', annotation.id.to_s)
+              payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+            end
+          )
+        assert_response :ok, response.body
+        assert @controller.current_api_v1_user, @event.reload.creator
+      end
     end
   end
 
