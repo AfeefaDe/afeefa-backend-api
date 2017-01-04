@@ -69,7 +69,6 @@ module StateMachine
     # soft destroyable
     scope :undeleted, -> { where(state: UNDELETEDS) }
     # TODO: How to really destroy?
-    # TODO: What should we do with associated objects?
     def destroy
       run_callbacks(:destroy) do
         delete!

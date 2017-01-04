@@ -247,7 +247,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'soft destroy event' do
-      # TODO: What should we do with associated objects?
+      assert @event = create(:event)
       assert_not @event.reload.deleted?
       assert_no_difference 'Event.count' do
         assert_difference 'Event.undeleted.count', -1 do
@@ -265,6 +265,33 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         end
       end
       assert @event.reload.deleted?
+    end
+
+    should 'not soft destroy event with associated sub_event' do
+      assert @event = create(:event)
+      assert event = create(:another_event, parent_id: @event.id, orga_id: @event.orga.id)
+      assert_equal @event.id, event.parent_id
+      assert @event.reload.sub_events.any?
+      assert_not @event.reload.deleted?
+
+      assert_no_difference 'Event.count' do
+        assert_no_difference 'Event.undeleted.count' do
+          assert_no_difference 'ContactInfo.count' do
+            assert_no_difference 'Location.count' do
+              assert_no_difference 'Annotation.count' do
+                delete :destroy,
+                  params: {
+                    id: @event.id,
+                  }
+                assert_response :locked, response.body
+                json = JSON.parse(response.body)
+                assert_equal 'Unterereignisse müssen gelöscht werden', json['errors'].first['detail']
+              end
+            end
+          end
+        end
+      end
+      assert_not @event.reload.deleted?
     end
   end
 

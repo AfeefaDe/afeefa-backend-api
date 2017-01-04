@@ -346,7 +346,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         end
         assert_not @orga.reload.deleted?
       end
-
     end
   end
 

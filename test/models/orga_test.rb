@@ -88,10 +88,12 @@ class OrgaTest < ActiveSupport::TestCase
       assert @orga.reload.sub_orgas.any?
       assert_not @orga.reload.deleted?
       assert_no_difference 'Orga.count' do
-        assert_raise ActiveRecord::DeleteRestrictionError do
-          assert_no_difference 'Orga.undeleted.count' do
-            @orga.destroy!
-          end
+        assert_no_difference 'Orga.undeleted.count' do
+          exception =
+            assert_raise CustomDeleteRestrictionError do
+              @orga.destroy!
+            end
+          assert_equal 'Unterorganisationen müssen gelöscht werden', exception.message
         end
       end
       assert_not @orga.reload.deleted?
@@ -107,10 +109,12 @@ class OrgaTest < ActiveSupport::TestCase
       assert_no_difference 'Event.count' do
         assert_no_difference 'Event.undeleted.count' do
           assert_no_difference 'Orga.count' do
-            assert_raise ActiveRecord::DeleteRestrictionError do
-              assert_no_difference 'Orga.undeleted.count' do
-                @orga.destroy!
-              end
+            assert_no_difference 'Orga.undeleted.count' do
+              exception =
+                assert_raise CustomDeleteRestrictionError do
+                  @orga.destroy!
+                end
+              assert_equal 'Ereignisse müssen gelöscht werden', exception.message
             end
           end
         end

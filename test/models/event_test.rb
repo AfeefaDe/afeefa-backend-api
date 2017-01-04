@@ -56,7 +56,6 @@ class EventTest < ActiveSupport::TestCase
     end
 
     should 'soft delete event' do
-      # TODO: What should we do with associated objects?
       assert @event.save
       assert_not @event.reload.deleted?
       assert_no_difference 'Event.count' do
@@ -65,6 +64,27 @@ class EventTest < ActiveSupport::TestCase
         end
       end
       assert @event.reload.deleted?
+    end
+
+    should 'not soft delete event with associated event' do
+      assert @event.save
+      assert event = create(:event, orga: @orga, title: 'foo bar', parent_id: @event.id)
+      assert event.save
+      assert_equal @event.id, event.parent_id
+      assert @event.reload.sub_events.any?
+      assert_not @event.reload.deleted?
+      assert_no_difference 'Event.count' do
+        assert_no_difference 'Event.undeleted.count' do
+          assert_no_difference 'Orga.undeleted.count' do
+            exception =
+              assert_raise CustomDeleteRestrictionError do
+                @event.destroy!
+              end
+            assert_equal 'Unterereignisse müssen gelöscht werden', exception.message
+          end
+        end
+      end
+      assert_not @event.reload.deleted?
     end
   end
 

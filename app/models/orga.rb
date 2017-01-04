@@ -1,16 +1,5 @@
 class Orga < ApplicationRecord
 
-  class CustomDeleteRestrictionError < ActiveRecord::DeleteRestrictionError
-    def initialize(message = nil)
-      super
-      @message = message
-    end
-
-    def message
-      @message
-    end
-  end
-
   ROOT_ORGA_TITLE = 'ROOT-ORGA'
 
   # INCLUDES
@@ -38,9 +27,7 @@ class Orga < ApplicationRecord
 
   # HOOKS
   before_validation :set_parent_orga_as_default, if: -> { parent_orga.blank? }
-  # TODO: What should we do with associated objects?
   # before_destroy :move_sub_orgas_to_parent, prepend: true
-  before_destroy :deny_destroy_if_associated_objects_present, prepend: true
 
   # SCOPES
   scope :without_root, -> { where.not(title: ROOT_ORGA_TITLE) }
@@ -105,7 +92,7 @@ class Orga < ApplicationRecord
     end
 
     errors.full_messages.each do |message|
-      raise CustomDeleteRestrictionError, message
+      raise ::CustomDeleteRestrictionError, message
     end
   end
 

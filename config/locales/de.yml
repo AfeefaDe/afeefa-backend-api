@@ -18,6 +18,7 @@ de:
       mail: E-Mail-Adresse
       sub_orgas: Unterorganisationen
       events: Ereignisse
+      sub_events: Unterereignisse
   activerecord:
     attributes:
       orga:
@@ -30,7 +31,11 @@ de:
       models:
         orga:
           attributes:
-            sub_orgas:
+            sub_orgas: &errors
               not_blank: müssen gelöscht werden
             events:
-              not_blank: müssen gelöscht werden
+              <<: *errors
+        event:
+          attributes:
+            sub_events:
+              <<: *errors
