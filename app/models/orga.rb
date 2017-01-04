@@ -1,4 +1,16 @@
 class Orga < ApplicationRecord
+
+  class CustomDeleteRestrictionError < ActiveRecord::DeleteRestrictionError
+    def initialize(message = nil)
+      super
+      @message = message
+    end
+
+    def message
+      @message
+    end
+  end
+
   ROOT_ORGA_TITLE = 'ROOT-ORGA'
 
   # INCLUDES
@@ -93,7 +105,7 @@ class Orga < ApplicationRecord
     end
 
     errors.full_messages.each do |message|
-      raise ActiveRecord::DeleteRestrictionError, message
+      raise CustomDeleteRestrictionError, message
     end
   end
 

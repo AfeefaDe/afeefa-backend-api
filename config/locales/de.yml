@@ -31,4 +31,6 @@ de:
         orga:
           attributes:
             sub_orgas:
-              not_blank: muss leer sein
+              not_blank: müssen gelöscht werden
+            events:
+              not_blank: müssen gelöscht werden

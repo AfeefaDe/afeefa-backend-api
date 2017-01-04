@@ -307,6 +307,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                       id: @orga.id,
                     }
                   assert_response :locked, response.body
+                  json = JSON.parse(response.body)
+                  assert_equal 'Unterorganisationen müssen gelöscht werden', json['errors'].first['detail']
                 end
               end
             end
@@ -333,6 +335,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                           id: @orga.id,
                         }
                       assert_response :locked, response.body
+                      json = JSON.parse(response.body)
+                      assert_equal 'Ereignisse müssen gelöscht werden', json['errors'].first['detail']
                     end
                   end
                 end
