@@ -70,7 +70,6 @@ class OrgaTest < ActiveSupport::TestCase
     end
 
     should 'soft delete orga' do
-      # TODO: What should we do with associated objects?
       assert @orga.save
       assert_not @orga.reload.deleted?
       assert_no_difference 'Orga.count' do
@@ -79,6 +78,44 @@ class OrgaTest < ActiveSupport::TestCase
         end
       end
       assert @orga.reload.deleted?
+    end
+
+    should 'not soft delete orga with associated orga' do
+      @orga.save!
+      assert @orga.id
+      assert sub_orga = create(:orga, parent_id: @orga.id)
+      assert_equal @orga.id, sub_orga.parent_id
+      assert @orga.reload.sub_orgas.any?
+      assert_not @orga.reload.deleted?
+      assert_no_difference 'Orga.count' do
+        assert_raise ActiveRecord::DeleteRestrictionError do
+          assert_no_difference 'Orga.undeleted.count' do
+            @orga.destroy!
+          end
+        end
+      end
+      assert_not @orga.reload.deleted?
+    end
+
+    should 'not soft delete orga with associated event' do
+      @orga.save!
+      assert @orga.id
+      assert event = create(:event, orga_id: @orga.id)
+      assert_equal @orga.id, event.orga_id
+      assert @orga.reload.events.any?
+      assert_not @orga.reload.deleted?
+      assert_no_difference 'Event.count' do
+        assert_no_difference 'Event.undeleted.count' do
+          assert_no_difference 'Orga.count' do
+            assert_raise ActiveRecord::DeleteRestrictionError do
+              assert_no_difference 'Orga.undeleted.count' do
+                @orga.destroy!
+              end
+            end
+          end
+        end
+      end
+      assert_not @orga.reload.deleted?
     end
   end
 

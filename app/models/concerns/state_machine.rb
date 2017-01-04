@@ -71,10 +71,15 @@ module StateMachine
     # TODO: How to really destroy?
     # TODO: What should we do with associated objects?
     def destroy
-      delete!
+      run_callbacks(:destroy) do
+        delete!
+      end
     end
+
     def restore
-      restore!
+      run_callbacks(:restore) do
+        restore!
+      end
     end
   end
 

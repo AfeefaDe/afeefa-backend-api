@@ -13,7 +13,7 @@ class Orga < ApplicationRecord
   alias_method :parent_orga=, :parent=
   alias_attribute :parent_orga_id, :parent_id
 
-  # has_many :events
+  has_many :events
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
   # has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user
@@ -28,6 +28,7 @@ class Orga < ApplicationRecord
   before_validation :set_parent_orga_as_default, if: -> { parent_orga.blank? }
   # TODO: What should we do with associated objects?
   # before_destroy :move_sub_orgas_to_parent, prepend: true
+  before_destroy :deny_destroy_if_associated_objects_present, prepend: true
 
   # SCOPES
   scope :without_root, -> { where.not(title: ROOT_ORGA_TITLE) }
@@ -78,6 +79,22 @@ class Orga < ApplicationRecord
 
   def set_parent_orga_as_default
     self.parent_orga = Orga.root_orga
+  end
+
+  def deny_destroy_if_associated_objects_present
+    errors.clear
+
+    if sub_orgas.any?
+      errors.add(:sub_orgas, :not_blank)
+    end
+
+    if events.any?
+      errors.add(:events, :not_blank)
+    end
+
+    errors.full_messages.each do |message|
+      raise ActiveRecord::DeleteRestrictionError, message
+    end
   end
 
   def move_sub_orgas_to_parent

@@ -16,6 +16,8 @@ de:
       contact_person: Kontaktperson
       phone: Telefon
       mail: E-Mail-Adresse
+      sub_orgas: Unterorganisationen
+      events: Ereignisse
   activerecord:
     attributes:
       orga:
@@ -24,3 +26,9 @@ de:
         <<: *attributes
       contact_info:
         <<: *attributes
+    errors:
+      models:
+        orga:
+          attributes:
+            sub_orgas:
+              not_blank: muss leer sein

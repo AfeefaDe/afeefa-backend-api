@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161221115623) do
+ActiveRecord::Schema.define(version: 20170104140243) do
 
   create_table "annotation_able_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "annotation_id"
@@ -23,10 +23,8 @@ ActiveRecord::Schema.define(version: 20161221115623) do
 
   create_table "annotations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
-    t.string   "annotatable_type"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
-    t.index ["annotatable_type"], name: "index_annotations_on_annotatable_type_and_annotatable_id", using: :btree
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

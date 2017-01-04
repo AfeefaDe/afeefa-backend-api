@@ -271,8 +271,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'soft destroy orga' do
-        # TODO: What should we do with associated objects?
         assert_not @orga.reload.deleted?
+
         assert_no_difference 'Orga.count' do
           assert_difference 'Orga.undeleted.count', -1 do
             assert_no_difference 'ContactInfo.count' do
@@ -290,6 +290,59 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         end
         assert @orga.reload.deleted?
       end
+
+      should 'not soft destroy orga with associated sub_orga' do
+        assert sub_orga = create(:another_orga, parent_id: @orga.id)
+        assert_equal @orga.id, sub_orga.parent_id
+        assert @orga.reload.sub_orgas.any?
+        assert_not @orga.reload.deleted?
+
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'Orga.undeleted.count' do
+            assert_no_difference 'ContactInfo.count' do
+              assert_no_difference 'Location.count' do
+                assert_no_difference 'Annotation.count' do
+                  delete :destroy,
+                    params: {
+                      id: @orga.id,
+                    }
+                  assert_response :locked, response.body
+                end
+              end
+            end
+          end
+        end
+        assert_not @orga.reload.deleted?
+      end
+
+      should 'not soft destroy orga with associated event' do
+        assert event = create(:event, orga_id: @orga.id)
+        assert_equal @orga.id, event.orga_id
+        assert @orga.reload.events.any?
+        assert_not @orga.reload.deleted?
+
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'Orga.undeleted.count' do
+            assert_no_difference 'Event.count' do
+              assert_no_difference 'Event.undeleted.count' do
+                assert_no_difference 'ContactInfo.count' do
+                  assert_no_difference 'Location.count' do
+                    assert_no_difference 'Annotation.count' do
+                      delete :destroy,
+                        params: {
+                          id: @orga.id,
+                        }
+                      assert_response :locked, response.body
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+        assert_not @orga.reload.deleted?
+      end
+
     end
   end
 
