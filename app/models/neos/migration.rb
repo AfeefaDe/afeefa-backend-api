@@ -47,7 +47,8 @@ module Neos
                   ::Category.find_by_title(event.category.name)
                 end,
               date: event.datefrom,
-              orga: parent_or_root_orga(event.parent)
+              orga: parent_or_root_orga(event.parent),
+              creator: User.first # assume that this is the system user
             )
           end
         end
