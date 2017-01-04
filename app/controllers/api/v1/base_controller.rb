@@ -91,4 +91,17 @@ class Api::V1::BaseController < ApplicationController
   def render_errors(errors)
     super
   end
+
+  def serialization_options
+    # binding.pry
+    super
+    # {
+    #   include: [
+    #     'annotations',
+    #   ],
+    #   fields: {
+    #     annotations: ['type', 'id'],
+    #   }
+    # }
+  end
 end

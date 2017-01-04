@@ -8,11 +8,17 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'get index' do
-      get :index, params: { includes: ['annotations', 'categories', 'sub_categories'] }
+      # useful sample data
+      orga = create(:orga)
+      orga.annotations.create(title: 'annotation123')
+      orga.annotations.last
+
+      get :index, params: { include: 'annotations,category,sub_category' }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Orga.count, json['data'].size
+      assert json['included'].any?
     end
 
     should 'not get show root_orga' do
@@ -101,6 +107,14 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         json = JSON.parse(response.body)
         assert_equal StateMachine::ACTIVE.to_s, Orga.last.state
         assert_equal true, json['data']['attributes']['active']
+
+        # TODO: That should be done for issue #66:
+        # TODO: Is it possible to use include param on create response?
+        # Then we could deliver the mapping there
+        %w(annotations locations contact_infos).each do |relation|
+          assert_equal relation, json['data']['relationships'][relation].first['data']['type']
+          assert_equal Orga.last.send(relation).first.id, json['data']['relationships'].first[relation]['data']['id']
+        end
       end
 
       should 'An orga should only change allowed states' do
