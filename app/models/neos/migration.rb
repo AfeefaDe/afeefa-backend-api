@@ -46,12 +46,8 @@ module Neos
                 if event.category
                   ::Category.find_by_title(event.category.name)
                 end,
-              date_start:
-                # begin
-                  Time.zone.parse("#{event.datefrom} #{event.timefrom}"),
-                # rescue
-                # end,
-              date_end: Time.zone.parse("#{event.dateto} #{event.timeto}"),
+              date_start: parse_datetime(:date_start, event.datefrom, event.timefrom),
+              date_end: parse_datetime(:date_end, event.dateto, event.timeto),
               orga: parent_or_root_orga(event.parent),
               creator: User.first # assume that this is the system user
             )
@@ -60,6 +56,20 @@ module Neos
       end
 
       private
+
+      def parse_datetime(attribute, date_string, time_string)
+        begin
+          datetime_string = "#{date_string} #{time_string}"
+          Time.zone.parse(datetime_string)
+        rescue ArgumentError => _exception
+          puts "Failed to parse datetime for #{attribute}, given: #{datetime_string}"
+          datetime_string = "#{event.datefrom}"
+          Time.zone.parse(datetime_string)
+        rescue ArgumentError => _exception
+          puts "Failed to parse date for #{attribute}, given: #{datetime_string}"
+          nil
+        end
+      end
 
       def parent_or_root_orga(parent)
         if parent && parent.orga? &&
