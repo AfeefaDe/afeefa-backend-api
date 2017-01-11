@@ -3,7 +3,7 @@
     "attributes": {
       "title": "some title",
       "description": "some description",
-      "date": "2016-12-12"
+      "date_start": "2016-12-12"
     },
     "relationships": {
       //      "parent_orga":{
@@ -40,18 +40,12 @@
       "annotations": {
         "data": [
           {
-            "attributes": {
-              "title": "iwpfjwfpeijwpiefj",
-              "__id__": "206internal-model"
-            },
-            "type": "annotations"
+            "type": "annotations",
+            "id": "<annotation_id_1>"
           },
           {
-            "attributes": {
-              "title": "andere Anmerkung",
-              "__id__": "217internal-model"
-            },
-            "type": "annotations"
+            "type": "annotations",
+            "id": "<annotation_id_2>"
           }
         ]
       },

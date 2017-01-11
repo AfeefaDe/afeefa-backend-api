@@ -83,6 +83,10 @@ class Api::V1::BaseController < ApplicationController
     { current_user: current_api_v1_user }
   end
 
+  def resource_serializer_klass
+    @resource_serializer_klass ||= Api::V1::BaseSerializer
+  end
+
   def render_results(operation_results)
     # binding.pry
     super
@@ -94,7 +98,9 @@ class Api::V1::BaseController < ApplicationController
 
   def serialization_options
     # binding.pry
-    super
+    super.merge(
+      include_linkage_whitelist: %i(create update),
+      action: params[:action].to_sym)
     # {
     #   include: [
     #     'annotations',

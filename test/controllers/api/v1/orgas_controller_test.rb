@@ -75,45 +75,30 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'I want to create a new orga' do
-        Orga.any_instance.stubs(:valid?).returns(true)
+        params = parse_json_file do |payload|
+          payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+          payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+          payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
+          payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
+        end
+        params['data']['attributes'].merge!('active' => true)
 
         assert_difference 'Orga.count' do
-          post :create, params: {
-            data: {
-              type: 'orgas',
-              attributes: {
-                title: 'some title',
-                description: 'some description',
-                active: true
-              },
-              relationships: {
-                parent_orga: {
-                  data: {
-                    id: @orga.id,
-                    type: 'orgas'
-                  }
-                },
-                category: {
-                  data: {
-                    type: 'categories',
-                    id: Category.main_categories.first.id.to_s
-                  }
-                }
-              }
-            }
-          }
-          assert_response :created, response.body
+          assert_no_difference 'Annotation.count' do
+            assert_difference 'AnnotationAbleRelation.count', 2 do
+              post :create, params: params
+              assert_response :created, response.body
+            end
+          end
         end
         json = JSON.parse(response.body)
         assert_equal StateMachine::ACTIVE.to_s, Orga.last.state
         assert_equal true, json['data']['attributes']['active']
 
-        # TODO: That should be done for issue #66:
-        # TODO: Is it possible to use include param on create response?
         # Then we could deliver the mapping there
         %w(annotations locations contact_infos).each do |relation|
-          assert_equal relation, json['data']['relationships'][relation].first['data']['type']
-          assert_equal Orga.last.send(relation).first.id, json['data']['relationships'].first[relation]['data']['id']
+          assert_equal relation, json['data']['relationships'][relation]['data'].first['type']
+          assert_equal Orga.last.send(relation).first.id.to_s, json['data']['relationships'][relation]['data'].first['id']
         end
       end
 
@@ -188,6 +173,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           parse_json_file(file: 'create_orga_without_parent.json') do |payload|
             payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
             payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+            payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
+            payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
           end
         post :create, params: params
         assert_response :created, response.body
@@ -227,17 +214,21 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'create orga with nested attributes' do
         assert_difference 'Orga.count' do
-          assert_difference 'Annotation.count', 2 do
-            assert_difference 'ContactInfo.count' do
-              assert_difference 'Location.count' do
-                params = parse_json_file do |payload|
-                  payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-                  payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+          assert_no_difference 'Annotation.count' do
+            assert_difference 'AnnotationAbleRelation.count', 2 do
+              assert_difference 'ContactInfo.count' do
+                assert_difference 'Location.count' do
+                  params = parse_json_file do |payload|
+                    payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                    payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+                    payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
+                    payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
+                  end
+                  post :create, params: params
+                  assert_response :created, response.body
+                  get :show, params: { id: Orga.last.id }
+                  assert_response :ok, response.body
                 end
-                post :create, params: params
-                assert_response :created, response.body
-                get :show, params: { id: Orga.last.id }
-                assert_response :ok, response.body
               end
             end
           end
@@ -246,6 +237,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
         assert_equal '377436332', ContactInfo.last.phone
         assert_equal Orga.last, ContactInfo.last.contactable
+        assert_includes Annotation.first.orgas, Orga.last
+        assert_includes Annotation.second.orgas, Orga.last
       end
 
       should 'update orga with nested attributes' do
@@ -281,7 +274,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal Orga.last, ContactInfo.last.contactable
         assert_equal 1, Orga.last.annotations.count
         assert_equal annotation.reload, Orga.last.annotations.first
-        assert_equal 'Hallo Welt 2', annotation.reload.title
       end
 
       should 'soft destroy orga' do

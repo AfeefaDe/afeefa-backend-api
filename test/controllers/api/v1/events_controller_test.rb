@@ -38,6 +38,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+        payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
+        payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
       end
       post :create, params: params
       assert_response :created, response.body
@@ -50,6 +52,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+        payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
+        payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
       end
       params['data']['relationships'].merge!(
         'creator' => {
@@ -81,19 +85,42 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'I want to create a new event' do
+      orga = create(:orga)
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+        payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
+        payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
       end
-      params['data']['attributes'].
-        merge!('active' => true)
+      params['data']['attributes'].merge!('active' => true)
+      params['data']['relationships'].merge!(
+        orga: {
+          data: {
+            type: 'orgas',
+            id: orga.id
+          }
+        }
+      )
+
       assert_difference 'Event.count' do
-        post :create, params: params
-        assert_response :created, response.body
+        assert_no_difference 'Annotation.count' do
+          assert_difference 'AnnotationAbleRelation.count', 2 do
+            post :create, params: params
+            assert_response :created, response.body
+          end
+        end
       end
       json = JSON.parse(response.body)
       assert_equal StateMachine::ACTIVE.to_s, Event.last.state
       assert_equal true, json['data']['attributes']['active']
+      assert_includes Annotation.first.events, Event.last
+      assert_includes Annotation.second.events, Event.last
+
+      # Then we could deliver the mapping there
+      %w(annotations locations contact_infos).each do |relation|
+        assert_equal relation, json['data']['relationships'][relation]['data'].first['type']
+        assert_equal Event.last.send(relation).first.id.to_s, json['data']['relationships'][relation]['data'].first['id']
+      end
     end
 
     should 'An event should only change allowed states' do
@@ -133,6 +160,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
           payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
           payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+          payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
+          payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
         end
         params['data']['attributes'].merge!('state' => StateMachine::ACTIVE.to_s)
         post :create, params: params
@@ -147,6 +176,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+        payload.gsub!(/"annotations":.*"locations":/m, '"locations":')
       end
       post :create, params: params
       assert_response :created, response.body
@@ -162,7 +192,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           attributes: {
             title: 'some title',
             description: 'some description',
-            date: I18n.l(Date.tomorrow),
+            date_start: I18n.l(Date.tomorrow),
             category: Category.main_categories.first,
           },
           relationships: {
