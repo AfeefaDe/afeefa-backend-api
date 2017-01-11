@@ -94,7 +94,20 @@ namespace :deploy do
     end
   end
 
+  task :seed_db do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      within release_path do
+        if fetch(:stage).to_s == 'production'
+          execute 'seed job is skipped for stage production'
+        else
+          execute "cd #{release_path} && RAILS_ENV=production bundle exec rake db:seed"
+        end
+      end
+    end
+  end
+
 end
 
+after 'deploy', 'deploy:seed_db'
 after 'deploy', 'deploy:restart'
 after 'deploy:rollback', 'deploy:restart'
