@@ -24,3 +24,11 @@ rails s [-p]
 
 * 04.01.2017
 Max mysql connections increased to 5 in database.yml.example - workaround for error: `ERROR ActiveRecord::ConnectionTimeoutError: could not obtain a connection from the pool within 5.000 seconds`
+
+# How to deploy
+
+Run this command in your project folder:
+
+```
+bundle exec cap [dev|production] deploy
+```
