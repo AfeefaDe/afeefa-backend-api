@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170104140243) do
+ActiveRecord::Schema.define(version: 20170111103422) do
 
   create_table "annotation_able_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "annotation_id"
@@ -58,12 +58,13 @@ ActiveRecord::Schema.define(version: 20170104140243) do
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
     t.integer  "parent_id"
-    t.datetime "date"
+    t.datetime "date_start"
     t.string   "state"
     t.datetime "state_changed_at"
     t.integer  "orga_id"
     t.integer  "category_id"
     t.integer  "sub_category_id"
+    t.datetime "date_end"
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree

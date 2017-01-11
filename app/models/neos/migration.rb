@@ -46,7 +46,8 @@ module Neos
                 if event.category
                   ::Category.find_by_title(event.category.name)
                 end,
-              date: event.datefrom,
+              date_start: Time.zone.parse("#{event.datefrom} #{event.timefrom}"),
+              date_end: Time.zone.parse("#{event.dateto} #{event.timeto}"),
               orga: parent_or_root_orga(event.parent),
               creator: User.first # assume that this is the system user
             )
