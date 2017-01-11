@@ -46,7 +46,11 @@ module Neos
                 if event.category
                   ::Category.find_by_title(event.category.name)
                 end,
-              date_start: Time.zone.parse("#{event.datefrom} #{event.timefrom}"),
+              date_start:
+                # begin
+                  Time.zone.parse("#{event.datefrom} #{event.timefrom}"),
+                # rescue
+                # end,
               date_end: Time.zone.parse("#{event.dateto} #{event.timeto}"),
               orga: parent_or_root_orga(event.parent),
               creator: User.first # assume that this is the system user
@@ -86,7 +90,7 @@ module Neos
         end
       rescue => exception
         puts '-------------------------------------------------------'
-        puts "Entry could not be created for the following exception: #{exception.message}"
+        puts "Entry could not be created for the following exception: #{exception.class}: #{exception.message}"
         puts 'Backtrace:'
         puts exception.backtrace.join("\n")
       end
