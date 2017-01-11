@@ -1,6 +1,6 @@
 class Api::V1::EventResource < Api::V1::EntriesBaseResource
 
-  attributes *(ATTRIBUTES + [:date])
+  attributes *(ATTRIBUTES + [:date_start, :date_end])
   # not for now:
   # :public_speaker, :location_type, :support_wanted,
 
