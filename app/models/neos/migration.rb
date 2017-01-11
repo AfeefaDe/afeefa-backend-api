@@ -63,7 +63,7 @@ module Neos
           Time.zone.parse(datetime_string)
         rescue ArgumentError => _exception
           puts "Failed to parse datetime for #{attribute}, given: #{datetime_string}"
-          datetime_string = "#{event.datefrom}"
+          datetime_string = "#{time_string}"
           Time.zone.parse(datetime_string)
         rescue ArgumentError => _exception
           puts "Failed to parse date for #{attribute}, given: #{datetime_string}"
