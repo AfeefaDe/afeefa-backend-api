@@ -81,6 +81,18 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_response :ok, response.body
         json = JSON.parse(response.body)
         assert_kind_of Hash, json['data']
+        assert_not json['data']['attributes']['has_time_start']
+        assert_not json['data']['attributes']['has_time_end']
+      end
+
+      should 'get show event with time_start and time_end' do
+        assert @event.update(time_start: true, time_end: true)
+        get :show, params: { id: @event.id }
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_kind_of Hash, json['data']
+        assert json['data']['attributes']['has_time_start']
+        assert json['data']['attributes']['has_time_end']
       end
     end
 
