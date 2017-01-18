@@ -18,23 +18,32 @@ class Api::V1::BaseSerializer < JSONAPI::ResourceSerializer
     super
   end
 
-  def link_object_to_many(source, relationship, include_linkage)
-    # binding.pry
-    super(source, relationship, include_linkage?)
+  def link_object_to_one(source, relationship, include_linkage)
+    include_linkage = include_linkage || include_linkage?
+    super(source, relationship, include_linkage)
   end
 
   def link_object_to_many(source, relationship, include_linkage)
-    # binding.pry
-    super(source, relationship, include_linkage?)
+    include_linkage = include_linkage || include_linkage?
+    super(source, relationship, include_linkage)
   end
 
   def to_many_linkage(source, relationship)
     # binding.pry if source.class.to_s == 'Api::V1::AnnotationResource'
-    super
+    data = super
+    # binding.pry
+    # ATTENTION: This does only work for non-polymorphic associations because
+    # we do not persist the __id__ attribute in the database
+    source.public_send(relationship.name).each_with_index do |value, index|
+      if value._model.respond_to?(:internal_id) && value._model.internal_id
+        data[index][:__id__] = value._model.internal_id
+      end
+    end
+    # binding.pry
+    data
   end
 
   def include_linkage?
-    # pp "include linkage is #{@action.in?(@include_linkage_whitelist)}"
     @action.in?(@include_linkage_whitelist)
   end
 

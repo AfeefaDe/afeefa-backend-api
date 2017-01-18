@@ -23,6 +23,7 @@ class Api::V1::BaseResource < JSONAPI::Resource
     ActiveRecord::Base.transaction do
       # initialize model
       super(field_data.reject { |key, _value| key.in?(%i(to_one to_many)) })
+      # binding.pry
       _model.save # TODO: save!
 
       # handle associations
@@ -72,8 +73,8 @@ class Api::V1::BaseResource < JSONAPI::Resource
     if values.is_a?(Fixnum)
       values = { id: values }
     end
-    sanitized_attributes =
-      (values[:attributes].presence || {}).reject { |attr, _value| attr.in?(%i(type __id__)) }
+    sanitized_attributes = sanitize_attributes(values)
+    # binding.pry if (values[:attributes].presence || {}).keys.include?(:__id__)
     associated_object =
       if values.key?(:id)
         relationship_type.to_s.singularize.camelcase.constantize.find(values[:id])
@@ -86,8 +87,18 @@ class Api::V1::BaseResource < JSONAPI::Resource
     elsif association_type == :to_many
       _model.send(relationship_type) << associated_object
     end
+    # binding.pry
     associated_object.save # TODO: save!
     values.merge!(id: associated_object.id)
+  end
+
+  def sanitize_attributes(values)
+    attributes =
+      (values[:attributes].presence || {}).reject { |attr, _value| attr.in?(%i(type)) }
+    if attributes.key?(:__id__)
+      attributes[:internal_id] = attributes.delete(:__id__)
+    end
+    attributes
   end
 
 end
