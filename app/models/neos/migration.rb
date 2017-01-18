@@ -38,7 +38,9 @@ module Neos
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
             type_datetime_to =
-              parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
+              parse_datetime_and_return_type(
+                :date_end,
+                event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
             ::Event.new(
               title: event.name,
               description: event.description,
@@ -50,10 +52,10 @@ module Neos
                 if event.category
                   ::Category.find_by_title(event.category.name)
                 end,
-              date_start: type_datetime_from ? type_datetime_from[0] : nil,
-              date_end: type_datetime_to ? type_datetime_to[0] : nil,
-              time_start: type_datetime_from ? type_datetime_from[1] == :datetime : false,
-              time_end: type_datetime_to ? type_datetime_to[1] == :datetime : false,
+              date_start: type_datetime_from[0],
+              date_end: type_datetime_to[0],
+              time_start: type_datetime_from[1] == :datetime,
+              time_end: type_datetime_to[1] == :datetime,
               orga: parent_or_root_orga(event.parent),
               creator: User.first # assume that this is the system user
             )
@@ -65,22 +67,42 @@ module Neos
 
       def parse_datetime_and_return_type(attribute, date_string, time_string)
         begin
-          datetime_string = "#{date_string} #{time_string}"
-          [Time.zone.parse(datetime_string), :datetime]
+          datetime = nil
+          type = nil
+          if time_string.present?
+            datetime = parse_datetime(date_string, time_string)
+            type = :datetime
+            [datetime, type]
+          else
+            datetime = parse_date(date_string)
+            type = :date
+            [datetime, type]
+          end
         rescue ArgumentError => _exception
-          puts "Failed to parse datetime for #{attribute}, given: #{datetime_string}"
-          datetime_string = "#{time_string}"
-          [Time.zone.parse(datetime_string), :date]
+          puts "Failed to parse datetime for #{attribute}, given: #{date_string} #{time_string}"
+          datetime = parse_date(date_string)
+          type = :date
+          [datetime, type]
         rescue ArgumentError => _exception
-          puts "Failed to parse date for #{attribute}, given: #{datetime_string}"
-          nil
+          puts "Failed to parse date for #{attribute}, given: #{date_string} #{time_string}"
+          [nil, nil]
         end
+      end
+
+      def parse_datetime(date_string, time_string)
+        datetime_string = "#{date_string} #{time_string}"
+        Time.zone.parse(datetime_string)
+      end
+
+      def parse_date(date_string)
+        datetime_string = "#{date_string}"
+        Time.zone.parse(datetime_string)
       end
 
       def parent_or_root_orga(parent)
         if parent && parent.orga? &&
-            (orgas = ::Orga.where(title: parent.name)) &&
-            (orgas.count == 1)
+          (orgas = ::Orga.where(title: parent.name)) &&
+          (orgas.count == 1)
           orgas.first
         else
           ::Orga.root_orga
