@@ -90,7 +90,11 @@ group :development, :test do
   # code coverage
   gem 'simplecov', require: false
 
-  gem 'sqlite3'
+  # We do not longer use sqlite3:
+  # gem 'sqlite3'
+
+  # best practise gems
+  gem 'bullet' # n+1 queries
 end
 
 group :development do

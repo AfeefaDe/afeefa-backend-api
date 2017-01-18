@@ -3,7 +3,7 @@ module Neos
 
     class << self
       def migrate
-        Neos::Category.where(locale: :de).each do |category|
+        Neos::Category.where(locale: :de).limit(10).each do |category|
           next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(
             title: category.name,
@@ -15,7 +15,7 @@ module Neos
           end
         end
 
-        Neos::Orga.where(locale: :de).each do |orga|
+        Neos::Orga.where(locale: :de).limit(10).each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
               title: orga.name,
@@ -33,7 +33,7 @@ module Neos
           end
         end
 
-        Neos::Event.where(locale: :de).each do |event|
+        Neos::Event.where(locale: :de).limit(10).each do |event|
           create_entry_and_handle_validation(event) do
             ::Event.new(
               title: event.name,
