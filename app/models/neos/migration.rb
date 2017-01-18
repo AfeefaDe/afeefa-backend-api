@@ -35,6 +35,10 @@ module Neos
 
         Neos::Event.where(locale: :de).limit(10).each do |event|
           create_entry_and_handle_validation(event) do
+            type_datetime_from =
+              parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
+            type_datetime_to =
+              parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
             ::Event.new(
               title: event.name,
               description: event.description,
@@ -46,8 +50,10 @@ module Neos
                 if event.category
                   ::Category.find_by_title(event.category.name)
                 end,
-              date_start: parse_datetime(:date_start, event.datefrom, event.timefrom),
-              date_end: parse_datetime(:date_end, event.dateto, event.timeto),
+              date_start: type_datetime_from ? type_datetime_from[0] : nil,
+              date_end: type_datetime_to ? type_datetime_to[0] : nil,
+              time_start: type_datetime_from ? type_datetime_from[1] == :datetime : false,
+              time_end: type_datetime_to ? type_datetime_to[1] == :datetime : false,
               orga: parent_or_root_orga(event.parent),
               creator: User.first # assume that this is the system user
             )
@@ -57,14 +63,14 @@ module Neos
 
       private
 
-      def parse_datetime(attribute, date_string, time_string)
+      def parse_datetime_and_return_type(attribute, date_string, time_string)
         begin
           datetime_string = "#{date_string} #{time_string}"
-          Time.zone.parse(datetime_string)
+          [Time.zone.parse(datetime_string), :datetime]
         rescue ArgumentError => _exception
           puts "Failed to parse datetime for #{attribute}, given: #{datetime_string}"
           datetime_string = "#{time_string}"
-          Time.zone.parse(datetime_string)
+          [Time.zone.parse(datetime_string), :date]
         rescue ArgumentError => _exception
           puts "Failed to parse date for #{attribute}, given: #{datetime_string}"
           nil
