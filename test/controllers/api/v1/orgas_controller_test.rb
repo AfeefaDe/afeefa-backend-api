@@ -81,7 +81,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             Orga.last.send(relation).first.id.to_s,
             json['data']['relationships'][relation]['data'].first['id'])
           unless relation == 'annotations'
-            internal_id = json['data']['relationships'][relation]['data'].first['__id__']
+            internal_id = json['data']['relationships'][relation]['data'].first['attributes']['__id__']
             assert(internal_id,
               "Attribute __id__ not found for #{relation}. \n" +
                 "Found the following data: #{json['data']['relationships'][relation]['data']}")

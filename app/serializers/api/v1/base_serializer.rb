@@ -36,7 +36,7 @@ class Api::V1::BaseSerializer < JSONAPI::ResourceSerializer
     # we do not persist the __id__ attribute in the database
     source.public_send(relationship.name).each_with_index do |value, index|
       if value._model.respond_to?(:internal_id) && value._model.internal_id
-        data[index][:__id__] = value._model.internal_id
+        data[index][:attributes] = { __id__: value._model.internal_id }
       end
     end
     # binding.pry
