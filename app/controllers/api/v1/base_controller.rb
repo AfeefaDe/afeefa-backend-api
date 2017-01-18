@@ -99,15 +99,7 @@ class Api::V1::BaseController < ApplicationController
   def serialization_options
     # binding.pry
     super.merge(
-      include_linkage_whitelist: %i(create update),
+      include_linkage_whitelist: %i(create update show index),
       action: params[:action].to_sym)
-    # {
-    #   include: [
-    #     'annotations',
-    #   ],
-    #   fields: {
-    #     annotations: ['type', 'id'],
-    #   }
-    # }
   end
 end
