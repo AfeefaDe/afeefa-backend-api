@@ -3,7 +3,7 @@ module Neos
 
     class << self
       def migrate
-        Neos::Category.where(locale: :de).limit(10).each do |category|
+        Neos::Category.where(locale: :de).each do |category|
           next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(
             title: category.name,
@@ -15,7 +15,7 @@ module Neos
           end
         end
 
-        Neos::Orga.where(locale: :de).limit(10).each do |orga|
+        Neos::Orga.where(locale: :de).limit(100).each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
               title: orga.name,
@@ -33,7 +33,7 @@ module Neos
           end
         end
 
-        Neos::Event.where(locale: :de).limit(10).each do |event|
+        Neos::Event.where(locale: :de).limit(100).each do |event|
           create_entry_and_handle_validation(event) do
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
@@ -161,6 +161,8 @@ module Neos
         new_contact_info =
           ContactInfo.new(
             contactable: new_entry,
+            web: entry.web,
+            facebook: entry.facebook,
             mail: entry.mail,
             phone: entry.phone,
             contact_person: entry.speakerpublic

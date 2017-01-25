@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170118152523) do
+ActiveRecord::Schema.define(version: 20170125090231) do
 
   create_table "annotation_able_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "annotation_id"
@@ -46,6 +46,8 @@ ActiveRecord::Schema.define(version: 20170118152523) do
     t.string   "phone"
     t.string   "contact_person"
     t.string   "internal_id"
+    t.string   "web"
+    t.string   "facebook"
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
   end
 
