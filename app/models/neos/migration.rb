@@ -15,11 +15,17 @@ module Neos
           end
         end
 
-        Neos::Orga.where(locale: :de).limit(100).each do |orga|
+        Neos::Orga.where(locale: :de).each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
               title: orga.name,
               description: orga.description,
+              media_url: orga.image,
+              media_type: orga.imagetype, # image | youtube
+              support_wanted: orga.supportwanted,
+              for_children: orga.forchildren,
+              certified_sfr: orga.certified,
+              legacy_entry_id: orga.entry_id,
               sub_category:
                 if orga.subcategory
                   ::Category.find_by_title(orga.subcategory)
@@ -33,7 +39,7 @@ module Neos
           end
         end
 
-        Neos::Event.where(locale: :de).limit(100).each do |event|
+        Neos::Event.where(locale: :de).each do |event|
           create_entry_and_handle_validation(event) do
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
@@ -44,6 +50,12 @@ module Neos
             ::Event.new(
               title: event.name,
               description: event.description,
+              media_url: event.image,
+              media_type: event.imagetype, # image | youtube
+              support_wanted: event.supportwanted,
+              for_children: event.forchildren,
+              certified_sfr: event.certified,
+              legacy_entry_id: event.entry_id,
               sub_category:
                 if event.subcategory
                   ::Category.find_by_title(event.subcategory)
@@ -163,6 +175,7 @@ module Neos
             contactable: new_entry,
             web: entry.web,
             facebook: entry.facebook,
+            spoken_languages: entry.spokenlanguages,
             mail: entry.mail,
             phone: entry.phone,
             contact_person: entry.speakerpublic

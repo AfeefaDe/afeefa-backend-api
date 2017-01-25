@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170125090231) do
+ActiveRecord::Schema.define(version: 20170125153536) do
 
   create_table "annotation_able_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "annotation_id"
@@ -48,6 +48,7 @@ ActiveRecord::Schema.define(version: 20170125090231) do
     t.string   "internal_id"
     t.string   "web"
     t.string   "facebook"
+    t.string   "spoken_languages"
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
   end
 
@@ -70,6 +71,11 @@ ActiveRecord::Schema.define(version: 20170125090231) do
     t.datetime "date_end"
     t.boolean  "time_start",                     default: false
     t.boolean  "time_end",                       default: false
+    t.string   "media_url"
+    t.string   "media_type"
+    t.boolean  "for_children"
+    t.boolean  "certified_sfr"
+    t.string   "legacy_entry_id"
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
@@ -115,6 +121,12 @@ ActiveRecord::Schema.define(version: 20170125090231) do
     t.datetime "state_changed_at"
     t.integer  "category_id"
     t.integer  "sub_category_id"
+    t.string   "media_url"
+    t.string   "media_type"
+    t.boolean  "support_wanted"
+    t.boolean  "for_children"
+    t.boolean  "certified_sfr"
+    t.string   "legacy_entry_id"
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end
