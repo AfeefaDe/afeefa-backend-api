@@ -15,7 +15,7 @@ module Neos
           end
         end
 
-        Neos::Orga.where(locale: :de).each do |orga|
+        Neos::Orga.where(locale: :de).limit(10).each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
               title: orga.name,
@@ -39,7 +39,7 @@ module Neos
           end
         end
 
-        Neos::Event.where(locale: :de).each do |event|
+        Neos::Event.where(locale: :de).limit(10).each do |event|
           create_entry_and_handle_validation(event) do
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
