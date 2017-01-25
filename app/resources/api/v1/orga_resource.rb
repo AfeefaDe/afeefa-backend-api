@@ -1,5 +1,7 @@
 class Api::V1::OrgaResource < Api::V1::EntriesBaseResource
 
+  model_name 'Orga'
+
   attributes *ATTRIBUTES
 
   has_one :parent_orga, class_name: 'Orga', foreign_key: 'parent_id'

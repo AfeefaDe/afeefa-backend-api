@@ -14,10 +14,6 @@ class Api::V1::BaseSerializer < JSONAPI::ResourceSerializer
 
   private
 
-  def relationships_hash(source, include_directives)
-    super
-  end
-
   def link_object_to_one(source, relationship, include_linkage)
     if source.public_send(relationship.name).blank? ||
         source.public_send(relationship.name)._model == Orga.root_orga

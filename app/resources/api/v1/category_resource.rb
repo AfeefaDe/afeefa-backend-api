@@ -1,5 +1,7 @@
 class Api::V1::CategoryResource < Api::V1::BaseResource
 
+  model_name 'Category'
+
   attributes :title, :is_sub_category
 
   filter :title, apply: ->(records, value, _options) {
