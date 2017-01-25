@@ -19,8 +19,14 @@ class Api::V1::BaseSerializer < JSONAPI::ResourceSerializer
   end
 
   def link_object_to_one(source, relationship, include_linkage)
+    if source.public_send(relationship.name).blank? ||
+        source.public_send(relationship.name)._model == Orga.root_orga
+      return {}
+    end
     include_linkage = include_linkage || include_linkage?
-    super(source, relationship, include_linkage)
+    data = super(source, relationship, include_linkage)
+    # binding.pry
+    data
   end
 
   def link_object_to_many(source, relationship, include_linkage)
@@ -36,12 +42,25 @@ class Api::V1::BaseSerializer < JSONAPI::ResourceSerializer
     # we do not persist the __id__ attribute in the database
     source.public_send(relationship.name).each_with_index do |value, index|
       if value._model.respond_to?(:internal_id) && value._model.internal_id
-        data[index][:attributes] = { __id__: value._model.internal_id }
+        data[index][:attributes] =
+          # { __id__: value._model.internal_id }
+          value._model.attributes.tap do |data|
+            data['__id__'] = data.delete('internal_id')
+          end
       end
     end
     # binding.pry
     data
   end
+
+  # def to_one_linkage(source, relationship)
+  #   if source.public_send(relationship.name).blank?
+  #     return {}
+  #   end
+  #   data = super
+  #   # binding.pry
+  #   data
+  # end
 
   def include_linkage?
     # ATTENTION: not for entries (=todos)! → if this is trouble for us:

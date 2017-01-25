@@ -73,18 +73,29 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal StateMachine::ACTIVE.to_s, Orga.last.state
         assert_equal true, json['data']['attributes']['active']
 
+        # ensure parent orga handling, do not render root_orga into relations
+        assert_equal Orga.root_orga.id, Orga.last.parent_id
+        parent_orga_json = json['data']['relationships']['parent_orga']
+        assert(parent_orga_json.blank?, 'Parent Orga should not be present in json relations.')
+
         # Then we could deliver the mapping there
         %w(annotations locations contact_infos).each do |relation|
           assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
-          assert_equal relation, json['data']['relationships'][relation]['data'].first['type']
-          assert_equal(
-            Orga.last.send(relation).first.id.to_s,
-            json['data']['relationships'][relation]['data'].first['id'])
+          to_check = json['data']['relationships'][relation]['data'].first
+          assert_equal relation, to_check['type']
           unless relation == 'annotations'
-            internal_id = json['data']['relationships'][relation]['data'].first['attributes']['__id__']
+            given = to_check['attributes']
+            expected_attributes =
+              Orga.last.send(relation).first.attributes.tap do |data|
+                data['__id__'] = data.delete('internal_id')
+              end
+            expected_attributes.each do |attribute, value|
+              assert_equal(value, given[attribute.to_s],
+                "json attribute #{attribute} should have the value #{value} but was #{given}\n#{to_check}")
+            end
+            internal_id = to_check['attributes']['__id__']
             assert(internal_id,
-              "Attribute __id__ not found for #{relation}. \n" +
-                "Found the following data: #{json['data']['relationships'][relation]['data']}")
+              "Attribute __id__ not found for #{relation}. \nFound the following data: #{to_check}")
             assert_match(/\d+internal-model/, internal_id, "invalid pattern for __id__: #{internal_id}")
           end
         end
