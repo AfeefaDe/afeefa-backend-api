@@ -6,7 +6,7 @@ module Neos
         Neos::Category.where(locale: :de).each do |category|
           next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(
-            title: category.name,
+            title: category.name.try(:strip),
             is_sub_category: false
           )
           unless new_category.save
@@ -18,14 +18,15 @@ module Neos
         Neos::Orga.where(locale: :de).limit(10).each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
-              title: orga.name,
-              description: orga.description,
-              media_url: orga.image,
-              media_type: orga.imagetype, # image | youtube
+              title: orga.name.try(:strip),
+              description: orga.description.try(:strip) || '',
+              media_url: orga.image.try(:strip),
+              media_type: orga.imagetype.try(:strip), # image | youtube
               support_wanted: orga.supportwanted,
               for_children: orga.forchildren,
               certified_sfr: orga.certified,
-              legacy_entry_id: orga.entry_id,
+              legacy_entry_id: orga.entry_id.try(:strip),
+              migrated_from_neos: true,
               sub_category:
                 if orga.subcategory
                   ::Category.find_by_title(orga.subcategory)
@@ -48,14 +49,15 @@ module Neos
                 :date_end,
                 event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
             ::Event.new(
-              title: event.name,
-              description: event.description,
-              media_url: event.image,
-              media_type: event.imagetype, # image | youtube
+              title: event.name.try(:strip),
+              description: event.description.try(:strip) || '',
+              media_url: event.image.try(:strip),
+              media_type: event.imagetype.try(:strip), # image | youtube
               support_wanted: event.supportwanted,
               for_children: event.forchildren,
               certified_sfr: event.certified,
-              legacy_entry_id: event.entry_id,
+              legacy_entry_id: event.entry_id.try(:strip),
+              migrated_from_neos: true,
               sub_category:
                 if event.subcategory
                   ::Category.find_by_title(event.subcategory)
@@ -69,7 +71,7 @@ module Neos
               time_start: type_datetime_from[1] == :datetime,
               time_end: type_datetime_to[1] == :datetime,
               orga: parent_or_root_orga(event.parent),
-              creator: User.first # assume that this is the system user
+              creator: User.first # TODO: assume that this is the system user → Is it?
             )
           end
         end
@@ -113,7 +115,7 @@ module Neos
 
       def parent_or_root_orga(parent)
         if parent && parent.orga? &&
-          (orgas = ::Orga.where(title: parent.name)) &&
+          (orgas = ::Orga.where(title: parent.name.try(:strip))) &&
           (orgas.count == 1)
           orgas.first
         else
@@ -149,17 +151,18 @@ module Neos
         new_location =
           ::Location.new(
             locatable: new_entry,
-            lat: location['lat'],
-            lon: location['lon'],
-            street: location['street'],
+            lat: location['lat'].try(:strip),
+            lon: location['lon'].try(:strip),
+            street: location['street'].try(:strip),
             # TODO: Should we auto regex the number from
             # number: 'Die Hausnummer steht aktuell in der Straße mit drin.',
-            placename: location['placename'],
-            zip: location['zip'],
-            city: location['city'],
-            district: location['district'],
+            placename: location['placename'].try(:strip),
+            zip: location['zip'].try(:strip),
+            city: location['city'].try(:strip),
+            district: location['district'].try(:strip),
             state: 'Sachsen',
             country: 'Deutschland',
+            migrated_from_neos: true,
           )
         unless new_location.save
           create_annotations(new_entry, new_location.errors.full_messages)
@@ -173,12 +176,13 @@ module Neos
         new_contact_info =
           ContactInfo.new(
             contactable: new_entry,
-            web: entry.web,
-            facebook: entry.facebook,
-            spoken_languages: entry.spokenlanguages,
-            mail: entry.mail,
-            phone: entry.phone,
-            contact_person: entry.speakerpublic
+            web: entry.web.try(:strip),
+            facebook: entry.facebook.try(:strip),
+            spoken_languages: entry.spokenlanguages.try(:strip),
+            mail: entry.mail.try(:strip),
+            phone: entry.phone.try(:strip),
+            contact_person: entry.speakerpublic.try(:strip),
+            migrated_from_neos: true,
           )
         unless new_contact_info.save
           create_annotations(new_entry, new_contact_info.errors.full_messages)
@@ -191,7 +195,7 @@ module Neos
             AnnotationAbleRelation.new(
               entry: new_entry,
               annotation: Annotation.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
-              detail: detail
+              detail: detail.try(:strip)
             )
           unless annotation.save
             puts "Annotation is not valid, but we will save it. Errors: #{annotation.errors.full_messages}"

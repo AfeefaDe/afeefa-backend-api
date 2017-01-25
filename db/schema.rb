@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170125153536) do
+ActiveRecord::Schema.define(version: 20170125160259) do
 
   create_table "annotation_able_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "annotation_id"
@@ -40,8 +40,8 @@ ActiveRecord::Schema.define(version: 20170125153536) do
   create_table "contact_infos", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "contactable_type"
     t.integer  "contactable_id"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.string   "mail"
     t.string   "phone"
     t.string   "contact_person"
@@ -49,18 +49,19 @@ ActiveRecord::Schema.define(version: 20170125153536) do
     t.string   "web"
     t.string   "facebook"
     t.string   "spoken_languages"
+    t.boolean  "migrated_from_neos", default: false
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
   end
 
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
-    t.text     "description",      limit: 65535
+    t.text     "description",        limit: 65535
     t.string   "public_speaker"
     t.string   "location_type"
     t.boolean  "support_wanted"
     t.integer  "creator_id"
-    t.datetime "created_at",                                     null: false
-    t.datetime "updated_at",                                     null: false
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
     t.integer  "parent_id"
     t.datetime "date_start"
     t.string   "state"
@@ -69,13 +70,14 @@ ActiveRecord::Schema.define(version: 20170125153536) do
     t.integer  "category_id"
     t.integer  "sub_category_id"
     t.datetime "date_end"
-    t.boolean  "time_start",                     default: false
-    t.boolean  "time_end",                       default: false
+    t.boolean  "time_start",                       default: false
+    t.boolean  "time_end",                         default: false
     t.string   "media_url"
     t.string   "media_type"
     t.boolean  "for_children"
     t.boolean  "certified_sfr"
     t.string   "legacy_entry_id"
+    t.boolean  "migrated_from_neos",               default: false
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
@@ -95,9 +97,10 @@ ActiveRecord::Schema.define(version: 20170125153536) do
     t.boolean  "displayed"
     t.string   "locatable_type"
     t.integer  "locatable_id"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
     t.string   "internal_id"
+    t.boolean  "migrated_from_neos", default: false
     t.index ["locatable_type", "locatable_id"], name: "index_locations_on_locatable_type_and_locatable_id", using: :btree
   end
 
@@ -112,10 +115,10 @@ ActiveRecord::Schema.define(version: 20170125153536) do
   end
 
   create_table "orgas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
     t.string   "title"
-    t.text     "description",      limit: 65535
+    t.text     "description",        limit: 65535
     t.integer  "parent_id"
     t.string   "state"
     t.datetime "state_changed_at"
@@ -127,6 +130,7 @@ ActiveRecord::Schema.define(version: 20170125153536) do
     t.boolean  "for_children"
     t.boolean  "certified_sfr"
     t.string   "legacy_entry_id"
+    t.boolean  "migrated_from_neos",               default: false
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end
