@@ -177,8 +177,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert active_event.reload.inactive?
     end
 
-    should 'ignore given state on event create' do
-      assert_difference 'Event.count' do
+    should 'fail for given state on event create' do
+      assert_no_difference 'Event.count' do
         params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
           payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
           payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
@@ -187,11 +187,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         end
         params['data']['attributes'].merge!('state' => StateMachine::ACTIVE.to_s)
         post :create, params: params
-        assert_response :created, response.body
+        assert_response :bad_request, response.body
       end
-      assert Event.last.inactive?
-      json = JSON.parse(response.body)
-      assert_equal false, json['data']['attributes']['active']
     end
 
     should 'set default orga on event create without orga relation' do

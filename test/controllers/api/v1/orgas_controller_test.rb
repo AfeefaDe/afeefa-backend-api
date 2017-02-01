@@ -50,7 +50,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'get show' do
-        assert_not @order.deleted?
+        assert_not @orga.deleted?
         assert_includes Orga.all, @orga
         get :show, params: { id: @orga.id }
         assert_response :ok, response.body
