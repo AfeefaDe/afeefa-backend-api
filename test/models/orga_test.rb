@@ -8,6 +8,7 @@ class OrgaTest < ActiveSupport::TestCase
 
   should 'validate attributes' do
     orga = Orga.new
+    assert orga.locations.blank?
     assert_not orga.valid?
     assert_match 'muss ausgefüllt werden', orga.errors[:title].first
     assert_match 'muss ausgefüllt werden', orga.errors[:description].first

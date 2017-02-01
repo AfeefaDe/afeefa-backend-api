@@ -12,6 +12,8 @@ de:
       title: Titel
       description: Beschreibung
       date: Datum
+      date_start: Start-Datum
+      date_end: End-Datum
       creator: Autor
       contact_person: Kontaktperson
       phone: Telefon

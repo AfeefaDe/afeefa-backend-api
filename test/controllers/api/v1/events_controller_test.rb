@@ -253,7 +253,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                   'Titel - muss ausgefüllt werden',
                   'Beschreibung - muss ausgefüllt werden',
                   'Kategorie - ist kein gültiger Wert',
-                  'Datum - muss ausgefüllt werden'
+                  'Start-Datum - muss ausgefüllt werden'
                 ],
                 json['errors'].map { |x| x['detail'] }
               )
