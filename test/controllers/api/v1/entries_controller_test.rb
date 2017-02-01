@@ -27,9 +27,11 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
     end
 
     should 'get todos default filter and sort' do
-      skip 'this test will fail because we do not have a entries model and so the preload_included_fragments fails ' +
-        'in base resource for calling arel_table on self._model_class which is nil because ' +
-        'the resource in the api is abstract'
+      # skip 'this test will fail because we do not have a entries model and so the preload_included_fragments fails ' +
+      #   'in base resource for calling arel_table on self._model_class which is nil because ' +
+      #   'the resource in the api is abstract'
+
+      # this test will fail if caching is enabled
 
       assert orga = create(:another_orga)
       orga.annotations.create!(title: 'ganz wichtig')

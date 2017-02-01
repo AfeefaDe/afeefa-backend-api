@@ -72,8 +72,8 @@ class OrgaTest < ActiveSupport::TestCase
     end
 
     should 'have scope which excludes root orga' do
-      assert_equal Orga.count - 1, Orga.without_root.count
-      assert_includes Orga.all, Orga.root_orga
+      assert_equal Orga.unscoped.count - 1, Orga.without_root.count
+      assert_includes Orga.unscoped, Orga.root_orga
       assert_not_includes Orga.without_root, Orga.root_orga
     end
 
