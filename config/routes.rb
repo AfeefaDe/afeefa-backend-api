@@ -36,6 +36,7 @@ Rails.application.routes.draw do
 
         jsonapi_resources :orgas
         jsonapi_resources :users
+        get 'events/fbevents_neos', to: 'events#fbevents_neos'
         jsonapi_resources :events
         jsonapi_resources :entries
         jsonapi_resources :annotations
