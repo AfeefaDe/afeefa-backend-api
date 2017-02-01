@@ -2,16 +2,26 @@ require 'errors'
 
 class Event < ApplicationRecord
 
+  # INCLUDES
   include Thing
 
+  # ATTRIBUTES AND ASSOCIATIONS
   acts_as_tree(dependent: :restrict_with_exception)
   alias_method :sub_events, :children
   alias_method :parent_event, :parent
   alias_method :parent_event=, :parent=
   alias_method :sub_events=, :children=
 
+  # VALIDATIONS
   validates :date_start, presence: true
 
+  # HOOKS
+
+  # SCOPES
+
+  # CLASS METHODS
+
+  # INSTANCE METHODS
   private
 
   def deny_destroy_if_associated_objects_present

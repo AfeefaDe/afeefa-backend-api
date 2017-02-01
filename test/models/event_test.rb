@@ -27,6 +27,7 @@ class EventTest < ActiveSupport::TestCase
       @user = create(:user)
       @orga = create(:orga)
       @event = build(:event, orga: @orga, creator: @user)
+      assert_equal StateMachine::INACTIVE.to_s, @event.state
     end
 
     should 'create event' do
@@ -60,7 +61,7 @@ class EventTest < ActiveSupport::TestCase
     should 'soft delete event' do
       assert @event.save
       assert_not @event.reload.deleted?
-      assert_no_difference 'Event.count' do
+      assert_no_difference 'Event.unscoped.count' do
         assert_difference 'Event.undeleted.count', -1 do
           @event.delete!
         end
@@ -87,6 +88,15 @@ class EventTest < ActiveSupport::TestCase
         end
       end
       assert_not @event.reload.deleted?
+    end
+
+    should 'exclude deleted events from undeleted scope' do
+      assert @event.save
+      assert_not @event.deleted?
+      assert_includes Event.all, @event
+      assert @event.soft_destroy
+      assert @event.deleted?
+      assert_not_includes Event.undeleted, @event
     end
   end
 

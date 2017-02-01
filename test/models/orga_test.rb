@@ -20,6 +20,11 @@ class OrgaTest < ActiveSupport::TestCase
     assert_match 'muss ausgefüllt werden', orga.errors[:category].first
   end
 
+  should 'set initial state for orga' do
+    assert Orga.new.inactive?
+    assert_equal StateMachine::INACTIVE, Orga.new.state.to_sym
+  end
+
   should 'set root orga as parent if no parent given' do
     orga = build(:orga, parent_orga_id: nil)
     assert orga.save, orga.errors.messages
@@ -29,6 +34,7 @@ class OrgaTest < ActiveSupport::TestCase
   context 'with existing orga' do
     setup do
       @orga = build(:orga, title: 'FirstOrga', description: 'Nothing goes above', parent_orga: Orga.root_orga)
+      assert_equal StateMachine::INACTIVE.to_s, @orga.state
       assert @orga.valid?, @orga.errors.messages
     end
 
@@ -65,18 +71,18 @@ class OrgaTest < ActiveSupport::TestCase
       assert orga.active?
     end
 
-    should 'have default scope which excludes root orga' do
-      assert_equal Orga.unscoped.count - 1, Orga.count
-      assert_includes Orga.unscoped, Orga.root_orga
-      assert_not_includes Orga.all, Orga.root_orga
+    should 'have scope which excludes root orga' do
+      assert_equal Orga.count - 1, Orga.without_root.count
+      assert_includes Orga.all, Orga.root_orga
+      assert_not_includes Orga.without_root, Orga.root_orga
     end
 
-    should 'soft delete orga' do
+    should 'soft destroy orga' do
       assert @orga.save
       assert_not @orga.reload.deleted?
-      assert_no_difference 'Orga.count' do
+      assert_no_difference 'Orga.unscoped.count' do
         assert_difference 'Orga.undeleted.count', -1 do
-          @orga.delete!
+          @orga.soft_destroy
         end
       end
       assert @orga.reload.deleted?
@@ -110,7 +116,7 @@ class OrgaTest < ActiveSupport::TestCase
       assert_not @orga.reload.deleted?
       assert_no_difference 'Event.count' do
         assert_no_difference 'Event.undeleted.count' do
-          assert_no_difference 'Orga.count' do
+          assert_no_difference 'Orga.unscoped.count' do
             assert_no_difference 'Orga.undeleted.count' do
               exception =
                 assert_raise CustomDeleteRestrictionError do
@@ -129,7 +135,7 @@ class OrgaTest < ActiveSupport::TestCase
       assert_not @orga.deleted?
 
       assert_difference 'Orga.undeleted.count', -1 do
-        assert_no_difference 'Orga.count' do
+        assert_no_difference 'Orga.unscoped.count' do
           assert_no_difference 'Location.count' do
             assert_no_difference 'ContactInfo.count' do
               assert @orga.soft_destroy, @orga.errors.messages
@@ -146,7 +152,7 @@ class OrgaTest < ActiveSupport::TestCase
       assert_not @orga.deleted?
 
       assert_difference 'Orga.undeleted.count', -1 do
-        assert_difference 'Orga.count', -1 do
+        assert_difference 'Orga.unscoped.count', -1 do
           assert_difference 'Location.count', @orga.locations.count * -1 do
             assert_difference 'ContactInfo.count', @orga.contact_infos.count * -1 do
               assert_difference 'AnnotationAbleRelation.count', @orga.annotation_able_relations.count * -1 do
@@ -156,6 +162,15 @@ class OrgaTest < ActiveSupport::TestCase
           end
         end
       end
+    end
+
+    should 'exclude deleted orgas from undeleted scope' do
+      assert @orga.save
+      assert_not @orga.deleted?
+      assert_includes Orga.all, @orga
+      assert @orga.soft_destroy
+      assert @orga.deleted?
+      assert_not_includes Orga.undeleted, @orga
     end
   end
 

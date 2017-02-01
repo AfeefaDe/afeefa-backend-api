@@ -50,6 +50,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'get show' do
+        assert_not @order.deleted?
+        assert_includes Orga.all, @orga
         get :show, params: { id: @orga.id }
         assert_response :ok, response.body
         json = JSON.parse(response.body)
@@ -245,6 +247,12 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           end
         end
         assert_not @orga.reload.deleted?
+      end
+
+      should 'not show soft deleted orga' do
+        assert @orga.soft_destroy
+        get :index, params: { id: @orga.id }
+        assert_response :not_found, response.body
       end
     end
   end

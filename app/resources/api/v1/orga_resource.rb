@@ -9,4 +9,9 @@ class Api::V1::OrgaResource < Api::V1::EntriesBaseResource
 
   # has_many :events, class_name: 'Event'
 
+  # # use this method instead of default scopes at the model
+  # def self.records(options = {})
+  #   super.without_root.undeleted
+  # end
+
 end

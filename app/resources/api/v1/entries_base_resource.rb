@@ -21,6 +21,24 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
     _model.state == StateMachine::ACTIVE.to_s
   end
 
+  # # use this method instead of default scopes at the model
+  # def self.records(options = {})
+  #   super.undeleted
+  # end
+  #
+  # def records_for(relation_name)
+  #   records = super
+  #   if records.respond_to?(:undeleted)
+  #     records.undeleted
+  #   else
+  #     records
+  #   end
+  # end
+  #
+  # def self.find(filters, options = {})
+  #   super.undeleted
+  # end
+
   # paginator :offset
 
   filter :todo, apply: ->(records, _value, _options) {

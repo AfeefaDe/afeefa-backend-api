@@ -19,6 +19,8 @@ module StateMachine
       state INACTIVE, initial: true
       state *(STATES - [INACTIVE])
 
+      after_all_transitions :log_status_change
+
       event :activate do
         before do
           valid?
@@ -57,6 +59,10 @@ module StateMachine
       end
     end
 
+    def log_status_change
+      Rails.logger.debug "changing from #{aasm.from_state} to #{aasm.to_state} (event: #{aasm.current_event})"
+    end
+
     attr_accessor :active
 
     before_create do
@@ -73,6 +79,7 @@ module StateMachine
 
     # soft destroyable
     scope :undeleted, -> { where(state: UNDELETEDS) }
+    scope :deleted, -> { where(state: DELETED) }
     # TODO: How to really destroy?
     def soft_destroy
       # binding.pry
