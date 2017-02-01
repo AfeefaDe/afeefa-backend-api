@@ -80,6 +80,10 @@ module Neos
       private
 
       def parse_datetime_and_return_type(attribute, date_string, time_string)
+        if date_string =~ /\Ad{4}\z/
+          puts "date_string #{attribute} is a year, we assume 01.01.#{date_string}"
+          date_string = "#{date_string}-01-01"
+        end
         begin
           datetime = nil
           type = nil
