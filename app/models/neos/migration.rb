@@ -41,6 +41,7 @@ module Neos
         end
 
         Neos::Event.where(locale: :de).limit(10).each do |event|
+          puts "migrating Event #{event}"
           create_entry_and_handle_validation(event) do
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
@@ -80,7 +81,8 @@ module Neos
       private
 
       def parse_datetime_and_return_type(attribute, date_string, time_string)
-        if date_string =~ /\Ad{4}\z/
+        date_string = date_string
+        if date_string.strip =~ /\Ad{4}\z/
           puts "date_string #{attribute} is a year, we assume 01.01.#{date_string}"
           date_string = "#{date_string}-01-01"
         end
@@ -97,13 +99,15 @@ module Neos
             [datetime, type]
           end
         rescue ArgumentError => _exception
-          puts "Failed to parse datetime for #{attribute}, given: #{date_string} #{time_string}"
-          datetime = parse_date(date_string)
-          type = :date
-          [datetime, type]
-        rescue ArgumentError => _exception
-          puts "Failed to parse date for #{attribute}, given: #{date_string} #{time_string}"
-          [nil, nil]
+          begin
+            puts "Failed to parse datetime for #{attribute}, given: #{date_string} #{time_string}"
+            datetime = parse_date(date_string)
+            type = :date
+            [datetime, type]
+          rescue ArgumentError => _exception
+            puts "Failed to parse date for #{attribute}, given: #{date_string} #{time_string}"
+            [nil, nil]
+          end
         end
       end
 
