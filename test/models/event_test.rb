@@ -4,7 +4,9 @@ class EventTest < ActiveSupport::TestCase
 
   should 'validate attributes' do
     event = Event.new
+    assert event.locations.blank?
     assert_not event.valid?
+    assert event.errors[:locations].blank?
     assert_match 'muss ausgefüllt werden', event.errors[:title].first
     assert_match 'muss ausgefüllt werden', event.errors[:description].first
     assert_match 'muss ausgefüllt werden', event.errors[:date].first

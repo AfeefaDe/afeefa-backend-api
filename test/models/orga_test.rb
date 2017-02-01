@@ -10,6 +10,7 @@ class OrgaTest < ActiveSupport::TestCase
     orga = Orga.new
     assert orga.locations.blank?
     assert_not orga.valid?
+    assert orga.errors[:locations].blank?
     assert_match 'muss ausgefüllt werden', orga.errors[:title].first
     assert_match 'muss ausgefüllt werden', orga.errors[:description].first
     orga.description = '-' * 351
