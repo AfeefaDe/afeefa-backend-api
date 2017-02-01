@@ -26,18 +26,11 @@ module Seeds
     Able::SUB_CATEGORIES.each do |main_category, categories|
       unless new_main_category = Category.find_by_title(main_category)
         new_main_category =
-          Category.create!(
-            title: main_category,
-            is_sub_category: false
-          )
+          Category.create!(title: main_category)
       end
 
       categories.each do |category|
-        Category.create!(
-          title: category[:name],
-          parent_id: new_main_category.id,
-          is_sub_category: true
-        )
+        Category.create!(title: category[:name], parent_id: new_main_category.id)
       end
     end
 

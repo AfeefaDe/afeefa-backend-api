@@ -5,10 +5,7 @@ module Neos
       def migrate
         Neos::Category.where(locale: :de).each do |category|
           next if ::Category.find_by_title(category.name)
-          new_category = ::Category.new(
-            title: category.name.try(:strip),
-            is_sub_category: false
-          )
+          new_category = ::Category.new(title: category.name.try(:strip))
           unless new_category.save
             puts "Category is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
             new_category.save(validate: false)
