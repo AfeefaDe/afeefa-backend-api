@@ -41,7 +41,6 @@ module Neos
         end
 
         Neos::Event.where(locale: :de).limit(10).each do |event|
-          puts "migrating Event #{event}"
           create_entry_and_handle_validation(event) do
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
@@ -49,6 +48,9 @@ module Neos
               parse_datetime_and_return_type(
                 :date_end,
                 event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
+            if type_datetime_from.first.nil? || type_datetime_from.last.nil?
+              puts "failing on parsing date or time for event: #{event}"
+            end
             ::Event.new(
               title: event.name.try(:strip),
               description: event.description.try(:strip) || '',
