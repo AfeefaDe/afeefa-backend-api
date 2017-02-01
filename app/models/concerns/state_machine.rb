@@ -11,12 +11,17 @@ module StateMachine
   included do
     include AASM
 
-    aasm(column: :state) do
+    aasm(
+      column: :state,
+      skip_validation_on_save: true,
+      # no_direct_assignment: true
+    ) do
       state INACTIVE, initial: true
       state *(STATES - [INACTIVE])
 
       event :activate do
         before do
+          valid?
         end
         transitions from: INACTIVE, to: ACTIVE
         after do
@@ -69,8 +74,9 @@ module StateMachine
     # soft destroyable
     scope :undeleted, -> { where(state: UNDELETEDS) }
     # TODO: How to really destroy?
-    def destroy
-      run_callbacks(:destroy) do
+    def soft_destroy
+      # binding.pry
+      run_callbacks(:soft_destroy) do
         delete!
       end
     end

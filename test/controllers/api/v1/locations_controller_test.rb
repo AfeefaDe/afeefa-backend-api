@@ -37,6 +37,12 @@ class Api::V1::LocationsControllerTest < ActionController::TestCase
         }
         assert_response :created, response.body
       end
+
+      should 'destroy a location' do
+        assert location = create(:location, locatable: Orga.root_orga)
+        delete :destroy, params: { id: location.id }
+        assert_response :no_content, response.body
+      end
     end
   end
 

@@ -78,10 +78,10 @@ module Able
       }
 
     # ATTRIBUTES AND ASSOCIATIONS
-    has_many :locations, as: :locatable
-    has_many :contact_infos, as: :contactable
+    has_many :locations, as: :locatable, dependent: :destroy
+    has_many :contact_infos, as: :contactable, dependent: :destroy
 
-    has_many :annotation_able_relations, as: :entry
+    has_many :annotation_able_relations, as: :entry, dependent: :destroy
     has_many :annotations, through: :annotation_able_relations
 
     belongs_to :category, optional: true
@@ -99,7 +99,9 @@ module Able
     validates :description, presence: true, length: { maximum: 350 }
 
     # HOOKS
+    define_callbacks :soft_destroy
     before_destroy :deny_destroy_if_associated_objects_present, prepend: true
+    set_callback :soft_destroy, :before, :deny_destroy_if_associated_objects_present, prepend: true
 
   end
 

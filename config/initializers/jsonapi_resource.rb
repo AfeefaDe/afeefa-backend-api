@@ -94,3 +94,34 @@ JSONAPI::RequestParser.class_eval do
   end
 
 end
+
+# JSONAPI::OperationDispatcher.class_eval do
+#
+#   def process(operations)
+#     results = JSONAPI::OperationResults.new
+#
+#     # Use transactions if more than one operation and if one of the operations can be transactional
+#     # Even if transactional transactions won't be used unless the derived OperationsProcessor supports them.
+#     transactional = false
+#
+#     operations.each do |operation|
+#       transactional |= operation.transactional?
+#     end if JSONAPI.configuration.allow_transactions
+#
+#     transaction(transactional) do
+#       # Links and meta data global to the set of operations
+#       operations_meta = {}
+#       operations_links = {}
+#       operations.each do |operation|
+#         binding.pry if operation.operation_type == :remove_resource
+#         x = process_operation(operation)
+#         results.add_result(x)
+#         rollback(transactional) if results.has_errors?
+#       end
+#       results.meta = operations_meta
+#       results.links = operations_links
+#     end
+#     results
+#   end
+#
+# end

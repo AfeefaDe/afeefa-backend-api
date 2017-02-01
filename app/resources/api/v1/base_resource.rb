@@ -69,6 +69,23 @@ class Api::V1::BaseResource < JSONAPI::Resource
 
   private
 
+  def _remove
+    # We want a soft destroy:
+    destroy_method =
+      if @model.respond_to?(:soft_destroy)
+        :soft_destroy
+      else
+        :destroy
+      end
+    unless @model.send(destroy_method) # unless @model.destroy
+      fail JSONAPI::Exceptions::ValidationErrors.new(self)
+    end
+    :completed
+
+  rescue ActiveRecord::DeleteRestrictionError => e
+    fail JSONAPI::Exceptions::RecordLocked.new(e.message)
+  end
+
   def handle_associated_object_creation(association_type, relationship_type, values)
     if values.is_a?(Fixnum)
       values = { id: values }

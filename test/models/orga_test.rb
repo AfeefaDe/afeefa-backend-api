@@ -123,6 +123,40 @@ class OrgaTest < ActiveSupport::TestCase
       end
       assert_not @orga.reload.deleted?
     end
+
+    should 'soft_destroy orga' do
+      @orga.save!
+      assert_not @orga.deleted?
+
+      assert_difference 'Orga.undeleted.count', -1 do
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'Location.count' do
+            assert_no_difference 'ContactInfo.count' do
+              assert @orga.soft_destroy, @orga.errors.messages
+              assert @orga.deleted?
+            end
+          end
+        end
+      end
+    end
+
+    should 'destroy orga' do
+      @orga.save!
+      assert @orga.locations.any?
+      assert_not @orga.deleted?
+
+      assert_difference 'Orga.undeleted.count', -1 do
+        assert_difference 'Orga.count', -1 do
+          assert_difference 'Location.count', @orga.locations.count * -1 do
+            assert_difference 'ContactInfo.count', @orga.contact_infos.count * -1 do
+              assert_difference 'AnnotationAbleRelation.count', @orga.annotation_able_relations.count * -1 do
+                assert @orga.destroy
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
 end
