@@ -1,7 +1,8 @@
 class Api::V1::BaseController < ApplicationController
 
   include DeviseTokenAuth::Concerns::SetUserByToken
-  include JSONAPI::ActsAsResourceController
+  # include JSONAPI::ActsAsResourceController
+  include JSONAPI::Utils
   include CustomHeaders
 
   respond_to :json

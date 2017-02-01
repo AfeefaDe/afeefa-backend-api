@@ -249,9 +249,17 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_not @orga.reload.deleted?
       end
 
-      should 'not show soft deleted orga' do
+      should 'not show soft deleted orga on index' do
         assert @orga.soft_destroy
-        get :index, params: { id: @orga.id }
+        get :index
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_equal 0, json['data'].size
+      end
+
+      should 'not show soft deleted orga on show' do
+        assert @orga.soft_destroy
+        get :show, params: { id: @orga.id }
         assert_response :not_found, response.body
       end
     end

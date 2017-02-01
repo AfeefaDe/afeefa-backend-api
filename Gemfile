@@ -50,7 +50,8 @@ gem 'config'
 
 # json api spec
 # gem 'jsonapi-resources'
-gem 'jsonapi-resources', '0.9.0.beta3'
+# gem 'jsonapi-resources', '0.9.0.beta3'
+gem 'jsonapi-utils', '~> 0.5.1'
 
 # tree relatiions (e.g. orga-suborga)
 gem 'acts_as_tree', '~> 2.4'

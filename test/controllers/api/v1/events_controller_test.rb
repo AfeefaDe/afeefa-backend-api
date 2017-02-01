@@ -27,6 +27,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         description: 'Gemeinsames Laufengehen im Grossen Garten',
         creator: user, orga: orga)
 
+      assert_not event2.deleted?
       get :index, params: { filter: { title: 'Garten' } }
       assert_response :ok
       json = JSON.parse(response.body)
@@ -74,6 +75,20 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     context 'with given event' do
       setup do
         @event = create(:event)
+      end
+
+      should 'not show soft deleted event on index' do
+        assert @event.soft_destroy
+        get :index
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_equal 0, json['data'].size
+      end
+
+      should 'not show soft deleted event on show' do
+        assert @event.soft_destroy
+        get :show, params: { id: @event.id }
+        assert_response :not_found, response.body
       end
 
       should 'get show' do
