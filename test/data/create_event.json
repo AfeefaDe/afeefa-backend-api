@@ -1,0 +1,56 @@
+{
+  "data": {
+    "attributes": {
+      "date_start": "2017-01-31T23:00:04.000Z",
+      "date_end": "2017-01-31T23:00:04.000Z",
+      "has_time_start": false,
+      "has_time_end": false,
+      "title": "dfs",
+      "active": false,
+      "description": "dfafa",
+      "created_at": null,
+      "updated_at": null,
+      "state_changed_at": null
+    },
+    "relationships": {
+      "orga": {
+        "data": null
+      },
+      "category": {
+        "data": {
+          "type": "categories",
+          "id": "<category_id>"
+        }
+      },
+      "sub_category": {
+        "data": null
+      },
+      "contact_infos": {
+        "data": [
+          {
+            "attributes": {
+              "mail": "test@email.de",
+              "contact_person": "Testerin",
+              "__id__": "ember2553"
+            },
+            "type": "contact_infos"
+          }
+        ]
+      },
+      "annotations": {
+        "data": []
+      },
+      "locations": {
+        "data": [
+          {
+            "attributes": {
+              "__id__": "ember2556"
+            },
+            "type": "locations"
+          }
+        ]
+      }
+    },
+    "type": "events"
+  }
+}

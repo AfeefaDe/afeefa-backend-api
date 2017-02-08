@@ -1,0 +1,47 @@
+{
+  "data": {
+    "id": "<event_id>",
+    "attributes": {
+      "date_start": "2017-02-01T06:55:37.000Z",
+      "date_end": "2017-02-01T17:10:37.000Z",
+      "has_time_start": true,
+      "has_time_end": false,
+      "title": "dfs",
+      "active": false,
+      "description": "sgds",
+      "created_at": "2017-02-01T17:07:48.000Z",
+      "updated_at": "2017-02-01T17:13:01.000Z",
+      "state_changed_at": "2017-02-01T17:07:48.000Z"
+    },
+    "relationships": {
+      "category": {
+        "data": {
+          "type": "categories",
+          "id": "<category_id>"
+        }
+      },
+      "contact_infos": {
+        "data": [
+          {
+            "attributes": {},
+            "type": "contact_infos",
+            "id": "<contact_info_id>"
+          }
+        ]
+      },
+      "annotations": {
+        "data": []
+      },
+      "locations": {
+        "data": [
+          {
+            "attributes": {},
+            "type": "locations",
+            "id": "<location_id>"
+          }
+        ]
+      }
+    },
+    "type": "events"
+  }
+}
