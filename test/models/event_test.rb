@@ -17,6 +17,15 @@ class EventTest < ActiveSupport::TestCase
     assert_match 'muss ausgefüllt werden', event.errors[:category].first
   end
 
+  should 'auto strip name and description' do
+    event = Event.new
+    event.title = '   abc 123   '
+    event.description = '   abc 123   '
+    assert event.valid?
+    assert_equal 'abc 123', event.title
+    assert_equal 'abc 123', event.description
+  end
+
   should 'set initial state for event' do
     assert Event.new.inactive?
     assert_equal StateMachine::INACTIVE, Event.new.state.to_sym

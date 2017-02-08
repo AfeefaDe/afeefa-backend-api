@@ -6,6 +6,8 @@ module Able
     # INCLUDES
     include StateMachine
 
+    auto_strip_attributes :title, :description
+
     # CONSTANTS
     SUB_CATEGORIES =
       # mapping for subcategories given by old frontend

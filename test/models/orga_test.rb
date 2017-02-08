@@ -20,6 +20,15 @@ class OrgaTest < ActiveSupport::TestCase
     assert_match 'muss ausgefüllt werden', orga.errors[:category].first
   end
 
+  should 'auto strip name and description' do
+    orga = Orga.new
+    orga.title = '   abc 123   '
+    orga.description = '   abc 123   '
+    orga.valid?
+    assert_equal 'abc 123', orga.title
+    assert_equal 'abc 123', orga.description
+  end
+
   should 'set root orga as parent if no parent given' do
     orga = build(:orga, parent_orga_id: nil)
     assert orga.save, orga.errors.messages

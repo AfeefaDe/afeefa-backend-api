@@ -46,6 +46,8 @@ GEM
       sshkit (>= 1.6.1, != 1.7.0)
     ansi (1.5.0)
     arel (7.1.1)
+    auto_strip_attributes (2.1.0)
+      activerecord (>= 3.0)
     bcrypt (3.1.11)
     builder (3.2.2)
     bullet (5.3.0)
@@ -259,6 +261,7 @@ PLATFORMS
 DEPENDENCIES
   aasm
   acts_as_tree (~> 2.4)
+  auto_strip_attributes (~> 2.1)
   bullet
   capistrano-rails
   capybara

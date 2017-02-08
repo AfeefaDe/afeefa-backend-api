@@ -61,6 +61,9 @@ gem 'aasm'
 # facebook api integration
 gem 'koala', '~> 2.2'
 
+# strip attributes
+gem 'auto_strip_attributes', '~> 2.1'
+
 # pagination
 # gem 'kaminari'
 
