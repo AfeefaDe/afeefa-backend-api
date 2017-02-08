@@ -298,10 +298,9 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal Category.main_categories.first.id, event.category_id
     end
 
-    should 'soft destroy event' do
+    should 'destroy event' do
       assert @event = create(:event)
-      assert_not @event.reload.deleted?
-      assert_no_difference 'Event.count' do
+      assert_difference 'Event.count', -1 do
         assert_difference 'Event.undeleted.count', -1 do
           assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
@@ -316,15 +315,13 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           end
         end
       end
-      assert @event.reload.deleted?
     end
 
-    should 'not soft destroy event with associated sub_event' do
+    should 'not destroy event with associated sub_event' do
       assert @event = create(:event)
       assert event = create(:another_event, parent_id: @event.id, orga_id: @event.orga.id)
       assert_equal @event.id, event.parent_id
       assert @event.reload.sub_events.any?
-      assert_not @event.reload.deleted?
 
       assert_no_difference 'Event.count' do
         assert_no_difference 'Event.undeleted.count' do
@@ -343,7 +340,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           end
         end
       end
-      assert_not @event.reload.deleted?
     end
 
     should 'update an event without creator and set the creator automatically' do
