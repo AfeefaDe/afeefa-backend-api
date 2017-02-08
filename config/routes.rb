@@ -36,11 +36,7 @@ Rails.application.routes.draw do
 
         jsonapi_resources :orgas
         jsonapi_resources :users
-        jsonapi_resources :events do
-          collection do
-            get 'xyz', to: 'events#fbevents_neos'
-          end
-        end
+        jsonapi_resources :events
         get 'events/fbevents_neos', to: 'events#fbevents_neos'
         jsonapi_resources :entries
         jsonapi_resources :annotations
