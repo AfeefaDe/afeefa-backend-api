@@ -66,20 +66,20 @@ module StateMachine
       end
     end
 
+    # actually we decited to hard destroy, see #38:
     # soft destroyable
     scope :undeleted, -> { where(state: UNDELETEDS) }
-    # TODO: How to really destroy?
-    def destroy
-      run_callbacks(:destroy) do
-        delete!
-      end
-    end
+    # def destroy
+    #   run_callbacks(:destroy) do
+    #     delete!
+    #   end
+    # end
 
-    def restore
-      run_callbacks(:restore) do
-        restore!
-      end
-    end
+    # def restore
+    #   run_callbacks(:restore) do
+    #     restore!
+    #   end
+    # end
   end
 
 end
