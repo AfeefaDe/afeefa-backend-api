@@ -58,6 +58,9 @@ gem 'acts_as_tree', '~> 2.4'
 # state machine
 gem 'aasm'
 
+# facebook api integration
+gem 'koala', '~> 2.2'
+
 # pagination
 # gem 'kaminari'
 
@@ -93,9 +96,6 @@ group :development, :test do
 
   # We do not longer use sqlite3:
   # gem 'sqlite3'
-
-  # best practise gems
-  gem 'bullet' # n+1 queries
 end
 
 group :development do

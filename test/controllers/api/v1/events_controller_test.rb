@@ -377,9 +377,11 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json
-      pp "got #{json.size} events from facebook"
+      if json.blank?
+        skip 'there are no events so we can not test the content of the events'
+      end
       json.each do |json_event|
-        %w(name place description start_time).each do |attr|
+        %w(name description start_time link_to_event owner link_to_owner).each do |attr|
           assert json_event[attr], "There is no attribute #{attr} for event #{json_event}"
         end
       end

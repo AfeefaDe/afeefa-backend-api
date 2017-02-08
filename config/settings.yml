@@ -1,5 +1,6 @@
 facebook:
-  access_token: EAACEdEose0cBAHFIJC2nixgZAwpbHCWry7Gctu3iK5kJ95Di12Se1tqvhF3adQsV9F4jKUkYQ7bG9afJr2XRX6ism9Xr2lsUv88JKZAtXwynJ49td6QZCRmBybklnbw5k4lZBGuJRCuG5BX8w8Ta2m7gFoCEiyP55zMbdBZAN9VDqt2zdrjZChKaetSHZCrCjkZD
+  app_id: <%= ENV["FB_APP_ID"] %>
+  app_secret: <%= ENV["FB_APP_SECRET"] %>
   pages_for_events:
     montagscafedresden: 1680988942178044
     dresdenfueralle: 1568930816673620
