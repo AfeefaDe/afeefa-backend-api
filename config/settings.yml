@@ -1,6 +1,7 @@
 facebook:
   app_id: <%= ENV["FB_APP_ID"] %>
   app_secret: <%= ENV["FB_APP_SECRET"] %>
+  api_token_for_event_request: MapCat_050615
   pages_for_events:
     montagscafedresden: 1680988942178044
     dresdenfueralle: 1568930816673620

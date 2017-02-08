@@ -367,9 +367,20 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       end
     end
 
-    should 'get facebook events' do
+    should 'get facebook events unauthorized' do
       # TODO: stub facebook api
+      unstub_current_user
+
       get :fbevents_neos
+      assert_response :unauthorized
+
+      get :fbevents_neos, params: { foo: 'bar' }
+      assert_response :unauthorized
+
+      get :fbevents_neos, params: { token: 'abc' }
+      assert_response :unauthorized
+
+      get :fbevents_neos, params: { token: Settings.facebook.api_token_for_event_request }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json
