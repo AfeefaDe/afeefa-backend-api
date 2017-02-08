@@ -370,6 +370,20 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert @controller.current_api_v1_user, @event.reload.creator
       end
     end
+
+    should 'get facebook events' do
+      # TODO: stub facebook api
+      get :fbevents_neos
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json
+      pp "got #{json.size} events from facebook"
+      json.each do |json_event|
+        %w(name place description start_time).each do |attr|
+          assert json_event[attr], "There is no attribute #{attr} for event #{json_event}"
+        end
+      end
+    end
   end
 
 end

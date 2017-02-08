@@ -7,30 +7,23 @@ class Api::V1::EventsController < Api::V1::BaseController
   end
 
   def fbevents_neos
-    events = []
-    pages_events do |response|
-      data = JSON.parse(response)
-      data['data'].each do |event|
-        events << event
-      end
-    end
-
-    render json: events.uniq
+    render json: pages_events
   end
+  alias_method :facebook_events_for_frontend, :fbevents_neos
 
   private
 
   def pages_events
-    File.readlines('config/fbpages.txt').each do |line|
-      next if line[0] == '#'
-      pageID = line.split(':')[1].strip
-      response = open('https://graph.facebook.com/v2.8/'\
-                    + pageID + \
-                    '/events?'\
-                    'access_token=EAACEdEose0cBAC3caPOvtDCDXr1XnbHUAzrRxgoX9CO92iyOOQGiUsZAaFZC35ZBc0qFZAwl2F134Jb0lzVR3uZBT6sD3qlz8uQhcq7x1Jn7qS3U7YEuXIND7jr6Q12NmBBxAXwy9sBxjZBzxAjXivNUogVEj6AAwFgfgm0FXoDHZASLhNlYTT1ZBZAOxMQSevTjeBGH8HEIZBWAZDZD'\
-                    '&fields=name,place,description,start_time,end_time,category'
-      ).read
-      yield response
+    events = []
+    Settings.facebook.pages_for_events.each do |page, page_id|
+      Rails.logger.debug "getting events for #{page}, page id #{page_id}"
+      events_for_page =
+        open("https://graph.facebook.com/v2.8/#{page_id.to_s}/events?access_token=#{Settings.facebook.access_token}" +
+          '&fields=name,place,description,start_time,end_time,category'
+        ).read
+      events << JSON.parse(events_for_page)['data']
     end
+    events.flatten.uniq
   end
+
 end
