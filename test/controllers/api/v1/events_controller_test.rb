@@ -366,33 +366,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert @controller.current_api_v1_user, @event.reload.creator
       end
     end
-
-    should 'get facebook events unauthorized' do
-      # TODO: stub facebook api
-      unstub_current_user
-
-      get :fbevents_neos
-      assert_response :unauthorized
-
-      get :fbevents_neos, params: { foo: 'bar' }
-      assert_response :unauthorized
-
-      get :fbevents_neos, params: { token: 'abc' }
-      assert_response :unauthorized
-
-      get :fbevents_neos, params: { token: Settings.facebook.api_token_for_event_request }
-      assert_response :ok
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json
-      if json.blank?
-        skip 'there are no events so we can not test the content of the events'
-      end
-      json.each do |json_event|
-        %w(name description start_time link_to_event owner link_to_owner).each do |attr|
-          assert json_event[attr], "There is no attribute #{attr} for event #{json_event}"
-        end
-      end
-    end
   end
 
 end

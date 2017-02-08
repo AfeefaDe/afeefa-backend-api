@@ -52,14 +52,14 @@ class Api::V1::BaseController < ApplicationController
   #   end
   # end
 
-  def ensure_admin_secret
-    if params[:admin_secret] == Settings.api.admin_secret
-      true
-    else
-      head :forbidden
-      false
-    end
-  end
+  # def ensure_admin_secret
+  #   if params[:admin_secret] == Settings.api.admin_secret
+  #     true
+  #   else
+  #     head :forbidden
+  #     false
+  #   end
+  # end
 
   def permit_params
     params.try(:[], :data).try(:[], :attributes).try(:delete, :state)
