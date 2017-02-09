@@ -25,15 +25,16 @@ class Api::V1::FacebookEventsControllerTest < ActionController::TestCase
         assert json_event[attr], "There is no attribute #{attr} for event #{json_event}"
       end
       if index < json.size - 1
+        assert_not_equal json_event['id'], json[index + 1]['id']
         event1_end = Time.zone.parse(json_event['end_time']).to_i rescue nil
         event2_end = Time.zone.parse(json[index + 1]['end_time']).to_i rescue nil
         event1_start = Time.zone.parse(json_event['start_time']).to_i rescue nil
         event2_start = Time.zone.parse(json[index + 1]['start_time']).to_i rescue nil
         if event1_end.present?
-          assert_operator event1_end, :>=, event2_end
+          assert_operator event1_end, :<=, event2_end
         end
         if event1_start.present?
-          assert_operator event1_start, :>=, event2_start
+          assert_operator event1_start, :<=, event2_start
         end
       end
     end

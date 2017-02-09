@@ -8,11 +8,20 @@ class FacebookClient
   end
 
   def get_events
+    processed_event_ids = []
     events = []
+
     Settings.facebook.pages_for_events.each do |page, page_id|
       Rails.logger.debug "getting events for #{page}, page id #{page_id}"
       events_for_page = client.get_connections(page_id, 'events')
       events_for_page.each do |event|
+        # skip already processed event ids
+        id = event['id']
+        if processed_event_ids.include?(id)
+          next
+        else
+          processed_event_ids << id
+        end
         # skip events in past
         end_time = event['end_time']
         start_time = event['start_time']
@@ -31,7 +40,7 @@ class FacebookClient
     end
 
     # sort events desc
-    events.flatten.uniq.sort do |event1, event2|
+    events.flatten.sort do |event1, event2|
       event1_end = Time.zone.parse(event1['end_time']).to_i rescue nil
       event2_end = Time.zone.parse(event2['end_time']).to_i rescue nil
       event1_start = Time.zone.parse(event1['start_time']).to_i rescue nil
@@ -41,7 +50,7 @@ class FacebookClient
       else
         event1_start <=> event2_start
       end
-    end.reverse
+    end
   end
 
   # def get_photo_url_for_photo_id(photo_id)
