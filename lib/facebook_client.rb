@@ -29,6 +29,8 @@ class FacebookClient
         events << event
       end
     end
+
+    # sort events desc
     events.flatten.uniq.sort do |event1, event2|
       event1_end = Time.zone.parse(event1['end_time']).to_i rescue nil
       event2_end = Time.zone.parse(event2['end_time']).to_i rescue nil
