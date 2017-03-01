@@ -28,6 +28,7 @@ Rails.application.routes.draw do
     namespace :api do
       namespace :v1 do
         get 'facebook_events', to: 'facebook_events#index'
+        get 'geocoding', to: 'geocodings#index'
 
         #routes.call
         mount_devise_token_auth_for 'User',

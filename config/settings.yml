@@ -5,3 +5,5 @@ facebook:
   pages_for_events:
     montagscafedresden: 1680988942178044
     dresdenfueralle: 1568930816673620
+geocoding:
+  api_token: MapCat_050615

@@ -64,6 +64,9 @@ gem 'koala', '~> 2.2'
 # strip attributes
 gem 'auto_strip_attributes', '~> 2.1'
 
+# geocoding
+gem 'geocoder'
+
 # pagination
 # gem 'kaminari'
 
