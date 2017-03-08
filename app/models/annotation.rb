@@ -1,5 +1,7 @@
 class Annotation < ApplicationRecord
-  belongs_to :annotatable, polymorphic: true
-  # belongs_to :orga, inverse_of: :annotation
-  # belongs_to :event, inverse_of: :annotation
+
+  has_many :annotation_able_relations
+  has_many :events, through: :annotation_able_relations, source: :entry, source_type: 'Event'
+  has_many :orgas, through: :annotation_able_relations, source: :entry, source_type: 'Orga'
+
 end

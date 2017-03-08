@@ -2,18 +2,39 @@
   "data": {
     "attributes": {
       "title": "some title",
-      "description": "some description",
-      "category": "medic"
+      //      "active": true,
+      "description": "iwefowihjf",
+      "created_at": null,
+      "updated_at": null,
+      "state_changed_at": null
     },
     "relationships": {
+      //      "parent_orga":{
+      //        "data":{
+      //          "type":"orgas",
+      //          "id":"683"
+      //        }
+      //      },
+      "category": {
+        "data": {
+          "type": "categories",
+          "id": "<category_id>"
+        }
+      },
+      "sub_category": {
+        "data": {
+          "type": "categories",
+          "id": "<sub_category_id>"
+        }
+      },
       "contact_infos": {
         "data": [
           {
             "attributes": {
-              "mail": "weisefred@example.com",
+              "mail": "weisefred@googlemail.com",
               "phone": "377436332",
-              "contact_person": "Max Mustermann",
-              "__id__": "62internal_model"
+              "contact_person": "Friedrich Weise",
+              "__id__": "204internal-model"
             },
             "type": "contact_infos"
           }
@@ -22,18 +43,12 @@
       "annotations": {
         "data": [
           {
-            "attributes": {
-              "title": "iwjofwjfiowj",
-              "__id__": "64internal_model"
-            },
-            "type": "annotations"
+            "type": "annotations",
+            "id": "<annotation_id_1>"
           },
           {
-            "attributes": {
-              "title": "xyz",
-              "__id__": "123internal_model"
-            },
-            "type": "annotations"
+            "type": "annotations",
+            "id": "<annotation_id_2>"
           }
         ]
       },
@@ -41,11 +56,11 @@
         "data": [
           {
             "attributes": {
-              "street": "Hauptstraße",
-              "number": "8",
+              "street": "Ernst Nier Straße 8",
+              "number": "Ernst Nier Straße 8",
               "city": "Beierfeld",
-              "placename": "wifojiojfoiw",
-              "__id__": "63internal_model"
+              "placename": "",
+              "__id__": "205internal-model"
             },
             "type": "locations"
           }

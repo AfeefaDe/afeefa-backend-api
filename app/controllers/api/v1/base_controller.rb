@@ -24,10 +24,6 @@ class Api::V1::BaseController < ApplicationController
     # pp error.backtrace
   end
 
-  def context
-    { current_user: current_api_v1_user }
-  end
-
   private
 
   # def ensure_host
@@ -56,14 +52,14 @@ class Api::V1::BaseController < ApplicationController
   #   end
   # end
 
-  def ensure_admin_secret
-    if params[:admin_secret] == Settings.api.admin_secret
-      true
-    else
-      head :forbidden
-      false
-    end
-  end
+  # def ensure_admin_secret
+  #   if params[:admin_secret] == Settings.api.admin_secret
+  #     true
+  #   else
+  #     head :forbidden
+  #     false
+  #   end
+  # end
 
   def permit_params
     params.try(:[], :data).try(:[], :attributes).try(:delete, :state)
@@ -83,7 +79,27 @@ class Api::V1::BaseController < ApplicationController
     end
   end
 
+  def context
+    { current_user: current_api_v1_user }
+  end
+
+  def resource_serializer_klass
+    @resource_serializer_klass ||= Api::V1::BaseSerializer
+  end
+
+  def render_results(operation_results)
+    # binding.pry
+    super
+  end
+
   def render_errors(errors)
     super
+  end
+
+  def serialization_options
+    # binding.pry
+    super.merge(
+      include_linkage_whitelist: %i(create update show index),
+      action: params[:action].to_sym)
   end
 end

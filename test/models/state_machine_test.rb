@@ -33,7 +33,7 @@ class StateMachineTest < ActiveSupport::TestCase
     user = create(:user)
     orga = create(:orga)
     event = build(:event, creator: user, orga: orga)
-    event.category = 'irgendeine komische Kategorie'
+    event.category = Category.main_categories.first
     assert event.category.present?
   end
 

@@ -8,11 +8,17 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'get index' do
-      get :index
+      # useful sample data
+      orga = create(:orga)
+      orga.annotations.create(title: 'annotation123')
+      orga.annotations.last
+
+      get :index, params: { include: 'annotations,category,sub_category' }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Orga.count, json['data'].size
+      assert json['included'].any?
     end
 
     should 'not get show root_orga' do
@@ -23,6 +29,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     end
 
     should 'not get related_resource for root_orga' do
+      skip 'looks like ember client can handle this'
       event =
         create(:event, title: 'Hackathon',
           description: 'Mate fuer alle!', creator: User.first, orga: Orga.root_orga)
@@ -46,175 +53,89 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_kind_of Hash, json['data']
       end
 
-      should 'fail for invalid' do
-        post :create, params: {
-          data: {
-            type: 'orgas',
-            attributes: {
-            },
-            relationships: {
-            }
-          }
-        }
-        assert_response :unprocessable_entity, response.body
-        json = JSON.parse(response.body)
-        assert_equal(
-          [
-            'Titel - muss ausgefüllt werden',
-            'Beschreibung - muss ausgefüllt werden',
-            'Kategorie - ist kein gültiger Wert'
-          ],
-          json['errors'].map { |x| x['detail'] }
-        )
-      end
-
       should 'I want to create a new orga' do
-        Orga.any_instance.stubs(:valid?).returns(true)
-
-        post :create, params: {
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'some title',
-              description: 'some description',
-              category: Able::CATEGORIES.first,
-              state_transition: 'activate'
-            },
-            relationships: {
-              parent_orga: {
-                data: {
-                  id: @orga.id,
-                  type: 'orgas'
-                }
-              }
-            }
-          }
-        }
-        assert_response :created, response.body
-        json = JSON.parse(response.body)
-        assert_equal StateMachine::ACTIVE.to_s, json['data']['attributes']['state']
-      end
-
-      should 'An orga should only change allowed states' do
-        # allowed transition active -> inactive
-        active_orga = create(:active_orga)
-        assert active_orga.active?
-        last_state_change = active_orga.state_changed_at
-        last_update = active_orga.state_changed_at
-
-        sleep(1)
-
-        process :update, methode: :patch, params: {
-          id: active_orga.id,
-          data: {
-            id: active_orga.id,
-            type: 'orgas',
-            attributes: {
-              state_transition: 'deactivate'
-            }
-          }
-        }
-
-        assert_response :ok, response.body
-
-        json = JSON.parse(response.body)
-
-        assert last_state_change < json['data']['attributes']['state_changed_at'], "#{last_state_change} is not newer than #{json['data']['attributes']['state_changed_at']}"
-        assert last_update < json['data']['attributes']['updated_at']
-        assert active_orga.reload.inactive?
-
-      end
-
-      should 'ignore given state on orga create' do
-        Orga.any_instance.stubs(:valid?).returns(true)
-
-        post :create, params: {
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'some title',
-              description: 'some description',
-              category: Able::CATEGORIES.first,
-              state: StateMachine::ACTIVE.to_s
-            },
-            relationships: {
-              parent_orga: {
-                data: {
-                  id: @orga.id,
-                  type: 'orgas'
-                }
-              }
-            }
-          }
-        }
-        assert_response :created, response.body
-        assert_equal 'some title', Orga.last.title
-        assert Orga.last.inactive?
-        json = JSON.parse(response.body)
-        assert_equal StateMachine::INACTIVE.to_s, json['data']['attributes']['state']
-      end
-
-      should 'set default orga on orga create without parent relation' do
-        post :create,
-          params: parse_json_file(file: 'create_orga_without_parent.json')
-        assert_response :created, response.body
-        assert_equal 'some title', Orga.last.title
-        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
-      end
-
-      should 'set default orga on orga create with parent relation with id nil' do
-        skip 'jsonapi gem does not support this'
-        post :create, params: {
-          data: {
-            type: 'orgas',
-            attributes: {
-              title: 'some title',
-              description: 'some description',
-              category: Able::CATEGORIES.first,
-            },
-            relationships: {
-              parent_orga: {
-                data: {
-                  id: nil,
-                  type: 'orgas'
-                }
-              }
-            }
-          }
-        }
-        assert_response :created, response.body
-        assert_equal 'some title', Orga.last.title
-        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
-      end
-
-      should 'create orga with nested attributes' do
-        annotation = Annotation.new(title: '000', annotatable: Orga.last)
-        assert annotation.save
+        params = parse_json_file do |payload|
+          payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+          payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+          payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
+          payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
+        end
+        params['data']['attributes'].merge!('active' => true)
 
         assert_difference 'Orga.count' do
-          assert_difference 'Annotation.count', 2 do
-            assert_difference 'ContactInfo.count' do
-              params = parse_json_file do |payload|
-                payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-              end
+          assert_no_difference 'Annotation.count' do
+            assert_difference 'AnnotationAbleRelation.count', 2 do
               post :create, params: params
               assert_response :created, response.body
-              get :show, params: { id: Orga.last.id }
-              assert_response :ok, response.body
             end
           end
         end
-        assert_equal 'some title', Orga.last.title
-        assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
-        assert_equal '377436332', ContactInfo.last.phone
-        assert_equal Orga.last, ContactInfo.last.contactable
-        assert_equal 2, Orga.last.annotations.count
+        json = JSON.parse(response.body)
+        assert_equal StateMachine::ACTIVE.to_s, Orga.last.state
+        assert_equal true, json['data']['attributes']['active']
+
+        # ensure parent orga handling, do not render root_orga into relations
+        assert_equal Orga.root_orga.id, Orga.last.parent_id
+        parent_orga_json = json['data']['relationships']['parent_orga']
+        assert(parent_orga_json.blank?, 'Parent Orga should not be present in json relations.')
+
+        # Then we could deliver the mapping there
+        %w(annotations locations contact_infos).each do |relation|
+          assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
+          to_check = json['data']['relationships'][relation]['data'].first
+          assert_equal relation, to_check['type']
+          unless relation == 'annotations'
+            given = to_check['attributes']
+            expected_attributes =
+              Orga.last.send(relation).first.attributes.tap do |data|
+                data['__id__'] = data.delete('internal_id')
+              end
+            expected_attributes.each do |attribute, value|
+              assert_equal(value, given[attribute.to_s],
+                "json attribute #{attribute} should have the value #{value} but was #{given}\n#{to_check}")
+            end
+            internal_id = to_check['attributes']['__id__']
+            assert(internal_id,
+              "Attribute __id__ not found for #{relation}. \nFound the following data: #{to_check}")
+            assert_match(/\d+internal-model/, internal_id, "invalid pattern for __id__: #{internal_id}")
+          end
+        end
+      end
+
+      should 'fail for invalid' do
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'Annotation.count' do
+            assert_no_difference 'ContactInfo.count' do
+              assert_no_difference 'Location.count' do
+                post :create, params: {
+                  data: {
+                    type: 'orgas',
+                    attributes: {
+                    },
+                    relationships: {
+                    }
+                  }
+                }
+                assert_response :unprocessable_entity, response.body
+                json = JSON.parse(response.body)
+                assert_equal(
+                  [
+                    'Titel - muss ausgefüllt werden',
+                    'Beschreibung - muss ausgefüllt werden',
+                    'Kategorie - ist kein gültiger Wert'
+                  ],
+                  json['errors'].map { |x| x['detail'] }
+                )
+              end
+            end
+          end
+        end
       end
 
       should 'update orga with nested attributes' do
         orga = create(:orga, title: 'foobar')
-        assert Annotation.create(title: 'annotation123', annotatable: orga)
-        annotation = Annotation.last
+        orga.annotations.create(title: 'annotation123')
+        annotation = orga.annotations.last
 
         assert_no_difference 'Orga.count' do
           assert_no_difference 'ContactInfo.count' do
@@ -229,7 +150,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                     ) do |payload|
                       payload.gsub!('<id>', orga.id.to_s)
                       payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-                      # pp JSON.parse(payload)
+                      payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                      payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
                     end
                   )
                 assert_response :ok, response.body
@@ -243,7 +165,76 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal Orga.last, ContactInfo.last.contactable
         assert_equal 1, Orga.last.annotations.count
         assert_equal annotation.reload, Orga.last.annotations.first
-        assert_equal 'Hallo Welt 2', annotation.reload.title
+      end
+
+      should 'destroy orga' do
+        assert_difference 'Orga.count', -1 do
+          assert_difference 'Orga.undeleted.count', -1 do
+            assert_no_difference 'ContactInfo.count' do
+              assert_no_difference 'Location.count' do
+                assert_no_difference 'Annotation.count' do
+                  delete :destroy,
+                    params: {
+                      id: @orga.id,
+                    }
+                  assert_response :no_content, response.body
+                end
+              end
+            end
+          end
+        end
+      end
+
+      should 'not destroy orga with associated sub_orga' do
+        assert sub_orga = create(:another_orga, parent_id: @orga.id)
+        assert_equal @orga.id, sub_orga.parent_id
+        assert @orga.reload.sub_orgas.any?
+
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'Orga.undeleted.count' do
+            assert_no_difference 'ContactInfo.count' do
+              assert_no_difference 'Location.count' do
+                assert_no_difference 'Annotation.count' do
+                  delete :destroy,
+                    params: {
+                      id: @orga.id,
+                    }
+                  assert_response :locked, response.body
+                  json = JSON.parse(response.body)
+                  assert_equal 'Unterorganisationen müssen gelöscht werden', json['errors'].first['detail']
+                end
+              end
+            end
+          end
+        end
+      end
+
+      should 'not destroy orga with associated event' do
+        assert event = create(:event, orga_id: @orga.id)
+        assert_equal @orga.id, event.orga_id
+        assert @orga.reload.events.any?
+
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'Orga.undeleted.count' do
+            assert_no_difference 'Event.count' do
+              assert_no_difference 'Event.undeleted.count' do
+                assert_no_difference 'ContactInfo.count' do
+                  assert_no_difference 'Location.count' do
+                    assert_no_difference 'Annotation.count' do
+                      delete :destroy,
+                        params: {
+                          id: @orga.id,
+                        }
+                      assert_response :locked, response.body
+                      json = JSON.parse(response.body)
+                      assert_equal 'Ereignisse müssen gelöscht werden', json['errors'].first['detail']
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
       end
     end
   end

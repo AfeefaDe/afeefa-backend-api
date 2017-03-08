@@ -3,11 +3,11 @@ FactoryGirl.define do
   factory :event do
       title 'an event'
       description 'description of an event'
-      date { I18n.l(Date.tomorrow) }
+      date_start { I18n.l(Date.tomorrow) }
       creator { User.first }
       association :orga, factory: :orga
-      category { Able::CATEGORIES.first }
-
+      association :category, factory: :category
+      association :sub_category, factory: :sub_category
       contact_infos { [build(:contact_info)] }
       locations { [build(:location)] }
 

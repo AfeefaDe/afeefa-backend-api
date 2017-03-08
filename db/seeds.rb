@@ -18,6 +18,21 @@ module Seeds
     ContactInfo.delete_all
 
     Annotation.delete_all
+    AnnotationAbleRelation.delete_all
+
+    Category.delete_all
+
+    # categories and sub categories
+    Able::SUB_CATEGORIES.each do |main_category, categories|
+      unless new_main_category = Category.find_by_title(main_category)
+        new_main_category =
+          Category.create!(title: main_category)
+      end
+
+      categories.each do |category|
+        Category.create!(title: category[:name], parent_id: new_main_category.id)
+      end
+    end
 
     # orgas
     if Orga.root_orga
@@ -30,13 +45,21 @@ module Seeds
     end
 
     # users
-    User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'password1')
-    User.create!(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'password5')
-    User.create!(email: 'joschka@afeefa.de', forename: 'Joschka', surname: 'Heinrich', password: 'password2')
-    User.create!(email: 'steve@afeefa.de', forename: 'Steve', surname: 'Reinke', password: 'password1')
-    User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'password3')
-    User.create!(email: 'alex@afeefa.de', forename: 'Alex', surname: 'Weiß', password: 'password1')
-    User.create!(email: 'friedrich@afeefa.de', forename: 'Friedrich', surname: 'Weise', password: 'password1')
+    User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'MapCat_050615')
+    User.create!(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'MapCat_050615')
+    User.create!(email: 'joschka@afeefa.de', forename: 'Joschka', surname: 'Heinrich', password: 'MapCat_050615')
+    User.create!(email: 'steve@afeefa.de', forename: 'Steve', surname: 'Reinke', password: 'MapCat_050615')
+    User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'MapCat_050615')
+    User.create!(email: 'alex@afeefa.de', forename: 'Alex', surname: 'Weiß', password: 'MapCat_050615')
+    User.create!(email: 'friedrich@afeefa.de', forename: 'Friedrich', surname: 'Weise', password: 'MapCat_050615')
+    User.create!(email: 'hagen@afeefa.de', forename: 'Hagen', surname: 'Belitz', password: 'MapCat_050615')
+
+    # annotations
+    Annotation.create!(title: 'Eintrag fehlerhaft')
+    Annotation.create!(title: 'Eintrag gemeldet')
+    Annotation.create!(title: 'Übersetzung fehlt')
+    # Be careful with changes, replace usages this annotation title!
+    Annotation.create!(title: 'Migration nur teilweise erfolgreich')
   end
 
 end

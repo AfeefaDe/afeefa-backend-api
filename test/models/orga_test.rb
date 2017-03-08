@@ -8,10 +8,25 @@ class OrgaTest < ActiveSupport::TestCase
 
   should 'validate attributes' do
     orga = Orga.new
+    assert orga.locations.blank?
     assert_not orga.valid?
+    assert orga.errors[:locations].blank?
     assert_match 'muss ausgefüllt werden', orga.errors[:title].first
     assert_match 'muss ausgefüllt werden', orga.errors[:description].first
-    assert_match 'ist kein gültiger Wert', orga.errors[:category].first
+    orga.description = '-' * 351
+    assert_not orga.valid?
+    assert_match 'ist zu lang', orga.errors[:description].first
+
+    assert_match 'muss ausgefüllt werden', orga.errors[:category].first
+  end
+
+  should 'auto strip name and description' do
+    orga = Orga.new
+    orga.title = '   abc 123   '
+    orga.description = '   abc 123   '
+    orga.valid?
+    assert_equal 'abc 123', orga.title
+    assert_equal 'abc 123', orga.description
   end
 
   should 'set root orga as parent if no parent given' do
@@ -35,10 +50,14 @@ class OrgaTest < ActiveSupport::TestCase
     end
 
     should 'have categories' do
-      @orga = build(:orga, category: nil)
+      @orga = build(:orga, category: nil, sub_category: nil)
       @orga.category.blank?
-      @orga.category = Able::CATEGORIES.last
-      assert @orga.category.present?
+      @orga.sub_category.blank?
+      @orga.category = category = create(:category)
+      @orga.sub_category = sub_category = create(:sub_category)
+      assert @orga.save
+      assert_equal category, @orga.reload.category
+      assert_equal sub_category, @orga.reload.sub_category
     end
 
     should 'deactivate orga' do
@@ -59,6 +78,59 @@ class OrgaTest < ActiveSupport::TestCase
       assert_equal Orga.unscoped.count - 1, Orga.count
       assert_includes Orga.unscoped, Orga.root_orga
       assert_not_includes Orga.all, Orga.root_orga
+    end
+
+    should 'soft delete orga' do
+      assert @orga.save
+      assert_not @orga.reload.deleted?
+      assert_no_difference 'Orga.count' do
+        assert_difference 'Orga.undeleted.count', -1 do
+          @orga.delete!
+        end
+      end
+      assert @orga.reload.deleted?
+    end
+
+    should 'not soft delete orga with associated orga' do
+      @orga.save!
+      assert @orga.id
+      assert sub_orga = create(:orga, parent_id: @orga.id)
+      assert_equal @orga.id, sub_orga.parent_id
+      assert @orga.reload.sub_orgas.any?
+      assert_not @orga.reload.deleted?
+      assert_no_difference 'Orga.count' do
+        assert_no_difference 'Orga.undeleted.count' do
+          exception =
+            assert_raise CustomDeleteRestrictionError do
+              @orga.destroy!
+            end
+          assert_equal 'Unterorganisationen müssen gelöscht werden', exception.message
+        end
+      end
+      assert_not @orga.reload.deleted?
+    end
+
+    should 'not soft delete orga with associated event' do
+      @orga.save!
+      assert @orga.id
+      assert event = create(:event, orga_id: @orga.id)
+      assert_equal @orga.id, event.orga_id
+      assert @orga.reload.events.any?
+      assert_not @orga.reload.deleted?
+      assert_no_difference 'Event.count' do
+        assert_no_difference 'Event.undeleted.count' do
+          assert_no_difference 'Orga.count' do
+            assert_no_difference 'Orga.undeleted.count' do
+              exception =
+                assert_raise CustomDeleteRestrictionError do
+                  @orga.destroy!
+                end
+              assert_equal 'Ereignisse müssen gelöscht werden', exception.message
+            end
+          end
+        end
+      end
+      assert_not @orga.reload.deleted?
     end
   end
 

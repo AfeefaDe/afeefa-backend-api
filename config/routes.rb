@@ -27,6 +27,8 @@ Rails.application.routes.draw do
   scope format: false, defaults: { format: :json } do
     namespace :api do
       namespace :v1 do
+        get 'facebook_events', to: 'facebook_events#index'
+
         #routes.call
         mount_devise_token_auth_for 'User',
           at: 'users',
@@ -41,7 +43,7 @@ Rails.application.routes.draw do
         jsonapi_resources :annotations
         jsonapi_resources :contact_infos
         jsonapi_resources :locations
-
+        jsonapi_resources :categories
       end
     end
   end

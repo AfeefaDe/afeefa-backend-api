@@ -1,19 +1,16 @@
-class Api::V1::EventResource < Api::V1::BaseResource
+class Api::V1::EventResource < Api::V1::EntriesBaseResource
 
-  attributes :title, :description, :created_at, :updated_at,
-             :state_changed_at, :state, :state_transition,
-             :category,
-             # not for now:
-             # :public_speaker, :location_type, :support_wanted,
-             :date
+  model_name 'Event'
+
+  attributes *(ATTRIBUTES + [:date_start, :date_end])
+  attribute :has_time_start, delegate: :time_start
+  attribute :has_time_end, delegate: :time_end
+  # not for now:
+  # :public_speaker, :location_type, :support_wanted,
 
   # actual not needed (wait for ui)
   # has_one :parent_event, class_name: 'Event', foreign_key: 'parent_id'
   # has_many :sub_events, class_name: 'Event', foreign_key: 'children_ids'
-
-  has_many :annotations
-  has_many :locations
-  has_many :contact_infos
 
   # has_many :ownables, class_name: 'Ownable'
   has_one :orga
@@ -24,16 +21,12 @@ class Api::V1::EventResource < Api::V1::BaseResource
     @model.creator_id = context[:current_user].id
   end
 
-  filter :todo, apply: ->(records, value, _options) {
-    records.annotated
-  }
+  before_update do
+    @model.creator_id = context[:current_user].id
+  end
 
-  filter :title, apply: ->(records, value, _options) {
-    records.where('title LIKE ?', "%#{value[0]}%")
-  }
-
-  filter :description, apply: ->(records, value, _options) {
-    records.where('description LIKE ?', "%#{value[0]}%")
-  }
+  before_save do
+    @model.creator_id = context[:current_user].id
+  end
 
 end

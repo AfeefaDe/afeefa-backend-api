@@ -4,11 +4,26 @@ class EventTest < ActiveSupport::TestCase
 
   should 'validate attributes' do
     event = Event.new
+    assert event.locations.blank?
     assert_not event.valid?
+    assert event.errors[:locations].blank?
     assert_match 'muss ausgefüllt werden', event.errors[:title].first
     assert_match 'muss ausgefüllt werden', event.errors[:description].first
-    assert_match 'ist kein gültiger Wert', event.errors[:category].first
     assert_match 'muss ausgefüllt werden', event.errors[:date].first
+    event.description = '-' * 351
+    assert_not event.valid?
+    assert_match 'ist zu lang', event.errors[:description].first
+
+    assert_match 'muss ausgefüllt werden', event.errors[:category].first
+  end
+
+  should 'auto strip name and description' do
+    event = Event.new
+    event.title = '   abc 123   '
+    event.description = '   abc 123   '
+    assert event.valid?
+    assert_equal 'abc 123', event.title
+    assert_equal 'abc 123', event.description
   end
 
   should 'set initial state for event' do
@@ -41,9 +56,46 @@ class EventTest < ActiveSupport::TestCase
     end
 
     should 'have categories' do
-      @event = build(:event, category: nil, orga: @orga)
-      @event.category = Able::CATEGORIES.last
-      assert @event.category.present?
+      @event = build(:event, category: nil, sub_category: nil, orga: @orga)
+      @event.category.blank?
+      @event.sub_category.blank?
+      @event.category = category = create(:category)
+      @event.sub_category = sub_category = create(:sub_category)
+      assert @event.save
+      assert_equal category, @event.reload.category
+      assert_equal sub_category, @event.reload.sub_category
+    end
+
+    should 'soft delete event' do
+      assert @event.save
+      assert_not @event.reload.deleted?
+      assert_no_difference 'Event.count' do
+        assert_difference 'Event.undeleted.count', -1 do
+          @event.delete!
+        end
+      end
+      assert @event.reload.deleted?
+    end
+
+    should 'not soft delete event with associated event' do
+      assert @event.save
+      assert event = create(:event, orga: @orga, title: 'foo bar', parent_id: @event.id)
+      assert event.save
+      assert_equal @event.id, event.parent_id
+      assert @event.reload.sub_events.any?
+      assert_not @event.reload.deleted?
+      assert_no_difference 'Event.count' do
+        assert_no_difference 'Event.undeleted.count' do
+          assert_no_difference 'Orga.undeleted.count' do
+            exception =
+              assert_raise CustomDeleteRestrictionError do
+                @event.destroy!
+              end
+            assert_equal 'Unterereignisse müssen gelöscht werden', exception.message
+          end
+        end
+      end
+      assert_not @event.reload.deleted?
     end
   end
 

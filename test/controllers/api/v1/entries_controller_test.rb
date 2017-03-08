@@ -8,7 +8,7 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
     end
 
     should 'get index' do
-      get :index
+      get :index, params: { include: 'annotations,category,sub_category' }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']

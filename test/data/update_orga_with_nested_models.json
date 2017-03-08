@@ -1,51 +1,38 @@
 {
-  "data":{
-    "id":"<id>",
-    "attributes":{
-      "title":"Ein Test 3",
-      "state":"inactive",
-      "state_transition":null,
-      "description":"wufheo",
-      "created_at":"2016-12-07T15:26:55.000Z",
-      "updated_at":"2016-12-07T15:26:55.000Z",
-      "state_changed_at":"2016-12-07T15:26:55.000Z",
-      "category":"leisure"
+  "data": {
+    "id": "<id>",
+    "attributes": {
+      "title": "Ein Test 3",
+      "description": "iwefowihjf"
     },
-    "relationships":{
-//      "contact_infos":{
-//        "data":[
-//          {
-//            "attributes":{
-//
-//            },
-//            "type":"contact_infos",
-//            "id":"<contact_info_id_1>"
-//          }
-//        ]
-//      },
-      "annotations":{
-        "data":[
+    "relationships": {
+      //      "parent_orga":{
+      //        "data":{
+      //          "type":"orgas",
+      //          "id":"683"
+      //        }
+      //      },
+      "category": {
+        "data": {
+          "type": "categories",
+          "id": "<category_id>"
+        }
+      },
+      "sub_category": {
+        "data": {
+          "type": "categories",
+          "id": "<sub_category_id>"
+        }
+      },
+      "annotations": {
+        "data": [
           {
-            "attributes":{
-              "title":"Hallo Welt 2"
-            },
-            "type":"annotations",
-            "id":"<annotation_id_1>"
+            "type": "annotations",
+            "id": "<annotation_id_1>"
           }
         ]
-//      },
-//      "locations":{
-//        "data":[
-//          {
-//            "attributes":{
-//
-//            },
-//            "type":"locations",
-//            "id":"<location_id_1>"
-//          }
-//        ]
       }
     },
-    "type":"orgas"
+    "type": "orgas"
   }
 }

@@ -1,0 +1,48 @@
+{
+  "data": {
+    "id": "<id>",
+    "attributes": {
+      "date_start": "2016-06-21T22:00:00.000Z",
+      "has_time_start": true,
+      "has_time_end": true,
+      "title": "Street Store",
+      "active": true,
+      "description": "Der weltweit erste Straßenladen für Kleidung, Informationen, Sprachen u.v.m.",
+      "created_at": "2016-12-14T19:10:00.000Z",
+      "updated_at": "2016-12-14T19:10:00.000Z",
+      "state_changed_at": "2016-12-14T19:10:00.000Z"
+    },
+    "relationships": {
+      "category": {
+        "data": {
+          "type": "categories",
+          "id": "<category_id>"
+        }
+      },
+      "sub_category": {
+        "data": null
+      },
+//      "contact_infos": {
+//        "data": []
+//      },
+      "annotations": {
+        "data": [
+          {
+            "type": "annotations",
+            "id": "<annotation_id_1>"
+          }
+        ]
+//      },
+//      "locations": {
+//        "data": [
+//          {
+//            "attributes": {},
+//            "type": "locations",
+//            "id": "1408"
+//          }
+//        ]
+      }
+    },
+    "type": "events"
+  }
+}

@@ -49,13 +49,20 @@ gem 'devise_token_auth' # https://github.com/lynndylanhurley/devise_token_auth
 gem 'config'
 
 # json api spec
-gem 'jsonapi-resources'
+# gem 'jsonapi-resources'
+gem 'jsonapi-resources', '0.9.0.beta3'
 
 # tree relatiions (e.g. orga-suborga)
 gem 'acts_as_tree', '~> 2.4'
 
 # state machine
 gem 'aasm'
+
+# facebook api integration
+gem 'koala', '~> 2.2'
+
+# strip attributes
+gem 'auto_strip_attributes', '~> 2.1'
 
 # pagination
 # gem 'kaminari'
@@ -93,7 +100,8 @@ group :development, :test do
   # code coverage
   gem 'simplecov', require: false
 
-  gem 'sqlite3'
+  # We do not longer use sqlite3:
+  # gem 'sqlite3'
 end
 
 group :development do

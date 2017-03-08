@@ -6,18 +6,17 @@ module StateMachine
   INACTIVE = :inactive
   DELETED = :deleted
   STATES = [INACTIVE, ACTIVE, DELETED]
-  undeleted = STATES - [DELETED]
+  UNDELETEDS = STATES - [DELETED]
 
   included do
     include AASM
 
     aasm(column: :state) do
       state INACTIVE, initial: true
-      state ACTIVE, DELETED
+      state *(STATES - [INACTIVE])
 
       event :activate do
         before do
-          self.state_transition = nil
         end
         transitions from: INACTIVE, to: ACTIVE
         after do
@@ -27,7 +26,6 @@ module StateMachine
 
       event :deactivate do
         before do
-          self.state_transition = nil
         end
         transitions from: ACTIVE, to: INACTIVE
         after do
@@ -37,27 +35,51 @@ module StateMachine
 
       event :delete do
         before do
-          self.state_transition = nil
         end
-        transitions from: undeleted, to: DELETED
+        transitions from: UNDELETEDS, to: DELETED
+        after do
+          touch :state_changed_at
+        end
+      end
+
+      event :restore do
+        before do
+        end
+        transitions from: DELETED, to: INACTIVE
         after do
           touch :state_changed_at
         end
       end
     end
 
-    scope :undeleted, -> { where(state: undeleted) }
-
-    attr_accessor :state_transition
+    attr_accessor :active
 
     before_create do
       self.state_changed_at = created_at
     end
 
     before_save do
-      send("#{state_transition}!") if state_transition.present?
+      if !active? && active.to_s == 'true'
+        activate!
+      elsif !inactive? && active.to_s == 'false'
+        deactivate!
+      end
     end
 
+    # actually we decited to hard destroy, see #38:
+    # soft destroyable
+    scope :undeleted, -> { where(state: UNDELETEDS) }
+    # def destroy
+    #   run_callbacks(:destroy) do
+    #     delete!
+    #   end
+    # end
+
+    # def restore
+    #   run_callbacks(:restore) do
+    #     restore!
+    #   end
+    # end
   end
 
 end
