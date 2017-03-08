@@ -5,9 +5,7 @@ module Able
   included do
     # INCLUDES
     include StateMachine
-
-    # TRANSLATABLE
-    extend Translatable
+    include Translatable
 
     def self.translatable_attributes
       %i(title description)

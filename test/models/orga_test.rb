@@ -29,6 +29,27 @@ class OrgaTest < ActiveSupport::TestCase
     assert_equal 'abc 123', orga.description
   end
 
+  should 'create translation on orga create' do
+    orga = build(:orga)
+    assert orga.translation.blank?
+    assert orga.translation(locale: 'en').blank?
+    assert orga.save
+    expected = { title: 'an orga', description: 'this is a short description of this orga' }
+    assert_equal expected, orga.translation
+    assert_equal expected, orga.translation(locale: 'en')
+  end
+
+  should 'update translation on orga update' do
+    orga = create(:orga)
+    expected = { title: 'an orga', description: 'this is a short description of this orga' }
+    assert_equal expected, orga.translation
+    assert_equal expected, orga.translation(locale: 'en')
+    assert orga.update(title: 'foo-bar')
+    expected = { title: 'foo-bar', description: 'this is a short description of this orga' }
+    assert_equal expected, orga.translation
+    assert_equal expected, orga.translation(locale: 'en')
+  end
+
   should 'set root orga as parent if no parent given' do
     orga = build(:orga, parent_orga_id: nil)
     assert orga.save, orga.errors.messages

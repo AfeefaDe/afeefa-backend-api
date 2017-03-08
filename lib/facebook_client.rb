@@ -7,6 +7,15 @@ class FacebookClient
     @client = Koala::Facebook::API.new(@oauth.get_app_access_token)
   end
 
+  def logger
+    @logger ||=
+      if log_file = Settings.facebook.log_file
+        Logger.new(log_file)
+      else
+        Rails.logger
+      end
+  end
+
   def get_events
     processed_event_ids = []
     events = []

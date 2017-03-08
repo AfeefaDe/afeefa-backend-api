@@ -18,12 +18,33 @@ class EventTest < ActiveSupport::TestCase
   end
 
   should 'auto strip name and description' do
-    event = Event.new
+    event = Event.new(date_start: Date.tomorrow)
     event.title = '   abc 123   '
     event.description = '   abc 123   '
-    assert event.valid?
+    assert event.valid?, event.errors.messages
     assert_equal 'abc 123', event.title
     assert_equal 'abc 123', event.description
+  end
+
+  should 'create translation on event create' do
+    event = build(:event)
+    assert event.translation.blank?
+    assert event.translation(locale: 'en').blank?
+    assert event.save
+    expected = { title: 'an event', description: 'description of an event' }
+    assert_equal expected, event.translation
+    assert_equal expected, event.translation(locale: 'en')
+  end
+
+  should 'update translation on event update' do
+    event = create(:event)
+    expected = { title: 'an event', description: 'description of an event' }
+    assert_equal expected, event.translation
+    assert_equal expected, event.translation(locale: 'en')
+    assert event.update(title: 'foo-bar')
+    expected = { title: 'foo-bar', description: 'description of an event' }
+    assert_equal expected, event.translation
+    assert_equal expected, event.translation(locale: 'en')
   end
 
   should 'set initial state for event' do

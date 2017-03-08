@@ -103,6 +103,11 @@ group :development, :test do
   # code coverage
   gem 'simplecov', require: false
 
+  # request recording for tests
+  gem 'vcr'
+  # mock requests in tests, needed by vcr
+  gem 'webmock'
+
   # We do not longer use sqlite3:
   # gem 'sqlite3'
 end

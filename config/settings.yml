@@ -2,12 +2,15 @@ facebook:
   app_id: <%= ENV["FB_APP_ID"] %>
   app_secret: <%= ENV["FB_APP_SECRET"] %>
   api_token_for_event_request: MapCat_050615
+  log_file: facebook.log
   pages_for_events:
     montagscafedresden: 1680988942178044
     dresdenfueralle: 1568930816673620
 geocoding:
   api_token: MapCat_050615
 phraseapp:
-  project_id: 473a16f79defb1cd2d47464deb4c6008
+  project_id: 3746daa3615235f8a940868010fecb44
   api_token: 17f10e70ea0f09650b3d8d3a734554f907d4bfa661799adaca106fe47a45378b
   fallback_list: [en, de]
+  test_project_id: 473a16f79defb1cd2d47464deb4c6008
+  log_file: phraseapp.log

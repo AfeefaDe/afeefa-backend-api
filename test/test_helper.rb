@@ -19,8 +19,16 @@ require 'minitest/rails/capybara'
 # require "minitest/pride"
 
 require 'pp'
+# TODO: VCR integration and mocks for APIs
+# require 'vcr'
+#
+# VCR.configure do |config|
+#   config.cassette_library_dir = "fixtures/vcr_cassettes"
+#   config.hook_into :webmock # or :fakeweb
+# end
 
 class ActiveSupport::TestCase
+
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   # fixtures :all
 
@@ -37,6 +45,11 @@ class ActiveSupport::TestCase
       password: 'abc12346'
     )
   end
+
+  teardown do
+    PhraseAppClient.new.send(:delete_all_keys)
+  end
+
 end
 
 class ActionController::TestCase
