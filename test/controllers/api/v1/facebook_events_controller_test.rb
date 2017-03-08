@@ -32,9 +32,10 @@ class Api::V1::FacebookEventsControllerTest < ActionController::TestCase
         event2_start = Time.zone.parse(json[index + 1]['start_time']).to_i rescue nil
         if event1_end.present?
           assert_operator event1_end, :<=, event2_end
-        end
-        if event1_start.present?
-          assert_operator event1_start, :<=, event2_start
+        else
+          if event1_start.present?
+            assert_operator event1_start, :<=, event2_start
+          end
         end
       end
     end
