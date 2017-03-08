@@ -6,6 +6,14 @@ module Able
     # INCLUDES
     include StateMachine
 
+    # TRANSLATABLE
+    extend Translatable
+
+    def self.translatable_attributes
+      %i(title description)
+    end
+    # TRANSLATABLE END
+
     auto_strip_attributes :title, :description
 
     # CONSTANTS

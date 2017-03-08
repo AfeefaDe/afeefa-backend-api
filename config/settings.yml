@@ -7,3 +7,7 @@ facebook:
     dresdenfueralle: 1568930816673620
 geocoding:
   api_token: MapCat_050615
+phraseapp:
+  project_id: 473a16f79defb1cd2d47464deb4c6008
+  api_token: 17f10e70ea0f09650b3d8d3a734554f907d4bfa661799adaca106fe47a45378b
+  fallback_list: [en, de]
