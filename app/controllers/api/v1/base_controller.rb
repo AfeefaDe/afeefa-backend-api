@@ -35,7 +35,8 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def filter_whitelist
-    raise NotImplementedError, 'Define filter whitelist in your class!'
+    # raise NotImplementedError, 'Define filter whitelist in your class!'
+    []
   end
 
   def custom_filter_whitelist
@@ -47,7 +48,7 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def find_objects
-    @objects = self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize.all
+    @objects = self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize.all#.limit(10)
 
     if (filter = filter_params) && filter.respond_to?(:keys) && filter.keys.present?
       filter_params.each do |attribute, filter_criterion|
@@ -59,45 +60,47 @@ class Api::V1::BaseController < ApplicationController
       end
     end
 
-    @objects
+    @objects =
+      @objects.includes(:annotations).includes(:locations).includes(:contact_infos).includes(:category).
+        includes(:sub_category).includes(:parent).includes(:children)
   end
 
 ###############################
 
-  # def ensure_host
-  #   allowed_hosts = Settings.api.hosts
-  #   if (host = request.host).in?(allowed_hosts)
-  #     true
-  #   else
-  #     render(
-  #       text: "wrong host: #{host}, allowed: #{allowed_hosts.join(', ')}",
-  #       status: :unauthorized
-  #     )
-  #     false
-  #   end
-  # end
-  #
-  # def ensure_protocol
-  #   allowed_protocols = Settings.api.protocols
-  #   if (protocol = request.protocol.gsub(/:.*/, '')).in?(allowed_protocols)
-  #     true
-  #   else
-  #     render(
-  #       text: "wrong protocol: #{protocol}, allowed: #{allowed_protocols.join(', ')}",
-  #       status: :unauthorized
-  #     )
-  #     false
-  #   end
-  # end
+# def ensure_host
+#   allowed_hosts = Settings.api.hosts
+#   if (host = request.host).in?(allowed_hosts)
+#     true
+#   else
+#     render(
+#       text: "wrong host: #{host}, allowed: #{allowed_hosts.join(', ')}",
+#       status: :unauthorized
+#     )
+#     false
+#   end
+# end
+#
+# def ensure_protocol
+#   allowed_protocols = Settings.api.protocols
+#   if (protocol = request.protocol.gsub(/:.*/, '')).in?(allowed_protocols)
+#     true
+#   else
+#     render(
+#       text: "wrong protocol: #{protocol}, allowed: #{allowed_protocols.join(', ')}",
+#       status: :unauthorized
+#     )
+#     false
+#   end
+# end
 
-  # def ensure_admin_secret
-  #   if params[:admin_secret] == Settings.api.admin_secret
-  #     true
-  #   else
-  #     head :forbidden
-  #     false
-  #   end
-  # end
+# def ensure_admin_secret
+#   if params[:admin_secret] == Settings.api.admin_secret
+#     true
+#   else
+#     head :forbidden
+#     false
+#   end
+# end
 
   def permit_params
     params.try(:[], :data).try(:[], :attributes).try(:delete, :state)

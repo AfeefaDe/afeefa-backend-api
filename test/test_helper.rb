@@ -47,7 +47,7 @@ class ActiveSupport::TestCase
   end
 
   teardown do
-    PhraseAppClient.new.send(:delete_all_keys)
+    (@client ||= PhraseAppClient.new).send(:delete_all_keys)
   end
 
 end

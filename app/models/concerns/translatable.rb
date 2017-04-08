@@ -17,7 +17,7 @@ module Translatable
     end
 
     def client
-      @client ||= PhraseAppClient.new
+      @@client ||= PhraseAppClient.new
     end
 
     private

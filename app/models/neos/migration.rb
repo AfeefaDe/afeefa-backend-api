@@ -3,6 +3,8 @@ module Neos
 
     class << self
       def migrate
+        puts "Step 1: Migrating #{Neos::Category.where(locale: :de).count} categories"
+        count = 0
         Neos::Category.where(locale: :de).each do |category|
           next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(title: category.name.try(:strip))
@@ -10,9 +12,12 @@ module Neos
             puts "Category is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
             new_category.save(validate: false)
           end
+          puts "#{count += 1} categories processed"
         end
 
-        Neos::Orga.where(locale: :de).limit(10).each do |orga|
+        puts "Step 2: Migrating #{Neos::Orga.where(locale: :de).count} orgas"
+        count = 0
+        Neos::Orga.where(locale: :de).each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
               title: orga.name.try(:strip),
@@ -35,9 +40,12 @@ module Neos
               parent: parent_or_root_orga(orga.parent)
             )
           end
+          puts "#{count += 1} orgas processed"
         end
 
-        Neos::Event.where(locale: :de).limit(10).each do |event|
+        puts "Step 3: Migrating #{Neos::Event.where(locale: :de).count} events"
+        count = 0
+        Neos::Event.where(locale: :de).each do |event|
           create_entry_and_handle_validation(event) do
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
@@ -74,7 +82,10 @@ module Neos
               creator: User.first # TODO: assume that this is the system user → Is it?
             )
           end
+          puts "#{count += 1} events processed"
         end
+
+        puts "Migration finished."
       end
 
       private

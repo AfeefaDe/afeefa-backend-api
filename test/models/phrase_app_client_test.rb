@@ -3,7 +3,7 @@ require 'test_helper'
 class PhraseAppClientTest < ActiveSupport::TestCase
 
   setup do
-    @client = PhraseAppClient.new
+    @client ||= PhraseAppClient.new
   end
 
   should 'have locales' do

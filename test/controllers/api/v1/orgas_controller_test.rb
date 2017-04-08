@@ -12,6 +12,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       orga = create(:orga)
       orga.annotations.create(title: 'annotation123')
       orga.annotations.last
+      orga.sub_orgas.create(attributes_for(:another_orga, parent_orga: orga))
 
       get :index, params: { include: 'annotations,category,sub_category' }
       assert_response :ok, response.body
@@ -32,6 +33,12 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal 1, json['data'].size
+
+      get :index, params: { filter: { title: 'foo' } }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 0, json['data'].size
     end
 
     should 'get todo filter' do

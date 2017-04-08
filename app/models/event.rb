@@ -13,6 +13,36 @@ class Event < ApplicationRecord
 
   validates :date_start, presence: true
 
+  def to_hash(only_reference: false)
+    if only_reference
+      default_hash
+    else
+      attributes_hash =
+        self.attributes.deep_symbolize_keys.
+          slice(:title, :description, :created_at, :updated_at, :state_changed_at).
+          merge(active: state == ACTIVE)
+      {
+        id: id,
+        type: 'events',
+        # links: {
+        #   self: (Rails.application.routes.url_helpers.api_v1_orga_url(self) rescue 'not available')
+        # },
+        attributes: attributes_hash,
+        relationships: {
+          annotations: {
+            # links: { related: '' },
+            data: annotations.map(&:to_hash)
+          },
+          locations: { data: locations.map(&:to_hash) },
+          contact_infos: { data: contact_infos.map(&:to_hash) },
+          category: { data: category.try(:to_hash) },
+          sub_category: { data: sub_category.try(:to_hash) },
+          orga: { data: orga.try(:to_hash, only_reference: true) },
+        }
+      }
+    end
+  end
+
   private
 
   def deny_destroy_if_associated_objects_present

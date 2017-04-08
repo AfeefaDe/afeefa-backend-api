@@ -17,7 +17,7 @@ class Api::V1::EntriesBaseController < Api::V1::BaseController
   def apply_custom_filter!(attribute, objects)
     case attribute.to_s
       when 'todo'
-        objects.annotated
+        objects.annotated.distinct(:id)
       else
         objects
     end
