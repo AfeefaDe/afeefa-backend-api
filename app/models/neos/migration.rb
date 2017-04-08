@@ -46,7 +46,7 @@ module Neos
                 :date_end,
                 event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
             if type_datetime_from.first.nil? || type_datetime_from.last.nil?
-              puts "failing on parsing date or time for event: #{event}"
+              puts "failing on parsing date or time for event: #{event.inspect}"
             end
             ::Event.new(
               title: event.name.try(:strip),

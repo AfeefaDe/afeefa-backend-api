@@ -38,9 +38,10 @@ module Seeds
     if Orga.root_orga
       orga0 = Orga.root_orga
       orga0.title = Orga::ROOT_ORGA_TITLE
+      orga0.description = Orga::ROOT_ORGA_DESCRIPTION
       orga0.save!(validate: false)
     else
-      orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE)
+      orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE, description: Orga::ROOT_ORGA_DESCRIPTION)
       orga0.save!(validate: false)
     end
 

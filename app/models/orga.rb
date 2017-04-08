@@ -1,6 +1,7 @@
 class Orga < ApplicationRecord
 
   ROOT_ORGA_TITLE = 'ROOT-ORGA'
+  ROOT_ORGA_DESCRIPTION = 'ROOT-DESCRIPTION'
 
   # INCLUDES
   include Owner

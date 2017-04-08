@@ -21,7 +21,7 @@ class FacebookClient
     events = []
 
     Settings.facebook.pages_for_events.each do |page, page_id|
-      Rails.logger.debug "getting events for #{page}, page id #{page_id}"
+      logger.debug "getting events for #{page}, page id #{page_id}"
       events_for_page = client.get_connections(page_id, 'events')
       events_for_page.each do |event|
         # skip already processed event ids

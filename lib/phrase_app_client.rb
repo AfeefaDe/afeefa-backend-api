@@ -29,15 +29,25 @@ class PhraseAppClient
 
   def create_or_update_translation(model, locale)
     model.class.translatable_attributes.each do |attribute|
-      content = model.send(attribute)
-      key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
-      key_id =
-        find_key_id_by_key_name(key) ||
-          create_key(key)
-      if translation_id = find_translation_id_by_key_id_and_locale(key_id, locale)
-        update_translation_for_translation_id(translation_id, content)
-      else
-        create_translation_for_key(key_id, locale, content)
+      begin
+        content = model.send(attribute)
+        key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
+        key_id =
+          find_key_id_by_key_name(key) ||
+            create_key(key)
+        if translation_id = find_translation_id_by_key_id_and_locale(key_id, locale)
+          update_translation_for_translation_id(translation_id, content)
+        else
+          create_translation_for_key(key_id, locale, content)
+        end
+      rescue => exception
+        message = "Could not create or update translation for \n"
+        message << "model #{model.id}, '#{model.title}' and \n"
+        message << "locale '#{locale}' and key '#{key}' with \n"
+        message << "content '#{content}' for "
+        message << "the following error: #{exception.message}\n"
+        message << "#{exception.backtrace.join("\n")}"
+        logger.error message
       end
     end
   end
