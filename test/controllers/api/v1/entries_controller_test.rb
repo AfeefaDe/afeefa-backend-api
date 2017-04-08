@@ -38,9 +38,9 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
       assert_response :ok
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
-      assert_equal orga.id.to_s, json['data'].first['id']
+      assert_equal orga.id, json['data'].first['id']
       assert_equal 'orgas', json['data'].first['type']
-      assert_equal event.id.to_s, json['data'].last['id']
+      assert_equal event.id, json['data'].last['id']
       assert_equal 'events', json['data'].last['type']
     end
 
@@ -56,10 +56,10 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
       assert_response :ok
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
-      assert_equal event.id.to_s, json['data'].first['id']
-      assert_equal 'events', json['data'].first['type']
-      assert_equal orga.id.to_s, json['data'].last['id']
-      assert_equal 'orgas', json['data'].last['type']
+      assert_equal orga.id, json['data'].first['id']
+      assert_equal 'orgas', json['data'].first['type']
+      assert_equal event.id, json['data'].last['id']
+      assert_equal 'events', json['data'].last['type']
     end
 
   end

@@ -8,23 +8,25 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'get index' do
+      user = create(:user)
+      orga = create(:orga)
+      event = create(:event, title: 'Hackathon', description: 'Mate fuer alle!', creator: user, orga: orga)
+
       get :index
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Event.count, json['data'].size
+      assert_equal Event.last.to_hash.deep_stringify_keys, json['data'].last
     end
 
     should 'get title filtered list for events' do
       user = create(:user)
       orga = create(:orga)
-      event0 = create(:event, title: 'Hackathon',
-        description: 'Mate fuer alle!', creator: user, orga: orga)
-      event1 = create(:event, title: 'Montagscafe',
-        description: 'Kaffee und so im Schauspielhaus',
+      event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!', creator: user, orga: orga)
+      event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
         creator: user, orga: orga)
-      event2 = create(:event, title: 'Joggen im Garten',
-        description: 'Gemeinsames Laufengehen im Grossen Garten',
+      event2 = create(:event, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten',
         creator: user, orga: orga)
 
       get :index, params: { filter: { title: 'Garten' } }

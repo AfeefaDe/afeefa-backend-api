@@ -1,7 +1,7 @@
 class Api::V1::EntriesBaseController < Api::V1::BaseController
 
   def index
-    render json: { data: @objects.map(&:to_json) || [] }
+    render json: { data: @objects.map(&:to_hash) || [] }
   end
 
   private

@@ -18,7 +18,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Orga.count, json['data'].size
-      assert_equal Orga.last.to_json, json['data'].last
+      assert_equal Orga.last.to_hash.deep_stringify_keys, json['data'].last
     end
 
     should 'get title filtered list for orgas' do
