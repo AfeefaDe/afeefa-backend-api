@@ -34,6 +34,26 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal 1, json['data'].size
     end
 
+    should 'get todo filter' do
+      user = create(:user)
+      orga = create(:orga)
+      event0 = create(:event, title: 'Hackathon',
+        description: 'Mate fuer alle!', creator: user, orga: orga)
+      event1 = create(:event, title: 'Montagscafe',
+        description: 'Kaffee und so im Schauspielhaus',
+        creator: user, orga: orga)
+      event2 = create(:event, title: 'Joggen im Garten',
+        description: 'Gemeinsames Laufengehen im Grossen Garten',
+        creator: user, orga: orga)
+      event0.annotations.create
+
+      get :index, params: { filter: { todo: nil } }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+    end
+
     should 'ensure creator for event on create' do
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)

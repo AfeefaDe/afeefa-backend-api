@@ -34,6 +34,20 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal 1, json['data'].size
     end
 
+    should 'get todo filter' do
+      user = create(:user)
+      orga0 = create(:orga, title: 'Hackathon', description: 'Mate fuer alle!')
+      orga1 = create(:orga, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus')
+      orga2 = create(:orga, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten')
+      orga0.annotations.create
+
+      get :index, params: { filter: { todo: nil } }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+    end
+
     should 'not get show root_orga' do
       not_existing_id = 999
       assert Orga.where(id: not_existing_id).blank?

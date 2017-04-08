@@ -31,11 +31,19 @@ class Api::V1::BaseController < ApplicationController
   private
 
   def filter_params
-    params.fetch(:filter, {}).permit(:title, :description)
+    params.fetch(:filter, {}).permit(filter_whitelist + custom_filter_whitelist)
   end
 
   def filter_whitelist
     raise NotImplementedError, 'Define filter whitelist in your class!'
+  end
+
+  def custom_filter_whitelist
+    []
+  end
+
+  def apply_custom_filter!(attribute, objects)
+    objects
   end
 
   def find_objects
@@ -43,8 +51,11 @@ class Api::V1::BaseController < ApplicationController
 
     if (filter = filter_params) && filter.respond_to?(:keys) && filter.keys.present?
       filter_params.each do |attribute, filter_criterion|
-        next unless attribute.in?(filter_whitelist)
-        @objects = @objects.where("#{attribute} LIKE ?", "%#{filter_criterion}%")
+        if attribute.to_s.in?(filter_whitelist)
+          @objects = @objects.where("#{attribute} LIKE ?", "%#{filter_criterion}%")
+        elsif attribute.to_s.in?(custom_filter_whitelist)
+          @objects = apply_custom_filter!(attribute, @objects)
+        end
       end
     end
 
