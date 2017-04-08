@@ -4,9 +4,9 @@ module Jsonable
 
   included do
     def default_hash
-      @@type ||= self.class.to_s.split('::').last.underscore.pluralize
+      @type ||= self.class.to_s.split('::').last.underscore.pluralize
       {
-        type: @@type,
+        type: @type,
         id: id
       }
     end

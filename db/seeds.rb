@@ -18,7 +18,7 @@ module Seeds
     ContactInfo.delete_all
 
     Annotation.delete_all
-    AnnotationAbleRelation.delete_all
+    Todo.delete_all
 
     Category.delete_all
 

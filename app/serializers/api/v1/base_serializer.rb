@@ -60,7 +60,7 @@ class Api::V1::BaseSerializer < JSONAPI::ResourceSerializer
 
   def include_linkage?
     # ATTENTION: not for entries (=todos)! → if this is trouble for us:
-    # return false if self.instance_variable_get('@primary_resource_klass') == Api::V1::EntryResource
+    # return false if self.instance_variable_get('@primary_resource_klass') == Api::V1::TodoResource
     @action.in?(@include_linkage_whitelist)
   end
 

@@ -47,8 +47,14 @@ class Api::V1::BaseController < ApplicationController
     objects
   end
 
+  def base_for_find_objects
+    nil
+  end
+
   def find_objects
-    @objects = self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize.all#.limit(10)
+    @objects =
+      base_for_find_objects ||
+        self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize.all
 
     if (filter = filter_params) && filter.respond_to?(:keys) && filter.keys.present?
       filter_params.each do |attribute, filter_criterion|

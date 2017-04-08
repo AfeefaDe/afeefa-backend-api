@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170201112638) do
+ActiveRecord::Schema.define(version: 20170408221238) do
 
   create_table "annotation_able_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "annotation_id"
@@ -49,6 +49,12 @@ ActiveRecord::Schema.define(version: 20170201112638) do
     t.string   "spoken_languages"
     t.boolean  "migrated_from_neos", default: false
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
+  end
+
+  create_table "entries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string  "entry_type"
+    t.integer "entry_id"
+    t.index ["entry_type", "entry_id"], name: "index_entries_on_entry_type_and_entry_id", using: :btree
   end
 
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

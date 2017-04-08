@@ -21,9 +21,7 @@ class Event < ApplicationRecord
         self.attributes.deep_symbolize_keys.
           slice(:title, :description, :created_at, :updated_at, :state_changed_at).
           merge(active: state == ACTIVE)
-      {
-        id: id,
-        type: 'events',
+      default_hash.merge(
         # links: {
         #   self: (Rails.application.routes.url_helpers.api_v1_orga_url(self) rescue 'not available')
         # },
@@ -39,7 +37,7 @@ class Event < ApplicationRecord
           sub_category: { data: sub_category.try(:to_hash) },
           orga: { data: orga.try(:to_hash, only_reference: true) },
         }
-      }
+      )
     end
   end
 

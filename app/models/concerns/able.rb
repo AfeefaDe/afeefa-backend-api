@@ -89,8 +89,8 @@ module Able
     has_many :locations, as: :locatable
     has_many :contact_infos, as: :contactable
 
-    has_many :annotation_able_relations, as: :entry
-    has_many :annotations, through: :annotation_able_relations
+    has_many :todos, as: :entry
+    has_many :annotations, through: :todos
 
     belongs_to :category, optional: true
     belongs_to :sub_category, class_name: 'Category', optional: true
@@ -107,8 +107,12 @@ module Able
     validates :description, presence: true, length: { maximum: 350 }
 
     # HOOKS
+    after_save :create_entry, append: true
     before_destroy :deny_destroy_if_associated_objects_present, prepend: true
 
+    def create_entry
+      Entry.create!(entry: self)
+    end
   end
 
 end

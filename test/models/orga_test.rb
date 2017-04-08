@@ -9,20 +9,20 @@ class OrgaTest < ActiveSupport::TestCase
   should 'render json' do
     object_keys = [:id, :type, :attributes, :relationships]
     attribute_keys = [:title, :description, :created_at, :updated_at, :state_changed_at, :active]
-    relationships = [:annotations, :locations, :contact_infos, :category, :sub_category]
+    relationships = [:annotations, :locations, :contact_infos, :category, :sub_category, :parent_orga, :sub_orgas]
     orga = create(:orga)
     json = JSON.parse(orga.to_json).deep_symbolize_keys
-    assert_equal(object_keys, json.keys)
-    assert_equal(attribute_keys, json[:attributes].keys)
-    assert_equal(relationships, json[:relationships].keys)
+    assert_equal(object_keys.sort, json.keys.sort)
+    assert_equal(attribute_keys.sort, json[:attributes].keys.sort)
+    assert_equal(relationships.sort, json[:relationships].keys.sort)
     relationships.each do |relation|
       assert_equal [:data], json[:relationships][relation].keys
       if (data = json[:relationships][relation][:data]).is_a?(Array)
         json[:relationships][relation][:data].each_with_index do |element, index|
-          assert_equal orga.send(relation)[index].to_hash, element
+          assert_equal orga.send(relation)[index].to_hash(only_reference: true), element
         end
       else
-        assert_equal orga.send(relation).to_hash, data
+        assert_equal orga.send(relation).to_hash(only_reference: true), data
       end
     end
   end

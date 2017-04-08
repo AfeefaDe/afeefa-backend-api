@@ -7,14 +7,6 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
       stub_current_user
     end
 
-    should 'get index' do
-      get :index, params: { include: 'annotations,category,sub_category' }
-      assert_response :ok
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      # root orga should not be shown
-    end
-
     should 'get filter title and description' do
       assert orga = create(:orga, title: 'Gartenschmutz', description: 'hallihallo')
       assert event = create(:event, title: 'GartenFOObar')
@@ -26,40 +18,23 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
       assert_equal 1, json['data'].size
     end
 
-    should 'get todos default filter and sort' do
-      assert orga = create(:another_orga)
-      orga.annotations.create!(title: 'ganz wichtig')
-      sleep(1)
-      assert event = create(:event)
-      event.annotations.create!(title: 'Mache ma!')
-
-      get :index, params: { include: 'annotations', filter: { todo: '' } }
-      json = JSON.parse(response.body)
-      assert_response :ok
-      assert_kind_of Array, json['data']
-      assert_equal 2, json['data'].size
-      assert_equal orga.id, json['data'].first['id']
-      assert_equal 'orgas', json['data'].first['type']
-      assert_equal event.id, json['data'].last['id']
-      assert_equal 'events', json['data'].last['type']
-    end
-
-    should 'multiple sort todos' do
-      assert orga = create(:another_orga, title: 'foo'*3)
-      orga.annotations.create!(title: 'ganz wichtig')
+    should 'multiple sort entries' do
+      assert orga = create(:orga, title: 'foo'*3)
       sleep(1)
       assert event = create(:event, title: 'foo'*3)
-      event.annotations.create!(title: 'Mache ma!')
 
       get :index, params: { filter: { todo: '' }, sort: 'title,-state_changed_at,title' }
       json = JSON.parse(response.body)
       assert_response :ok
       assert_kind_of Array, json['data']
-      assert_equal 2, json['data'].size
-      assert_equal orga.id, json['data'].first['id']
-      assert_equal 'orgas', json['data'].first['type']
-      assert_equal event.id, json['data'].last['id']
-      assert_equal 'events', json['data'].last['type']
+      assert_equal Entry.count, json['data'].size
+      Entry.all.each_with_index do |entry, index|
+        assert_equal 'entries', json['data'][index]['type']
+        assert_equal entry.id, json['data'][index]['id']
+        json_entry = json['data'][index]['relationships']['entry']['data']
+        assert_equal entry.entry_type.downcase.pluralize, json_entry['type']
+        assert_equal entry.entry_id, json_entry['id']
+      end
     end
 
   end

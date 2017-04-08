@@ -210,7 +210,7 @@ module Neos
       def create_annotations(new_entry, details)
         [details].flatten.each do |detail|
           annotation =
-            AnnotationAbleRelation.new(
+            Todo.new(
               entry: new_entry,
               annotation: Annotation.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
               detail: detail.try(:strip)
