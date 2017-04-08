@@ -1,5 +1,7 @@
 class Category < ApplicationRecord
 
+  include Jsonable
+
   # ATTRIBUTES AND ASSOCIATIONS
   acts_as_tree(dependent: :restrict_with_exception)
   alias_method :sub_categories, :children

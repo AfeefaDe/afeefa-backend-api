@@ -24,7 +24,34 @@ class Api::V1::BaseController < ApplicationController
     # pp error.backtrace
   end
 
+##############################
+
+  before_action :find_objects
+
   private
+
+  def filter_params
+    params.fetch(:filter, {}).permit(:title, :description)
+  end
+
+  def filter_whitelist
+    raise NotImplementedError, 'Define filter whitelist in your class!'
+  end
+
+  def find_objects
+    @objects = self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize.all
+
+    if (filter = filter_params) && filter.respond_to?(:keys) && filter.keys.present?
+      filter_params.each do |attribute, filter_criterion|
+        next unless attribute.in?(filter_whitelist)
+        @objects = @objects.where("#{attribute} LIKE ?", "%#{filter_criterion}%")
+      end
+    end
+
+    @objects
+  end
+
+###############################
 
   # def ensure_host
   #   allowed_hosts = Settings.api.hosts

@@ -1,5 +1,7 @@
 class ContactInfo < ApplicationRecord
 
+  include Jsonable
+
   # CONSTANTS
   # PHONE = 'phone'
   # MAIL = 'mail'

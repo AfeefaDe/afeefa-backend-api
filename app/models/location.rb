@@ -1,5 +1,7 @@
 class Location < ApplicationRecord
 
+  include Jsonable
+
   # ATTRIBUTES AND ASSOCIATIONS
   belongs_to :locatable, polymorphic: true
 

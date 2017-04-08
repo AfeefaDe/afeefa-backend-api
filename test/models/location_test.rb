@@ -2,6 +2,10 @@ require 'test_helper'
 
 class LocationTest < ActiveSupport::TestCase
 
+  should 'render json' do
+    assert_equal({ type: 'locations', id: nil }.to_json, Location.new.to_json)
+  end
+
   should 'validate attributes' do
     location = Location.new
     # TODO: validations

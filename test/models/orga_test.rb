@@ -6,6 +6,27 @@ class OrgaTest < ActiveSupport::TestCase
     assert Orga.root_orga, 'root orga does not exist or scope is wrong'
   end
 
+  should 'render json' do
+    object_keys = [:id, :type, :attributes, :relationships]
+    attribute_keys = [:title, :description, :created_at, :updated_at, :state_changed_at, :active]
+    relationships = [:annotations, :locations, :contact_infos, :category, :sub_category]
+    orga = create(:orga)
+    json = JSON.parse(orga.to_json).deep_symbolize_keys
+    assert_equal(object_keys, json.keys)
+    assert_equal(attribute_keys, json[:attributes].keys)
+    assert_equal(relationships, json[:relationships].keys)
+    relationships.each do |relation|
+      assert_equal [:data], json[:relationships][relation].keys
+      if (data = json[:relationships][relation][:data]).is_a?(Array)
+        json[:relationships][relation][:data].each_with_index do |element, index|
+          assert_equal orga.send(relation)[index].to_hash, element
+        end
+      else
+        assert_equal orga.send(relation).to_hash, data
+      end
+    end
+  end
+
   should 'validate attributes' do
     orga = Orga.new
     assert orga.locations.blank?

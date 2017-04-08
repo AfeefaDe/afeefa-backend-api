@@ -3,6 +3,7 @@ require 'errors'
 class Event < ApplicationRecord
 
   include Thing
+  include Jsonable
 
   acts_as_tree(dependent: :restrict_with_exception)
   alias_method :sub_events, :children

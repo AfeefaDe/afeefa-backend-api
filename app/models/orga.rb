@@ -6,6 +6,7 @@ class Orga < ApplicationRecord
   # INCLUDES
   include Owner
   include Able
+  include Jsonable
 
   # ATTRIBUTES AND ASSOCIATIONS
   acts_as_tree(dependent: :restrict_with_exception)
@@ -73,6 +74,31 @@ class Orga < ApplicationRecord
 
   def root_orga?
     title == ROOT_ORGA_TITLE
+  end
+
+  def to_hash
+    attributes_hash =
+      self.attributes.deep_symbolize_keys.
+        slice(:title, :description, :created_at, :updated_at, :state_changed_at).
+        merge(active: state == ACTIVE)
+    {
+      id: id,
+      type: 'orgas',
+      # links: {
+      #   self: (Rails.application.routes.url_helpers.api_v1_orga_url(self) rescue 'not available')
+      # },
+      attributes: attributes_hash,
+      relationships: {
+        annotations: {
+          # links: { related: '' },
+          data: annotations.map(&:to_hash)
+        },
+        locations: { data: locations.map(&:to_hash) },
+        contact_infos: { data: contact_infos.map(&:to_hash) },
+        category: { data: category.to_hash },
+        sub_category: { data: sub_category.to_hash },
+      }
+    }
   end
 
   private
