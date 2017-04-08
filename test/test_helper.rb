@@ -56,6 +56,9 @@ class ActionController::TestCase
 
   setup do
     request.class.any_instance.stubs(:content_type).returns(JSONAPI::MEDIA_TYPE)
+    # stub phraseapp stuff
+    Orga.any_instance.stubs(:update_or_create_translations).returns(true)
+    Event.any_instance.stubs(:update_or_create_translations).returns(true)
   end
 
   private
