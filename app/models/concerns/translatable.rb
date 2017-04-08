@@ -23,7 +23,9 @@ module Translatable
     private
 
     def update_or_create_translations
-      client.create_or_update_translation(self, 'de')
+      unless respond_to?(:root_orga?) && root_orga?
+        client.create_or_update_translation(self, 'de')
+      end
     end
 
     def destroy_translations
