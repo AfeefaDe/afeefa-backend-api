@@ -6,9 +6,11 @@ module Neos
         limit = limit || {}
         @migrate_phraseapp = migrate_phraseapp
 
+        puts "Start Migration of Afeefa.de live data (#{Time.current.to_s})"
+
         count = 0
         categories = Neos::Category.where(locale: :de).limit(limit[:categories])
-        puts "Step 1: Migrating #{categories.count} categories"
+        puts "Step 1: Migrating #{categories.count} categories (#{Time.current.to_s})"
         categories.each do |category|
           next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(title: category.name.try(:strip))
@@ -21,7 +23,7 @@ module Neos
 
         count = 0
         orgas = Neos::Orga.where(locale: :de).limit(limit[:orgas])
-        puts "Step 2: Migrating #{orgas.count} orgas"
+        puts "Step 2: Migrating #{orgas.count} orgas (#{Time.current.to_s})"
         orgas.each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
@@ -51,7 +53,7 @@ module Neos
 
         count = 0
         events = Neos::Event.where(locale: :de).limit(limit[:events])
-        puts "Step 3: Migrating #{events.count} events"
+        puts "Step 3: Migrating #{events.count} events (#{Time.current.to_s})"
         events.each do |event|
           create_entry_and_handle_validation(event) do
             type_datetime_from =
@@ -93,7 +95,7 @@ module Neos
           puts_process(type: 'events', processed: count += 1, all: events.count)
         end
 
-        puts 'Migration finished.'
+        puts "Migration finished (#{Time.current.to_s})."
         puts "Categories: IS: #{::Category.count}, SHOULD: #{categories.count} " +
           '(sub categories where former strings)'
         puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{orgas.count}"
