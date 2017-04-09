@@ -72,11 +72,11 @@ module Seeds
 end
 
 pp "Start seeding database (#{Time.current.to_s})."
-Seeds.recreate_all(cleanup_phraseapp: !Rails.env.production?)
+Seeds.recreate_all(cleanup_phraseapp: false)
 pp "Seeding database finished (#{Time.current.to_s})."
 unless Rails.env.test?
   begin
-    Neos::Migration.migrate(migrate_phraseapp: true || Rails.env.production?, limit: { orgas: 20, events: 20 })
+    Neos::Migration.migrate(migrate_phraseapp: false, limit: { orgas: nil, events: nil })
   rescue ActiveRecord::NoDatabaseError => _exception
     pp 'Migration of live db data could not be processed because the db configured in database.yml ' +
       'could not be found. Is db connection \'afeefa\' defined correctly? ' +
