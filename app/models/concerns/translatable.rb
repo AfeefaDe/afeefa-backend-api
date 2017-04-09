@@ -5,8 +5,10 @@ module Translatable
   included do
     DEFAULT_LOCALE = 'de'
 
-    after_save :update_or_create_translations, unless: :skip_phraseapp_translations?
-    after_destroy :destroy_translations
+    after_save :update_or_create_translations,
+      unless: -> { Settings.phraseapp.active || false && skip_phraseapp_translations? }
+    after_destroy :destroy_translations,
+      unless: -> { Settings.phraseapp.active || false }
 
     class << self
       def translatable_attributes

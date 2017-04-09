@@ -9,6 +9,7 @@ facebook:
 geocoding:
   api_token: <%= ENV["GEO_API_TOKEN"] %>
 phraseapp:
+  active: false
   project_id: <%= ENV["PA_PROJECT_ID"] %>
   api_token: <%= ENV["PA_PROJECT_TOKEN"] %>
   fallback_list: [en, de]

@@ -8,7 +8,7 @@
 
 module Seeds
 
-  def self.recreate_all(cleanup_phraseapp: false)
+  def self.recreate_all(cleanup_phraseapp: Settings.phraseapp.active || false)
     # clean up
     Orga.without_root.delete_all
     User.delete_all
@@ -72,11 +72,11 @@ module Seeds
 end
 
 pp "Start seeding database (#{Time.current.to_s})."
-Seeds.recreate_all(cleanup_phraseapp: false)
+Seeds.recreate_all(cleanup_phraseapp: Settings.phraseapp.active || false)
 pp "Seeding database finished (#{Time.current.to_s})."
 unless Rails.env.test?
   begin
-    Neos::Migration.migrate(migrate_phraseapp: false, limit: { orgas: nil, events: nil })
+    Neos::Migration.migrate(migrate_phraseapp: Settings.phraseapp.active || false, limit: { orgas: nil, events: nil })
   rescue ActiveRecord::NoDatabaseError => _exception
     pp 'Migration of live db data could not be processed because the db configured in database.yml ' +
       'could not be found. Is db connection \'afeefa\' defined correctly? ' +
