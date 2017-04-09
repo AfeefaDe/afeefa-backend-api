@@ -86,6 +86,10 @@ module Neos
         end
 
         puts "Migration finished."
+        puts "Categories: IS: #{Category.count}, SHOULD: #{Neos::Category.where(locale: :de).count} " +
+          "(sub categories where former strings)"
+        puts "Orgas:: IS: #{Orga.count}, SHOULD: #{Neos::Orga.where(locale: :de).count}"
+        puts "Events: IS: #{Event.count}, SHOULD: #{Neos::Event.where(locale: :de).count}"
       end
 
       private
