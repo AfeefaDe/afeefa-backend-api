@@ -15,5 +15,10 @@ module Neos
     def event?
       type == 2
     end
+
+    def self.translatable_attributes
+      %i(name description)#short_description
+    end
+
   end
 end

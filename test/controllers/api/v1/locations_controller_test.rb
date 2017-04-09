@@ -20,7 +20,6 @@ class Api::V1::LocationsControllerTest < ActionController::TestCase
               lat: '51.123456',
               lon: '17.123456',
               street: 'Diese komische Straße',
-              number: '11abc',
               placename: 'äh, dort um die ecke',
               zip: '01309',
               city: 'Dresden'

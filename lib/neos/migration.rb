@@ -5,19 +5,21 @@ module Neos
       def migrate
         puts "Step 1: Migrating #{Neos::Category.where(locale: :de).count} categories"
         count = 0
-        Neos::Category.where(locale: :de).each do |category|
+        categories = Neos::Category.where(locale: :de)
+        categories.each do |category|
           next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(title: category.name.try(:strip))
           unless new_category.save
             puts "Category is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
             new_category.save(validate: false)
           end
-          puts "#{count += 1} categories processed, new categories count: #{Category.count}"
+          puts_process(type: 'categories', processed: count += 1, all: categories.count)
         end
 
         puts "Step 2: Migrating #{Neos::Orga.where(locale: :de).count} orgas"
         count = 0
-        Neos::Orga.where(locale: :de).each do |orga|
+        orgas = Neos::Orga.where(locale: :de)
+        orgas.each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
               title: orga.name.try(:strip),
@@ -40,12 +42,13 @@ module Neos
               parent: parent_or_root_orga(orga.parent)
             )
           end
-          puts "#{count += 1} orgas processed, new orgas count: #{Orga.count}"
+          puts_process(type: 'orgas', processed: count += 1, all: orgas.count)
         end
 
         puts "Step 3: Migrating #{Neos::Event.where(locale: :de).count} events"
         count = 0
-        Neos::Event.where(locale: :de).each do |event|
+        events = Neos::Event.where(locale: :de)
+        events.each do |event|
           create_entry_and_handle_validation(event) do
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
@@ -82,17 +85,32 @@ module Neos
               creator: User.first # TODO: assume that this is the system user → Is it?
             )
           end
-          puts "#{count += 1} events processed, new events count: #{Event.count}"
+          puts_process(type: 'events', processed: count += 1, all: events.count)
         end
 
-        puts "Migration finished."
-        puts "Categories: IS: #{Category.count}, SHOULD: #{Neos::Category.where(locale: :de).count} " +
-          "(sub categories where former strings)"
-        puts "Orgas:: IS: #{Orga.count}, SHOULD: #{Neos::Orga.where(locale: :de).count}"
-        puts "Events: IS: #{Event.count}, SHOULD: #{Neos::Event.where(locale: :de).count}"
+        puts 'Migration finished.'
+        puts "Categories: IS: #{::Category.count}, SHOULD: #{Neos::Category.where(locale: :de).count} " +
+          '(sub categories where former strings)'
+        puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{Neos::Orga.where(locale: :de).count}"
+        puts "Events: IS: #{::Event.count}, SHOULD: #{Neos::Event.where(locale: :de).count}"
       end
 
       private
+
+      def migrate_phraseapp_data(entry, new_entry)
+        @client ||=
+          PhraseAppClient.new(
+            project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.token)
+        @client.locales.each do |locale|
+          @client.get_translation(entry, locale, fallback: false).each do |attribute, translation|
+            # TODO: FOllow up here!
+          end
+        end
+      end
+
+      def puts_process(type:, processed:, all:)
+        puts "processed #{processed} of #{all} #{type}: #{'%.2f' % (processed.to_f/all*100)}%"
+      end
 
       def parse_datetime_and_return_type(attribute, date_string, time_string)
         date_string = date_string
@@ -146,27 +164,33 @@ module Neos
       end
 
       def create_entry_and_handle_validation(entry)
+        # puts "migrating entry '#{entry.name}'"
         new_entry = yield
-        unless new_entry.valid?
-          unless new_entry.save
-            unless new_entry.save(validate: false)
-              puts "Entry not creatable: #{new_entry.errors.messages}"
-            end
-            create_annotations(new_entry, new_entry.errors.full_messages)
+        if new_entry.save
+          # puts "saved valid entry '#{new_entry.title}'"
+        else
+          # binding.pry if new_entry.title.blank?
+          if new_entry.save(validate: false)
+            # puts "saved invalid entry '#{new_entry.title}'"
+          else
+            puts "Entry not creatable: #{new_entry.errors.messages}"
           end
-          if new_entry.errors.key?(:category)
-            create_annotations(new_entry, "Kategorie fehlerhaft: #{new_entry.category} ist nicht erlaubt.")
-          end
-          entry.locations.each do |location|
-            create_location(new_entry, location)
-          end
-          create_contact_info(new_entry, entry)
+          create_annotations(new_entry, new_entry.errors.full_messages)
         end
+        if new_entry.errors.key?(:category)
+          create_annotations(new_entry, "Kategorie fehlerhaft: #{new_entry.category} ist nicht erlaubt.")
+        end
+        # puts "entry #{new_entry.class.to_s} with title '#{new_entry.title}' processed, " +
+        #   "new #{new_entry.class.to_s} count: #{new_entry.class.count}"
+        entry.locations.each do |location|
+          create_location(new_entry, location)
+        end
+        create_contact_info(new_entry, entry)
       rescue => exception
         puts '-------------------------------------------------------'
         puts "Entry could not be created for the following exception: #{exception.class}: #{exception.message}"
         puts 'Backtrace:'
-        puts exception.backtrace.join("\n")
+        puts exception.backtrace[0..14].join("\n")
       end
 
       def create_location(new_entry, location)
@@ -176,21 +200,14 @@ module Neos
             lat: location['lat'].try(:strip),
             lon: location['lon'].try(:strip),
             street: location['street'].try(:strip),
-            # TODO: Should we auto regex the number from
-            # number: 'Die Hausnummer steht aktuell in der Straße mit drin.',
             placename: location['placename'].try(:strip),
             zip: location['zip'].try(:strip),
             city: location['city'].try(:strip),
-            district: location['district'].try(:strip),
-            state: 'Sachsen',
-            country: 'Deutschland',
+            directions: location['arrival'].try(:strip),
             migrated_from_neos: true,
           )
         unless new_location.save
           create_annotations(new_entry, new_location.errors.full_messages)
-        end
-        if new_location.number.blank?
-          create_annotations(new_entry, 'Hausnummer fehlt')
         end
       end
 
@@ -204,6 +221,7 @@ module Neos
             mail: entry.mail.try(:strip),
             phone: entry.phone.try(:strip),
             contact_person: entry.speakerpublic.try(:strip),
+            opening_hours: entry.locations.first.try(:opening_hours).try(:strip),
             migrated_from_neos: true,
           )
         unless new_contact_info.save
@@ -213,18 +231,19 @@ module Neos
 
       def create_annotations(new_entry, details)
         [details].flatten.each do |detail|
-          annotation =
+          todo =
             Todo.new(
               entry: new_entry,
               annotation: Annotation.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
               detail: detail.try(:strip)
             )
-          unless annotation.save
-            puts "Annotation is not valid, but we will save it. Errors: #{annotation.errors.full_messages}"
-            annotation.save(validate: false)
+          unless todo.save
+            puts "Todo is not valid, but we will save it. Errors: #{todo.errors.full_messages}"
+            todo.save(validate: false)
           end
         end
       end
     end
+
   end
 end

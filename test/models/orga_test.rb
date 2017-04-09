@@ -6,9 +6,17 @@ class OrgaTest < ActiveSupport::TestCase
     assert Orga.root_orga, 'root orga does not exist or scope is wrong'
   end
 
+  should 'save invalid orga' do
+    assert_difference 'Orga.unscoped.count' do
+      assert_difference 'Orga.count' do
+        assert Orga.new.save(validate: false)
+      end
+    end
+  end
+
   should 'render json' do
     object_keys = [:id, :type, :attributes, :relationships]
-    attribute_keys = [:title, :description, :created_at, :updated_at, :state_changed_at, :active]
+    attribute_keys = [:title, :created_at, :updated_at, :state_changed_at, :active]
     relationships = [:annotations, :locations, :contact_infos, :category, :sub_category, :parent_orga, :sub_orgas]
     orga = create(:orga)
     json = JSON.parse(orga.to_json).deep_symbolize_keys
@@ -52,8 +60,8 @@ class OrgaTest < ActiveSupport::TestCase
 
   should 'create translation on orga create' do
     orga = build(:orga)
-    assert orga.translation.blank?
-    assert orga.translation(locale: 'en').blank?
+    assert orga.translation.blank?, orga.translation
+    assert orga.translation(locale: 'en').blank?, orga.translation(locale: 'en')
     assert orga.save
     expected = { title: 'an orga', description: 'this is a short description of this orga' }
     assert_equal expected, orga.translation

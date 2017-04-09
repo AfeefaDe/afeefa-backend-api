@@ -8,7 +8,7 @@
 
 module Seeds
 
-  def self.recreate_all
+  def self.recreate_all(cleanup_phraseapp: false)
     # clean up
     Orga.without_root.delete_all
     User.delete_all
@@ -22,6 +22,8 @@ module Seeds
     Todo.delete_all
 
     Category.delete_all
+
+    (@client ||= PhraseAppClient.new).send(:delete_all_keys) if cleanup_phraseapp
 
     # categories and sub categories
     Able::SUB_CATEGORIES.each do |main_category, categories|
@@ -66,7 +68,7 @@ module Seeds
 
 end
 
-Seeds.recreate_all
+Seeds.recreate_all(cleanup_phraseapp: !Rails.env.production?)
 unless Rails.env.test?
   begin
     Neos::Migration.migrate

@@ -12,7 +12,7 @@ class Location < ApplicationRecord
     return self.address if self.address.present?
 
     address = ''
-    %w(street number zip city country).each do |attribute|
+    %w(street zip city country).each do |attribute|
       if (value = send(attribute)).present?
         address << ', '
         address << value
