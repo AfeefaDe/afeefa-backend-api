@@ -12,7 +12,7 @@ module Neos
             puts "Category is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
             new_category.save(validate: false)
           end
-          puts "#{count += 1} categories processed"
+          puts "#{count += 1} categories processed, new categories count: #{Category.count}"
         end
 
         puts "Step 2: Migrating #{Neos::Orga.where(locale: :de).count} orgas"
@@ -40,7 +40,7 @@ module Neos
               parent: parent_or_root_orga(orga.parent)
             )
           end
-          puts "#{count += 1} orgas processed"
+          puts "#{count += 1} orgas processed, new orgas count: #{Orga.count}"
         end
 
         puts "Step 3: Migrating #{Neos::Event.where(locale: :de).count} events"
@@ -82,7 +82,7 @@ module Neos
               creator: User.first # TODO: assume that this is the system user → Is it?
             )
           end
-          puts "#{count += 1} events processed"
+          puts "#{count += 1} events processed, new events count: #{Event.count}"
         end
 
         puts "Migration finished."
