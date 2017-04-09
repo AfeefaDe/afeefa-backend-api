@@ -71,7 +71,9 @@ module Seeds
 
 end
 
+pp "Start seeding database (#{Time.current.to_s})."
 Seeds.recreate_all(cleanup_phraseapp: !Rails.env.production?)
+pp "Seeding database finished (#{Time.current.to_s})."
 unless Rails.env.test?
   begin
     Neos::Migration.migrate(migrate_phraseapp: true || Rails.env.production?, limit: { orgas: 99999, events: 99999 })
