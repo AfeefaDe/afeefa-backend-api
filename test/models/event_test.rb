@@ -59,13 +59,28 @@ class EventTest < ActiveSupport::TestCase
       @event = build(:event, orga: @orga, creator: @user)
     end
 
-    should 'create event' do
+    should 'create and destroy orga' do
       assert_difference 'Event.count' do
-        assert @event.save, @event.errors.full_messages
-        assert_equal @user, @event.creator
-        assert_nil @event.parent_event
-        assert_empty @event.sub_events
+        assert_difference %q|Entry.where(entry_type: 'Event').count| do
+          assert @event.save, @event.errors.full_messages
+          assert_equal @user, @event.creator
+          assert_nil @event.parent_event
+          assert_empty @event.sub_events
+        end
       end
+
+      assert_difference 'Event.count', -1 do
+        assert_difference %q|Entry.where(entry_type: 'Event').count|, -1 do
+          @event.destroy
+        end
+      end
+    end
+
+    should 'validate parent_id' do
+      @event.save!
+      @event.parent_id = @event.id
+      assert_not @event.valid?
+      assert_equal ['Can not be the parent of itself!'],  @event.errors[:parent_id]
     end
 
     should 'have contact_informations' do

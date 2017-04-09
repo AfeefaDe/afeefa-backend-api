@@ -1,5 +1,5 @@
 module Neos
-  class Orga < Entry
+  class Orga < Neos::Entry
 
     default_scope { where(type: 0) }
 

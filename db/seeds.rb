@@ -13,6 +13,7 @@ module Seeds
     Orga.without_root.delete_all
     User.delete_all
     Event.delete_all
+    Entry.delete_all
 
     Location.delete_all
     ContactInfo.delete_all

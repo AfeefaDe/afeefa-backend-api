@@ -83,6 +83,27 @@ class OrgaTest < ActiveSupport::TestCase
       assert @orga.valid?, @orga.errors.messages
     end
 
+    should 'create and destroy orga' do
+      assert_difference 'Orga.count' do
+        assert_difference %q|Entry.where(entry_type: 'Orga').count| do
+          @orga.save!
+        end
+      end
+
+      assert_difference 'Orga.count', -1 do
+        assert_difference %q|Entry.where(entry_type: 'Orga').count|, -1 do
+          @orga.destroy
+        end
+      end
+    end
+
+    should 'validate parent_id' do
+      @orga.save!
+      @orga.parent_id = @orga.id
+      assert_not @orga.valid?
+      assert_equal ['Can not be the parent of itself!'],  @orga.errors[:parent_id]
+    end
+
     should 'have contact_informations' do
       orga = build(:orga, contact_infos: [])
       assert orga.contact_infos.blank?

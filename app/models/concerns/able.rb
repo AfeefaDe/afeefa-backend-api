@@ -106,12 +106,27 @@ module Able
     validates_uniqueness_of :title
     validates :description, presence: true, length: { maximum: 350 }
 
+    validate :validate_parent_id, if: -> { parent_id.present? }
+
     # HOOKS
-    after_save :create_entry, append: true
+    after_create :create_entry
     before_destroy :deny_destroy_if_associated_objects_present, prepend: true
+    after_destroy :destroy_entry
 
     def create_entry
-      Entry.create!(entry: self)
+      if is_a?(Orga) && root_orga?
+        true
+      else
+        Entry.create!(entry: self)
+      end
+    end
+
+    def destroy_entry
+      Entry.where(entry: self).destroy_all
+    end
+
+    def validate_parent_id
+      errors.add(:parent_id, 'Can not be the parent of itself!') if parent_id == id
     end
   end
 

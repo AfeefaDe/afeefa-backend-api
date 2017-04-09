@@ -1,5 +1,5 @@
 module Neos
-  class Event < Entry
+  class Event < Neos::Entry
 
     default_scope { where(type: 2) }
 
