@@ -18,15 +18,15 @@ class Event < ApplicationRecord
       default_hash
     else
       whitelist =
-        %w(title created_at updated_at state_changed_at
+        %i(title created_at updated_at state_changed_at
           date_start date_end time_start time_end)
       if details
         whitelist +=
-          %w(description media_url media_type support_wanted for_children certified_sfr
+          %i(description media_url media_type support_wanted for_children certified_sfr
             public_speaker location_type legacy_entry_id migrated_from_neos)
       end
       attributes_hash =
-        self.attributes.slice(whitelist).merge(active: state == ACTIVE)
+        self.attributes.deep_symbolize_keys.slice(*whitelist).merge(active: state == ACTIVE)
       default_hash.merge(
         # links: {
         #   self: (Rails.application.routes.url_helpers.api_v1_orga_url(self) rescue 'not available')

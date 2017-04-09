@@ -18,10 +18,12 @@ class Todo < ApplicationRecord
 
   def to_hash(only_reference: false)
     default_hash.merge(
-      messages: entry.todos.pluck(:detail),
+      attributes: {
+        messages: entry.todos.pluck(:detail)
+      },
       relationships: {
         entry: {
-          data: entry.try(:to_hash, only_reference: true)
+          data: entry.try(:to_hash)
         }
       }
     )
