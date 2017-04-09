@@ -23,7 +23,10 @@ module Seeds
 
     Category.delete_all
 
-    (@client ||= PhraseAppClient.new).send(:delete_all_keys) if cleanup_phraseapp
+    if cleanup_phraseapp
+      delete_count = (@client ||= PhraseAppClient.new).send(:delete_all_keys)
+      pp "Cleaned up phraseapp. Deleted #{delete_count} keys."
+    end
 
     # categories and sub categories
     Able::SUB_CATEGORIES.each do |main_category, categories|
@@ -71,11 +74,15 @@ end
 Seeds.recreate_all(cleanup_phraseapp: !Rails.env.production?)
 unless Rails.env.test?
   begin
-    Neos::Migration.migrate
+    Neos::Migration.migrate(migrate_phraseapp: true || Rails.env.production?, limit: { orgas: 99999, events: 99999 })
   rescue ActiveRecord::NoDatabaseError => _exception
-    pp %q(Migration of live db data could not be processed because the db configured in database.yml could not be found. Is db connection 'afeefa' defined correctly? And did you import the db dump from repository?)
+    pp 'Migration of live db data could not be processed because the db configured in database.yml ' +
+      'could not be found. Is db connection \'afeefa\' defined correctly? ' +
+      'And did you import the db dump from repository?'
   rescue ActiveRecord::AdapterNotSpecified => _exception
-    pp %q(Migration of live db data could not be processed because no db is configured in database.yml. Is db connection 'afeefa' defined correctly? And did you import the db dump from repository?)
+    pp 'Migration of live db data could not be processed because no db is configured in database.yml. ' +
+      'Is db connection \'afeefa\' defined correctly? ' +
+      'And did you import the db dump from repository?'
   end
 end
 # TODO: Discuss user logins for production!

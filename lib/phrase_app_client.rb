@@ -32,6 +32,7 @@ class PhraseAppClient
   end
 
   def create_or_update_translation(model, locale)
+    responses = []
     model.class.translatable_attributes.each do |attribute|
       begin
         content = model.send(attribute)
@@ -39,10 +40,12 @@ class PhraseAppClient
         key_id =
           find_key_id_by_key_name(key) ||
             create_key(key)
+        next if content.blank?
+
         if translation_id = find_translation_id_by_key_id_and_locale(key_id, locale)
-          update_translation_for_translation_id(translation_id, content)
+          responses << update_translation_for_translation_id(translation_id, content)
         else
-          create_translation_for_key(key_id, locale, content)
+          responses << create_translation_for_key(key_id, locale, content)
         end
       rescue => exception
         message = "Could not create or update translation for \n"
@@ -52,8 +55,10 @@ class PhraseAppClient
         message << "the following error: #{exception.message}\n"
         message << "#{exception.backtrace[0..14].join("\n")}"
         logger.error message
+        raise message if Rails.env.development?
       end
     end
+    responses
   end
 
   def delete_translation(model)
@@ -84,7 +89,7 @@ class PhraseAppClient
         unless @fallback_list.include?(locale)
           @fallback_list.unshift(locale)
         end
-        available_translations.each do |translation|
+        (available_translations || []).each do |translation|
           local_codes_to_use = [locale]
           local_codes_to_use += @fallback_list if fallback
 
@@ -150,7 +155,7 @@ class PhraseAppClient
 
   def delete_all_keys
     params = PhraseApp::RequestParams::KeysDeleteParams.new(q: '*')
-    @client.keys_delete(@project_id, params)
+    @client.keys_delete(@project_id, params).first.records_affected
   end
 
 end

@@ -5,19 +5,33 @@ module Translatable
   included do
     DEFAULT_LOCALE = 'de'
 
-    after_save :update_or_create_translations
+    after_save :update_or_create_translations, unless: :skip_phraseapp_translations?
     after_destroy :destroy_translations
+
+    class << self
+      def translatable_attributes
+        raise NotImplementedError "translatable_attributes must be defined for class #{self.class}"
+      end
+    end
 
     def translation(locale: DEFAULT_LOCALE)
       client.get_translation(self, locale)
     end
 
-    def self.translatable_attributes
-      raise NotImplementedError "translatable attributes must be defined for class #{self.class}"
-    end
-
     def client
       @@client ||= PhraseAppClient.new
+    end
+
+    def skip_phraseapp_translations!
+      @skip_phraseapp_translations = true
+    end
+
+    def do_not_skip_phraseapp_translations!
+      @skip_phraseapp_translations = false
+    end
+
+    def skip_phraseapp_translations?
+      @skip_phraseapp_translations || false
     end
 
     private

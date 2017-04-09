@@ -15,7 +15,6 @@ class ContactInfo < ApplicationRecord
   belongs_to :contactable, polymorphic: true
 
   # VALIDATIONS
-  validates :contact_person, presence: true
   validate :ensure_mail_or_phone
 
   private

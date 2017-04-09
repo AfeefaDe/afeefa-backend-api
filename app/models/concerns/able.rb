@@ -7,12 +7,14 @@ module Able
     include StateMachine
     include Translatable
 
-    def self.translatable_attributes
-      %i(title description)
+    class << self
+      def translatable_attributes
+        %i(title description short_description)
+      end
     end
     # TRANSLATABLE END
 
-    auto_strip_attributes :title, :description
+    auto_strip_attributes :title, :description, :short_description
 
     # CONSTANTS
     SUB_CATEGORIES =
@@ -103,8 +105,10 @@ module Able
     validates :category, presence: true, on: :update
 
     validates :title, presence: true, length: { maximum: 150 }
-    validates_uniqueness_of :title
-    validates :description, presence: true, length: { maximum: 350 }
+    # FIXME: Disabled for testing Todos
+    # validates :description, presence: true
+    # validates :short_description, presence: true
+    validates :short_description, length: { maximum: 350 }
 
     validate :validate_parent_id, if: -> { parent_id.present? }
 

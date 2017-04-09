@@ -2,10 +2,13 @@ module Neos
   module Migration
 
     class << self
-      def migrate
-        puts "Step 1: Migrating #{Neos::Category.where(locale: :de).count} categories"
+      def migrate(migrate_phraseapp: false, limit: {})
+        limit = limit || {}
+        @migrate_phraseapp = migrate_phraseapp
+
         count = 0
-        categories = Neos::Category.where(locale: :de)
+        categories = Neos::Category.where(locale: :de).limit(limit[:categories])
+        puts "Step 1: Migrating #{categories.count} categories"
         categories.each do |category|
           next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(title: category.name.try(:strip))
@@ -16,14 +19,15 @@ module Neos
           puts_process(type: 'categories', processed: count += 1, all: categories.count)
         end
 
-        puts "Step 2: Migrating #{Neos::Orga.where(locale: :de).count} orgas"
         count = 0
-        orgas = Neos::Orga.where(locale: :de)
+        orgas = Neos::Orga.where(locale: :de).limit(limit[:orgas])
+        puts "Step 2: Migrating #{orgas.count} orgas"
         orgas.each do |orga|
           create_entry_and_handle_validation(orga) do
             ::Orga.new(
               title: orga.name.try(:strip),
               description: orga.description.try(:strip) || '',
+              short_description: orga.try(:descriptionshort).try(:strip) || '',
               media_url: orga.image.try(:strip),
               media_type: orga.imagetype.try(:strip), # image | youtube
               support_wanted: orga.supportwanted,
@@ -45,9 +49,9 @@ module Neos
           puts_process(type: 'orgas', processed: count += 1, all: orgas.count)
         end
 
-        puts "Step 3: Migrating #{Neos::Event.where(locale: :de).count} events"
         count = 0
-        events = Neos::Event.where(locale: :de)
+        events = Neos::Event.where(locale: :de).limit(limit[:events])
+        puts "Step 3: Migrating #{events.count} events"
         events.each do |event|
           create_entry_and_handle_validation(event) do
             type_datetime_from =
@@ -62,6 +66,7 @@ module Neos
             ::Event.new(
               title: event.name.try(:strip),
               description: event.description.try(:strip) || '',
+              short_description: event.try(:descriptionshort).try(:strip) || '',
               media_url: event.image.try(:strip),
               media_type: event.imagetype.try(:strip), # image | youtube
               support_wanted: event.supportwanted,
@@ -89,23 +94,36 @@ module Neos
         end
 
         puts 'Migration finished.'
-        puts "Categories: IS: #{::Category.count}, SHOULD: #{Neos::Category.where(locale: :de).count} " +
+        puts "Categories: IS: #{::Category.count}, SHOULD: #{categories.count} " +
           '(sub categories where former strings)'
-        puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{Neos::Orga.where(locale: :de).count}"
-        puts "Events: IS: #{::Event.count}, SHOULD: #{Neos::Event.where(locale: :de).count}"
+        puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{orgas.count}"
+        puts "Events: IS: #{::Event.count}, SHOULD: #{events.count}"
       end
 
       private
 
       def migrate_phraseapp_data(entry, new_entry)
-        @client ||=
+        @client_old ||=
           PhraseAppClient.new(
             project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.token)
-        @client.locales.each do |locale|
-          @client.get_translation(entry, locale, fallback: false).each do |attribute, translation|
-            # TODO: FOllow up here!
+        @client_new ||= PhraseAppClient.new
+        responses = []
+
+        @client_old.locales.each do |locale|
+          next if locale == Translatable::DEFAULT_LOCALE
+
+          translated_attributes =
+            @client_old.get_translation(entry, locale, fallback: false)
+          if translated_attributes[:name].present?
+            translated_attributes[:title] = translated_attributes.delete(:name)
+          end
+
+          if translated_attributes.present? && translated_attributes.keys.any?
+            new_entry.attributes = translated_attributes
+            responses << @client_new.create_or_update_translation(new_entry, locale)
           end
         end
+        responses
       end
 
       def puts_process(type:, processed:, all:)
@@ -166,6 +184,9 @@ module Neos
       def create_entry_and_handle_validation(entry)
         # puts "migrating entry '#{entry.name}'"
         new_entry = yield
+
+        new_entry.skip_phraseapp_translations! unless @migrate_phraseapp
+
         if new_entry.save
           # puts "saved valid entry '#{new_entry.title}'"
         else
@@ -186,6 +207,10 @@ module Neos
           create_location(new_entry, location)
         end
         create_contact_info(new_entry, entry)
+
+        if new_entry.persisted? && @migrate_phraseapp
+          migrate_phraseapp_data(entry, new_entry)
+        end
       rescue => exception
         puts '-------------------------------------------------------'
         puts "Entry could not be created for the following exception: #{exception.class}: #{exception.message}"

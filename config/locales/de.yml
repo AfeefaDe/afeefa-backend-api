@@ -11,6 +11,9 @@ de:
       contact_infos: Kontaktinformationen
       title: Titel
       description: Beschreibung
+      short_description: Kurzbeschreibung
+      opening_hours: Öffnungszeiten
+      directions: Anfahrtsbeschreibung
       date: Datum
       date_start: Start-Datum
       date_end: End-Datum
