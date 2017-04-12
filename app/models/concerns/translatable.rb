@@ -12,7 +12,7 @@ module Translatable
 
     class << self
       def translatable_attributes
-        raise NotImplementedError "translatable_attributes must be defined for class #{self.class}"
+        raise NotImplementedError, "translatable_attributes must be defined for class #{self.class}"
       end
     end
 

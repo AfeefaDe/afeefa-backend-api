@@ -26,7 +26,7 @@ class Api::V1::BaseController < ApplicationController
 
 ##############################
 
-  before_action :find_objects, only: :index
+  before_action :find_objects, only: %i(index show)
 
   private
 

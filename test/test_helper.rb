@@ -47,7 +47,28 @@ class ActiveSupport::TestCase
   end
 
   teardown do
-    (@client ||= PhraseAppClient.new).send(:delete_all_keys)
+    if (Settings.phraseapp.active rescue false)
+      (@client ||= PhraseAppClient.new).send(:delete_all_keys)
+    end
+  end
+
+  def assert_jsonable_hash(object, details: false, with_relationships: false)
+    object_keys = %i(id type attributes)
+    if with_relationships
+      object_keys += [:relationships]
+    end
+    attribute_keys = object.class.whitelist_for_json(details: details) + [:active]
+    object_hash = object.as_json(details: details, with_relationships: with_relationships)
+    assert_equal(object_keys.sort, object_hash.keys.sort)
+    assert_equal(attribute_keys.sort, object_hash[:attributes].keys.sort)
+    if with_relationships
+      relationships = object.send(:relationships_for_json)
+      assert_equal(relationships.keys.sort, object_hash[:relationships].keys.sort)
+      relationships.each do |relation, values|
+        data = object_hash[:relationships][relation]
+        assert_equal values, data
+      end
+    end
   end
 
 end

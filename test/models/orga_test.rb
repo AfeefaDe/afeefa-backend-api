@@ -15,24 +15,11 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'render json' do
-    object_keys = [:id, :type, :attributes, :relationships]
-    attribute_keys = [:title, :created_at, :updated_at, :state_changed_at, :active]
-    relationships = [:annotations, :locations, :contact_infos, :category, :sub_category, :parent_orga, :sub_orgas]
     orga = create(:orga)
-    json = JSON.parse(orga.to_json).deep_symbolize_keys
-    assert_equal(object_keys.sort, json.keys.sort)
-    assert_equal(attribute_keys.sort, json[:attributes].keys.sort)
-    assert_equal(relationships.sort, json[:relationships].keys.sort)
-    relationships.each do |relation|
-      assert_equal [:data], json[:relationships][relation].keys
-      if (data = json[:relationships][relation][:data]).is_a?(Array)
-        json[:relationships][relation][:data].each_with_index do |element, index|
-          assert_equal orga.send(relation)[index].to_hash(only_reference: true), element
-        end
-      else
-        assert_equal orga.send(relation).to_hash(only_reference: true), data
-      end
-    end
+    assert_jsonable_hash(orga)
+    assert_jsonable_hash(orga, details: true)
+    assert_jsonable_hash(orga, details: true, with_relationships: true)
+    assert_jsonable_hash(orga, with_relationships: true)
   end
 
   should 'validate attributes' do
@@ -60,7 +47,7 @@ class OrgaTest < ActiveSupport::TestCase
 
   should 'create translation on orga create' do
     orga = build(:orga)
-    assert orga.translation.blank?, orga.translation
+    assert_not orga.translation.blank?
     assert orga.translation(locale: 'en').blank?, orga.translation(locale: 'en')
     assert orga.save
     expected = { title: 'an orga', description: 'this is a short description of this orga' }

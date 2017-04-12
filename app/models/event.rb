@@ -3,7 +3,7 @@ require 'errors'
 class Event < ApplicationRecord
 
   include Thing
-  include Jsonable
+  include JsonableEntry
 
   acts_as_tree(dependent: :restrict_with_exception)
   alias_method :sub_events, :children
@@ -13,10 +13,8 @@ class Event < ApplicationRecord
 
   validates :date_start, presence: true
 
-  def to_hash(only_reference: false, details: false)
-    if only_reference
-      default_hash
-    else
+  class << self
+    def whitelist_for_json(details: false)
       whitelist =
         %i(title created_at updated_at state_changed_at
           date_start date_end time_start time_end)
@@ -25,25 +23,7 @@ class Event < ApplicationRecord
           %i(description media_url media_type support_wanted for_children certified_sfr
             public_speaker location_type legacy_entry_id migrated_from_neos)
       end
-      attributes_hash =
-        self.attributes.deep_symbolize_keys.slice(*whitelist).merge(active: state == ACTIVE)
-      default_hash.merge(
-        # links: {
-        #   self: (Rails.application.routes.url_helpers.api_v1_orga_url(self) rescue 'not available')
-        # },
-        attributes: attributes_hash,
-        relationships: {
-          annotations: {
-            # links: { related: '' },
-            data: annotations.map(&:to_hash)
-          },
-          locations: { data: locations.map(&:to_hash) },
-          contact_infos: { data: contact_infos.map(&:to_hash) },
-          category: { data: category.try(:to_hash) },
-          sub_category: { data: sub_category.try(:to_hash) },
-          orga: { data: orga.try(:to_hash, only_reference: true) },
-        }
-      )
+      whitelist
     end
   end
 
@@ -59,6 +39,17 @@ class Event < ApplicationRecord
     errors.full_messages.each do |message|
       raise CustomDeleteRestrictionError, message
     end
+  end
+
+  def relationships_for_json
+    {
+      annotations: { data: annotations.map(&:to_hash) },
+      locations: { data: locations.map(&:to_hash) },
+      contact_infos: { data: contact_infos.map(&:to_hash) },
+      category: { data: category.try(:to_hash) },
+      sub_category: { data: sub_category.try(:to_hash) },
+      orga: { data: orga.try(:to_hash, only_reference: true) }
+    }
   end
 
 end

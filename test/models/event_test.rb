@@ -2,6 +2,14 @@ require 'test_helper'
 
 class EventTest < ActiveSupport::TestCase
 
+  should 'render json' do
+    event = create(:event)
+    assert_jsonable_hash(event)
+    assert_jsonable_hash(event, details: true)
+    assert_jsonable_hash(event, details: true, with_relationships: true)
+    assert_jsonable_hash(event, with_relationships: true)
+  end
+
   should 'validate attributes' do
     event = Event.new
     assert event.locations.blank?

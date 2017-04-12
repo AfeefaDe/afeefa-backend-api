@@ -11,12 +11,15 @@ module Jsonable
       }
     end
 
-    def to_hash(only_reference: false)
+    def to_hash(only_reference: false, details: false, with_relationships: false)
       default_hash
     end
 
-    def as_json(options = nil)
-      to_hash
+    def as_json(options = {})
+      to_hash(
+        only_reference: options[:only_reference] || false,
+        details: options[:details] || false,
+        with_relationships: options[:with_relationships]|| false)
     end
   end
 
