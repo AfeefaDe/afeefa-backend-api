@@ -7,7 +7,7 @@ module Jsonable
       @type ||= self.class.to_s.split('::').last.underscore.pluralize
       {
         type: @type,
-        id: id.to_s
+        id: id.try(:to_s)
       }
     end
 

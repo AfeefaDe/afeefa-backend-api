@@ -8,7 +8,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
 
   should 'have locales' do
     locales = @client.instance_variable_get('@locales')
-    assert_equal 2, locales.size
+    assert_equal 15, locales.size
     assert @client.instance_variable_get('@locales').key?('de')
     assert @client.instance_variable_get('@locales').key?('en')
   end

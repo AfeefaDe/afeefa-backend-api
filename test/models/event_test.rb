@@ -36,7 +36,7 @@ class EventTest < ActiveSupport::TestCase
 
   should 'create translation on event create' do
     event = build(:event)
-    assert event.translation.blank?
+    assert_not event.translation.blank?
     assert event.translation(locale: 'en').blank?
     assert event.save
     expected = { title: 'an event', description: 'description of an event' }
