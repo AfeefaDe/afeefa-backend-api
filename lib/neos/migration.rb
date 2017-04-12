@@ -107,7 +107,7 @@ module Neos
       def migrate_phraseapp_data(entry, new_entry)
         @client_old ||=
           PhraseAppClient.new(
-            project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.token)
+            project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
         @client_new ||= PhraseAppClient.new
         responses = []
 
@@ -121,7 +121,7 @@ module Neos
           end
 
           if translated_attributes.present? && translated_attributes.keys.any?
-            new_entry.attributes = translated_attributes
+            new_entry.attributes = translated_attributes.slice(*new_entry.class.translatable_attributes)
             responses << @client_new.create_or_update_translation(new_entry, locale)
           end
         end
@@ -184,9 +184,8 @@ module Neos
       end
 
       def create_entry_and_handle_validation(entry)
-        # puts "migrating entry '#{entry.name}'"
+        puts "migrating entry '#{entry.name}'"
         new_entry = yield
-
         new_entry.skip_phraseapp_translations! unless @migrate_phraseapp
 
         if new_entry.save
