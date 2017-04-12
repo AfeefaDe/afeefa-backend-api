@@ -1,7 +1,13 @@
 class Api::V1::EntriesBaseController < Api::V1::BaseController
 
   def index
-    render json: { data: @objects.try(:map, &:to_hash) || [] }
+    json_hash =
+      @objects.try do |objects|
+        objects.map do |object|
+          object.try(:to_hash, with_relationships: true)
+        end
+      end || []
+    render json: { data: json_hash }
   end
 
   def show
