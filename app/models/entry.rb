@@ -16,7 +16,7 @@ class Entry < ApplicationRecord
     default_hash.merge(
       relationships: {
         entry: {
-          data: entry.try(:to_hash, only_reference: true)
+          data: entry.try(:to_hash, only_reference: false, with_short_relationships: true)
         }
       }
     )
