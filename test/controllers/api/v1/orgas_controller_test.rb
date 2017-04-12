@@ -247,7 +247,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                         }
                       assert_response :locked, response.body
                       json = JSON.parse(response.body)
-                      assert_equal 'Ereignisse müssen gelöscht werden', json['errors'].first['detail']
+                      assert_equal 'Events müssen gelöscht werden', json['errors'].first['detail']
                     end
                   end
                 end

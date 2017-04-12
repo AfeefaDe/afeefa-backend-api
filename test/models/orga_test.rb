@@ -183,7 +183,7 @@ class OrgaTest < ActiveSupport::TestCase
                 assert_raise CustomDeleteRestrictionError do
                   @orga.destroy!
                 end
-              assert_equal 'Ereignisse müssen gelöscht werden', exception.message
+              assert_equal 'Events müssen gelöscht werden', exception.message
             end
           end
         end
