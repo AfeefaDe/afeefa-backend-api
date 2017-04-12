@@ -101,7 +101,7 @@ module Able
     scope :unannotated, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
 
     # VALIDATIONS
-    validates :contact_infos, presence: true, on: :update
+    # validates :contact_infos, presence: true, on: :update
     validates :category, presence: true, on: :update
 
     validates :title, presence: true, length: { maximum: 150 }
