@@ -12,7 +12,7 @@ class Entry < ApplicationRecord
         joins("LEFT JOIN events ON events.id = entries.entry_id AND entry_type = 'Event'")
     }
 
-  def to_hash(only_reference: false)
+  def to_hash(only_reference: false, details: false, with_relationships: false)
     default_hash.merge(
       relationships: {
         entry: {
