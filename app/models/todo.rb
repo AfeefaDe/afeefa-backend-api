@@ -23,7 +23,7 @@ class Todo < ApplicationRecord
       },
       relationships: {
         entry: {
-          data: entry.try(:to_hash)
+          data: entry.try(:to_hash, with_short_relationships: true)
         }
       }
     )
