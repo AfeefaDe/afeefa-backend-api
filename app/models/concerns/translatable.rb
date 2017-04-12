@@ -8,7 +8,7 @@ module Translatable
     after_save :update_or_create_translations,
       if: -> { (Settings.phraseapp.active rescue false) && !skip_phraseapp_translations? }
     after_destroy :destroy_translations,
-      if: -> { (Settings.phraseapp.active rescue false) }
+      if: -> { (Settings.phraseapp.active rescue false) && !skip_phraseapp_translations? }
   end
 
   module ClassMethods
