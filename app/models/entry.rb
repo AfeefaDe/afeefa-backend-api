@@ -2,7 +2,7 @@ class Entry < ApplicationRecord
 
   self.table_name = 'entries'
 
-  include Jsonable
+  include JsonableEntry
 
   belongs_to :entry, polymorphic: true
 
@@ -12,14 +12,17 @@ class Entry < ApplicationRecord
         joins("LEFT JOIN events ON events.id = entries.entry_id AND entry_type = 'Event'")
     }
 
-  def to_hash(only_reference: false, details: false, with_relationships: false)
-    default_hash.merge(
-      relationships: {
-        entry: {
-          data: entry.try(:to_hash, only_reference: false, with_short_relationships: true)
-        }
-      }
-    )
+  private
+
+  def relationships_for_json
+    {
+      category: { data: category.try(:to_hash) },
+      sub_category: { data: sub_category.try(:to_hash) }
+    }
+  end
+
+  def short_relationships_for_json
+    relationships_for_json
   end
 
 end

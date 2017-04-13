@@ -13,4 +13,15 @@ class Category < ApplicationRecord
   scope :main_categories, -> { where(parent_id: nil) }
   scope :sub_categories, -> { where.not(parent_id: nil) }
 
+  private
+
+  def relationships_for_json
+    {
+      parent_category: { data: parent_category.try(:to_hash, only_reference: true) },
+    }
+  end
+
+  def short_relationships_for_json
+    relationships_for_json
+  end
 end

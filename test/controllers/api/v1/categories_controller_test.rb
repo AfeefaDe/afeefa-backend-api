@@ -17,7 +17,7 @@ class Api::V1::CategoriesControllerTest < ActionController::TestCase
         assert id = category_json['id']
         assert category = Category.find(id)
         if (parent_id = category.parent_id).blank?
-          assert category_json['relationships']['parent_category'].blank?
+          assert category_json['relationships']['parent_category']['data'].blank?
         else
           assert_equal parent_id.to_s, category_json['relationships']['parent_category']['data']['id']
         end

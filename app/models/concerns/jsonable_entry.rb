@@ -5,47 +5,26 @@ module JsonableEntry
   included do
     include Jsonable
 
-    def to_hash(only_reference: false, details: false, with_relationships: false, with_short_relationships: false)
-      if only_reference
-        default_hash
-      else
-        hash = default_hash.merge(attributes: self.json_attributes(details: details))
-        if with_short_relationships
-          hash.merge(relationships: short_relationships_for_json)
-        elsif with_relationships
-          hash.merge(relationships: relationships_for_json)
-        else
-          hash
-        end
-      end
+    def to_hash_additionals
+      { active: state == StateMachine::ACTIVE.to_s }
     end
 
-    def json_attributes(details: false)
-      hash = self.attributes.deep_symbolize_keys.
-        slice(*self.class.whitelist_for_json(details: details)).
-        merge(active: state == StateMachine::ACTIVE)
-      hash.deep_merge(hash) { |_, _, v| v.to_s }
+    private
+
+    def short_relationships_for_json
+      {
+        annotations: { data: annotations.map { |orga| orga.to_hash(only_reference: true) } },
+        category: { data: category.try(:to_hash, only_reference: true) },
+        sub_category: { data: sub_category.try(:to_hash, only_reference: true) },
+      }
     end
-  end
 
-  module ClassMethods
-    def whitelist_for_json(details: false)
-      raise NotImplementedError, "whitelist_for_json must be defined for class #{self.class}"
+    def relationships_for_json
+      short_relationships_for_json.merge(
+        locations: { data: locations.map { |orga| orga.to_hash(only_reference: true) } },
+        contact_infos: { data: contact_infos.map { |orga| orga.to_hash(only_reference: true) } }
+      )
     end
-  end
-
-  private
-
-  def relationships_for_json
-    raise NotImplementedError, "relationships_for_json must be defined for class #{self.class}"
-  end
-
-  def short_relationships_for_json
-    {
-      annotations: { data: annotations.map(&:to_hash) },
-      category: { data: category.try(:to_hash) },
-      sub_category: { data: sub_category.try(:to_hash) }
-    }
   end
 
 end

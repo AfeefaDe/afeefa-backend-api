@@ -91,15 +91,12 @@ class Orga < ApplicationRecord
   private
 
   def relationships_for_json
-    {
-      annotations: { data: annotations.map(&:to_hash) },
-      locations: { data: locations.map(&:to_hash) },
-      contact_infos: { data: contact_infos.map(&:to_hash) },
-      category: { data: category.try(:to_hash) },
-      sub_category: { data: sub_category.try(:to_hash) },
+    short_relationships_for_json.merge(
+      locations: { data: locations.map { |orga| orga.to_hash(only_reference: true) } },
+      contact_infos: { data: contact_infos.map { |orga| orga.to_hash(only_reference: true) } },
       parent_orga: { data: parent_orga.try(:to_hash, only_reference: true) },
       sub_orgas: { data: sub_orgas.map { |orga| orga.to_hash(only_reference: true) } }
-    }
+    )
   end
 
   def set_parent_orga_as_default
