@@ -17,7 +17,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Event.count, json['data'].size
-      assert_equal Event.last.to_hash.deep_stringify_keys, json['data'].last
+      assert_equal Event.last.to_hash(with_relationships: true).deep_stringify_keys, json['data'].last
     end
 
     should 'get title filtered list for events' do
@@ -34,6 +34,78 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal 1, json['data'].size
+    end
+
+    should 'get events filtered for start and end' do
+      user = create(:user)
+      orga = create(:orga)
+
+      # running
+      event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
+        creator: user, orga: orga, date_start: 20.minutes.ago)
+      # past
+      event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
+        creator: user, orga: orga, date_start: 20.day.ago, date_end: 10.minutes.ago)
+      # upcoming
+      event2 = create(:event, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten',
+        creator: user, orga: orga, date_start: 10.minutes.from_now)
+
+      get :index, params: { filter: { date: 'past' } }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+      assert_equal event1.id.to_s, json['data'].first['id']
+
+      get :index, params: { filter: { date: 'upcoming' } }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+      assert_equal event2.id.to_s, json['data'].first['id']
+
+      get :index, params: { filter: { date: 'running' } }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 2, json['data'].size
+      assert_equal event0.id.to_s, json['data'].first['id']
+    end
+
+    should 'get events filtered for start and end of given orga' do
+      user = create(:user)
+      orga = create(:orga)
+
+      # running
+      event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
+        creator: user, orga: orga, date_start: 20.minutes.ago)
+      # past
+      event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
+        creator: user, orga: orga, date_start: 20.day.ago, date_end: 10.minutes.ago)
+      # upcoming
+      event2 = create(:event, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten',
+        creator: user, orga: orga, date_start: 10.minutes.from_now)
+
+      get :get_related_resources, params: { related_type: 'orga', id: orga.id, filter: { date: 'past' } }
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+      assert_equal event1.id.to_s, json['data'].first['id']
+
+      get :get_related_resources, params: { related_type: 'orga', id: orga.id, filter: { date: 'upcoming' } }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+      assert_equal event2.id.to_s, json['data'].first['id']
+
+      get :get_related_resources, params: { related_type: 'orga', id: orga.id, filter: { date: 'running' } }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 2, json['data'].size
+      assert_equal event0.id.to_s, json['data'].first['id']
     end
 
     should 'ensure creator for event on create' do
@@ -93,8 +165,10 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_response :ok, response.body
         json = JSON.parse(response.body)
         assert_kind_of Hash, json['data']
-        assert json['data']['attributes']['has_time_start']
-        assert json['data']['attributes']['has_time_end']
+        # assert json['data']['attributes']['has_time_start']
+        # assert json['data']['attributes']['has_time_end']
+        assert json['data']['attributes']['time_start']
+        assert json['data']['attributes']['time_end']
       end
     end
 

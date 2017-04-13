@@ -46,6 +46,8 @@ Rails.application.routes.draw do
         jsonapi_resources :contact_infos
         jsonapi_resources :locations
         jsonapi_resources :categories
+
+        get ':related_type/:id/events', to: 'events#get_related_resources'
       end
     end
   end

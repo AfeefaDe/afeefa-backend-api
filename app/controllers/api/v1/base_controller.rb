@@ -27,8 +27,32 @@ class Api::V1::BaseController < ApplicationController
 ##############################
 
   before_action :find_objects, only: %i(index show)
+  before_action :find_objects_for_related_to, only: %i(get_related_resources)
+  before_action :filter_objects, only: %i(index show get_related_resources)
+
+  def index
+    render_objects_to_json
+  end
+
+  def show
+    render json: { data: @objects.find(params[:id]).try(:to_hash, details: true, with_relationships: true) }
+  end
+
+  def get_related_resources
+    render_objects_to_json
+  end
 
   private
+
+  def render_objects_to_json
+    json_hash =
+      @objects.try do |objects|
+        objects.map do |object|
+          object.try(:to_hash, with_relationships: true)
+        end
+      end || []
+    render json: { data: json_hash }
+  end
 
   def filter_params
     params.fetch(:filter, {}).permit(filter_whitelist + custom_filter_whitelist)
@@ -43,7 +67,7 @@ class Api::V1::BaseController < ApplicationController
     []
   end
 
-  def apply_custom_filter!(attribute, objects)
+  def apply_custom_filter!(_filter, _filter_criterion, objects)
     objects
   end
 
@@ -51,24 +75,37 @@ class Api::V1::BaseController < ApplicationController
     nil
   end
 
+  def default_filter
+    {}
+  end
+
+  def find_objects_for_related_to
+    related_to = params[:related_type].singularize.camelcase.constantize.find(params[:id])
+    relation = self.class.name.to_s.split('::').last.gsub('Controller', '').underscore
+    @objects = related_to.send(relation)
+  end
+
   def find_objects
     @objects =
       base_for_find_objects ||
         self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize.all
+  end
 
-    if (filter = filter_params) && filter.respond_to?(:keys) && filter.keys.present?
-      filter_params.each do |attribute, filter_criterion|
-        if attribute.to_s.in?(filter_whitelist)
-          @objects = @objects.where("#{attribute} LIKE ?", "%#{filter_criterion}%")
-        elsif attribute.to_s.in?(custom_filter_whitelist)
-          @objects = apply_custom_filter!(attribute, @objects)
-        end
+  def filter_objects
+    filter_params.to_h.reverse_merge(default_filter).each do |filter, filter_criterion|
+      if filter.to_s.in?(filter_whitelist)
+        @objects = @objects.where("#{filter} LIKE ?", "%#{filter_criterion}%")
+      elsif filter.to_s.in?(custom_filter_whitelist)
+        @objects = apply_custom_filter!(filter, filter_criterion, @objects)
       end
     end
 
-    @objects =
-      @objects.includes(:annotations).includes(:locations).includes(:contact_infos).includes(:category).
-        includes(:sub_category).includes(:parent).includes(:children)
+    do_includes!(@objects)
+  end
+
+  def do_includes!(objects)
+    objects.includes(:annotations).includes(:locations).includes(:contact_infos).includes(:category).
+      includes(:sub_category).includes(:parent).includes(:children)
   end
 
 ###############################
@@ -149,4 +186,5 @@ class Api::V1::BaseController < ApplicationController
       include_linkage_whitelist: %i(create update show index),
       action: params[:action].to_sym)
   end
+
 end

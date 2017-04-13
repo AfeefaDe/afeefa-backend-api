@@ -19,9 +19,10 @@ module JsonableEntry
     end
 
     def json_attributes(details: false)
-      self.attributes.deep_symbolize_keys.
+      hash = self.attributes.deep_symbolize_keys.
         slice(*self.class.whitelist_for_json(details: details)).
         merge(active: state == StateMachine::ACTIVE)
+      hash.deep_merge(hash) { |_, _, v| v.to_s }
     end
   end
 
