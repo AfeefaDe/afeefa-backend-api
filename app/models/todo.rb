@@ -16,14 +16,14 @@ class Todo < ApplicationRecord
         joins("LEFT JOIN events ON events.id = annotation_able_relations.entry_id AND entry_type = 'Event'")
     }
 
-  def to_hash(only_reference: false)
+  def to_hash(only_reference: false, with_relationships: false)
     default_hash.merge(
       attributes: {
         messages: entry.todos.pluck(:detail)
       },
       relationships: {
         entry: {
-          data: entry.try(:to_hash)
+          data: entry.try(:to_hash, with_short_relationships: true)
         }
       }
     )

@@ -5,12 +5,14 @@ module JsonableEntry
   included do
     include Jsonable
 
-    def to_hash(only_reference: false, details: false, with_relationships: false)
+    def to_hash(only_reference: false, details: false, with_relationships: false, with_short_relationships: false)
       if only_reference
         default_hash
       else
         hash = default_hash.merge(attributes: self.json_attributes(details: details))
-        if with_relationships
+        if with_short_relationships
+          hash.merge(relationships: short_relationships_for_json)
+        elsif with_relationships
           hash.merge(relationships: relationships_for_json)
         else
           hash
@@ -36,6 +38,14 @@ module JsonableEntry
 
   def relationships_for_json
     raise NotImplementedError, "relationships_for_json must be defined for class #{self.class}"
+  end
+
+  def short_relationships_for_json
+    {
+      annotations: { data: annotations.map(&:to_hash) },
+      category: { data: category.try(:to_hash) },
+      sub_category: { data: sub_category.try(:to_hash) }
+    }
   end
 
 end
