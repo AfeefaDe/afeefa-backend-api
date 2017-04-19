@@ -58,15 +58,15 @@ class ActiveSupport::TestCase
 
   def assert_jsonable_hash(object, attributes: nil, relationships: nil)
     object_keys = %i(id type attributes)
-    if relationships.nil? || relationships.present?
+    if (relationships.nil? || relationships.present?) && object.class.relation_whitelist_for_json.any?
       object_keys += [:relationships]
     end
     attribute_keys = object.class.attribute_whitelist_for_json
     object_hash = object.as_json(attributes: attributes, relationships: relationships)
     assert_equal(object_keys.sort, object_hash.keys.sort)
     assert_equal(attribute_keys.sort, object_hash[:attributes].keys.sort)
-    if relationships.nil? || relationships.present?
-      relationships = object.class.send(:relation_whitelist_for_json)
+    if (relationships.nil? || relationships.present?) && object.class.relation_whitelist_for_json.any?
+      relationships = object.class.relation_whitelist_for_json
       assert_equal(relationships.sort, object_hash[:relationships].keys.sort)
       relationships.each do |relation|
         data = object_hash[:relationships][relation]

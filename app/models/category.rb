@@ -20,7 +20,7 @@ class Category < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(title created_at updated_at).freeze
+      %i(title).freeze
     end
 
     def relation_whitelist_for_json

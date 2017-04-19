@@ -23,4 +23,8 @@ class Entry < ApplicationRecord
     end
   end
 
+  def entry_to_hash
+    entry.try(&:to_hash)
+  end
+
 end
