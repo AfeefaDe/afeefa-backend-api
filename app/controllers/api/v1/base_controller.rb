@@ -35,7 +35,7 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def show
-    render json: { data: @objects.find(params[:id]).try(:to_hash, details: true, with_relationships: true) }
+    render json: { data: @objects.find(params[:id]).try(:to_hash) }
   end
 
   def get_related_resources
@@ -48,7 +48,7 @@ class Api::V1::BaseController < ApplicationController
     json_hash =
       @objects.try do |objects|
         objects.map do |object|
-          object.try(:to_hash, with_relationships: true)
+          object.try(:to_hash)
         end
       end || []
     render json: { data: json_hash }
@@ -100,12 +100,11 @@ class Api::V1::BaseController < ApplicationController
       end
     end
 
-    do_includes!(@objects)
+    @objects = do_includes!(@objects)
   end
 
   def do_includes!(objects)
-    objects.includes(:annotations).includes(:locations).includes(:contact_infos).includes(:category).
-      includes(:sub_category).includes(:parent).includes(:children)
+    objects
   end
 
 ###############################

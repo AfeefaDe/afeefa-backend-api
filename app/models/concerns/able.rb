@@ -5,6 +5,8 @@ module Able
   included do
     # INCLUDES
     include StateMachine
+
+    # TRANSLATABLE
     include Translatable
 
     class << self

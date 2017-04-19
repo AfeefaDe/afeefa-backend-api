@@ -3,6 +3,7 @@ require 'test_helper'
 class PhraseAppClientTest < ActiveSupport::TestCase
 
   setup do
+    skip 'phraseapp deactivated' unless phraseapp_active?
     @client ||= PhraseAppClient.new
   end
 

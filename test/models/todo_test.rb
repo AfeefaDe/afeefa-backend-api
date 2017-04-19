@@ -19,7 +19,7 @@ class TodoTest < ActiveSupport::TestCase
           assert_equal todo.send(relation)[index].to_hash, element
         end
       else
-        assert_equal todo.send(relation).to_hash, data
+        assert_equal todo.send(relation).to_hash(attributes: nil, relationships: nil), data
       end
     end
   end

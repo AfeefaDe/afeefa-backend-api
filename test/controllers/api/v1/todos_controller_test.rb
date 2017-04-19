@@ -50,12 +50,14 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       expected = {
         data: [
           {
-            type: 'todos', id: todo2.id, messages: ['Mache ma!'],
-            relationships: { entry: { data: { type: 'events', id: event.id } } }
+            type: 'todos', id: todo2.id.to_s,
+            attributes:  { messages: ['Mache ma!'] },
+            relationships: { entry: { data: { type: 'events', id: event.id.to_s } } }
           },
           {
-            type: 'todos', id: todo1.id, messages: ['ganz wichtig'],
-            relationships: { entry: { data: { type: 'orgas', id: orga.id } } }
+            type: 'todos', id: todo1.id.to_s,
+            attributes: { messages: ['ganz wichtig'] },
+            relationships: { entry: { data: { type: 'orgas', id: orga.id.to_s } } }
           }
         ]
       }
@@ -77,12 +79,14 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       expected = {
         data: [
           {
-            type: 'todos', id: todo2.id, messages: ['Mache ma!'],
-            relationships: { entry: { data: { type: 'events', id: event.id } } }
+            type: 'todos', id: todo2.id.to_s,
+            attributes:  { messages: ['Mache ma!'] },
+            relationships: { entry: { data: { type: 'events', id: event.id.to_s } } }
           },
           {
-            type: 'todos', id: todo1.id, messages: ['ganz wichtig'],
-            relationships: { entry: { data: { type: 'orgas', id: orga.id } } }
+            type: 'todos', id: todo1.id.to_s,
+            attributes: { messages: ['ganz wichtig'] },
+            relationships: { entry: { data: { type: 'orgas', id: orga.id.to_s } } }
           }
         ]
       }

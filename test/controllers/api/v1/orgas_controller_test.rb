@@ -48,19 +48,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_response :not_found, response.body
     end
 
-    should 'not get related_resource for root_orga' do
-      skip 'looks like ember client can handle this'
-      event =
-        create(:event, title: 'Hackathon',
-          description: 'Mate fuer alle!', creator: User.first, orga: Orga.root_orga)
-      get :get_related_resource, params: {
-        event_id: event.id,
-        relationship: 'orga',
-        source: 'api/v1/events'
-      }
-      assert_response :not_found, response.body
-    end
-
     context 'with given orga' do
       setup do
         @orga = create(:orga)
@@ -141,8 +128,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 assert_equal(
                   [
                     'Titel - muss ausgefüllt werden',
-                    'Beschreibung - muss ausgefüllt werden',
-                    'Kategorie - ist kein gültiger Wert'
+                    # 'Beschreibung - muss ausgefüllt werden',
+                    # 'Kategorie - ist kein gültiger Wert'
                   ],
                   json['errors'].map { |x| x['detail'] }
                 )

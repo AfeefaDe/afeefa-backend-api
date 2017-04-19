@@ -30,10 +30,10 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
       assert_equal Entry.count, json['data'].size
       Entry.all.each_with_index do |entry, index|
         assert_equal 'entries', json['data'][index]['type']
-        assert_equal entry.id, json['data'][index]['id']
+        assert_equal entry.id.to_s, json['data'][index]['id']
         json_entry = json['data'][index]['relationships']['entry']['data']
         assert_equal entry.entry_type.downcase.pluralize, json_entry['type']
-        assert_equal entry.entry_id, json_entry['id']
+        assert_equal entry.entry_id.to_s, json_entry['id']
       end
     end
 

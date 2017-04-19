@@ -17,9 +17,11 @@ class OrgaTest < ActiveSupport::TestCase
   should 'render json' do
     orga = create(:orga)
     assert_jsonable_hash(orga)
-    assert_jsonable_hash(orga, details: true)
-    assert_jsonable_hash(orga, details: true, with_relationships: true)
-    assert_jsonable_hash(orga, with_relationships: true)
+    assert_jsonable_hash(orga, attributes: orga.class.attribute_whitelist_for_json)
+    assert_jsonable_hash(orga,
+      attributes: orga.class.attribute_whitelist_for_json,
+      relationships: orga.class.relation_whitelist_for_json)
+    assert_jsonable_hash(orga, relationships: orga.class.relation_whitelist_for_json)
   end
 
   should 'validate attributes' do
@@ -28,12 +30,12 @@ class OrgaTest < ActiveSupport::TestCase
     assert_not orga.valid?
     assert orga.errors[:locations].blank?
     assert_match 'muss ausgefüllt werden', orga.errors[:title].first
-    assert_match 'muss ausgefüllt werden', orga.errors[:description].first
-    orga.description = '-' * 351
+    # assert_match 'muss ausgefüllt werden', orga.errors[:description].first
+    orga.short_description = '-' * 351
     assert_not orga.valid?
-    assert_match 'ist zu lang', orga.errors[:description].first
+    assert_match 'ist zu lang', orga.errors[:short_description].first
 
-    assert_match 'muss ausgefüllt werden', orga.errors[:category].first
+    # assert_match 'muss ausgefüllt werden', orga.errors[:category].first
   end
 
   should 'auto strip name and description' do
@@ -46,6 +48,7 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'create translation on orga create' do
+    skip 'phraseapp deactivated' unless phraseapp_active?
     orga = build(:orga)
     assert_not orga.translation.blank?
     assert orga.translation(locale: 'en').blank?, orga.translation(locale: 'en')
@@ -56,6 +59,7 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'update translation on orga update' do
+    skip 'phraseapp deactivated' unless phraseapp_active?
     orga = create(:orga)
     expected = { title: 'an orga', description: 'this is a short description of this orga' }
     assert_equal expected, orga.translation

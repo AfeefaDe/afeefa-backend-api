@@ -1,7 +1,11 @@
-class Api::V1::EventsController < Api::V1::EntriesBaseController
+class Api::V1::EventsController < Api::V1::BaseController
+
+  def filter_whitelist
+    %w(title description short_description).freeze
+  end
 
   def custom_filter_whitelist
-    [:date].map(&:to_s).freeze
+    %w(date).freeze
   end
 
   def default_filter

@@ -47,26 +47,35 @@ class ActiveSupport::TestCase
   end
 
   teardown do
-    if (Settings.phraseapp.active rescue false)
+    if phraseapp_active?
       (@client ||= PhraseAppClient.new).send(:delete_all_keys)
     end
   end
 
-  def assert_jsonable_hash(object, details: false, with_relationships: false)
+  def phraseapp_active?
+    Settings.phraseapp.active rescue false
+  end
+
+  def assert_jsonable_hash(object, attributes: nil, relationships: nil)
     object_keys = %i(id type attributes)
-    if with_relationships
+    if relationships.nil? || relationships.present?
       object_keys += [:relationships]
     end
-    attribute_keys = object.class.whitelist_for_json(details: details) + [:active]
-    object_hash = object.as_json(details: details, with_relationships: with_relationships)
+    attribute_keys = object.class.attribute_whitelist_for_json
+    object_hash = object.as_json(attributes: attributes, relationships: relationships)
     assert_equal(object_keys.sort, object_hash.keys.sort)
     assert_equal(attribute_keys.sort, object_hash[:attributes].keys.sort)
-    if with_relationships
-      relationships = object.send(:relationships_for_json)
-      assert_equal(relationships.keys.sort, object_hash[:relationships].keys.sort)
-      relationships.each do |relation, values|
+    if relationships.nil? || relationships.present?
+      relationships = object.class.send(:relation_whitelist_for_json)
+      assert_equal(relationships.sort, object_hash[:relationships].keys.sort)
+      relationships.each do |relation|
         data = object_hash[:relationships][relation]
-        assert_equal values, data
+        association = object.send(relation)
+        if association.respond_to?(:map)
+          assert_equal object.send(relation).map{ |x| x.to_hash(attributes: nil, relationships: nil) }, data[:data]
+        else
+          assert_equal object.send(relation).try(:to_hash, attributes: nil, relationships: nil), data[:data]
+        end
       end
     end
   end
