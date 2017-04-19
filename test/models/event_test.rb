@@ -5,9 +5,11 @@ class EventTest < ActiveSupport::TestCase
   should 'render json' do
     event = create(:event)
     assert_jsonable_hash(event)
-    assert_jsonable_hash(event, details: true)
-    assert_jsonable_hash(event, details: true, with_relationships: true)
-    assert_jsonable_hash(event, with_relationships: true)
+    assert_jsonable_hash(event, attributes: event.class.attribute_whitelist_for_json)
+    assert_jsonable_hash(event,
+      attributes: event.class.attribute_whitelist_for_json,
+      relationships: event.class.relation_whitelist_for_json)
+    assert_jsonable_hash(event, relationships: event.class.relation_whitelist_for_json)
   end
 
   should 'validate attributes' do
@@ -16,13 +18,13 @@ class EventTest < ActiveSupport::TestCase
     assert_not event.valid?
     assert event.errors[:locations].blank?
     assert_match 'muss ausgefüllt werden', event.errors[:title].first
-    assert_match 'muss ausgefüllt werden', event.errors[:description].first
-    assert_match 'muss ausgefüllt werden', event.errors[:date].first
-    event.description = '-' * 351
+    # assert_match 'muss ausgefüllt werden', event.errors[:description].first
+    assert_match 'muss ausgefüllt werden', event.errors[:date_start].first
+    event.short_description = '-' * 351
     assert_not event.valid?
-    assert_match 'ist zu lang', event.errors[:description].first
+    assert_match 'ist zu lang', event.errors[:short_description].first
 
-    assert_match 'muss ausgefüllt werden', event.errors[:category].first
+    # assert_match 'muss ausgefüllt werden', event.errors[:category].first
   end
 
   should 'auto strip name and description' do
@@ -35,6 +37,7 @@ class EventTest < ActiveSupport::TestCase
   end
 
   should 'create translation on event create' do
+    skip 'phraseapp deactivated' unless phraseapp_active?
     event = build(:event)
     assert_not event.translation.blank?
     assert event.translation(locale: 'en').blank?
@@ -45,6 +48,7 @@ class EventTest < ActiveSupport::TestCase
   end
 
   should 'update translation on event update' do
+    skip 'phraseapp deactivated' unless phraseapp_active?
     event = create(:event)
     expected = { title: 'an event', description: 'description of an event' }
     assert_equal expected, event.translation
@@ -135,7 +139,7 @@ class EventTest < ActiveSupport::TestCase
               assert_raise CustomDeleteRestrictionError do
                 @event.destroy!
               end
-            assert_equal 'Unterereignisse müssen gelöscht werden', exception.message
+            assert_equal 'Unterevents müssen gelöscht werden', exception.message
           end
         end
       end

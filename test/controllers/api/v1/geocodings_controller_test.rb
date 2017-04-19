@@ -22,8 +22,8 @@ class Api::V1::GeocodingsControllerTest < ActionController::TestCase
     assert_response :ok
     json = JSON.parse(response.body)
     assert_kind_of Hash, json
-    assert_equal '51.04049380000001', json['latitude'].to_s
-    assert_equal '13.781949', json['longitude'].to_s
+    assert_equal '51.0436', json['latitude'].to_s
+    assert_equal '13.76696', json['longitude'].to_s
   end
 
 end

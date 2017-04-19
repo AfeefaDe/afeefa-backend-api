@@ -12,14 +12,15 @@ class Entry < ApplicationRecord
         joins("LEFT JOIN events ON events.id = entries.entry_id AND entry_type = 'Event'")
     }
 
-  def to_hash(only_reference: false, details: false, with_relationships: false)
-    default_hash.merge(
-      relationships: {
-        entry: {
-          data: entry.try(:to_hash, only_reference: false, with_short_relationships: true)
-        }
-      }
-    )
+  # CLASS METHODS
+  class << self
+    def relation_whitelist_for_json
+      %i(entry)
+    end
+
+    def default_relations_for_json
+      %i(entry)
+    end
   end
 
 end

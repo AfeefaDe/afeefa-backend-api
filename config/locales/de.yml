@@ -22,8 +22,8 @@ de:
       phone: Telefon
       mail: E-Mail-Adresse
       sub_orgas: Unterorganisationen
-      events: Ereignisse
-      sub_events: Unterereignisse
+      events: Events
+      sub_events: Unterevents
   activerecord:
     attributes:
       orga:

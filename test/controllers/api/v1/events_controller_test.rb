@@ -17,7 +17,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Event.count, json['data'].size
-      assert_equal Event.last.to_hash(with_relationships: true).deep_stringify_keys, json['data'].last
+      assert_equal Event.last.to_hash.deep_stringify_keys, json['data'].last
     end
 
     should 'get title filtered list for events' do
@@ -165,10 +165,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_response :ok, response.body
         json = JSON.parse(response.body)
         assert_kind_of Hash, json['data']
-        # assert json['data']['attributes']['has_time_start']
-        # assert json['data']['attributes']['has_time_end']
-        assert json['data']['attributes']['time_start']
-        assert json['data']['attributes']['time_end']
+        assert json['data']['attributes']['has_time_start']
+        assert json['data']['attributes']['has_time_end']
       end
     end
 
@@ -282,32 +280,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal Orga.root_orga.id, Event.last.orga_id
     end
 
-    should 'set default orga on event create with orga relation with id nil' do
-      skip 'jsonapi gem does not support this'
-      post :create, params: {
-        data: {
-          type: 'events',
-          attributes: {
-            title: 'some title',
-            description: 'some description',
-            date_start: I18n.l(Date.tomorrow),
-            category: Category.main_categories.first,
-          },
-          relationships: {
-            orga: {
-              data: {
-                id: nil,
-                type: 'orgas'
-              }
-            }
-          }
-        }
-      }
-      assert_response :created, response.body
-      assert_equal 'some title', Orga.last.title
-      assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
-    end
-
     should 'fail for invalid' do
       assert_no_difference 'Event.count' do
         assert_no_difference 'Annotation.count' do
@@ -327,8 +299,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
               assert_equal(
                 [
                   'Titel - muss ausgefüllt werden',
-                  'Beschreibung - muss ausgefüllt werden',
-                  'Kategorie - ist kein gültiger Wert',
+                  # 'Beschreibung - muss ausgefüllt werden',
+                  # 'Kategorie - ist kein gültiger Wert',
                   'Start-Datum - muss ausgefüllt werden'
                 ],
                 json['errors'].map { |x| x['detail'] }
@@ -410,7 +382,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                   }
                 assert_response :locked, response.body
                 json = JSON.parse(response.body)
-                assert_equal 'Unterereignisse müssen gelöscht werden', json['errors'].first['detail']
+                assert_equal 'Unterevents müssen gelöscht werden', json['errors'].first['detail']
               end
             end
           end

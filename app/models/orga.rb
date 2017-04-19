@@ -6,7 +6,7 @@ class Orga < ApplicationRecord
   # INCLUDES
   include Owner
   include Able
-  include JsonableEntry
+  include Jsonable
 
   # ATTRIBUTES AND ASSOCIATIONS
   acts_as_tree(dependent: :restrict_with_exception)
@@ -42,15 +42,22 @@ class Orga < ApplicationRecord
       Orga.unscoped.find_by_title(ROOT_ORGA_TITLE)
     end
 
-    def whitelist_for_json(details: false)
-      whitelist =
-        %i(title created_at updated_at state_changed_at)
-      if details
-        whitelist +=
-          %i(description media_url media_type support_wanted for_children certified_sfr
-            legacy_entry_id migrated_from_neos)
-      end
-      whitelist
+    def attribute_whitelist_for_json
+      (default_attributes_for_json +
+        %i(description media_url media_type
+            support_wanted for_children certified_sfr legacy_entry_id)).freeze
+    end
+
+    def default_attributes_for_json
+      %i(title created_at updated_at state_changed_at).freeze
+    end
+
+    def relation_whitelist_for_json
+      (default_relations_for_json + %i(locations contact_infos parent_orga sub_orgas)).freeze
+    end
+
+    def default_relations_for_json
+      %i(annotations category sub_category).freeze
     end
   end
 
@@ -89,18 +96,6 @@ class Orga < ApplicationRecord
   end
 
   private
-
-  def relationships_for_json
-    {
-      annotations: { data: annotations.map(&:to_hash) },
-      locations: { data: locations.map(&:to_hash) },
-      contact_infos: { data: contact_infos.map(&:to_hash) },
-      category: { data: category.try(:to_hash) },
-      sub_category: { data: sub_category.try(:to_hash) },
-      parent_orga: { data: parent_orga.try(:to_hash, only_reference: true) },
-      sub_orgas: { data: sub_orgas.map { |orga| orga.to_hash(only_reference: true) } }
-    }
-  end
 
   def set_parent_orga_as_default
     self.parent_orga = Orga.root_orga

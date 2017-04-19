@@ -13,4 +13,15 @@ class Category < ApplicationRecord
   scope :main_categories, -> { where(parent_id: nil) }
   scope :sub_categories, -> { where.not(parent_id: nil) }
 
+  # CLASS METHODS
+  class << self
+    def relation_whitelist_for_json
+      default_relations_for_json
+    end
+
+    def default_relations_for_json
+      %i(parent_category).freeze
+    end
+  end
+
 end

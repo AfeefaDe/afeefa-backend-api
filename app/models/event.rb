@@ -3,7 +3,7 @@ require 'errors'
 class Event < ApplicationRecord
 
   include Thing
-  include JsonableEntry
+  include Jsonable
 
   acts_as_tree(dependent: :restrict_with_exception)
   alias_method :sub_events, :children
@@ -14,16 +14,23 @@ class Event < ApplicationRecord
   validates :date_start, presence: true
 
   class << self
-    def whitelist_for_json(details: false)
-      whitelist =
-        %i(title created_at updated_at state_changed_at
-          date_start date_end time_start time_end)
-      if details
-        whitelist +=
-          %i(description media_url media_type support_wanted for_children certified_sfr
-            public_speaker location_type legacy_entry_id migrated_from_neos)
-      end
-      whitelist
+    def attribute_whitelist_for_json
+      (default_attributes_for_json +
+        %i(description media_url media_type support_wanted for_children certified_sfr
+            public_speaker location_type legacy_entry_id)).freeze
+    end
+
+    def default_attributes_for_json
+      %i(title created_at updated_at state_changed_at
+          date_start date_end has_time_start has_time_end).freeze
+    end
+
+    def relation_whitelist_for_json
+      (default_relations_for_json + %i(locations contact_infos orga parent_event sub_events)).freeze
+    end
+
+    def default_relations_for_json
+      %i(annotations category sub_category).freeze
     end
   end
 
@@ -41,15 +48,12 @@ class Event < ApplicationRecord
     end
   end
 
-  def relationships_for_json
-    {
-      annotations: { data: annotations.map(&:to_hash) },
-      locations: { data: locations.map(&:to_hash) },
-      contact_infos: { data: contact_infos.map(&:to_hash) },
-      category: { data: category.try(:to_hash) },
-      sub_category: { data: sub_category.try(:to_hash) },
-      orga: { data: orga.try(:to_hash, only_reference: true) }
-    }
+  def has_time_start
+    time_start?
+  end
+
+  def has_time_end
+    time_end?
   end
 
 end
