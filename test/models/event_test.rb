@@ -135,7 +135,7 @@ class EventTest < ActiveSupport::TestCase
               assert_raise CustomDeleteRestrictionError do
                 @event.destroy!
               end
-            assert_equal 'Unterevents müssen gelöscht werden', exception.message
+            assert_equal 'Unterereignisse müssen gelöscht werden', exception.message
           end
         end
       end

@@ -42,11 +42,14 @@ class Event < ApplicationRecord
   end
 
   def relationships_for_json
-    short_relationships_for_json.merge(
-      locations: { data: locations.map { |orga| orga.to_hash(only_reference: true) } },
-      contact_infos: { data: contact_infos.map { |orga| orga.to_hash(only_reference: true) } },
+    {
+      annotations: { data: annotations.map(&:to_hash) },
+      locations: { data: locations.map(&:to_hash) },
+      contact_infos: { data: contact_infos.map(&:to_hash) },
+      category: { data: category.try(:to_hash) },
+      sub_category: { data: sub_category.try(:to_hash) },
       orga: { data: orga.try(:to_hash, only_reference: true) }
-    )
+    }
   end
 
 end

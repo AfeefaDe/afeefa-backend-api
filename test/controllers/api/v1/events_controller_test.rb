@@ -410,7 +410,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                   }
                 assert_response :locked, response.body
                 json = JSON.parse(response.body)
-                assert_equal 'Unterevents müssen gelöscht werden', json['errors'].first['detail']
+                assert_equal 'Unterereignisse müssen gelöscht werden', json['errors'].first['detail']
               end
             end
           end
