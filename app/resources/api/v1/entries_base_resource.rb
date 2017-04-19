@@ -24,16 +24,16 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
 
   # paginator :offset
 
-  filter :todo, apply: ->(records, _value, _options) {
-    records.annotated
-  }
-
-  filter :title, apply: ->(records, value, _options) {
-    records.where('title LIKE ?', "%#{value[0]}%")
-  }
-
-  filter :description, apply: ->(records, value, _options) {
-    records.where('description LIKE ?', "%#{value[0]}%")
-  }
+  # filter :todo, apply: ->(records, _value, _options) {
+  #   records.annotated
+  # }
+  #
+  # filter :title, apply: ->(records, value, _options) {
+  #   records.where('title LIKE ?', "%#{value[0]}%")
+  # }
+  #
+  # filter :description, apply: ->(records, value, _options) {
+  #   records.where('description LIKE ?', "%#{value[0]}%")
+  # }
 
 end

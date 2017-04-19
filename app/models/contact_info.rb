@@ -18,6 +18,25 @@ class ContactInfo < ApplicationRecord
   # validates_presence_of :contactable
   # validate :ensure_mail_or_phone
 
+  # CLASS METHODS
+  class << self
+    def attribute_whitelist_for_json
+      default_attributes_for_json.freeze
+    end
+
+    def default_attributes_for_json
+      %i(contact_person mail phone web facebook opening_hours).freeze
+    end
+
+    def relation_whitelist_for_json
+      default_relations_for_json.freeze
+    end
+
+    def default_relations_for_json
+      %i(contactable).freeze
+    end
+  end
+
   private
 
   def ensure_mail_or_phone
