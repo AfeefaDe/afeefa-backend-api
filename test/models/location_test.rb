@@ -3,7 +3,8 @@ require 'test_helper'
 class LocationTest < ActiveSupport::TestCase
 
   should 'render json' do
-    assert_equal({ type: 'locations', id: nil }.to_json, Location.new.to_json)
+    assert_equal(Location.attribute_whitelist_for_json.sort,
+      JSON.parse(Location.new.to_json)['attributes'].symbolize_keys.keys.sort)
   end
 
   should 'validate attributes' do
