@@ -52,12 +52,12 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
           {
             type: 'todos', id: todo2.id.to_s,
             attributes:  { messages: ['Mache ma!'] },
-            relationships: { entry: { data: { type: 'events', id: event.id.to_s } } }
+            relationships: { entry: { data: event.to_hash } }
           },
           {
             type: 'todos', id: todo1.id.to_s,
             attributes: { messages: ['ganz wichtig'] },
-            relationships: { entry: { data: { type: 'orgas', id: orga.id.to_s } } }
+            relationships: { entry: { data: orga.to_hash } }
           }
         ]
       }
@@ -81,12 +81,12 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
           {
             type: 'todos', id: todo2.id.to_s,
             attributes:  { messages: ['Mache ma!'] },
-            relationships: { entry: { data: { type: 'events', id: event.id.to_s } } }
+            relationships: { entry: { data: event.to_hash } }
           },
           {
             type: 'todos', id: todo1.id.to_s,
             attributes: { messages: ['ganz wichtig'] },
-            relationships: { entry: { data: { type: 'orgas', id: orga.id.to_s } } }
+            relationships: { entry: { data: orga.to_hash } }
           }
         ]
       }

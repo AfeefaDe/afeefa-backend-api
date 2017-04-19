@@ -39,4 +39,8 @@ class Todo < ApplicationRecord
     entry.todos.pluck(:detail)
   end
 
+  def entry_to_hash
+    entry.try(&:to_hash)
+  end
+
 end

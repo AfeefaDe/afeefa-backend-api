@@ -31,13 +31,22 @@ module Jsonable
         [relationships].flatten.each do |relation|
           relation = relation.to_sym
           next unless relation.in?(self.class.relation_whitelist_for_json)
-          association = send(relation)
           association =
-            if association.respond_to?(:map)
-              association.map { |element| element.to_hash(attributes: nil, relationships: nil) }
+            if respond_to?("#{relation}_to_hash")
+              skip_to_hash = true
+              send("#{relation}_to_hash")
             else
-              association.try(:to_hash, attributes: nil, relationships: nil)
+              skip_to_hash = false
+              send(relation)
             end
+          unless skip_to_hash
+            association =
+              if association.respond_to?(:map)
+                association.map { |element| element.to_hash(attributes: nil, relationships: nil) }
+              else
+                association.try(:to_hash, attributes: nil, relationships: nil)
+              end
+          end
           json_relations[relation.to_sym] = { data: association }
         end
         hash.merge!(relationships: json_relations)

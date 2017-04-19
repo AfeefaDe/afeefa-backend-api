@@ -15,6 +15,14 @@ class Category < ApplicationRecord
 
   # CLASS METHODS
   class << self
+    def attribute_whitelist_for_json
+      default_attributes_for_json.freeze
+    end
+
+    def default_attributes_for_json
+      %i(title created_at updated_at).freeze
+    end
+
     def relation_whitelist_for_json
       default_relations_for_json
     end
