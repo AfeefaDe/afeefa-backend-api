@@ -8,10 +8,6 @@ class Api::V1::EventsController < Api::V1::BaseController
     %w(date).freeze
   end
 
-  def default_filter
-    { date: :upcoming }
-  end
-
   def apply_custom_filter!(filter, filter_criterion, objects)
     now = Time.current
     objects =
