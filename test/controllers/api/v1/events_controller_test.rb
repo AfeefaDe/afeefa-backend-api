@@ -209,13 +209,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_equal(
           Event.last.send(relation).first.id.to_s,
           json['data']['relationships'][relation]['data'].first['id'])
-        unless relation == 'annotations'
-          internal_id = json['data']['relationships'][relation]['data'].first['attributes']['__id__']
-          assert(internal_id,
-            "Attribute __id__ not found for #{relation}. \n" +
-              "Found the following data: #{json['data']['relationships'][relation]['data']}")
-          assert_match(/\d+internal-model/, internal_id, "invalid pattern for __id__: #{internal_id}")
-        end
       end
     end
 

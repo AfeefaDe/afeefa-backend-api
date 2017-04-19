@@ -74,7 +74,6 @@ class Api::V1::BaseResource < JSONAPI::Resource
       values = { id: values }
     end
     sanitized_attributes = sanitize_attributes(values)
-    # binding.pry if (values[:attributes].presence || {}).keys.include?(:__id__)
     associated_object =
       if values.key?(:id)
         relationship_type.to_s.singularize.camelcase.constantize.find(values[:id])
@@ -93,12 +92,7 @@ class Api::V1::BaseResource < JSONAPI::Resource
   end
 
   def sanitize_attributes(values)
-    attributes =
-      (values[:attributes].presence || {}).reject { |attr, _value| attr.in?(%i(type)) }
-    if attributes.key?(:__id__)
-      attributes[:internal_id] = attributes.delete(:__id__)
-    end
-    attributes
+    (values[:attributes].presence || {}).reject { |attr, _value| attr.in?(%i(type)) }
   end
 
 end

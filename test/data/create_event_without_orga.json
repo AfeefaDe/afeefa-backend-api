@@ -30,8 +30,7 @@
             "attributes": {
               "mail": "weisefred@googlemail.com",
               "phone": "377436332",
-              "contact_person": "Friedrich Weise",
-              "__id__": "204internal-model"
+              "contact_person": "Friedrich Weise"
             },
             "type": "contact_infos"
           }
@@ -55,8 +54,7 @@
             "attributes": {
               "street": "Ernst Nier Straße 8",
               "city": "Beierfeld",
-              "placename": "",
-              "__id__": "205internal-model"
+              "placename": ""
             },
             "type": "locations"
           }

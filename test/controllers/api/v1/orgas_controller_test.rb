@@ -93,21 +93,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
           to_check = json['data']['relationships'][relation]['data'].first
           assert_equal relation, to_check['type']
-          unless relation == 'annotations'
-            given = to_check['attributes']
-            expected_attributes =
-              Orga.last.send(relation).first.attributes.tap do |data|
-                data['__id__'] = data.delete('internal_id')
-              end
-            expected_attributes.each do |attribute, value|
-              assert_equal(value, given[attribute.to_s],
-                "json attribute #{attribute} should have the value #{value} but was #{given}\n#{to_check}")
-            end
-            internal_id = to_check['attributes']['__id__']
-            assert(internal_id,
-              "Attribute __id__ not found for #{relation}. \nFound the following data: #{to_check}")
-            assert_match(/\d+internal-model/, internal_id, "invalid pattern for __id__: #{internal_id}")
-          end
         end
       end
 
