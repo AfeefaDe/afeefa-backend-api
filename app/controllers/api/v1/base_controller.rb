@@ -35,7 +35,12 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def show
-    render json: { data: @objects.find(params[:id]).try(:to_hash) }
+    object = @objects.find(params[:id])
+    render json: {
+      data: object.to_hash(
+        attributes: object.class.attribute_whitelist_for_json,
+        relationships: object.class.relation_whitelist_for_json)
+    }
   end
 
   def get_related_resources
