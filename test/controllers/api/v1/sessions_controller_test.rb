@@ -4,7 +4,7 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 
   include Devise::Test::ControllerHelpers
 
-  should 'has cross origin header for create' do
+  should 'handle unauthorized login' do
     @request.env['devise.mapping'] = Devise.mappings[:api_v1_user]
 
     post :create, params: { user: 'foo', password: 'bar' }
