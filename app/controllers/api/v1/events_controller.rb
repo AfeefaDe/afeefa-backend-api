@@ -16,27 +16,28 @@ class Api::V1::EventsController < Api::V1::BaseController
           case filter_criterion.to_sym
             when :upcoming
               # date_start > today 00:00
-			  # date_end > today 00:00
+              # date_end > today 00:00
               objects.
-                where.not(date_start: nil).where.not(date_start: '').
-                where('date_start > ?', now).or(objects.where('date_start = ?', now)).or(
-		          objects.
-					where('date_end > ?', now)
-				)
+                where.not(date_start: [nil, '']).
+                where('date_start > ?', now).
+                or(objects.
+                  where('date_start = ?', now)).
+                or(objects.
+                  where('date_end > ?', now))
             when :past
               # kein date_end und date_start < today 00:00
               # hat date_end und date_end < today 00:00
               objects.
-                where(date_end: nil).where.not(date_start: nil).where.not(date_start: '').
-                where('date_start < ?', now).or(
-		          objects.
-		            where(date_end: '').where.not(date_start: nil).where.not(date_start: '').
-		            where('date_start < ?', now)
-				).or(
-		          objects.
-		            where.not(date_end: nil).where.not(date_end: '').
-		            where('date_end < ?', now)
-				)
+                where(date_end: nil).
+                where.not(date_start: [nil, '']).
+                where('date_start < ?', now).
+                or(objects.
+                  where(date_end: '').
+                  where.not(date_start: [nil, '']).
+                  where('date_start < ?', now)).
+                or(objects.
+                  where.not(date_end: [nil, '']).
+                  where('date_end < ?', now))
             else
               objects
           end
