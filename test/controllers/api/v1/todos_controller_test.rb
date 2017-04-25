@@ -51,7 +51,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
         data: [
           {
             type: 'todos', id: todo2.id.to_s,
-            attributes:  { messages: ['Mache ma!'] },
+            attributes: { messages: ['Mache ma!'] },
             relationships: { entry: { data: event.to_hash } }
           },
           {
@@ -61,7 +61,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
           }
         ]
       }
-      assert_equal expected.deep_stringify_keys, json    end
+      assert_equal expected.deep_stringify_keys, json
+    end
 
     should 'multiple sort todos' do
       assert orga = create(:another_orga, title: 'foo'*3)
@@ -80,7 +81,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
         data: [
           {
             type: 'todos', id: todo2.id.to_s,
-            attributes:  { messages: ['Mache ma!'] },
+            attributes: { messages: ['Mache ma!'] },
             relationships: { entry: { data: event.to_hash } }
           },
           {

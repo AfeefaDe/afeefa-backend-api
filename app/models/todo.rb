@@ -7,14 +7,15 @@ class Todo < ApplicationRecord
   belongs_to :annotation
   belongs_to :entry, polymorphic: true
 
-  scope :with_annotation,
-    -> { joins(:annotation) }
+  scope :with_annotation, -> { joins(:annotation) }
 
   scope :with_entries,
     -> {
       joins("LEFT JOIN orgas ON orgas.id = annotation_able_relations.entry_id AND entry_type = 'Orga'").
         joins("LEFT JOIN events ON events.id = annotation_able_relations.entry_id AND entry_type = 'Event'")
     }
+
+  scope :grouped_by_entries, -> { group(:entry_id, :entry_type) }
 
   # CLASS METHODS
   class << self

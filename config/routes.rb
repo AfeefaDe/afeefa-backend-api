@@ -37,8 +37,8 @@ Rails.application.routes.draw do
             sessions: 'api/v1/sessions'
           }
 
+        get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
-
         jsonapi_resources :orgas
         jsonapi_resources :users
         jsonapi_resources :events
