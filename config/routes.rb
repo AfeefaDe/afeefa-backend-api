@@ -43,6 +43,7 @@ Rails.application.routes.draw do
         jsonapi_resources :events
 
         resources :annotation_categories, only: %i(index show)
+        resources :annotations, only: %i(index show)
         resources :categories, only: %i(index show)
         resources :contact_infos, only: %i(index show)
         resources :locations, only: %i(index show)
