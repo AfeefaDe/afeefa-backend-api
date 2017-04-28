@@ -93,14 +93,18 @@ module Able
     has_many :locations, as: :locatable
     has_many :contact_infos, as: :contactable
 
-    has_many :todos, as: :entry
-    has_many :annotations, through: :todos
+    has_many :annotations, as: :entry
+    has_many :annotation_categories, through: :annotations
 
     belongs_to :category, optional: true
     belongs_to :sub_category, class_name: 'Category', optional: true
 
     scope :annotated, -> { joins(:annotations) }
-    scope :unannotated, -> { includes(:annotations).references(:annotations).where(annotations: { id: nil }) }
+    scope :unannotated,
+      -> {
+        includes(:annotation_categories).references(:annotation_categories).
+          where(annotation_categories: { id: nil })
+      }
 
     # VALIDATIONS
     # validates :contact_infos, presence: true, on: :update

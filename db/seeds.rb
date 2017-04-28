@@ -18,8 +18,8 @@ module Seeds
     Location.delete_all
     ContactInfo.delete_all
 
+    AnnotationCategory.delete_all
     Annotation.delete_all
-    Todo.delete_all
 
     Category.delete_all
 
@@ -62,11 +62,11 @@ module Seeds
     User.create!(email: 'hagen@afeefa.de', forename: 'Hagen', surname: 'Belitz', password: 'MapCat_050615')
 
     # annotations
-    Annotation.create!(title: 'Eintrag fehlerhaft')
-    Annotation.create!(title: 'Eintrag gemeldet')
-    Annotation.create!(title: 'Übersetzung fehlt')
+    AnnotationCategory.create!(title: 'Eintrag fehlerhaft')
+    AnnotationCategory.create!(title: 'Eintrag gemeldet')
+    AnnotationCategory.create!(title: 'Übersetzung fehlt')
     # Be careful with changes, replace usages this annotation title!
-    Annotation.create!(title: 'Migration nur teilweise erfolgreich')
+    AnnotationCategory.create!(title: 'Migration nur teilweise erfolgreich')
   end
 
 end

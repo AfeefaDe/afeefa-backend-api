@@ -12,7 +12,7 @@ class Api::V1::MetasController < ApplicationController
       meta: {
         orgas: Orga.count,
         events: Event.count,
-        todos: Todo.grouped_by_entries.count.count,
+        todos: Annotation.grouped_by_entries.count.count,
       }
     }
     render json: meta_hash

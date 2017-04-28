@@ -2,16 +2,19 @@ module Jsonable
 
   extend ActiveSupport::Concern
 
-  def default_hash
-    @type ||= self.class.to_s.split('::').last.underscore.pluralize
+  def default_hash(type: nil)
+    type ||= self.class.to_s.split('::').last.underscore.pluralize
     {
-      type: @type,
+      type: type,
       id: id.try(:to_s)
     }
   end
 
-  def to_hash(attributes: self.class.default_attributes_for_json, relationships: self.class.default_relations_for_json)
-    default_hash.tap do |hash|
+  def to_hash(
+      attributes: self.class.default_attributes_for_json,
+      relationships: self.class.default_relations_for_json,
+      type: nil)
+    default_hash(type: type).tap do |hash|
       if attributes.present?
         json_attributes = {}
         [attributes].flatten.each do |attribute|

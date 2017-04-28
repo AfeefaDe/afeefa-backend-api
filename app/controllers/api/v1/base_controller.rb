@@ -37,7 +37,7 @@ class Api::V1::BaseController < ApplicationController
   def show
     object = @objects.find(params[:id])
     render json: {
-      data: object.to_hash(
+      data: object.send(to_hash_method,
         attributes: object.class.attribute_whitelist_for_json,
         relationships: object.class.relation_whitelist_for_json)
     }
@@ -53,10 +53,14 @@ class Api::V1::BaseController < ApplicationController
     json_hash =
       @objects.try do |objects|
         objects.map do |object|
-          object.try(:to_hash)
+          object.try(:send, to_hash_method)
         end
       end || []
     render json: { data: json_hash }
+  end
+
+  def to_hash_method
+    :to_hash
   end
 
   def filter_params
@@ -113,41 +117,6 @@ class Api::V1::BaseController < ApplicationController
   end
 
 ###############################
-
-# def ensure_host
-#   allowed_hosts = Settings.api.hosts
-#   if (host = request.host).in?(allowed_hosts)
-#     true
-#   else
-#     render(
-#       text: "wrong host: #{host}, allowed: #{allowed_hosts.join(', ')}",
-#       status: :unauthorized
-#     )
-#     false
-#   end
-# end
-#
-# def ensure_protocol
-#   allowed_protocols = Settings.api.protocols
-#   if (protocol = request.protocol.gsub(/:.*/, '')).in?(allowed_protocols)
-#     true
-#   else
-#     render(
-#       text: "wrong protocol: #{protocol}, allowed: #{allowed_protocols.join(', ')}",
-#       status: :unauthorized
-#     )
-#     false
-#   end
-# end
-
-# def ensure_admin_secret
-#   if params[:admin_secret] == Settings.api.admin_secret
-#     true
-#   else
-#     head :forbidden
-#     false
-#   end
-# end
 
   def permit_params
     params.try(:[], :data).try(:[], :attributes).try(:delete, :state)

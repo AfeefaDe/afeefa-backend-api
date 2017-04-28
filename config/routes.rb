@@ -40,14 +40,15 @@ Rails.application.routes.draw do
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
         jsonapi_resources :orgas
-        jsonapi_resources :users
         jsonapi_resources :events
-        jsonapi_resources :entries
-        jsonapi_resources :todos
-        jsonapi_resources :annotations
-        jsonapi_resources :contact_infos
-        jsonapi_resources :locations
-        jsonapi_resources :categories
+
+        resources :annotation_categories, only: %i(index show)
+        resources :categories, only: %i(index show)
+        resources :contact_infos, only: %i(index show)
+        resources :locations, only: %i(index show)
+
+        resources :entries, only: %i(index show)
+        resources :todos, only: %i(index show)
 
       end
     end

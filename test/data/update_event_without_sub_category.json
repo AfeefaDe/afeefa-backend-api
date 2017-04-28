@@ -29,7 +29,10 @@
         "data": [
           {
             "type": "annotations",
-            "id": "<annotation_id_1>"
+            "id": "<annotation_id_1>",
+            "attributes": {
+              "detail": "foo-bar"
+            }
           }
         ]
 //      },

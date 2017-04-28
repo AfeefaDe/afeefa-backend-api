@@ -1,5 +1,7 @@
 class Api::V1::EventsController < Api::V1::EntriesBaseController
 
+  include JSONAPI::ActsAsResourceController
+
   def filter_whitelist
     %w(title description short_description).freeze
   end

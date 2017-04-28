@@ -10,7 +10,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'get index' do
       # useful sample data
       orga = create(:orga)
-      orga.annotations.create(title: 'annotation123')
+      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: AnnotationCategory.first)
       orga.annotations.last
       orga.sub_orgas.create(attributes_for(:another_orga, parent_orga: orga))
 
@@ -66,14 +66,14 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         params = parse_json_file do |payload|
           payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
           payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-          payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
-          payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
+          payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
+          payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
         end
         params['data']['attributes'].merge!('active' => true)
 
         assert_difference 'Orga.count' do
-          assert_no_difference 'Annotation.count' do
-            assert_difference 'Todo.count', 2 do
+          assert_no_difference 'AnnotationCategory.count' do
+            assert_difference 'Annotation.count', 2 do
               post :create, params: params
               assert_response :created, response.body
             end
@@ -98,7 +98,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'fail for invalid' do
         assert_no_difference 'Orga.count' do
-          assert_no_difference 'Annotation.count' do
+          assert_no_difference 'AnnotationCategory.count' do
             assert_no_difference 'ContactInfo.count' do
               assert_no_difference 'Location.count' do
                 post :create, params: {
@@ -115,8 +115,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 assert_equal(
                   [
                     'Titel - muss ausgefüllt werden',
-                    # 'Beschreibung - muss ausgefüllt werden',
-                    # 'Kategorie - ist kein gültiger Wert'
+                  # 'Beschreibung - muss ausgefüllt werden',
+                  # 'Kategorie - ist kein gültiger Wert'
                   ],
                   json['errors'].map { |x| x['detail'] }
                 )
@@ -128,13 +128,13 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'update orga with nested attributes' do
         orga = create(:orga, title: 'foobar')
-        orga.annotations.create(title: 'annotation123')
-        annotation = orga.annotations.last
+        Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: AnnotationCategory.first)
+        annotation = orga.reload.annotations.last
 
         assert_no_difference 'Orga.count' do
           assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
-              assert_no_difference 'Annotation.count' do
+              assert_no_difference 'AnnotationCategory.count' do
                 post :update,
                   params: {
                     id: orga.id,
@@ -158,7 +158,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal '0123456789', ContactInfo.last.phone
         assert_equal Orga.last, ContactInfo.last.contactable
         assert_equal 1, Orga.last.annotations.count
-        assert_equal annotation.reload, Orga.last.annotations.first
+        assert_equal annotation, Orga.last.annotations.first
       end
 
       should 'destroy orga' do
@@ -166,7 +166,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           assert_difference 'Orga.undeleted.count', -1 do
             assert_no_difference 'ContactInfo.count' do
               assert_no_difference 'Location.count' do
-                assert_no_difference 'Annotation.count' do
+                assert_no_difference 'AnnotationCategory.count' do
                   delete :destroy,
                     params: {
                       id: @orga.id,
@@ -188,7 +188,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           assert_no_difference 'Orga.undeleted.count' do
             assert_no_difference 'ContactInfo.count' do
               assert_no_difference 'Location.count' do
-                assert_no_difference 'Annotation.count' do
+                assert_no_difference 'AnnotationCategory.count' do
                   delete :destroy,
                     params: {
                       id: @orga.id,
@@ -214,7 +214,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               assert_no_difference 'Event.undeleted.count' do
                 assert_no_difference 'ContactInfo.count' do
                   assert_no_difference 'Location.count' do
-                    assert_no_difference 'Annotation.count' do
+                    assert_no_difference 'AnnotationCategory.count' do
                       delete :destroy,
                         params: {
                           id: @orga.id,

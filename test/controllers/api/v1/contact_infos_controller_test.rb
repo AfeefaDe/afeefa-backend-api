@@ -7,33 +7,34 @@ class Api::V1::ContactInfosControllerTest < ActionController::TestCase
       stub_current_user
     end
 
-    context 'with given orga' do
-      setup do
-        @orga = create(:orga)
-      end
-
-      should 'I want to create a new contact info' do
-        post :create, params: {
-          data: {
-            type: 'contact_infos',
-            attributes: {
-              mail: 'test@example.com',
-              phone: '0123 -/ 456789',
-              contact_person: 'Herr Max Müller'
-            },
-            relationships: {
-              contactable: {
-                data: {
-                  type: 'orgas',
-                  id: @orga.id
-                }
-              }
-            }
-          }
-        }
-        assert_response :created, response.body
-      end
-    end
+    # create of locations is implicit for orgas/events
+    # context 'with given orga' do
+    #   setup do
+    #     @orga = create(:orga)
+    #   end
+    #
+    #   should 'I want to create a new contact info' do
+    #     post :create, params: {
+    #       data: {
+    #         type: 'contact_infos',
+    #         attributes: {
+    #           mail: 'test@example.com',
+    #           phone: '0123 -/ 456789',
+    #           contact_person: 'Herr Max Müller'
+    #         },
+    #         relationships: {
+    #           contactable: {
+    #             data: {
+    #               type: 'orgas',
+    #               id: @orga.id
+    #             }
+    #           }
+    #         }
+    #       }
+    #     }
+    #     assert_response :created, response.body
+    #   end
+    # end
   end
 
 end

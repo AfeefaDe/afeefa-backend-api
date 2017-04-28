@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Api::V1::AnnotationsControllerTest < ActionController::TestCase
+class Api::V1::AnnotationCategoriesControllerTest < ActionController::TestCase
 
   context 'as authorized user' do
     setup do
@@ -12,7 +12,7 @@ class Api::V1::AnnotationsControllerTest < ActionController::TestCase
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal Annotation.count, json['data'].size
+      assert_equal AnnotationCategory.count, json['data'].size
     end
   end
 

@@ -19,9 +19,9 @@ class Api::V1::MetasControllerTest < ActionController::TestCase
       assert_equal Event.count, json['meta']['events']
       assert_equal 0, json['meta']['todos']
 
-      Todo.create!(detail: 'ganz wichtig', entry: orga, annotation: Annotation.first)
-      Todo.create!(detail: 'ganz wichtig 2', entry: orga, annotation: Annotation.first)
-      Todo.create!(detail: 'ganz wichtig', entry: event, annotation: Annotation.first)
+      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: AnnotationCategory.first)
+      Annotation.create!(detail: 'ganz wichtig 2', entry: orga, annotation_category: AnnotationCategory.first)
+      Annotation.create!(detail: 'ganz wichtig', entry: event, annotation_category: AnnotationCategory.first)
 
       get :index
       assert_response :ok, response.body
@@ -29,7 +29,7 @@ class Api::V1::MetasControllerTest < ActionController::TestCase
       assert_kind_of Hash, json['meta']
       assert_equal Orga.count, json['meta']['orgas']
       assert_equal Event.count, json['meta']['events']
-      assert_equal Todo.grouped_by_entries.count.count, json['meta']['todos']
+      assert_equal Annotation.grouped_by_entries.count.count, json['meta']['todos']
     end
   end
 

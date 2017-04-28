@@ -1,15 +1,13 @@
 class Entry < ApplicationRecord
 
-  self.table_name = 'entries'
-
   include Jsonable
 
   belongs_to :entry, polymorphic: true
 
   scope :with_entries,
     -> {
-      joins("LEFT JOIN orgas ON orgas.id = entries.entry_id AND entry_type = 'Orga'").
-        joins("LEFT JOIN events ON events.id = entries.entry_id AND entry_type = 'Event'")
+      joins("LEFT JOIN orgas ON orgas.id = #{table_name}.entry_id AND entry_type = 'Orga'").
+        joins("LEFT JOIN events ON events.id = #{table_name}.entry_id AND entry_type = 'Event'")
     }
 
   # CLASS METHODS

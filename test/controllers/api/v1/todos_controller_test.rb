@@ -5,6 +5,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
   context 'as authorized user' do
     setup do
       stub_current_user
+      @annotation_category = AnnotationCategory.first
     end
 
     should 'get filter title and description' do
@@ -17,9 +18,9 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 0, json['data'].size
 
-      Todo.create!(detail: 'ganz wichtig', entry: orga, annotation: Annotation.first)
-      Todo.create!(detail: 'ganz wichtig 2', entry: orga, annotation: Annotation.first)
-      Todo.create!(detail: 'ganz wichtig', entry: event, annotation: Annotation.first)
+      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
+      Annotation.create!(detail: 'ganz wichtig 2', entry: orga, annotation_category: @annotation_category)
+      Annotation.create!(detail: 'ganz wichtig', entry: event, annotation_category: @annotation_category)
 
       get :index, params: { filter: { title: 'Garten' } }
       json = JSON.parse(response.body)
@@ -36,10 +37,10 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
 
     should 'get todos default filter and sort' do
       assert orga = create(:another_orga)
-      todo1 = Todo.create!(detail: 'ganz wichtig', entry: orga, annotation: Annotation.first)
+      todo1 = Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
       sleep(1)
       assert event = create(:event)
-      todo2 = Todo.create!(detail: 'Mache ma!', entry: event, annotation: Annotation.first)
+      todo2 = Annotation.create!(detail: 'Mache ma!', entry: event, annotation_category: @annotation_category)
 
       get :index, params: { include: 'annotations', filter: { todo: '' } }
       json = JSON.parse(response.body)
@@ -51,13 +52,17 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
         data: [
           {
             type: 'todos', id: todo2.id.to_s,
-            attributes: { messages: ['Mache ma!'] },
-            relationships: { entry: { data: event.to_hash } }
+            relationships: {
+              annotation: { data: todo2.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: event.to_hash }
+            }
           },
           {
             type: 'todos', id: todo1.id.to_s,
-            attributes: { messages: ['ganz wichtig'] },
-            relationships: { entry: { data: orga.to_hash } }
+            relationships: {
+              annotation: { data: todo1.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: orga.to_hash }
+            }
           }
         ]
       }
@@ -66,10 +71,10 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
 
     should 'multiple sort todos' do
       assert orga = create(:another_orga, title: 'foo'*3)
-      todo1 = Todo.create!(detail: 'ganz wichtig', entry: orga, annotation: Annotation.first)
+      todo1 = Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
       sleep(1)
       assert event = create(:event, title: 'foo'*3)
-      todo2 = Todo.create!(detail: 'Mache ma!', entry: event, annotation: Annotation.first)
+      todo2 = Annotation.create!(detail: 'Mache ma!', entry: event, annotation_category: @annotation_category)
 
       get :index, params: { filter: { todo: '' }, sort: 'title,-state_changed_at,title' }
       json = JSON.parse(response.body)
@@ -81,13 +86,17 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
         data: [
           {
             type: 'todos', id: todo2.id.to_s,
-            attributes: { messages: ['Mache ma!'] },
-            relationships: { entry: { data: event.to_hash } }
+            relationships: {
+              annotation: { data: todo2.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: event.to_hash }
+            }
           },
           {
             type: 'todos', id: todo1.id.to_s,
-            attributes: { messages: ['ganz wichtig'] },
-            relationships: { entry: { data: orga.to_hash } }
+            relationships: {
+              annotation: { data: todo1.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: orga.to_hash }
+            }
           }
         ]
       }

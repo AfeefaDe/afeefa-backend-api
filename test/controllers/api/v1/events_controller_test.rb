@@ -100,8 +100,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-        payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
-        payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
+        payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
+        payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
       end
       post :create, params: params
       assert_response :created, response.body
@@ -114,8 +114,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-        payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
-        payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
+        payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
+        payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
       end
       params['data']['relationships'].merge!(
         'creator' => {
@@ -163,8 +163,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-        payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
-        payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
+        payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
+        payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
       end
       params['data']['attributes'].merge!('active' => true)
       params['data']['relationships'].merge!(
@@ -177,8 +177,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       )
 
       assert_difference 'Event.count' do
-        assert_no_difference 'Annotation.count' do
-          assert_difference 'Todo.count', 2 do
+        assert_no_difference 'AnnotationCategory.count' do
+          assert_difference 'Annotation.count', 2 do
             post :create, params: params
             assert_response :created, response.body
           end
@@ -187,8 +187,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_equal StateMachine::ACTIVE.to_s, Event.last.state
       assert_equal true, json['data']['attributes']['active']
-      assert_includes Annotation.first.events, Event.last
-      assert_includes Annotation.second.events, Event.last
+      assert_includes AnnotationCategory.first.events, Event.last
+      assert_includes AnnotationCategory.second.events, Event.last
 
       # Then we could deliver the mapping there
       %w(annotations locations contact_infos).each do |relation|
@@ -237,8 +237,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
           payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
           payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-          payload.gsub!('<annotation_id_1>', Annotation.first.id.to_s)
-          payload.gsub!('<annotation_id_2>', Annotation.second.id.to_s)
+          payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
+          payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
         end
         params['data']['attributes'].merge!('state' => StateMachine::ACTIVE.to_s)
         post :create, params: params
@@ -263,7 +263,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'fail for invalid' do
       assert_no_difference 'Event.count' do
-        assert_no_difference 'Annotation.count' do
+        assert_no_difference 'AnnotationCategory.count' do
           assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
               post :create, params: {
@@ -294,13 +294,13 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'update event without sub_category' do
       event = create(:event, title: 'foobar')
-      event.annotations.create(title: 'annotation123')
+      Annotation.create!(detail: 'annotation123', entry: event, annotation_category: AnnotationCategory.first)
       annotation = event.annotations.last
 
       assert_no_difference 'Event.count' do
         assert_no_difference 'ContactInfo.count' do
           assert_no_difference 'Location.count' do
-            assert_no_difference 'Annotation.count' do
+            assert_no_difference 'AnnotationCategory.count' do
               patch :update,
                 params: {
                   id: event.id,
@@ -323,7 +323,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal 'Street Store', event.title
       assert_equal 1, event.annotations.count
       assert_equal annotation.reload, event.annotations.first
-      assert_equal 'annotation123', annotation.reload.title
+      assert_equal 'foo-bar', annotation.reload.detail
       assert_equal Category.main_categories.first.id, event.category_id
     end
 
@@ -333,7 +333,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_difference 'Event.undeleted.count', -1 do
           assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
-              assert_no_difference 'Annotation.count' do
+              assert_no_difference 'AnnotationCategory.count' do
                 delete :destroy,
                   params: {
                     id: @event.id,
@@ -356,7 +356,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_no_difference 'Event.undeleted.count' do
           assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
-              assert_no_difference 'Annotation.count' do
+              assert_no_difference 'AnnotationCategory.count' do
                 delete :destroy,
                   params: {
                     id: @event.id,
@@ -372,27 +372,27 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'update an event without creator and set the creator automatically' do
-      assert @event = create(:event)
-      @event.creator = nil
-      assert @event.save(validate: false)
-      @event.annotations.create(title: 'annotation123')
-      annotation = @event.annotations.last
+      assert event = create(:event)
+      event.creator = nil
+      assert event.save(validate: false)
+      Annotation.create!(detail: 'annotation123', entry: event, annotation_category: AnnotationCategory.first)
+      annotation = event.annotations.last
 
       assert_no_difference 'Event.count' do
         patch :update,
           params: {
-            id: @event.id,
+            id: event.id,
           }.merge(
             parse_json_file(
               file: 'update_event_without_sub_category.json'
             ) do |payload|
-              payload.gsub!('<id>', @event.id.to_s)
+              payload.gsub!('<id>', event.id.to_s)
               payload.gsub!('<annotation_id_1>', annotation.id.to_s)
               payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
             end
           )
         assert_response :ok, response.body
-        assert @controller.current_api_v1_user, @event.reload.creator
+        assert @controller.current_api_v1_user, event.reload.creator
       end
     end
   end

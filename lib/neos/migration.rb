@@ -258,13 +258,13 @@ module Neos
       def create_annotations(new_entry, details)
         [details].flatten.each do |detail|
           todo =
-            Todo.new(
+            Annotation.new(
               entry: new_entry,
-              annotation: Annotation.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
+              annotation_category: AnnotationCategory.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
               detail: detail.try(:strip)
             )
           unless todo.save
-            puts "Todo is not valid, but we will save it. Errors: #{todo.errors.full_messages}"
+            puts "Annotation is not valid, but we will save it. Errors: #{todo.errors.full_messages}"
             todo.save(validate: false)
           end
         end
