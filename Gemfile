@@ -121,6 +121,7 @@ group :development do
   # Use Capistrano for deployment
   gem 'capistrano-rails'
   # TODO: use puma for production, modify deployment!
+  # noe, stinkt zu sehr
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
