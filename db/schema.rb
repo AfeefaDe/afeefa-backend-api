@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170428133201) do
+ActiveRecord::Schema.define(version: 20170429205106) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -61,6 +61,7 @@ ActiveRecord::Schema.define(version: 20170428133201) do
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.text     "description",        limit: 65535
+    t.text     "short_description",  limit: 65535
     t.string   "public_speaker"
     t.string   "location_type"
     t.boolean  "support_wanted"
@@ -83,7 +84,6 @@ ActiveRecord::Schema.define(version: 20170428133201) do
     t.boolean  "certified_sfr"
     t.string   "legacy_entry_id"
     t.boolean  "migrated_from_neos",               default: false
-    t.text     "short_description",  limit: 65535
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
@@ -125,6 +125,7 @@ ActiveRecord::Schema.define(version: 20170428133201) do
     t.datetime "updated_at",                                       null: false
     t.string   "title"
     t.text     "description",        limit: 65535
+    t.text     "short_description",  limit: 65535
     t.integer  "parent_id"
     t.string   "state"
     t.datetime "state_changed_at"
@@ -137,7 +138,6 @@ ActiveRecord::Schema.define(version: 20170428133201) do
     t.boolean  "certified_sfr"
     t.string   "legacy_entry_id"
     t.boolean  "migrated_from_neos",               default: false
-    t.text     "short_description",  limit: 65535
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end
