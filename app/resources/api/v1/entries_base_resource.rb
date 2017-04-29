@@ -3,7 +3,7 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
   abstract
 
   ATTRIBUTES = [
-    :title, :description, :created_at, :updated_at,
+    :title, :description, :short_description, :created_at, :updated_at,
     :media_url, :media_type,
     :state_changed_at, :active]
   # define attributes in sub class like this:

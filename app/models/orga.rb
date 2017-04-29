@@ -44,7 +44,7 @@ class Orga < ApplicationRecord
 
     def attribute_whitelist_for_json
       (default_attributes_for_json +
-        %i(description media_url media_type
+        %i(description short_description media_url media_type 
             support_wanted for_children certified_sfr legacy_entry_id)).freeze
     end
 
