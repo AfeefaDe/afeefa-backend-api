@@ -21,7 +21,7 @@ class Api::V1::FacebookEventsControllerTest < ActionController::TestCase
       skip 'there are no events so we can not test the content of the events'
     end
     json.each_with_index do |json_event, index|
-      %w(name description start_time link_to_event owner link_to_owner).each do |attr|
+      %w(name start_time link_to_event owner link_to_owner).each do |attr|
         assert json_event[attr], "There is no attribute #{attr} for event #{json_event}"
       end
       if index < json.size - 1
