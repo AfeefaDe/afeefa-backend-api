@@ -29,7 +29,7 @@ module Seeds
     end
 
     # categories and sub categories
-    Able::SUB_CATEGORIES.each do |main_category, categories|
+    Neos::Migration::SUB_CATEGORIES.each do |main_category, categories|
       unless new_main_category = Category.find_by_title(main_category)
         new_main_category =
           Category.create!(title: main_category)

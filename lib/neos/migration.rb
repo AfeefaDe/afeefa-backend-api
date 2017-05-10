@@ -1,6 +1,77 @@
 module Neos
   module Migration
 
+    # CONSTANTS
+    SUB_CATEGORIES =
+      # mapping for subcategories given by old frontend
+      {
+        general: [
+          { name: 'wifi', id: '0-1' },
+          { name: 'jewish', id: '0-2' },
+          { name: 'christian', id: '0-3' },
+          { name: 'islam', id: '0-4' },
+          { name: 'religious-other', id: '0-5' },
+          { name: 'shop', id: '0-6' },
+          { name: 'nature', id: '0-7' },
+          { name: 'authority', id: '0-8' },
+          { name: 'hospital', id: '0-9' },
+          { name: 'police', id: '0-10' },
+          { name: 'public-transport', id: '0-11' }
+        ],
+        language: [
+          { name: 'german-course', id: '1-1' },
+          { name: 'interpreter', id: '1-2' },
+          { name: 'learning-place', id: '1-3' },
+          { name: 'tandem', id: '1-4' }
+        ],
+        medic: [
+          { name: 'medical-counselling', id: '2-1' },
+          { name: 'medical-care', id: '2-2' },
+          { name: 'psychological-counselling', id: '2-3' }
+        ],
+        jobs: [
+          { name: 'job-counselling', id: '3-1' },
+          { name: 'education-counselling', id: '3-2' },
+          { name: 'political-education', id: '3-3' },
+          { name: 'education-sponsorship', id: '3-4' },
+          { name: 'library', id: '3-5' }
+        ],
+        consultation: [
+          { name: 'asylum-counselling', id: '4-1' },
+          { name: 'legal-advice', id: '4-2' },
+          { name: 'social-counselling', id: '4-3' },
+          { name: 'family-counselling', id: '4-4' },
+          { name: 'women-counselling', id: '4-5' },
+          { name: 'volunteer-coordination', id: '4-6' }
+        ],
+        leisure: [
+          { name: 'youth-club', id: '5-1' },
+          { name: 'sports', id: '5-2' },
+          { name: 'museum', id: '5-3' },
+          { name: 'music', id: '5-4' },
+          { name: 'stage', id: '5-5' },
+          { name: 'craft-art', id: '5-6' },
+          { name: 'gardening', id: '5-7' },
+          { name: 'cooking', id: '5-8' },
+          { name: 'festival', id: '5-9' },
+          { name: 'lecture', id: '5-10' }
+        ],
+        community: [
+          { name: 'welcome-network', id: '6-1' },
+          { name: 'meeting-place', id: '6-2' },
+          { name: 'childcare', id: '6-3' },
+          { name: 'workshop', id: '6-4' },
+          { name: 'sponsorship', id: '6-5' },
+          { name: 'lgbt', id: '6-6' },
+          { name: 'housing-project', id: '6-7' }
+        ],
+        donation: [
+          { name: 'food', id: '7-1' },
+          { name: 'clothes', id: '7-2' },
+          { name: 'furniture', id: '7-3' }
+        ]
+      }
+
     class << self
       def migrate(migrate_phraseapp: false, limit: {})
         limit = limit || {}
@@ -37,6 +108,7 @@ module Neos
               certified_sfr: orga.certified,
               legacy_entry_id: orga.entry_id.try(:strip),
               migrated_from_neos: true,
+              tags: orga.try(:tags).try(:strip) || '',
               sub_category:
                 if orga.subcategory
                   ::Category.find_by_title(orga.subcategory)
@@ -76,6 +148,7 @@ module Neos
               certified_sfr: event.certified,
               legacy_entry_id: event.entry_id.try(:strip),
               migrated_from_neos: true,
+              tags: event.try(:tags).try(:strip) || '',
               sub_category:
                 if event.subcategory
                   ::Category.find_by_title(event.subcategory)
@@ -96,8 +169,9 @@ module Neos
         end
 
         puts "Migration finished (#{Time.current.to_s})."
-        puts "Categories: IS: #{::Category.count}, SHOULD: #{categories.count} " +
-          '(sub categories where former strings)'
+        puts "Categories: IS: #{::Category.count}, " +
+          "SHOULD: #{SUB_CATEGORIES.keys.count} maincategories from configuration + " +
+          "#{SUB_CATEGORIES.values.flatten.count} subcategories from configuration"
         puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{orgas.count}"
         puts "Events: IS: #{::Event.count}, SHOULD: #{events.count}"
       end
@@ -134,7 +208,7 @@ module Neos
 
       def parse_datetime_and_return_type(attribute, date_string, time_string)
         date_string = date_string
-        if date_string.strip =~ /\Ad{4}\z/
+        if date_string.try(:strip).to_s =~ /\Ad{4}\z/
           puts "date_string #{attribute} is a year, we assume 01.01.#{date_string}"
           date_string = "#{date_string}-01-01"
         end
@@ -242,7 +316,7 @@ module Neos
           ContactInfo.new(
             contactable: new_entry,
             web: entry.web.try(:strip),
-            facebook: entry.facebook.try(:strip),
+            social_media: entry.facebook.try(:strip),
             spoken_languages: entry.spokenlanguages.try(:strip),
             mail: entry.mail.try(:strip),
             phone: entry.phone.try(:strip),
