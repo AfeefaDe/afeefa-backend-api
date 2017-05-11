@@ -48,11 +48,11 @@ module Able
     validate :validate_parent_id, if: -> { parent_id.present? }
 
     # HOOKS
-    after_create :create_entry
+    after_create :create_entry!
     before_destroy :deny_destroy_if_associated_objects_present, prepend: true
     after_destroy :destroy_entry
 
-    def create_entry
+    def create_entry!
       if is_a?(Orga) && root_orga?
         true
       else
