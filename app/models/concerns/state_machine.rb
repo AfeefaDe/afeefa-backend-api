@@ -52,16 +52,16 @@ module StateMachine
       end
     end
 
-    attr_accessor :active
+    attr_writer :active
 
     before_create do
       self.state_changed_at = created_at
     end
 
     before_save do
-      if !active? && active.to_s == 'true'
+      if !active? && @active.to_s == 'true'
         activate!
-      elsif !inactive? && active.to_s == 'false'
+      elsif !inactive? && @active.to_s == 'false'
         deactivate!
       end
     end
@@ -80,6 +80,10 @@ module StateMachine
     #     restore!
     #   end
     # end
+
+    def active
+      active?
+    end
   end
 
 end

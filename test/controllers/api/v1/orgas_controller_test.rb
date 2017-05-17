@@ -59,6 +59,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_response :ok, response.body
         json = JSON.parse(response.body)
         assert_kind_of Hash, json['data']
+        assert_equal false, json['data']['attributes']['active']
         assert_equal Orga.attribute_whitelist_for_json.sort, json['data']['attributes'].symbolize_keys.keys.sort
         assert_equal Orga.relation_whitelist_for_json.sort, json['data']['relationships'].symbolize_keys.keys.sort
       end

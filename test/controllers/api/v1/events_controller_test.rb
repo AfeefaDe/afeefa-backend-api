@@ -203,33 +203,30 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     should 'An event should only change allowed states' do
       # allowed transition active -> inactive
       orga = create(:another_orga)
-      active_event = create(:active_event, orga: orga)
-      assert active_event.active?
-      last_state_change = active_event.state_changed_at
-      last_update = active_event.state_changed_at
+      event = create(:event, orga: orga)
+      assert event.inactive?
+      last_state_change = event.state_changed_at
+      last_update = event.state_changed_at
 
       sleep 1
 
       process :update, methode: :patch, params: {
-        id: active_event.id,
+        id: event.id,
         data: {
-          id: active_event.id,
+          id: event.id,
           type: 'events',
           attributes: {
-            active: false
+            active: true
           }
         }
       }
-
       assert_response :ok, response.body
-
       json = JSON.parse(response.body)
-
+      assert event.reload.active?
       assert(
-        last_state_change < json['data']['attributes']['state_changed_at'],
+        last_state_change < DateTime.parse(json['data']['attributes']['state_changed_at']),
         "#{last_state_change} is not newer than #{json['data']['attributes']['state_changed_at']}")
       assert last_update < json['data']['attributes']['updated_at']
-      assert active_event.reload.inactive?
     end
 
     should 'ignore given state on event create' do
