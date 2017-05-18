@@ -117,6 +117,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 assert_equal(
                   [
                     'Titel - muss ausgefüllt werden',
+                    'Kurzbeschreibung - muss ausgefüllt werden',
                   # 'Beschreibung - muss ausgefüllt werden',
                   # 'Kategorie - ist kein gültiger Wert'
                   ],

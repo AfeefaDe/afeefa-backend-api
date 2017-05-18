@@ -277,6 +277,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
               assert_equal(
                 [
                   'Titel - muss ausgefüllt werden',
+                  'Kurzbeschreibung - muss ausgefüllt werden',
                   # 'Beschreibung - muss ausgefüllt werden',
                   # 'Kategorie - ist kein gültiger Wert',
                   'Start-Datum - muss ausgefüllt werden'

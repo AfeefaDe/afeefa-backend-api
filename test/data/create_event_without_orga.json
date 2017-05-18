@@ -3,6 +3,7 @@
     "attributes": {
       "title": "some title",
       "description": "some description",
+      "short_description": "short description",
       "date_start": "2016-12-12"
     },
     "relationships": {

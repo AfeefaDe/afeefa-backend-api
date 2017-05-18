@@ -42,7 +42,7 @@ module Able
     validates :title, presence: true, length: { maximum: 150 }
     # FIXME: Disabled for testing Todos
     # validates :description, presence: true
-    # validates :short_description, presence: true
+    validates :short_description, presence: true
     validates :short_description, length: { maximum: 350 }
 
     validate :validate_parent_id, if: -> { parent_id.present? }

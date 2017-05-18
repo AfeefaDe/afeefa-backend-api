@@ -109,6 +109,7 @@ module Neos
               legacy_entry_id: orga.entry_id.try(:strip),
               migrated_from_neos: true,
               tags: orga.try(:tags).try(:strip) || '',
+              active: true,
               sub_category:
                 if orga.subcategory
                   ::Category.find_by_title(orga.subcategory)
@@ -149,6 +150,7 @@ module Neos
               legacy_entry_id: event.entry_id.try(:strip),
               migrated_from_neos: true,
               tags: event.try(:tags).try(:strip) || '',
+              active: true,
               sub_category:
                 if event.subcategory
                   ::Category.find_by_title(event.subcategory)

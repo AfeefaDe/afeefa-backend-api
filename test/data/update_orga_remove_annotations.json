@@ -3,7 +3,8 @@
     "id": "<id>",
     "attributes": {
       "title": "Ein Test 3",
-      "description": "iwefowihjf"
+      "description": "iwefowihjf",
+      "short_description": "short description"
     },
     "relationships": {
       //      "parent_orga":{

@@ -4,6 +4,7 @@
       "title": "some title",
       //      "active":true,
       "description": "iwefowihjf",
+      "short_description": "short description",
       "created_at": null,
       "updated_at": null,
       "state_changed_at": null

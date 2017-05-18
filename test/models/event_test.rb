@@ -31,9 +31,11 @@ class EventTest < ActiveSupport::TestCase
     event = Event.new(date_start: Date.tomorrow)
     event.title = '   abc 123   '
     event.description = '   abc 123   '
+    event.short_description = '   abc 123   '
     assert event.valid?, event.errors.messages
     assert_equal 'abc 123', event.title
     assert_equal 'abc 123', event.description
+    assert_equal 'abc 123', event.short_description
   end
 
   should 'create translation on event create' do

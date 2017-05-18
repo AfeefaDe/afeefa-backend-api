@@ -8,6 +8,7 @@
       "title": "Street Store",
       "active": true,
       "description": "Der weltweit erste Straßenladen für Kleidung, Informationen, Sprachen u.v.m.",
+      "short_description": "short description",
       "created_at": "2016-12-14T19:10:00.000Z",
       "updated_at": "2016-12-14T19:10:00.000Z",
       "state_changed_at": "2016-12-14T19:10:00.000Z"
