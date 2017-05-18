@@ -17,12 +17,12 @@ class Api::V1::BaseController < ApplicationController
     head :unprocessable_entity
   end
 
-  on_server_error do |error|
+  # on_server_error do |error|
     # do custom code or debugging here
     # binding.pry
     # pp error
     # pp error.backtrace
-  end
+  # end
 
 ##############################
 
@@ -31,32 +31,36 @@ class Api::V1::BaseController < ApplicationController
   before_action :filter_objects, only: %i(index show get_related_resources)
 
   def index
-    render_objects_to_json
+    render_objects_to_json(@objects)
   end
 
   def show
     object = @objects.find(params[:id])
+    render_single_object_to_json(object)
+  end
+
+  def get_related_resources
+    render_objects_to_json(@objects)
+  end
+
+  private
+
+  def render_objects_to_json(objects)
+    json_hash =
+      objects.try do |objects_in_try|
+        objects_in_try.map do |object|
+          object.try(:send, to_hash_method)
+        end
+      end || []
+    render json: { data: json_hash }
+  end
+
+  def render_single_object_to_json(object)
     render json: {
       data: object.send(to_hash_method,
         attributes: object.class.attribute_whitelist_for_json,
         relationships: object.class.relation_whitelist_for_json)
     }
-  end
-
-  def get_related_resources
-    render_objects_to_json
-  end
-
-  private
-
-  def render_objects_to_json
-    json_hash =
-      @objects.try do |objects|
-        objects.map do |object|
-          object.try(:send, to_hash_method)
-        end
-      end || []
-    render json: { data: json_hash }
   end
 
   def to_hash_method
@@ -97,7 +101,11 @@ class Api::V1::BaseController < ApplicationController
   def find_objects
     @objects =
       base_for_find_objects ||
-        self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize.all
+        get_model_class_for_controller.all
+  end
+
+  def get_model_class_for_controller
+    self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize
   end
 
   def filter_objects

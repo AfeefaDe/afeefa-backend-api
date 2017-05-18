@@ -328,8 +328,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert @event = create(:event)
       assert_difference 'Event.count', -1 do
         assert_difference 'Event.undeleted.count', -1 do
-          assert_no_difference 'ContactInfo.count' do
-            assert_no_difference 'Location.count' do
+          assert_difference 'ContactInfo.count', -1 do
+            assert_difference 'Location.count', -1 do
               assert_no_difference 'AnnotationCategory.count' do
                 delete :destroy,
                   params: {

@@ -53,7 +53,7 @@ class Api::V1::BaseResource < JSONAPI::Resource
       end if field_data[:to_one]
 
       field_data[:to_many].each do |relationship_type, values|
-        _model.send("#{relationship_type}=", [])
+        # _model.send("#{relationship_type}=", [])
         values.map! do |data|
           handle_associated_object_creation(:to_many, relationship_type, data)
         end

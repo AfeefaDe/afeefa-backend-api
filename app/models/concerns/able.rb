@@ -19,10 +19,10 @@ module Able
     auto_strip_attributes :title, :description, :short_description
 
     # ATTRIBUTES AND ASSOCIATIONS
-    has_many :locations, as: :locatable
-    has_many :contact_infos, as: :contactable
+    has_many :locations, as: :locatable, dependent: :destroy
+    has_many :contact_infos, as: :contactable, dependent: :destroy
 
-    has_many :annotations, as: :entry
+    has_many :annotations, as: :entry, dependent: :destroy
     has_many :annotation_categories, through: :annotations
 
     belongs_to :category, optional: true
