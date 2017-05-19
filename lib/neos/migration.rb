@@ -132,9 +132,20 @@ module Neos
             type_datetime_from =
               parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
             type_datetime_to =
-              parse_datetime_and_return_type(
-                :date_end,
-                event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
+              if event.timeto.blank?
+                if event.dateto.blank?
+                  nil
+                else
+                  if event.dateto == event.datefrom
+                    nil
+                  else
+                    parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
+                  end
+                end
+              else
+                parse_datetime_and_return_type(:date_end,
+                  event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
+              end
             if type_datetime_from.first.nil? || type_datetime_from.last.nil?
               puts "failing on parsing date or time for event: #{event.inspect}"
             end
