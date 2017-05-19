@@ -2,18 +2,11 @@ module Inheritable
 
   extend ActiveSupport::Concern
 
-  INHERITABLE_ATTRIBUTES = %i(short_description contact_infos locations)
+  INHERITABLE_ATTRIBUTES_REGEX =
+    /\A(short_description|contact_infos|locations)(\|(short_description|contact_infos|locations))*\z/
 
   included do
-    validate :validate_inheritance
-  end
-
-  protected
-
-  def validate_inheritance
-    if inheritance.present? && (inheritance.map(&:to_sym) - INHERITABLE_ATTRIBUTES).any?
-      errors.add(:inheritance)
-    end
+    validates_format_of :inheritance, with: INHERITABLE_ATTRIBUTES_REGEX, allow_blank: true
   end
 
 end
