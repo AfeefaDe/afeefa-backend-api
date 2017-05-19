@@ -4,7 +4,9 @@
     "attributes": {
       "title": "Ein Test 3",
       "description": "iwefowihjf",
-      "short_description": "short description"
+      "short_description": "short description",
+      "media_url": "",
+      "for_children": true
     },
     "relationships": {
       //      "parent_orga":{
