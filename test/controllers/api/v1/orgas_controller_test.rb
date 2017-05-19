@@ -49,6 +49,40 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_response :not_found, response.body
     end
 
+    should 'I want to create a new orga' do
+      params = parse_json_file do |payload|
+        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+        payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
+        payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
+      end
+      params['data']['attributes'].merge!('active' => true)
+
+      assert_difference 'Orga.count' do
+        assert_no_difference 'AnnotationCategory.count' do
+          assert_difference 'Annotation.count', 2 do
+            post :create, params: params
+            assert_response :created, response.body
+          end
+        end
+      end
+      json = JSON.parse(response.body)
+      assert_equal StateMachine::ACTIVE.to_s, Orga.last.state
+      assert_equal true, json['data']['attributes']['active']
+
+      # ensure parent orga handling, do not render root_orga into relations
+      assert_equal Orga.root_orga.id, Orga.last.parent_id
+      parent_orga_json = json['data']['relationships']['parent_orga']
+      assert(parent_orga_json.blank?, 'Parent Orga should not be present in json relations.')
+
+      # Then we could deliver the mapping there
+      %w(annotations locations contact_infos).each do |relation|
+        assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
+        to_check = json['data']['relationships'][relation]['data'].first
+        assert_equal relation, to_check['type']
+      end
+    end
+
     context 'with given orga' do
       setup do
         @orga = create(:orga)
@@ -64,41 +98,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal Orga.relation_whitelist_for_json.sort, json['data']['relationships'].symbolize_keys.keys.sort
       end
 
-      should 'I want to create a new orga' do
-        params = parse_json_file do |payload|
-          payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-          payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-          payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
-          payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
-        end
-        params['data']['attributes'].merge!('active' => true)
-
-        assert_difference 'Orga.count' do
-          assert_no_difference 'AnnotationCategory.count' do
-            assert_difference 'Annotation.count', 2 do
-              post :create, params: params
-              assert_response :created, response.body
-            end
-          end
-        end
-        json = JSON.parse(response.body)
-        assert_equal StateMachine::ACTIVE.to_s, Orga.last.state
-        assert_equal true, json['data']['attributes']['active']
-
-        # ensure parent orga handling, do not render root_orga into relations
-        assert_equal Orga.root_orga.id, Orga.last.parent_id
-        parent_orga_json = json['data']['relationships']['parent_orga']
-        assert(parent_orga_json.blank?, 'Parent Orga should not be present in json relations.')
-
-        # Then we could deliver the mapping there
-        %w(annotations locations contact_infos).each do |relation|
-          assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
-          to_check = json['data']['relationships'][relation]['data'].first
-          assert_equal relation, to_check['type']
-        end
-      end
-
-      should 'fail for invalid' do
+      should 'update should fail for invalid' do
         assert_no_difference 'Orga.count' do
           assert_no_difference 'AnnotationCategory.count' do
             assert_no_difference 'ContactInfo.count' do

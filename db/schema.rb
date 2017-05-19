@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170510152111) do
+ActiveRecord::Schema.define(version: 20170519093309) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -85,6 +85,7 @@ ActiveRecord::Schema.define(version: 20170510152111) do
     t.string   "legacy_entry_id"
     t.boolean  "migrated_from_neos",               default: false
     t.string   "tags"
+    t.json     "inheritance"
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
@@ -140,6 +141,7 @@ ActiveRecord::Schema.define(version: 20170510152111) do
     t.string   "legacy_entry_id"
     t.boolean  "migrated_from_neos",               default: false
     t.string   "tags"
+    t.json     "inheritance"
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end

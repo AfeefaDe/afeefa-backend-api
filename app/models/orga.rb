@@ -49,7 +49,7 @@ class Orga < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(title created_at updated_at state_changed_at active).freeze
+      %i(title created_at updated_at state_changed_at active inheritance).freeze
     end
 
     def relation_whitelist_for_json

@@ -5,9 +5,8 @@ module Able
   included do
     # INCLUDES
     include StateMachine
-
-    # TRANSLATABLE
     include Translatable
+    include Inheritable
 
     class << self
       def translatable_attributes

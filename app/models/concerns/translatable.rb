@@ -2,9 +2,9 @@ module Translatable
 
   extend ActiveSupport::Concern
 
-  included do
-    DEFAULT_LOCALE = 'de'
+  DEFAULT_LOCALE = 'de'
 
+  included do
     after_save :update_or_create_translations,
       if: -> { (Settings.phraseapp.active rescue false) && !skip_phraseapp_translations? }
     after_destroy :destroy_translations,
