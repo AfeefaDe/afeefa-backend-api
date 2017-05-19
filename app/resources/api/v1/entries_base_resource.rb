@@ -4,7 +4,7 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
 
   ATTRIBUTES = [
     :title, :description, :short_description, :created_at, :updated_at,
-    :media_url, :media_type, :for_children,
+    :media_url, :media_type, :for_children, :support_wanted,
     :state_changed_at, :active, :inheritance]
   # define attributes in sub class like this:
   # attributes *ATTRIBUTES
