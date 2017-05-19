@@ -85,7 +85,7 @@ ActiveRecord::Schema.define(version: 20170519093309) do
     t.string   "legacy_entry_id"
     t.boolean  "migrated_from_neos",               default: false
     t.string   "tags"
-    t.json     "inheritance"
+    t.string   "inheritance"
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
@@ -141,7 +141,7 @@ ActiveRecord::Schema.define(version: 20170519093309) do
     t.string   "legacy_entry_id"
     t.boolean  "migrated_from_neos",               default: false
     t.string   "tags"
-    t.json     "inheritance"
+    t.string   "inheritance"
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end
