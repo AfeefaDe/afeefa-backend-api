@@ -154,8 +154,17 @@ class PhraseAppClient
   end
 
   def delete_all_keys
-    params = PhraseApp::RequestParams::KeysDeleteParams.new(q: '*')
-    @client.keys_delete(@project_id, params).first.records_affected
+    begin
+      params = PhraseApp::RequestParams::KeysDeleteParams.new(q: '*')
+      @client.keys_delete(@project_id, params).first.records_affected
+      raise 'foo'
+    rescue => exception
+      message = 'Could not delete all keys for '
+      message << "the following error: #{exception.message}\n"
+      message << "#{exception.backtrace[0..14].join("\n")}"
+      logger.error message
+      raise message if Rails.env.development?
+    end
   end
 
 end
