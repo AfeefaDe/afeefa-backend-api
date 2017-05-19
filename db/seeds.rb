@@ -24,7 +24,7 @@ module Seeds
     Category.delete_all
 
     if cleanup_phraseapp
-      self.cleanup_phraseapp!
+      cleanup_phraseapp!
     end
 
     # categories and sub categories
@@ -78,12 +78,12 @@ module Seeds
 end
 
 pp "Start seeding database (#{Time.current.to_s})."
-Seeds.recreate_all(cleanup_phraseapp!: (Settings.phraseapp.active rescue false))
+Seeds.recreate_all(cleanup_phraseapp: (Settings.phraseapp.active rescue false))
 pp "Seeding database finished (#{Time.current.to_s})."
 unless Rails.env.test?
   begin
     Neos::Migration.
-      migrate(migrate_phraseapp: (Settings.phraseapp.active rescue false), limit: { orgas: nil, events: nil })
+      migrate(migrate_phraseapp: (Settings.phraseapp.active rescue false), limit: { orgas: 1, events: 1 })
   rescue ActiveRecord::NoDatabaseError => _exception
     pp 'Migration of live db data could not be processed because the db configured in database.yml ' +
       'could not be found. Is db connection \'afeefa\' defined correctly? ' +
