@@ -108,6 +108,5 @@ namespace :deploy do
 
 end
 
-after 'deploy', 'deploy:seed_db'
 after 'deploy', 'deploy:restart'
 after 'deploy:rollback', 'deploy:restart'
