@@ -30,12 +30,20 @@ class OrgaTest < ActiveSupport::TestCase
     assert_not orga.valid?
     assert orga.errors[:locations].blank?
     assert_match 'muss ausgefüllt werden', orga.errors[:title].first
-    # assert_match 'muss ausgefüllt werden', orga.errors[:description].first
+    assert_match 'muss ausgefüllt werden', orga.errors[:short_description].first
+    # FIXME: validate category
+    # assert_match 'muss ausgefüllt werden', orga.errors[:category].first
+
     orga.short_description = '-' * 351
     assert_not orga.valid?
     assert_match 'ist zu lang', orga.errors[:short_description].first
 
-    # assert_match 'muss ausgefüllt werden', orga.errors[:category].first
+    orga.inheritance = [:foo]
+    assert_not orga.valid?
+    assert_match 'ist nicht gültig', orga.errors[:inheritance].first
+    orga.inheritance = [:short_description]
+    orga.valid?
+    orga.inheritance = [:short_description]
   end
 
   should 'auto strip name and description' do

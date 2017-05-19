@@ -80,7 +80,7 @@ end
 pp "Start seeding database (#{Time.current.to_s})."
 Seeds.recreate_all(cleanup_phraseapp: (Settings.phraseapp.active rescue false))
 pp "Seeding database finished (#{Time.current.to_s})."
-unless Rails.env.test?
+if Rails.env.development?
   begin
     Neos::Migration.
       migrate(migrate_phraseapp: (Settings.phraseapp.active rescue false), limit: { orgas: nil, events: nil })

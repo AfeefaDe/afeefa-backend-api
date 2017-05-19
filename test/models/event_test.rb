@@ -18,13 +18,20 @@ class EventTest < ActiveSupport::TestCase
     assert_not event.valid?
     assert event.errors[:locations].blank?
     assert_match 'muss ausgefüllt werden', event.errors[:title].first
-    # assert_match 'muss ausgefüllt werden', event.errors[:description].first
-    assert_match 'muss ausgefüllt werden', event.errors[:date_start].first
+    assert_match 'muss ausgefüllt werden', event.errors[:short_description].first
+    # FIXME: validate category
+    # assert_match 'muss ausgefüllt werden', event.errors[:category].first
+
     event.short_description = '-' * 351
     assert_not event.valid?
     assert_match 'ist zu lang', event.errors[:short_description].first
 
-    # assert_match 'muss ausgefüllt werden', event.errors[:category].first
+    event.inheritance = [:foo]
+    assert_not event.valid?
+    assert_match 'ist nicht gültig', event.errors[:inheritance].first
+    event.inheritance = [:short_description]
+    event.valid?
+    event.inheritance = [:short_description]
   end
 
   should 'auto strip name and description' do
