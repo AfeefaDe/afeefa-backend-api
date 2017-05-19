@@ -157,7 +157,6 @@ class PhraseAppClient
     begin
       params = PhraseApp::RequestParams::KeysDeleteParams.new(q: '*')
       @client.keys_delete(@project_id, params).first.records_affected
-      raise 'foo'
     rescue => exception
       message = 'Could not delete all keys for '
       message << "the following error: #{exception.message}\n"
