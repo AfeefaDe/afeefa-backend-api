@@ -171,9 +171,9 @@ module Neos
                   ::Category.find_by_title(event.category.name)
                 end,
               date_start: type_datetime_from[0],
-              date_end: type_datetime_to[0],
+              date_end: type_datetime_to.nil? ? nil : type_datetime_to[0],
               time_start: type_datetime_from[1] == :datetime,
-              time_end: type_datetime_to[1] == :datetime,
+              time_end: type_datetime_to.nil? ? nil : type_datetime_to[1] == :datetime,
               orga: parent_or_root_orga(event.parent),
               creator: User.first # TODO: assume that this is the system user → Is it?
             )

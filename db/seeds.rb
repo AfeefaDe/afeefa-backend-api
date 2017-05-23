@@ -80,7 +80,7 @@ end
 pp "Start seeding database (#{Time.current.to_s})."
 Seeds.recreate_all(cleanup_phraseapp: (Settings.phraseapp.active rescue false))
 pp "Seeding database finished (#{Time.current.to_s})."
-if Rails.env.development?
+#if Rails.env.development?
   begin
     Neos::Migration.
       migrate(migrate_phraseapp: (Settings.phraseapp.active rescue false), limit: { orgas: nil, events: nil })
@@ -93,5 +93,5 @@ if Rails.env.development?
       'Is db connection \'afeefa\' defined correctly? ' +
       'And did you import the db dump from repository?'
   end
-end
+#end
 # TODO: Discuss user logins for production!
