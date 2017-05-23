@@ -1,0 +1,3 @@
+class TranslationCache < ApplicationRecord
+
+end

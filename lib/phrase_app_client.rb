@@ -4,12 +4,12 @@ class PhraseAppClient
 
   def initialize(project_id: nil, token: nil)
     @project_id =
-      project_id ||
-        if Rails.env.production?
-          Settings.phraseapp.project_id
-        else
-          Settings.phraseapp.test_project_id
-        end || ''
+        project_id ||
+            if Rails.env.production?
+              Settings.phraseapp.project_id
+            else
+              Settings.phraseapp.test_project_id
+            end || ''
     @token = token || Settings.phraseapp.api_token || ''
     @fallback_list = Settings.phraseapp.fallback_list || []
 
@@ -24,11 +24,11 @@ class PhraseAppClient
 
   def logger
     @logger ||=
-      if log_file = Settings.phraseapp.log_file
-        Logger.new(log_file)
-      else
-        Rails.logger
-      end
+        if log_file = Settings.phraseapp.log_file
+          Logger.new(log_file)
+        else
+          Rails.logger
+        end
   end
 
   def create_or_update_translation(model, locale)
@@ -38,8 +38,8 @@ class PhraseAppClient
         content = model.send(attribute)
         key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
         key_id =
-          find_key_id_by_key_name(key) ||
-            create_key(key)
+            find_key_id_by_key_name(key) ||
+                create_key(key)
         next if content.blank?
 
         if translation_id = find_translation_id_by_key_id_and_locale(key_id, locale)
@@ -75,11 +75,11 @@ class PhraseAppClient
     {}.tap do |translation_hash|
       model.class.translatable_attributes.each do |attribute|
         key =
-          if model.class.to_s.start_with?('Neos::')
-            "entry.#{model.entry_id}.#{attribute}"
-          else
-            "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
-          end
+            if model.class.to_s.start_with?('Neos::')
+              "entry.#{model.entry_id}.#{attribute}"
+            else
+              "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
+            end
         key_id = find_key_id_by_key_name(key)
         next unless key_id
 
@@ -103,6 +103,11 @@ class PhraseAppClient
     end
   end
 
+  def get_all_translations(fallback: true)
+    params = PhraseApp::RequestParams::TranslationsByKeyParams.new()
+    @client.translations_list(@project_id, 1, 100000, params)[0]
+  end
+
   private
 
   def initialize_locales_for_project
@@ -118,10 +123,10 @@ class PhraseAppClient
 
   def create_translation_for_key(key_id, locale, content)
     params =
-      PhraseApp::RequestParams::TranslationParams.new(
-        locale_id: locale_id(locale),
-        content: content.to_s,
-        key_id: key_id)
+        PhraseApp::RequestParams::TranslationParams.new(
+            locale_id: locale_id(locale),
+            content: content.to_s,
+            key_id: key_id)
     @client.translation_create(@project_id, params)
   end
 
