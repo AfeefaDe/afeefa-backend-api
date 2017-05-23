@@ -25,7 +25,7 @@ class ContactInfo < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(contact_person mail phone web social_media opening_hours).freeze
+      %i(contact_person mail phone web social_media opening_hours spoken_languages).freeze
     end
 
     def relation_whitelist_for_json
