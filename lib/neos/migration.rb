@@ -109,7 +109,7 @@ module Neos
               legacy_entry_id: orga.entry_id.try(:strip),
               migrated_from_neos: true,
               tags: orga.try(:tags).try(:strip) || '',
-              active: true,
+              active: orga.published == true,
               sub_category:
                 if orga.subcategory
                   ::Category.find_by_title(orga.subcategory)
@@ -149,6 +149,7 @@ module Neos
             if type_datetime_from.first.nil? || type_datetime_from.last.nil?
               puts "failing on parsing date or time for event: #{event.inspect}"
             end
+
             ::Event.new(
               title: event.name.try(:strip),
               description: event.description.try(:strip) || '',
@@ -161,7 +162,7 @@ module Neos
               legacy_entry_id: event.entry_id.try(:strip),
               migrated_from_neos: true,
               tags: event.try(:tags).try(:strip) || '',
-              active: true,
+              active: event.published == true,
               sub_category:
                 if event.subcategory
                   ::Category.find_by_title(event.subcategory)
