@@ -27,6 +27,9 @@ module Able
     belongs_to :category, optional: true
     belongs_to :sub_category, class_name: 'Category', optional: true
 
+    # can be removed after migration
+    attr_accessor :skip_short_description_validation
+
     scope :annotated, -> { joins(:annotations) }
     scope :unannotated,
       -> {
@@ -41,8 +44,8 @@ module Able
     validates :title, presence: true, length: { maximum: 150 }
     # FIXME: Disabled for testing Todos
     # validates :description, presence: true
-    validates :short_description, presence: true
-    validates :short_description, length: { maximum: 350 }
+    validates :short_description, presence: true, unless: :skip_short_description_validation
+    validates :short_description, length: { maximum: 350 }, unless: :skip_short_description_validation
 
     validate :validate_parent_id, if: -> { parent_id.present? }
 

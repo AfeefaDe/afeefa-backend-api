@@ -279,11 +279,14 @@ module Neos
           # puts "saved valid entry '#{new_entry.title}'"
         else
           # binding.pry if new_entry.title.blank?
+          new_entry.skip_short_description_validation = true
           if new_entry.save(validate: false)
             # puts "saved invalid entry '#{new_entry.title}'"
           else
             puts "Entry not creatable: #{new_entry.errors.messages}"
           end
+          new_entry.skip_short_description_validation = false
+          new_entry.valid?
           create_annotations(new_entry, new_entry.errors.full_messages)
         end
         if new_entry.errors.key?(:category)
