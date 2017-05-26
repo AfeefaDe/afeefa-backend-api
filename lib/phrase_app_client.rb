@@ -103,9 +103,9 @@ class PhraseAppClient
     end
   end
 
-  def get_all_translations(fallback: true)
-    params = PhraseApp::RequestParams::TranslationsByKeyParams.new()
-    @client.translations_list(@project_id, 1, 100000, params)[0]
+  def get_all_translations
+    params = PhraseApp::RequestParams::TranslationsListParams.new
+    @client.translations_list(@project_id, 1, 100000, params)
   end
 
   private
@@ -169,6 +169,11 @@ class PhraseAppClient
       logger.error message
       raise message if Rails.env.development?
     end
+  end
+
+  def decode_key(key)
+    k = key.split('.')
+    {model: k[0], id: k[1], attribute: k[2]}
   end
 
 end

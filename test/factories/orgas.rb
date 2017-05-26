@@ -3,7 +3,7 @@ FactoryGirl.define do
   factory :orga do
     title 'an orga'
     description 'this is a description of this orga'
-    short_description 'this the short description'
+    short_description 'this is the short description'
 
     parent_orga { Orga.root_orga }
 
