@@ -44,10 +44,10 @@ module Able
     validates :title, presence: true, length: { maximum: 150 }, unless: :skip_all_validations?
     # FIXME: Disabled for testing Todos
     # validates :description, presence: true
-    validates :short_description, presence: true,
+    validates :short_description, presence: true, length: { maximum: 350 },
       unless: -> { skip_short_description_validation || skip_all_validations? }
-    validates :short_description, length: { maximum: 350 },
-      unless: -> { skip_short_description_validation || skip_all_validations? }
+
+    validates :tags, format: /\A[^\s]+\z/, allow_blank: true, unless: :skip_all_validations?
 
     validate :validate_parent_id, if: -> { parent_id.present? }
 

@@ -22,6 +22,13 @@ class EventTest < ActiveSupport::TestCase
     # FIXME: validate category
     # assert_match 'muss ausgefüllt werden', event.errors[:category].first
 
+    event.tags = 'foo bar'
+    assert_not event.valid?
+    assert_match 'ist nicht gültig', event.errors[:tags].first
+    event.tags = 'foo,bar'
+    event.valid?
+    assert event.errors[:tags].blank?
+
     event.short_description = '-' * 351
     assert_not event.valid?
     assert_match 'ist zu lang', event.errors[:short_description].first
@@ -31,7 +38,10 @@ class EventTest < ActiveSupport::TestCase
     assert_match 'ist nicht gültig', event.errors[:inheritance].first
     event.inheritance = [:short_description]
     event.valid?
-    event.inheritance = [:short_description]
+    assert_match 'ist nicht gültig', event.errors[:inheritance].first
+    event.inheritance = 'short_description'
+    event.valid?
+    assert event.errors[:inheritance].blank?
   end
 
   should 'skip all validations' do

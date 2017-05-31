@@ -34,6 +34,13 @@ class OrgaTest < ActiveSupport::TestCase
     # FIXME: validate category
     # assert_match 'muss ausgefüllt werden', orga.errors[:category].first
 
+    orga.tags = 'foo bar'
+    assert_not orga.valid?
+    assert_match 'ist nicht gültig', orga.errors[:tags].first
+    orga.tags = 'foo,bar'
+    orga.valid?
+    assert orga.errors[:tags].blank?
+
     orga.short_description = '-' * 351
     assert_not orga.valid?
     assert_match 'ist zu lang', orga.errors[:short_description].first
@@ -43,7 +50,10 @@ class OrgaTest < ActiveSupport::TestCase
     assert_match 'ist nicht gültig', orga.errors[:inheritance].first
     orga.inheritance = [:short_description]
     orga.valid?
-    orga.inheritance = [:short_description]
+    assert_match 'ist nicht gültig', orga.errors[:inheritance].first
+    orga.inheritance = 'short_description'
+    orga.valid?
+    assert orga.errors[:inheritance].blank?
   end
 
   should 'skip all validations if wanted' do
