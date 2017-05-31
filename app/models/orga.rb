@@ -24,7 +24,7 @@ class Orga < ApplicationRecord
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
   # VALIDATIONS
-  validates_uniqueness_of :title
+  validates_uniqueness_of :title, unless: :skip_all_validations?
   validate :add_root_orga_edit_error, if: -> { root_orga? }
   validates_presence_of :parent_id, unless: :root_orga?
 

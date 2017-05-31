@@ -17,6 +17,7 @@ module StateMachine
 
       event :activate do
         before do
+          do_not_skip_all_validations!
         end
         transitions from: INACTIVE, to: ACTIVE
         after do
@@ -26,6 +27,7 @@ module StateMachine
 
       event :deactivate do
         before do
+          skip_all_validations!
         end
         transitions from: ACTIVE, to: INACTIVE
         after do
@@ -35,6 +37,7 @@ module StateMachine
 
       event :delete do
         before do
+          skip_all_validations!
         end
         transitions from: UNDELETEDS, to: DELETED
         after do
@@ -44,6 +47,7 @@ module StateMachine
 
       event :restore do
         before do
+          do_not_skip_all_validations!
         end
         transitions from: DELETED, to: INACTIVE
         after do
@@ -83,6 +87,18 @@ module StateMachine
 
     def active
       active?
+    end
+
+    def do_not_skip_all_validations!
+      @skip_all_validations = false
+    end
+
+    def skip_all_validations!
+      @skip_all_validations = true
+    end
+
+    def skip_all_validations?
+      @skip_all_validations || false
     end
   end
 

@@ -46,6 +46,23 @@ class OrgaTest < ActiveSupport::TestCase
     orga.inheritance = [:short_description]
   end
 
+  should 'skip all validations if wanted' do
+    orga = Orga.new
+    orga.skip_all_validations!
+    assert orga.valid?
+    assert orga.save
+  end
+
+  should 'have no validation on deactivate' do
+    orga = create(:orga)
+    assert orga.activate!
+    orga.title = nil
+    orga.short_description = nil
+    assert_not orga.valid?
+    assert orga.deactivate!
+    assert orga.inactive?
+  end
+
   should 'auto strip name and description' do
     orga = Orga.new
     orga.title = '   abc 123   '

@@ -39,13 +39,15 @@ module Able
 
     # VALIDATIONS
     # validates :contact_infos, presence: true, on: :update
-    validates :category, presence: true, on: :update
+    validates :category, presence: true, on: :update, unless: :skip_all_validations?
 
-    validates :title, presence: true, length: { maximum: 150 }
+    validates :title, presence: true, length: { maximum: 150 }, unless: :skip_all_validations?
     # FIXME: Disabled for testing Todos
     # validates :description, presence: true
-    validates :short_description, presence: true, unless: :skip_short_description_validation
-    validates :short_description, length: { maximum: 350 }, unless: :skip_short_description_validation
+    validates :short_description, presence: true,
+      unless: -> { skip_short_description_validation || skip_all_validations? }
+    validates :short_description, length: { maximum: 350 },
+      unless: -> { skip_short_description_validation || skip_all_validations? }
 
     validate :validate_parent_id, if: -> { parent_id.present? }
 

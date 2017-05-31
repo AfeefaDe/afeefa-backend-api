@@ -11,7 +11,7 @@ class Event < ApplicationRecord
   alias_method :parent_event=, :parent=
   alias_method :sub_events=, :children=
 
-  validates :date_start, presence: true
+  validates :date_start, presence: true, unless: :skip_all_validations?
 
   class << self
     def attribute_whitelist_for_json

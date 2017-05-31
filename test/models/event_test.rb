@@ -34,6 +34,23 @@ class EventTest < ActiveSupport::TestCase
     event.inheritance = [:short_description]
   end
 
+  should 'skip all validations' do
+    event = Event.new
+    event.skip_all_validations!
+    assert event.valid?
+    assert event.save
+  end
+
+  should 'have no validation on deactivate' do
+    event = create(:event)
+    assert event.activate!
+    event.title = nil
+    event.short_description = nil
+    assert_not event.valid?
+    assert event.deactivate!
+    assert event.inactive?
+  end
+
   should 'auto strip name and description' do
     event = Event.new(date_start: Date.tomorrow)
     event.title = '   abc 123   '
