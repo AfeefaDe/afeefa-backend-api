@@ -229,7 +229,9 @@ module Neos
         # We will migrate only the last updated location of an entry,
         # otherwise we do not know how to handle inheritance for locations
         # (Which location of the parent should be used for inheritance?)
-        create_location(new_entry, entry.locations.order('updated desc').first)
+        if entry.locations.any?
+          create_location(new_entry, entry.locations.order('updated desc').first)
+        end
         create_contact_info(new_entry, entry)
 
         if new_entry.persisted? && @migrate_phraseapp
@@ -380,10 +382,14 @@ module Neos
           puts "failing on parsing date or time for event: #{event.inspect}"
         end
 
-        new_event.date_start = type_datetime_from[0]
-        new_event.date_end = type_datetime_to[0]
-        new_event.time_start = type_datetime_from[1] == :datetime
-        new_event.time_end = type_datetime_to[1] == :datetime
+        if type_datetime_from
+          new_event.date_start = type_datetime_from[0]
+          new_event.time_start = type_datetime_from[1] == :datetime
+        end
+        if type_datetime_to
+          new_event.date_end = type_datetime_to[0]
+          new_event.time_end = type_datetime_to[1] == :datetime
+        end
         new_event.orga = parent_or_root_orga(event.parent)
         new_event.creator = User.first # TODO: assume that this is the system user → Is it?
 
