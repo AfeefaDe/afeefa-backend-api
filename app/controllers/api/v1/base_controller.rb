@@ -26,7 +26,7 @@ class Api::V1::BaseController < ApplicationController
 
 ##############################
 
-  before_action :find_objects, only: %i(index show)
+  before_action :find_objects, only: %i(index show update)
   before_action :find_objects_for_related_to, only: %i(get_related_resources)
   before_action :filter_objects, only: %i(index show get_related_resources)
 
@@ -41,6 +41,30 @@ class Api::V1::BaseController < ApplicationController
 
   def get_related_resources
     render_objects_to_json(@objects)
+  end
+
+  def update
+    params_hash = params['data']['attributes'].to_unsafe_h
+    if params_hash.in?([{ 'active' => 'false' }, { 'active' => 'false' }]) &&
+        !params['data'].key?('relationships')
+      object = @objects.find(params[:id])
+      active = params_hash['active']
+
+      success = true
+      if object.active? && active.to_s == 'false'
+        success = object.deactivate!
+      elsif object.inactive? && active.to_s == 'true'
+        success = object.activate!
+      end
+
+      if success
+        render_single_object_to_json(object)
+      else
+        render_errors(object.errors)
+      end
+    else
+      super
+    end
   end
 
   private

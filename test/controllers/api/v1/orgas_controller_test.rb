@@ -169,6 +169,70 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal 'foo-bar', annotation.reload.detail
       end
 
+      should 'deactivate an inactive invalid orga' do
+        orga = create(:orga, title: 'foobar')
+        orga.title = nil
+        assert_not orga.valid?
+        assert orga.save(validate: false)
+
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'ContactInfo.count' do
+            assert_no_difference 'Location.count' do
+              assert_no_difference 'Annotation.count' do
+                assert_no_difference 'AnnotationCategory.count' do
+                  post :update,
+                    params: {
+                      id: orga.id,
+                    }.merge(
+                      parse_json_file(
+                        file: 'deactivate_orga.json'
+                      ) do |payload|
+                        payload.gsub!('<id>', orga.id.to_s)
+                      end
+                    )
+                  assert_response :ok, response.body
+                end
+              end
+            end
+          end
+        end
+        assert orga.reload.inactive?
+        assert orga.title.blank?
+      end
+
+      should 'deactivate an active invalid orga' do
+        orga = create(:orga, title: 'foobar')
+        orga.title = nil
+        orga.state = StateMachine::ACTIVE
+        assert_not orga.valid?
+        assert orga.save(validate: false)
+        assert orga.reload.active?
+
+        assert_no_difference 'Orga.count' do
+          assert_no_difference 'ContactInfo.count' do
+            assert_no_difference 'Location.count' do
+              assert_no_difference 'Annotation.count' do
+                assert_no_difference 'AnnotationCategory.count' do
+                  post :update,
+                    params: {
+                      id: orga.id,
+                    }.merge(
+                      parse_json_file(
+                        file: 'deactivate_orga.json'
+                      ) do |payload|
+                        payload.gsub!('<id>', orga.id.to_s)
+                      end
+                    )
+                  assert_response :ok, response.body
+                end
+              end
+            end
+          end
+        end
+        assert orga.reload.inactive?
+        assert orga.title.blank?
+      end
+
       should 'update orga and remove annotations' do
         # this is needed for empty arrays in params,
         # see: http://stackoverflow.com/questions/40870882/rails-5-params-with-object-having-empty-arrays-as-values-are-dropped
