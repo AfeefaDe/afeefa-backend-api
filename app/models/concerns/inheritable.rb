@@ -10,4 +10,12 @@ module Inheritable
       unless: :skip_all_validations?
   end
 
+  def add_inheritance_flag(flag)
+    if inheritance.present?
+      inheritance << "|#{flag}"
+    else
+      self.inheritance = "#{flag}"
+    end
+  end
+
 end

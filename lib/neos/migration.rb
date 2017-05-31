@@ -97,29 +97,7 @@ module Neos
         puts "Step 2: Migrating #{orgas.count} orgas (#{Time.current.to_s})"
         orgas.each do |orga|
           create_entry_and_handle_validation(orga) do
-            ::Orga.new(
-              title: orga.name.try(:strip),
-              description: orga.description.try(:strip) || '',
-              short_description: orga.try(:descriptionshort).try(:strip) || '',
-              media_url: orga.image.try(:strip),
-              media_type: orga.imagetype.try(:strip), # image | youtube
-              support_wanted: orga.supportwanted,
-              for_children: orga.forchildren,
-              certified_sfr: orga.certified,
-              legacy_entry_id: orga.entry_id.try(:strip),
-              migrated_from_neos: true,
-              tags: orga.try(:tags).try(:strip) || '',
-              active: orga.published == true,
-              sub_category:
-                if orga.subcategory
-                  ::Category.find_by_title(orga.subcategory)
-                end,
-              category:
-                if orga.category
-                  ::Category.find_by_title(orga.category.name)
-                end,
-              parent: parent_or_root_orga(orga.parent)
-            )
+            build_orga_from_neos_orga(orga)
           end
           puts_process(type: 'orgas', processed: count += 1, all: orgas.count)
         end
@@ -129,55 +107,7 @@ module Neos
         puts "Step 3: Migrating #{events.count} events (#{Time.current.to_s})"
         events.each do |event|
           create_entry_and_handle_validation(event) do
-            type_datetime_from =
-              parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
-            type_datetime_to =
-              if event.timeto.blank?
-                if event.dateto.blank?
-                  nil
-                else
-                  if event.dateto == event.datefrom
-                    nil
-                  else
-                    parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
-                  end
-                end
-              else
-                parse_datetime_and_return_type(:date_end,
-                  event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
-              end
-            if type_datetime_from.first.nil? || type_datetime_from.last.nil?
-              puts "failing on parsing date or time for event: #{event.inspect}"
-            end
-
-            ::Event.new(
-              title: event.name.try(:strip),
-              description: event.description.try(:strip) || '',
-              short_description: event.try(:descriptionshort).try(:strip) || '',
-              media_url: event.image.try(:strip),
-              media_type: event.imagetype.try(:strip), # image | youtube
-              support_wanted: event.supportwanted,
-              for_children: event.forchildren,
-              certified_sfr: event.certified,
-              legacy_entry_id: event.entry_id.try(:strip),
-              migrated_from_neos: true,
-              tags: event.try(:tags).try(:strip) || '',
-              active: event.published == true,
-              sub_category:
-                if event.subcategory
-                  ::Category.find_by_title(event.subcategory)
-                end,
-              category:
-                if event.category
-                  ::Category.find_by_title(event.category.name)
-                end,
-              date_start: type_datetime_from[0],
-              date_end: type_datetime_to[0],
-              time_start: type_datetime_from[1] == :datetime,
-              time_end: type_datetime_to[1] == :datetime,
-              orga: parent_or_root_orga(event.parent),
-              creator: User.first # TODO: assume that this is the system user → Is it?
-            )
+            build_event_from_neos_event(event)
           end
           puts_process(type: 'events', processed: count += 1, all: events.count)
         end
@@ -274,6 +204,7 @@ module Neos
       def create_entry_and_handle_validation(entry)
         puts "migrating entry '#{entry.name}'"
         new_entry = yield
+
         new_entry.skip_phraseapp_translations! unless @migrate_phraseapp
 
         if new_entry.save
@@ -293,16 +224,19 @@ module Neos
         if new_entry.errors.key?(:category)
           create_annotations(new_entry, "Kategorie fehlerhaft: #{new_entry.category} ist nicht erlaubt.")
         end
-        # puts "entry #{new_entry.class.to_s} with title '#{new_entry.title}' processed, " +
-        #   "new #{new_entry.class.to_s} count: #{new_entry.class.count}"
-        entry.locations.each do |location|
-          create_location(new_entry, location)
-        end
+
+        # convention (2017-05-31 with Jens):
+        # We will migrate only the last updated location of an entry,
+        # otherwise we do not know how to handle inheritance for locations
+        # (Which location of the parent should be used for inheritance?)
+        create_location(new_entry, entry.locations.order('updated desc').first)
         create_contact_info(new_entry, entry)
 
         if new_entry.persisted? && @migrate_phraseapp
           migrate_phraseapp_data(entry, new_entry)
         end
+
+        new_entry
       rescue => exception
         puts '-------------------------------------------------------'
         puts "Entry could not be created for the following exception: #{exception.class}: #{exception.message}"
@@ -311,38 +245,90 @@ module Neos
       end
 
       def create_location(new_entry, location)
-        new_location =
-          ::Location.new(
-            locatable: new_entry,
-            lat: location['lat'].try(:strip),
-            lon: location['lon'].try(:strip),
-            street: location['street'].try(:strip),
-            placename: location['placename'].try(:strip),
-            zip: location['zip'].try(:strip),
-            city: location['city'].try(:strip),
-            directions: location['arrival'].try(:strip),
-            migrated_from_neos: true,
-          )
-        unless new_location.save
-          create_annotations(new_entry, new_location.errors.full_messages)
+        lat = location.lat.try(:strip)
+        lon = location.lon.try(:strip)
+        street = location.street.try(:strip)
+        placename = location.placename.try(:strip)
+        zip = location.zip.try(:strip)
+        city = location.city.try(:strip)
+        directions = location.arrival.try(:strip)
+
+        if lat.blank? && lon.blank? && street.blank? && placename.blank? &&
+            zip.blank? && city.blank? && directions.blank?
+          new_entry.add_inheritance_flag :locations
+        else
+          new_location =
+            ::Location.new(locatable: new_entry, migrated_from_neos: true)
+
+          set_attribute!(new_location, location.entry, :lat, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:lat).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :lon, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:lon).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :street, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:street).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :placename, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:placename).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :zip, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:zip).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :city, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:city).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :directions, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:directions).try(:strip)
+          end
+
+          unless new_location.save
+            create_annotations(new_entry, new_location.errors.full_messages)
+          end
         end
       end
 
       def create_contact_info(new_entry, entry)
-        new_contact_info =
-          ContactInfo.new(
-            contactable: new_entry,
-            web: entry.web.try(:strip),
-            social_media: entry.facebook.try(:strip),
-            spoken_languages: entry.spokenlanguages.try(:strip),
-            mail: entry.mail.try(:strip),
-            phone: entry.phone.try(:strip),
-            contact_person: entry.speakerpublic.try(:strip),
-            opening_hours: entry.locations.first.try(:opening_hours).try(:strip),
-            migrated_from_neos: true,
-          )
-        unless new_contact_info.save
-          create_annotations(new_entry, new_contact_info.errors.full_messages)
+        web = entry.web.try(:strip)
+        social_media = entry.facebook.try(:strip)
+        spoken_languages = entry.spokenlanguages.try(:strip)
+        mail = entry.mail.try(:strip)
+        phone = entry.phone.try(:strip)
+        contact_person = entry.speakerpublic.try(:strip)
+        opening_hours = entry.locations.first.try(:opening_hours).try(:strip)
+
+        if web.blank? && social_media.blank? && spoken_languages.blank? &&
+            mail.blank? && phone.blank? && contact_person.blank? && opening_hours.blank?
+          new_entry.add_inheritance_flag :contact_infos
+        else
+          new_contact_info =
+            ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
+
+          set_attribute!(new_contact_info, entry, :web, by_recursion: true) do |entry|
+            entry.web.try(:strip)
+          end
+          set_attribute!(new_contact_info, entry, :social_media, by_recursion: true) do |entry|
+            entry.facebook.try(:strip)
+          end
+          set_attribute!(new_contact_info, entry, :spoken_languages, by_recursion: true) do |entry|
+            entry.spokenlanguages.try(:strip)
+          end
+          set_attribute!(new_contact_info, entry, :mail, by_recursion: true) do |entry|
+            entry.mail.try(:strip)
+          end
+          set_attribute!(new_contact_info, entry, :phone, by_recursion: true) do |entry|
+            entry.phone.try(:strip)
+          end
+          set_attribute!(new_contact_info, entry, :contact_person, by_recursion: true) do |entry|
+            entry.speakerpublic.try(:strip)
+          end
+          set_attribute!(new_contact_info, entry, :opening_hours, by_recursion: true) do |entry|
+            entry.locations.first.try(:opening_hours).try(:strip)
+          end
+
+          unless new_contact_info.save
+            create_annotations(new_entry, new_contact_info.errors.full_messages)
+          end
         end
       end
 
@@ -360,7 +346,121 @@ module Neos
           end
         end
       end
-    end
 
+      def build_orga_from_neos_orga(orga)
+        new_orga = ::Orga.new
+        build_entry_from_neos_entry(orga, new_orga)
+        new_orga.parent = parent_or_root_orga(orga.parent)
+
+        new_orga
+      end
+
+      def build_event_from_neos_event(event)
+        new_event = ::Event.new
+        build_entry_from_neos_entry(event, new_event)
+
+        type_datetime_from =
+          parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
+        type_datetime_to =
+          if event.timeto.blank?
+            if event.dateto.blank?
+              nil
+            else
+              if event.dateto == event.datefrom
+                nil
+              else
+                parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
+              end
+            end
+          else
+            parse_datetime_and_return_type(:date_end,
+              event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
+          end
+        if type_datetime_from.first.nil? || type_datetime_from.last.nil?
+          puts "failing on parsing date or time for event: #{event.inspect}"
+        end
+
+        new_event.date_start = type_datetime_from[0]
+        new_event.date_end = type_datetime_to[0]
+        new_event.time_start = type_datetime_from[1] == :datetime
+        new_event.time_end = type_datetime_to[1] == :datetime
+        new_event.orga = parent_or_root_orga(event.parent)
+        new_event.creator = User.first # TODO: assume that this is the system user → Is it?
+
+        new_event
+      end
+
+      def build_entry_from_neos_entry(old_entry, new_entry)
+        set_attribute!(new_entry, old_entry, :title, by_recursion: true) do |entry|
+          entry.name.try(:strip)
+        end
+
+        set_attribute!(new_entry, old_entry, :description) do |entry|
+          entry.description.try(:strip) || ''
+        end
+
+        set_attribute!(new_entry, old_entry, :short_description) do |entry|
+          entry.descriptionshort.try(:strip) || ''
+        end
+        if new_entry.short_description.blank?
+          new_entry.add_inheritance_flag :short_description
+        end
+
+        set_attribute!(new_entry, old_entry, :media_url, by_recursion: true) do |entry|
+          entry.image.try(:strip)
+        end
+
+        set_attribute!(new_entry, old_entry, :media_type, by_recursion: true) do |entry|
+          entry.imagetype.try(:strip) # image | youtube
+        end
+
+        set_attribute!(new_entry, old_entry, :support_wanted, old_attribute: :supportwanted)
+        set_attribute!(new_entry, old_entry, :for_children, old_attribute: :forchildren)
+        set_attribute!(new_entry, old_entry, :certified_sfr, old_attribute: :certified)
+
+        set_attribute!(new_entry, old_entry, :legacy_entry_id)  do |entry|
+          entry.entry_id.try(:strip)
+        end
+
+        new_entry.migrated_from_neos = true
+
+        set_attribute!(new_entry, old_entry, :tags)  do |entry|
+          entry.try(:tags).try(:strip) || ''
+        end
+
+        new_entry.active = old_entry.published == true,
+
+        set_attribute!(new_entry, old_entry, :sub_category, by_recursion: true) do |entry|
+          if entry.subcategory
+            ::Category.find_by_title(entry.subcategory)
+          end
+        end
+
+        set_attribute!(new_entry, old_entry, :category, by_recursion: true) do |entry|
+          if entry.category
+            ::Category.find_by_title(entry.category.name)
+          end
+        end
+      end
+
+      def set_attribute!(new_entry, old_entry, new_attribute, old_attribute: nil, by_recursion: false)
+        tmp_entry = old_entry
+        loop do
+          value =
+            if block_given?
+              yield tmp_entry
+            elsif old_attribute
+              tmp_entry.send(old_attribute)
+            else
+              tmp_entry.send(new_attribute)
+            end
+          new_entry.send("#{new_attribute}=", value)
+          tmp_entry = tmp_entry.parent
+
+          break if new_entry.send(new_attribute).present? || tmp_entry.blank? || by_recursion == false
+        end
+        new_entry
+      end
+    end
   end
 end
