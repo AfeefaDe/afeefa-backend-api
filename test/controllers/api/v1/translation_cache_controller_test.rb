@@ -2,34 +2,42 @@ require 'test_helper'
 
 class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
-  should 'get last updated timestamp unauthorized' do
-    skip
-    get :index
-    assert_response :unauthorized
+  context 'as authorized user' do
+    setup do
+      stub_current_user
+    end
 
-    get :index, params: { foo: 'bar' }
-    assert_response :unauthorized
+    should 'get last updated timestamp' do
+      get :index
 
-    get :index, params: { token: 'abc' }
-    assert_response :unauthorized
+      json = JSON.parse(response.body)
+      assert_equal TranslationCache.minimum(:updated_at) || Time.at(0), json['updated_at']
+    end
 
-    get :index, params: { token: Settings.translations.api_token }
-    assert_response :ok
+    should 'trigger cache update' do
+      get :index, params: {token: Settings.translations.api_token}
+      assert_response :ok
+      time_before = JSON.parse(response.body)['updated_at']
 
-    json = JSON.parse(response.body)
-    assert_equal TranslationCache.minimum(:updated_at) || Time.at(0), json['updated_at']
-  end
+      post :update
+      post_response = response.status
 
-  should 'trigger cache update on post' do
-    get :index, params: { token: Settings.translations.api_token }
-    assert_response :ok
-    time_before = JSON.parse(response.body)['updated_at']
+      get :index, params: {token: Settings.translations.api_token}
 
-    post :update
-    assert_response :ok
+      case post_response
+        when 200 # caching table got updated –> timestamp changed
+          assert_operator time_before, :<, JSON.parse(response.body)['updated_at']
+        when 204 # no updated was necessary -> nothing changed
+          assert_equal time_before, JSON.parse(response.body)['updated_at']
+        when 422
+          fail 'a PhraseApp error occured'
+        else
+          fail 'unexpacted behavior on translation cache update'
+      end
 
-    get :index, params: { token: Settings.translations.api_token }
-    assert_operator time_before, :<, JSON.parse(response.body)['updated_at']
+      # caching table contains no 'de' entries
+      assert_nil TranslationCache.find_by(language: Translatable::DEFAULT_LOCALE)
 
+    end
   end
 end

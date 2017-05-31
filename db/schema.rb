@@ -181,12 +181,12 @@ ActiveRecord::Schema.define(version: 20170523164200) do
   create_table "translation_caches", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci" do |t|
     t.integer  "cacheable_id"
     t.string   "cacheable_type",    limit: 20
-    t.string   "language",          limit: 3,  null: false
+    t.string   "language",          limit: 3,     null: false
     t.string   "title"
-    t.string   "short_description"
-    t.string   "description"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.text     "short_description", limit: 65535
+    t.text     "description",       limit: 65535
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
     t.index ["cacheable_id", "cacheable_type", "language"], name: "index_translation_cache", using: :btree
   end
 

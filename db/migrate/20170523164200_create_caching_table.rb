@@ -6,8 +6,8 @@ class CreateCachingTable < ActiveRecord::Migration[5.0]
 
       t.string :language, null: false, limit: 3
       t.string :title
-      t.string :short_description
-      t.string :description
+      t.text :short_description
+      t.text :description
 
       t.timestamps null: false
 
