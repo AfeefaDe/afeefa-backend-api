@@ -16,9 +16,6 @@ module StateMachine
       state *(STATES - [INACTIVE])
 
       event :activate do
-        before do
-          do_not_skip_all_validations!
-        end
         transitions from: INACTIVE, to: ACTIVE
         after do
           touch :state_changed_at
@@ -26,9 +23,6 @@ module StateMachine
       end
 
       event :deactivate do
-        before do
-          skip_all_validations!
-        end
         transitions from: ACTIVE, to: INACTIVE
         after do
           touch :state_changed_at
@@ -36,9 +30,6 @@ module StateMachine
       end
 
       event :delete do
-        before do
-          skip_all_validations!
-        end
         transitions from: UNDELETEDS, to: DELETED
         after do
           touch :state_changed_at
@@ -46,9 +37,6 @@ module StateMachine
       end
 
       event :restore do
-        before do
-          do_not_skip_all_validations!
-        end
         transitions from: DELETED, to: INACTIVE
         after do
           touch :state_changed_at
@@ -60,6 +48,12 @@ module StateMachine
 
     before_create do
       self.state_changed_at = created_at
+    end
+
+    before_validation do
+      if !inactive? && @active.to_s == 'false'
+        skip_all_validations!
+      end
     end
 
     before_save do
