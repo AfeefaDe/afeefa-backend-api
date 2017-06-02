@@ -255,38 +255,33 @@ module Neos
         city = location.city.try(:strip)
         directions = location.arrival.try(:strip)
 
-        if lat.blank? && lon.blank? && street.blank? && placename.blank? &&
-            zip.blank? && city.blank? && directions.blank?
-          new_entry.add_inheritance_flag :locations
-        else
-          new_location =
-            ::Location.new(locatable: new_entry, migrated_from_neos: true)
+        new_location =
+          ::Location.new(locatable: new_entry, migrated_from_neos: true)
 
-          set_attribute!(new_location, location.entry, :lat, by_recursion: true) do |entry|
-            entry.locations.order('updated desc').first.try(:lat).try(:strip)
-          end
-          set_attribute!(new_location, location.entry, :lon, by_recursion: true) do |entry|
-            entry.locations.order('updated desc').first.try(:lon).try(:strip)
-          end
-          set_attribute!(new_location, location.entry, :street, by_recursion: true) do |entry|
-            entry.locations.order('updated desc').first.try(:street).try(:strip)
-          end
-          set_attribute!(new_location, location.entry, :placename, by_recursion: true) do |entry|
-            entry.locations.order('updated desc').first.try(:placename).try(:strip)
-          end
-          set_attribute!(new_location, location.entry, :zip, by_recursion: true) do |entry|
-            entry.locations.order('updated desc').first.try(:zip).try(:strip)
-          end
-          set_attribute!(new_location, location.entry, :city, by_recursion: true) do |entry|
-            entry.locations.order('updated desc').first.try(:city).try(:strip)
-          end
-          set_attribute!(new_location, location.entry, :directions, by_recursion: true) do |entry|
-            entry.locations.order('updated desc').first.try(:directions).try(:strip)
-          end
+        set_attribute!(new_location, location.entry, :lat) do |entry|
+          entry.locations.order('updated desc').first.try(:lat).try(:strip)
+        end
+        set_attribute!(new_location, location.entry, :lon) do |entry|
+          entry.locations.order('updated desc').first.try(:lon).try(:strip)
+        end
+        set_attribute!(new_location, location.entry, :street) do |entry|
+          entry.locations.order('updated desc').first.try(:street).try(:strip)
+        end
+        set_attribute!(new_location, location.entry, :placename) do |entry|
+          entry.locations.order('updated desc').first.try(:placename).try(:strip)
+        end
+        set_attribute!(new_location, location.entry, :zip) do |entry|
+          entry.locations.order('updated desc').first.try(:zip).try(:strip)
+        end
+        set_attribute!(new_location, location.entry, :city) do |entry|
+          entry.locations.order('updated desc').first.try(:city).try(:strip)
+        end
+        set_attribute!(new_location, location.entry, :directions) do |entry|
+          entry.locations.order('updated desc').first.try(:directions).try(:strip)
+        end
 
-          unless new_location.save
-            create_annotations(new_entry, new_location.errors.full_messages)
-          end
+        unless new_location.save
+          create_annotations(new_entry, new_location.errors.full_messages)
         end
       end
 
@@ -297,11 +292,12 @@ module Neos
         mail = entry.mail.try(:strip)
         phone = entry.phone.try(:strip)
         contact_person = entry.speakerpublic.try(:strip)
-        opening_hours = entry.locations.first.try(:opening_hours).try(:strip)
+        opening_hours = entry.locations.first.try(:openinghours).try(:strip)
 
         if web.blank? && social_media.blank? && spoken_languages.blank? &&
-            mail.blank? && phone.blank? && contact_person.blank? && opening_hours.blank?
+            mail.blank? && phone.blank? && contact_person.blank?
           new_entry.add_inheritance_flag :contact_infos
+          new_entry.save(validate: false)
         else
           new_contact_info =
             ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
@@ -325,7 +321,7 @@ module Neos
             entry.speakerpublic.try(:strip)
           end
           set_attribute!(new_contact_info, entry, :opening_hours, by_recursion: true) do |entry|
-            entry.locations.first.try(:opening_hours).try(:strip)
+            entry.locations.first.try(:openinghours).try(:strip)
           end
 
           unless new_contact_info.save
