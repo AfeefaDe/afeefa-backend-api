@@ -430,7 +430,7 @@ module Neos
           entry.try(:tags).try(:strip) || ''
         end
 
-        new_entry.active = old_entry.published == true,
+        new_entry.active = old_entry.published == true
 
         set_attribute!(new_entry, old_entry, :sub_category, by_recursion: true) do |entry|
           if entry.subcategory
