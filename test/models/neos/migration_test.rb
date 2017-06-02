@@ -48,6 +48,14 @@ module Neos
           where(locale: :de).
           where(web: [nil, '']).
           where.not(parent_entry_id: [nil, '']).
+          select do |orga|
+            (orga.mail.present? ||
+              orga.phone.present? ||
+              orga.facebook.present? ||
+              orga.spokenlanguages.present? ||
+              orga.speakerpublic.present?
+            ) && orga.parent.web.present?
+          end.
           first
 
       assert orga.web.blank?
