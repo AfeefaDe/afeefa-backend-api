@@ -40,60 +40,104 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       user = create(:user)
       orga = create(:orga)
 
-      # past 1
+      # starts today morning 00:00
       event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
-        creator: user, orga: orga, date_start: 20.minutes.ago)
-      # past 2
+        creator: user, orga: orga, date_start: Time.now.beginning_of_day)
+
+      # starts in 10 minutes
       event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
-        creator: user, orga: orga, date_start: 20.day.ago, date_end: 10.minutes.ago)
-      # upcoming
-      event2 = create(:event, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten',
         creator: user, orga: orga, date_start: 10.minutes.from_now)
+
+      # starts in 1 day
+      event2 = create(:event, title: 'Morgen', description: 'Morgen wirds geil',
+        creator: user, orga: orga, date_start: 1.day.from_now)
+
+      # started yesterday, no end date
+      event3 = create(:event, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten',
+        creator: user, orga: orga, date_start: 1.day.ago)
+
+      # started 2 days ago, ends yesterday
+      event4 = create(:event, title: 'Joggen im Garten vor einem Tag', description: 'Gemeinsames Laufengehen im Grossen Garten von gestern',
+        creator: user, orga: orga, date_start: 2.days.ago, date_end: 1.day.ago)
+
+      # started yesterday, ends today morning 00:00
+      event5 = create(:event, title: 'Gestern bis heute früh', description: 'Absaufen und Durchhängen',
+        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.beginning_of_day)
+
+      # started yesterday, ends tomorrow
+      event6 = create(:event, title: 'Gestern bis morgen', description: 'Absaufen und Durchhängen voll durchmachen',
+        creator: user, orga: orga, date_start: 1.day.ago, date_end: 1.day.from_now)
 
       get :index, params: { filter: { date: 'past' } }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
-      assert_equal event0.id.to_s, json['data'].first['id']
-      assert_equal event1.id.to_s, json['data'].last['id']
+      assert_equal event3.id.to_s, json['data'][0]['id']
+      assert_equal event4.id.to_s, json['data'][1]['id']
 
       get :index, params: { filter: { date: 'upcoming' } }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].size
-      assert_equal event2.id.to_s, json['data'].first['id']
+      assert_equal 5, json['data'].size
+      assert_equal event0.id.to_s, json['data'][0]['id']
+      assert_equal event1.id.to_s, json['data'][1]['id']
+      assert_equal event2.id.to_s, json['data'][2]['id']
+      assert_equal event5.id.to_s, json['data'][3]['id']
+      assert_equal event6.id.to_s, json['data'][4]['id']
     end
 
     should 'get events filtered for start and end of given orga' do
       user = create(:user)
       orga = create(:orga)
 
-      # past 1
+      # starts today morning 00:00
       event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
-        creator: user, orga: orga, date_start: 20.minutes.ago)
-      # past 2
+        creator: user, orga: orga, date_start: Time.now.beginning_of_day)
+
+      # starts in 10 minutes
       event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
-        creator: user, orga: orga, date_start: 20.day.ago, date_end: 10.minutes.ago)
-      # upcoming
-      event2 = create(:event, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten',
         creator: user, orga: orga, date_start: 10.minutes.from_now)
+
+      # starts in 1 day
+      event2 = create(:event, title: 'Morgen', description: 'Morgen wirds geil',
+        creator: user, orga: orga, date_start: 1.day.from_now)
+
+      # started yesterday, no end date
+      event3 = create(:event, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten',
+        creator: user, orga: orga, date_start: 1.day.ago)
+
+      # started 2 days ago, ends yesterday
+      event4 = create(:event, title: 'Joggen im Garten vor einem Tag', description: 'Gemeinsames Laufengehen im Grossen Garten von gestern',
+        creator: user, orga: orga, date_start: 2.days.ago, date_end: 1.day.ago)
+
+      # started yesterday, ends today morning 00:00
+      event5 = create(:event, title: 'Gestern bis heute früh', description: 'Absaufen und Durchhängen',
+        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.beginning_of_day)
+
+      # started yesterday, ends tomorrow
+      event6 = create(:event, title: 'Gestern bis morgen', description: 'Absaufen und Durchhängen voll durchmachen',
+        creator: user, orga: orga, date_start: 1.day.ago, date_end: 1.day.from_now)
 
       get :get_related_resources, params: { related_type: 'orga', id: orga.id, filter: { date: 'past' } }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
-      assert_equal event0.id.to_s, json['data'].first['id']
-      assert_equal event1.id.to_s, json['data'].last['id']
+      assert_equal event3.id.to_s, json['data'][0]['id']
+      assert_equal event4.id.to_s, json['data'][1]['id']
 
       get :get_related_resources, params: { related_type: 'orga', id: orga.id, filter: { date: 'upcoming' } }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].size
-      assert_equal event2.id.to_s, json['data'].first['id']
+      assert_equal 5, json['data'].size
+      assert_equal event0.id.to_s, json['data'][0]['id']
+      assert_equal event1.id.to_s, json['data'][1]['id']
+      assert_equal event2.id.to_s, json['data'][2]['id']
+      assert_equal event5.id.to_s, json['data'][3]['id']
+      assert_equal event6.id.to_s, json['data'][4]['id']
     end
 
     should 'ensure creator for event on create' do
