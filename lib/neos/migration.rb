@@ -103,6 +103,14 @@ module Neos
         end
 
         count = 0
+        childorgas = Neos::Orga.where(locale: :de).where.not(parent_entry_id: nil).limit(limit[:orgas])
+        puts "Step 2b: Setting parent to #{childorgas.count} child orgas (#{Time.current.to_s})"
+        childorgas.each do |orga|
+          set_parent_orga_to_orga!(orga)
+          puts_process(type: 'setting parent orgas', processed: count += 1, all: childorgas.count)
+        end
+
+        count = 0
         events = Neos::Event.where(locale: :de).limit(limit[:events])
         puts "Step 3: Migrating #{events.count} events (#{Time.current.to_s})"
         events.each do |event|
@@ -126,6 +134,14 @@ module Neos
         create_entry_and_handle_validation(event) do
           build_event_from_neos_event(event)
         end
+      end
+
+      def migrate_orga(entry_id)
+        orga = Neos::Orga.where(entry_id: entry_id).first
+        create_entry_and_handle_validation(orga) do
+          build_orga_from_neos_orga(orga)
+        end
+        set_parent_orga_to_orga!(orga)
       end
 
       private
@@ -199,9 +215,9 @@ module Neos
         Time.zone.parse(datetime_string)
       end
 
-      def parent_or_root_orga(parent)
+      def parent_or_root_orga(parent) # neos parent
         if parent && parent.orga? &&
-          (orgas = ::Orga.where(title: parent.name.try(:strip))) &&
+          (orgas = ::Orga.where(legacy_entry_id: parent.entry_id)) &&
           (orgas.count == 1)
           orgas.first
         else
@@ -356,9 +372,15 @@ module Neos
       def build_orga_from_neos_orga(orga)
         new_orga = ::Orga.new
         build_entry_from_neos_entry(orga, new_orga)
-        new_orga.parent = parent_or_root_orga(orga.parent)
-
         new_orga
+      end
+
+      def set_parent_orga_to_orga!(orga)
+        new_orga = ::Orga.where(legacy_entry_id: orga.entry_id).last
+        if new_orga
+          new_orga.parent = parent_or_root_orga(orga.parent)
+          new_orga.save!(validate: false)
+        end
       end
 
       def build_event_from_neos_event(event)
