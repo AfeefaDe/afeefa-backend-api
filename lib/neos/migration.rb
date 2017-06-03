@@ -249,7 +249,25 @@ module Neos
         end
 
         if !new_entry.valid?
-          create_annotations(new_entry, new_entry.errors.full_messages)
+          should_add_annotations = true
+          # filter out any past events
+          if new_entry.instance_of? ::Event
+            now = Time.now.beginning_of_day
+            if new_entry.date_end
+              if new_entry.date_end < now
+                should_add_annotations = false
+              end
+            else
+              if !new_entry.date_start || new_entry.date_start < now
+                should_add_annotations = false
+              end
+            end
+          end
+
+          # add migration annotations only to future events or active entries
+          if should_add_annotations && new_entry.active
+            create_annotations(new_entry, new_entry.errors.full_messages)
+          end
         end
 
         # convention (2017-05-31 with Jens):
