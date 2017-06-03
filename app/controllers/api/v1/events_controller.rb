@@ -42,7 +42,10 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
 
                 or(objects.
                   where.not(date_end: [nil, '']).
-                  where('date_end < ?', now))
+                  where('date_end < ?', now)).
+
+                or(objects.
+                  where(date_start: [nil, ''])) # legacy events without date start
             else
               objects
           end

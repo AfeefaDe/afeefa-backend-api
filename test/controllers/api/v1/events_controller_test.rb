@@ -36,6 +36,27 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal 1, json['data'].size
     end
 
+    should 'show legacy events without date_start in past events' do
+      user = create(:user)
+      orga = create(:orga)
+
+      event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
+        creator: user, orga: orga, date_start: 1.day.ago)
+
+      get :index, params: { filter: { date: 'past' } }
+      json = JSON.parse(response.body)
+      assert_equal event0.id.to_s, json['data'][0]['id']
+
+      event0.date_start = nil
+      event0.save!(validate: false)
+      event0.reload
+      assert_nil event0.date_start
+
+      get :index, params: { filter: { date: 'past' } }
+      json = JSON.parse(response.body)
+      assert_equal event0.id.to_s, json['data'][0]['id']
+    end
+
     should 'get events filtered for start and end' do
       user = create(:user)
       orga = create(:orga)
