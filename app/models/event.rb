@@ -11,6 +11,8 @@ class Event < ApplicationRecord
   alias_method :parent_event=, :parent=
   alias_method :sub_events=, :children=
 
+  # added to be able to set the parent orga for events during migration
+  # since :orga relation defined in event_resource does not work here
   belongs_to :parent_orga, class_name: 'Orga', foreign_key: 'parent_id'
 
   validates :date_start, presence: true, unless: :skip_all_validations?

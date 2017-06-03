@@ -120,6 +120,14 @@ module Neos
         puts "Events: IS: #{::Event.count}, SHOULD: #{events.count}"
       end
 
+
+      def migrate_event(entry_id)
+        event = Neos::Event.where(entry_id: entry_id).first
+        create_entry_and_handle_validation(event) do
+          build_event_from_neos_event(event)
+        end
+      end
+
       private
 
       def migrate_phraseapp_data(entry, new_entry)
@@ -386,7 +394,7 @@ module Neos
           new_event.date_end = type_datetime_to[0]
           new_event.time_end = type_datetime_to[1] == :datetime
         end
-        new_event.orga = parent_or_root_orga(event.parent)
+        new_event.parent_orga = parent_or_root_orga(event.parent)
         new_event.creator = User.first # TODO: assume that this is the system user → Is it?
 
         new_event
