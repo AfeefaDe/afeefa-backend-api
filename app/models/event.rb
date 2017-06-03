@@ -11,6 +11,8 @@ class Event < ApplicationRecord
   alias_method :parent_event=, :parent=
   alias_method :sub_events=, :children=
 
+  belongs_to :parent_orga, class_name: 'Orga', foreign_key: 'parent_id'
+
   validates :date_start, presence: true, unless: :skip_all_validations?
 
   class << self
