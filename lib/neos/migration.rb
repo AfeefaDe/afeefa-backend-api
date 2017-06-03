@@ -246,11 +246,10 @@ module Neos
             puts "Entry not creatable: #{new_entry.errors.messages}"
           end
           new_entry.skip_short_description_validation = false
-          new_entry.valid?
-          create_annotations(new_entry, new_entry.errors.full_messages)
         end
-        if new_entry.errors.key?(:category)
-          create_annotations(new_entry, "Kategorie fehlerhaft: #{new_entry.category} ist nicht erlaubt.")
+
+        if !new_entry.valid?
+          create_annotations(new_entry, new_entry.errors.full_messages)
         end
 
         # convention (2017-05-31 with Jens):

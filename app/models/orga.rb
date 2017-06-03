@@ -24,7 +24,8 @@ class Orga < ApplicationRecord
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
   # VALIDATIONS
-  validates_uniqueness_of :title, unless: :skip_all_validations?
+  validates_uniqueness_of :title, unless: -> { skip_short_description_validation || skip_all_validations? } # skip_short_description_validation can be removed after migration
+
   validate :add_root_orga_edit_error, if: -> { root_orga? }
   validates_presence_of :parent_id, unless: :root_orga?
 
@@ -44,7 +45,7 @@ class Orga < ApplicationRecord
 
     def attribute_whitelist_for_json
       (default_attributes_for_json +
-        %i(description short_description media_url media_type 
+        %i(description short_description media_url media_type
             support_wanted for_children tags certified_sfr legacy_entry_id)).freeze
     end
 
