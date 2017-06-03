@@ -8,6 +8,8 @@ facebook:
     dresdenfueralle: 1568930816673620
 geocoding:
   api_token: <%= ENV["GEO_API_TOKEN"] %>
+translations:
+  api_token: <%= ENV["_API_TOKEN"] %>
 phraseapp:
   active: false
   project_id: <%= ENV["PA_LIVE_PROJECT_ID"] %>

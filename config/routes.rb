@@ -30,6 +30,9 @@ Rails.application.routes.draw do
         get 'facebook_events', to: 'facebook_events#index'
         get 'geocoding', to: 'geocodings#index'
 
+        get 'translations', to: 'translation_cache#index'
+        post 'translations', to: 'translation_cache#update'
+
         #routes.call
         mount_devise_token_auth_for 'User',
           at: 'users',
@@ -50,9 +53,7 @@ Rails.application.routes.draw do
 
         resources :entries, only: %i(index show)
         resources :todos, only: %i(index show)
-
       end
     end
   end
-
 end

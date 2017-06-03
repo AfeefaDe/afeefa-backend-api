@@ -69,9 +69,11 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     translation_without_fallback = @client.get_translation(orga, 'en', fallback: false)
     assert_equal Orga.translatable_attributes, translation.keys
     assert_equal 'an orga', translation[:title]
-    assert_equal 'this is a short description of this orga', translation[:description]
+    assert_equal 'this is a description of this orga', translation[:description]
+    assert_equal 'this is the short description', translation[:short_description]
     assert_nil translation_without_fallback[:title]
     assert_nil translation_without_fallback[:description]
+    assert_nil translation_without_fallback[:short_description]
   end
 
   should 'delete translation for orga and locale' do
