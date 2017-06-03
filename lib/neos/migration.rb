@@ -69,6 +69,10 @@ module Neos
           { name: 'food', id: '7-1' },
           { name: 'clothes', id: '7-2' },
           { name: 'furniture', id: '7-3' }
+        ],
+        eventseries: [
+          { name: 'iwgr', id: '8-1' },
+          { name: 'political-education', id: '8-2' }
         ]
       }
 
