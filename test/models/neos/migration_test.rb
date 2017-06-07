@@ -3,6 +3,10 @@ require 'test_helper'
 module Neos
   class MigrationTest < ActiveSupport::TestCase
 
+    setup do
+      Neos::Migration.stubs(:puts).returns(nil)
+    end
+
     should 'activate migrated entries' do
       assert_difference '::Orga.count' do
         Neos::Migration.migrate(limit: { orgas: 1, events: 1 })

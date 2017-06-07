@@ -7,6 +7,8 @@ class PhraseAppClient
         project_id ||
             if Rails.env.production?
               Settings.phraseapp.project_id
+            elsif Rails.env.development?
+              Settings.phraseapp.dev_project_id
             else
               Settings.phraseapp.test_project_id
             end || ''
