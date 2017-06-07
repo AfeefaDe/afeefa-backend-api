@@ -1,3 +1,5 @@
+require 'phrase_app_client'
+
 class Api::V1::TranslationCacheController < Api::V1::BaseController
 
   def update
@@ -53,7 +55,7 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
   private
 
   def client
-    @@client ||= PhraseAppClient.new
+    @@client ||= ::PhraseAppClient.new
   end
 
   def ensure_token
