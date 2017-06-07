@@ -3,7 +3,6 @@ require 'facebook_client'
 class Api::V1::FacebookEventsController < ApplicationController
 
   before_action :ensure_token, only: :index
-  before_action :set_access_control_headers
 
   def index
     render json: ::FacebookClient.new.get_events
@@ -18,11 +17,6 @@ class Api::V1::FacebookEventsController < ApplicationController
       head :unauthorized
       return
     end
-  end
-
-  def set_access_control_headers
-    headers['Access-Control-Allow-Origin'] = 'https://afeefa.de'
-    headers['Access-Control-Request-Method'] = '*'
   end
 
 end
