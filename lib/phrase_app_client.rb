@@ -110,11 +110,6 @@ class PhraseAppClient
     @client.translations_list(@project_id, 1, 100000, params) #todo reicht 10k?
   end
 
-  def decode_key(key)
-    k = key.split('.')
-    { model: k[0], id: k[1], attribute: k[2] }
-  end
-
   private
 
   def initialize_locales_for_project

@@ -8,21 +8,21 @@ class TranslationCache < ApplicationRecord
       if translation.is_a?(PhraseApp::ResponseObjects::Translation) &&
           translation.locale['code'] != Translatable::DEFAULT_LOCALE
 
-        decoded_key = client.decode_key(translation.key['name'])
+       decoded_key = translation.key['name'].split('.')
 
         cached_entry =
           TranslationCache.find_by(
-            cacheable_id: decoded_key[:id],
-            cacheable_type: decoded_key[:model],
+            cacheable_id: decoded_key[1],
+            cacheable_type: decoded_key[0],
             language: translation.locale['code']
           ) ||
             TranslationCache.new(
-              cacheable_id: decoded_key[:id],
-              cacheable_type: decoded_key[:model],
+              cacheable_id: decoded_key[1],
+              cacheable_type: decoded_key[0],
               language: translation.locale['code']
             )
 
-        cached_entry.send("#{decoded_key[:attribute]}=", translation.content)
+        cached_entry.send("#{decoded_key[2]}=", translation.content)
 
         cached_entry.save!
 
@@ -31,5 +31,4 @@ class TranslationCache < ApplicationRecord
     end
     num
   end
-
 end

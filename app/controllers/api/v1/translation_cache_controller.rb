@@ -1,9 +1,10 @@
 require 'phrase_app_client'
 
-class Api::V1::TranslationCacheController < Api::V1::BaseController
+class Api::V1::TranslationCacheController < ApplicationController
 
   def update
-    translations = client.get_all_translations
+    @@client ||= ::PhraseAppClient.new
+    translations = @@client.get_all_translations
 
     if translations[1].nil?
       if translations[0].empty?
@@ -24,10 +25,6 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
   end
 
   private
-
-  def client
-    @@client ||= ::PhraseAppClient.new
-  end
 
   def ensure_token
     if params.blank? || params[:token].blank? || params[:token] != Settings.translations.api_token
