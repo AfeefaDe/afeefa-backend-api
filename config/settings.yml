@@ -13,7 +13,7 @@ translations:
 phraseapp:
   active: false
   project_id: <%= ENV["PA_LIVE_PROJECT_ID"] %>
-  api_token: <%= ENV["PA_LIVE_PROJECT_TOKEN"] %>
+  api_token: <%= ENV["PA_WRITE_TOKEN"] %>
   fallback_list: [en, de]
   dev_project_id: <%= ENV["PA_DEV_PROJECT_ID"] %>
   test_project_id: <%= ENV["PA_TEST_PROJECT_ID"] %>
@@ -21,4 +21,4 @@ phraseapp:
 migration:
   phraseapp:
     project_id: <%= ENV["PA_LEGACY_LIVE_PROJECT_ID"] %>
-    api_token: <%= ENV["PA_LEGACY_LIVE_PROJECT_TOKEN"] %>
+    api_token: <%= ENV["PA_READ_TOKEN"] %>
