@@ -14,15 +14,15 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       assert_equal TranslationCache.minimum(:updated_at) || Time.at(0), json['updated_at']
     end
 
-    should 'trigger cache update' do
-      get :index, params: {token: Settings.translations.api_token}
+    should 'trigger cache rebuild' do
+      get :index
       assert_response :ok
       time_before = JSON.parse(response.body)['updated_at']
 
       post :update
       post_response = response.status
 
-      get :index, params: {token: Settings.translations.api_token}
+      get :index
 
       case post_response
         when 200 # caching table got updated –> timestamp changed
@@ -30,7 +30,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
         when 204 # no updated was necessary -> nothing changed
           assert_equal time_before, JSON.parse(response.body)['updated_at']
         when 422
-          fail 'a PhraseApp error occured'
+          fail 'PhraseAppError occurred'
         else
           fail 'unexpacted behavior on translation cache update'
       end

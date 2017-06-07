@@ -102,7 +102,7 @@ class ActionController::TestCase
   end
 
   def parse_json_file(file: 'create_orga_with_nested_models.json')
-    content = File.read(Rails.root.join('test', 'data', file))
+    content = File.read(Rails.root.join('test', 'data', 'json', file))
     yield content if block_given?
     JSON.parse(content)
   end
