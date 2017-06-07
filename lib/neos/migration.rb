@@ -299,33 +299,30 @@ module Neos
         city = location.city.try(:strip)
         directions = location.arrival.try(:strip)
 
-        if lat.blank? && lon.blank? && street.blank? &&
+        unless lat.blank? && lon.blank? && street.blank? &&
             placename.blank? && zip.blank? && city.blank? && directions.blank?
-          new_entry.add_inheritance_flag :locations
-          new_entry.save(validate: false)
-        else
           new_location =
             ::Location.new(locatable: new_entry, migrated_from_neos: true)
 
-          set_attribute!(new_location, location.entry, :lat, by_recursion: true) do |entry|
+          set_attribute!(new_location, location.entry, :lat) do |entry|
             entry.locations.order('updated desc').first.try(:lat).try(:strip)
           end
-          set_attribute!(new_location, location.entry, :lon, by_recursion: true) do |entry|
+          set_attribute!(new_location, location.entry, :lon) do |entry|
             entry.locations.order('updated desc').first.try(:lon).try(:strip)
           end
-          set_attribute!(new_location, location.entry, :street, by_recursion: true) do |entry|
+          set_attribute!(new_location, location.entry, :street) do |entry|
             entry.locations.order('updated desc').first.try(:street).try(:strip)
           end
-          set_attribute!(new_location, location.entry, :placename, by_recursion: true) do |entry|
+          set_attribute!(new_location, location.entry, :placename) do |entry|
             entry.locations.order('updated desc').first.try(:placename).try(:strip)
           end
-          set_attribute!(new_location, location.entry, :zip, by_recursion: true) do |entry|
+          set_attribute!(new_location, location.entry, :zip) do |entry|
             entry.locations.order('updated desc').first.try(:zip).try(:strip)
           end
-          set_attribute!(new_location, location.entry, :city, by_recursion: true) do |entry|
+          set_attribute!(new_location, location.entry, :city) do |entry|
             entry.locations.order('updated desc').first.try(:city).try(:strip)
           end
-          set_attribute!(new_location, location.entry, :directions, by_recursion: true) do |entry|
+          set_attribute!(new_location, location.entry, :directions) do |entry|
             entry.locations.order('updated desc').first.try(:arrival).try(:strip)
           end
 
@@ -459,7 +456,7 @@ module Neos
         set_attribute!(new_entry, old_entry, :short_description) do |entry|
           entry.descriptionshort.try(:strip) || ''
         end
-        if new_entry.short_description.blank?
+        if new_entry.short_description.blank? && old_entry.parent.try(:descriptionshort).present?
           new_entry.add_inheritance_flag :short_description
         end
 

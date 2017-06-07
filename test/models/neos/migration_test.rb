@@ -60,11 +60,14 @@ module Neos
         Neos::Orga.
           where(locale: :de).
           where(name: [nil, ''], descriptionshort: [nil, '']).
-          first
+          where.not(parent_entry_id: [nil, '']).
+          detect do |orga|
+            orga.parent.descriptionshort.present?
+          end
 
       assert orga.name.blank?
       assert orga.descriptionshort.blank?
-      assert orga.locations.first.street.blank?
+      assert orga.parent.descriptionshort.present?
 
       new_orga = Neos::Migration.send(:build_orga_from_neos_orga, orga)
       Neos::Migration.send(:create_entry_and_handle_validation, orga) do
@@ -73,7 +76,7 @@ module Neos
 
       assert_equal orga.parent.name.strip, new_orga.title
       assert new_orga.short_description.blank?
-      assert_equal 'short_description', new_orga.inheritance
+      assert_match 'short_description', new_orga.inheritance
     end
 
     should 'handle inheritance on setting contact attributes' do
@@ -82,14 +85,11 @@ module Neos
           where(locale: :de).
           where(web: [nil, '']).
           where.not(parent_entry_id: [nil, '']).
-          select do |orga|
-          (orga.mail.present? ||
-            orga.phone.present? ||
-            orga.facebook.present? ||
-            orga.spokenlanguages.present? ||
-            orga.speakerpublic.present?
-          ) && orga.parent.web.present?
-        end.first
+          detect do |orga|
+            (orga.mail.present? || orga.phone.present? || orga.facebook.present? ||
+              orga.spokenlanguages.present? || orga.speakerpublic.present?) &&
+              orga.parent.web.present?
+          end
 
       assert orga.web.blank?
       assert_not orga.parent.web.blank?
@@ -102,7 +102,7 @@ module Neos
       assert_equal orga.parent.web, new_orga.contact_infos.first.web
     end
 
-    should 'handle inheritance on setting location attributes' do
+    should 'not handle inheritance on setting location attributes' do
       orga =
         Neos::Orga.
           includes(:locations).references(:locations).
@@ -110,17 +110,17 @@ module Neos
           where(ddfa_main_domain_model_location: { arrival: [nil, ''] }).
           where.not(parent_entry_id: [nil, '']).
           select do |orga|
-          (location = orga.locations.first).present? &&
-            (location.lat.present? ||
-              location.lon.present? ||
-              location.street.present? ||
-              location.placename.present? ||
-              location.zip.present? ||
-              location.city.present?
-            ) &&
-            orga.parent.locations.any? &&
-            orga.parent.locations.first.arrival.present?
-        end.first
+            (location = orga.locations.first).present? &&
+              (location.lat.present? ||
+                location.lon.present? ||
+                location.street.present? ||
+                location.placename.present? ||
+                location.zip.present? ||
+                location.city.present?
+              ) &&
+              orga.parent.locations.any? &&
+              orga.parent.locations.first.arrival.present?
+          end.first
 
       assert orga.locations.first.arrival.blank?
       assert_not orga.parent.locations.first.arrival.blank?
@@ -130,7 +130,7 @@ module Neos
         new_orga
       end
 
-      assert_equal orga.parent.locations.first.arrival, new_orga.locations.first.directions
+      assert new_orga.locations.first.directions.blank?
     end
 
     should 'handle multiple inheritance flags on setting attributes' do
@@ -141,7 +141,7 @@ module Neos
             speakerpublic: [nil, ''], mail: [nil, ''], phone: [nil, ''], web: [nil, ''],
             facebook: [nil, ''], spokenlanguages: [nil, ''], descriptionshort: [nil, '']).
           where.not(parent_entry_id: [nil, '']).
-          first
+          detect { |orga| orga.parent.descriptionshort.present? }
 
       new_orga = Neos::Migration.send(:build_orga_from_neos_orga, orga)
       Neos::Migration.send(:create_entry_and_handle_validation, orga) do
