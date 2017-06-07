@@ -17,6 +17,34 @@ class Event < ApplicationRecord
 
   validates :date_start, presence: true, unless: :skip_all_validations?
 
+  scope :upcoming, -> {
+    now = Time.now.beginning_of_day
+    # date_start > today 00:00
+    # date_end > today 00:00
+    where.not(date_start: [nil, '']).
+      where('date_start >= ?', now).
+      or(where('date_start = ?', now)).
+      or(where('date_end >= ?', now))
+  }
+
+  scope :past, -> {
+    now = Time.now.beginning_of_day
+    # kein date_end und date_start < today 00:00
+    # hat date_end und date_end < today 00:00
+    where(date_end: nil).
+      where.not(date_start: [nil, '']).
+      where('date_start < ?', now).
+
+      or(where(date_end: '').
+        where.not(date_start: [nil, '']).
+        where('date_start < ?', now)).
+
+      or(where.not(date_end: [nil, '']).
+        where('date_end < ?', now)).
+
+      or(where(date_start: [nil, ''])) # legacy events without date start
+  }
+
   class << self
     def attribute_whitelist_for_json
       (default_attributes_for_json +

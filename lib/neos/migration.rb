@@ -248,25 +248,24 @@ module Neos
           new_entry.skip_short_description_validation = false
         end
 
+        # handle invalid entries
         if !new_entry.valid?
-          should_add_annotations = true
           # filter out any past events
-          if new_entry.instance_of? ::Event
-            now = Time.now.beginning_of_day
-            if new_entry.date_end
-              if new_entry.date_end < now
-                should_add_annotations = false
-              end
+          past_event =
+            if new_entry.is_a?(::Event)
+              new_entry.in?(::Event.past)
             else
-              if !new_entry.date_start || new_entry.date_start < now
-                should_add_annotations = false
-              end
+              false
             end
-          end
 
-          # add migration annotations only to future events or active entries
-          if should_add_annotations && new_entry.active
-            create_annotations(new_entry, new_entry.errors.full_messages)
+          # add migration annotations only to future events and active entries
+          if !past_event && new_entry.active
+            # do not add annotations for short_descriptions
+            details =
+              new_entry.errors.full_messages.
+                reject { |detail| detail == 'Kurzbeschreibung muss ausgefüllt werden' }
+
+            create_annotations(new_entry, details)
           end
         end
 
@@ -300,33 +299,39 @@ module Neos
         city = location.city.try(:strip)
         directions = location.arrival.try(:strip)
 
-        new_location =
-          ::Location.new(locatable: new_entry, migrated_from_neos: true)
+        if lat.blank? && lon.blank? && street.blank? &&
+            placename.blank? && zip.blank? && city.blank? && directions.blank?
+          new_entry.add_inheritance_flag :locations
+          new_entry.save(validate: false)
+        else
+          new_location =
+            ::Location.new(locatable: new_entry, migrated_from_neos: true)
 
-        set_attribute!(new_location, location.entry, :lat) do |entry|
-          entry.locations.order('updated desc').first.try(:lat).try(:strip)
-        end
-        set_attribute!(new_location, location.entry, :lon) do |entry|
-          entry.locations.order('updated desc').first.try(:lon).try(:strip)
-        end
-        set_attribute!(new_location, location.entry, :street) do |entry|
-          entry.locations.order('updated desc').first.try(:street).try(:strip)
-        end
-        set_attribute!(new_location, location.entry, :placename) do |entry|
-          entry.locations.order('updated desc').first.try(:placename).try(:strip)
-        end
-        set_attribute!(new_location, location.entry, :zip) do |entry|
-          entry.locations.order('updated desc').first.try(:zip).try(:strip)
-        end
-        set_attribute!(new_location, location.entry, :city) do |entry|
-          entry.locations.order('updated desc').first.try(:city).try(:strip)
-        end
-        set_attribute!(new_location, location.entry, :directions) do |entry|
-          entry.locations.order('updated desc').first.try(:directions).try(:strip)
-        end
+          set_attribute!(new_location, location.entry, :lat, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:lat).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :lon, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:lon).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :street, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:street).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :placename, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:placename).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :zip, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:zip).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :city, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:city).try(:strip)
+          end
+          set_attribute!(new_location, location.entry, :directions, by_recursion: true) do |entry|
+            entry.locations.order('updated desc').first.try(:arrival).try(:strip)
+          end
 
-        unless new_location.save
-          create_annotations(new_entry, new_location.errors.full_messages)
+          unless new_location.save
+            create_annotations(new_entry, new_location.errors.full_messages)
+          end
         end
       end
 
@@ -337,7 +342,6 @@ module Neos
         mail = entry.mail.try(:strip)
         phone = entry.phone.try(:strip)
         contact_person = entry.speakerpublic.try(:strip)
-        opening_hours = entry.locations.first.try(:openinghours).try(:strip)
 
         if web.blank? && social_media.blank? && spoken_languages.blank? &&
             mail.blank? && phone.blank? && contact_person.blank?
@@ -471,13 +475,13 @@ module Neos
         set_attribute!(new_entry, old_entry, :for_children, old_attribute: :forchildren)
         set_attribute!(new_entry, old_entry, :certified_sfr, old_attribute: :certified)
 
-        set_attribute!(new_entry, old_entry, :legacy_entry_id)  do |entry|
+        set_attribute!(new_entry, old_entry, :legacy_entry_id) do |entry|
           entry.entry_id.try(:strip)
         end
 
         new_entry.migrated_from_neos = true
 
-        set_attribute!(new_entry, old_entry, :tags)  do |entry|
+        set_attribute!(new_entry, old_entry, :tags) do |entry|
           entry.try(:tags).try(:strip) || ''
         end
 
