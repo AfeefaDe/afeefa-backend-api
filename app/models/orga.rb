@@ -9,12 +9,12 @@ class Orga < ApplicationRecord
   include Jsonable
 
   # ATTRIBUTES AND ASSOCIATIONS
-  acts_as_tree(dependent: :restrict_with_exception)
+  acts_as_tree(dependent: :restrict_with_exception, foreign_key: :parent_orga_id)
   alias_method :sub_orgas, :children
   alias_method :sub_orgas=, :children=
   alias_method :parent_orga, :parent
   alias_method :parent_orga=, :parent=
-  alias_attribute :parent_orga_id, :parent_id
+  alias_attribute :parent_id, :parent_orga_id
 
   has_many :events
   # has_many :roles, dependent: :destroy

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170523164200) do
+ActiveRecord::Schema.define(version: 20170607143533) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -68,11 +68,11 @@ ActiveRecord::Schema.define(version: 20170523164200) do
     t.integer  "creator_id"
     t.datetime "created_at",                                       null: false
     t.datetime "updated_at",                                       null: false
-    t.integer  "parent_id"
+    t.integer  "parent_event_id"
+    t.integer  "orga_id"
     t.datetime "date_start"
     t.string   "state"
     t.datetime "state_changed_at"
-    t.integer  "orga_id"
     t.integer  "category_id"
     t.integer  "sub_category_id"
     t.datetime "date_end"
@@ -128,7 +128,7 @@ ActiveRecord::Schema.define(version: 20170523164200) do
     t.string   "title"
     t.text     "description",        limit: 65535
     t.text     "short_description",  limit: 65535
-    t.integer  "parent_id"
+    t.integer  "parent_orga_id"
     t.string   "state"
     t.datetime "state_changed_at"
     t.integer  "category_id"

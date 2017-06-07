@@ -438,7 +438,7 @@ module Neos
           new_event.date_end = type_datetime_to[0]
           new_event.time_end = type_datetime_to[1] == :datetime
         end
-        new_event.parent_orga = parent_or_root_orga(event.parent)
+        new_event.orga = parent_or_root_orga(event.parent)
         new_event.creator = User.first # TODO: assume that this is the system user → Is it?
 
         new_event
