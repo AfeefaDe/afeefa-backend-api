@@ -221,7 +221,7 @@ module Neos
 
       def parent_or_root_orga(parent) # neos parent
         if parent && parent.orga? &&
-          (orgas = ::Orga.where(legacy_entry_id: parent.entry_id)) &&
+            (orgas = ::Orga.where(legacy_entry_id: parent.entry_id)) &&
           (orgas.count == 1)
           orgas.first
         else
