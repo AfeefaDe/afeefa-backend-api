@@ -11,7 +11,11 @@ class Api::V1::MetasController < ApplicationController
     meta_hash = {
       meta: {
         orgas: Orga.count,
-        events: Event.count,
+        events: {
+          :all => Event.count,
+          :past => Event.past.count,
+          :upcoming => Event.upcoming.count
+        },
         todos: Annotation.grouped_by_entries.count.count,
       }
     }
