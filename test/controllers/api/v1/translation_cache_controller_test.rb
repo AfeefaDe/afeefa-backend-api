@@ -29,8 +29,6 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
           assert_operator time_before, :<, JSON.parse(response.body)['updated_at']
         when 204 # no updated was necessary -> nothing changed
           assert_equal time_before, JSON.parse(response.body)['updated_at']
-        when 422
-          fail 'PhraseAppError occurred'
         else
           fail 'unexpacted behavior on translation cache update'
       end

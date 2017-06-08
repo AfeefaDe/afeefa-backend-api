@@ -26,11 +26,11 @@ class PhraseAppClient
 
   def logger
     @logger ||=
-      if log_file = Settings.phraseapp.log_file
-        Logger.new(log_file)
-      else
-        Rails.logger
-      end
+        if log_file = Settings.phraseapp.log_file
+          Logger.new(log_file)
+        else
+          Rails.logger
+        end
   end
 
   def create_or_update_translation(model, locale)
@@ -40,8 +40,8 @@ class PhraseAppClient
         content = model.send(attribute)
         key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
         key_id =
-          find_key_id_by_key_name(key) ||
-            create_key(key)
+            find_key_id_by_key_name(key) ||
+                create_key(key)
         next if content.blank?
 
         if translation_id = find_translation_id_by_key_id_and_locale(key_id, locale)
@@ -77,11 +77,11 @@ class PhraseAppClient
     {}.tap do |translation_hash|
       model.class.translatable_attributes.each do |attribute|
         key =
-          if model.class.to_s.start_with?('Neos::')
-            "entry.#{model.entry_id}.#{attribute}"
-          else
-            "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
-          end
+            if model.class.to_s.start_with?('Neos::')
+              "entry.#{model.entry_id}.#{attribute}"
+            else
+              "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
+            end
         key_id = find_key_id_by_key_name(key)
         next unless key_id
 
@@ -107,14 +107,22 @@ class PhraseAppClient
 
   def get_all_translations
     params = PhraseApp::RequestParams::TranslationsListParams.new
-    @client.translations_list(@project_id, 1, 100000, params) #todo reicht 10k?
+    page = 1
+    translations = []
+    loop do
+      t = @client.translations_list(@project_id, page, 100, params)
+      break if t[0].empty?
+      translations += t[0]
+      page += 1
+    end
+    translations
   end
 
   private
 
   def initialize_locales_for_project
     @locales = {}
-    @client.locales_list(@project_id, 1, 10000)[0].each do |locale|
+    @client.locales_list(@project_id, 1, 100)[0].each do |locale|
       @locales[locale.code] = locale
     end
   end
@@ -125,10 +133,10 @@ class PhraseAppClient
 
   def create_translation_for_key(key_id, locale, content)
     params =
-      PhraseApp::RequestParams::TranslationParams.new(
-        locale_id: locale_id(locale),
-        content: content.to_s,
-        key_id: key_id)
+        PhraseApp::RequestParams::TranslationParams.new(
+            locale_id: locale_id(locale),
+            content: content.to_s,
+            key_id: key_id)
     @client.translation_create(@project_id, params)
   end
 
@@ -139,7 +147,7 @@ class PhraseAppClient
 
   def find_key_id_by_key_name(keyname)
     params = PhraseApp::RequestParams::KeysSearchParams.new(:q => keyname)
-    response = @client.keys_search(@project_id, 1, 100000, params)
+    response = @client.keys_search(@project_id, 1, 100, params)
     response[0][0].try(:id)
   end
 
