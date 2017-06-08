@@ -3,78 +3,78 @@ module Neos
 
     # CONSTANTS
     SUB_CATEGORIES =
-      # mapping for subcategories given by old frontend
-      {
-        general: [
-          { name: 'wifi', id: '0-1' },
-          { name: 'jewish', id: '0-2' },
-          { name: 'christian', id: '0-3' },
-          { name: 'islam', id: '0-4' },
-          { name: 'religious-other', id: '0-5' },
-          { name: 'shop', id: '0-6' },
-          { name: 'nature', id: '0-7' },
-          { name: 'authority', id: '0-8' },
-          { name: 'hospital', id: '0-9' },
-          { name: 'police', id: '0-10' },
-          { name: 'public-transport', id: '0-11' }
-        ],
-        language: [
-          { name: 'german-course', id: '1-1' },
-          { name: 'interpreter', id: '1-2' },
-          { name: 'learning-place', id: '1-3' },
-          { name: 'tandem', id: '1-4' }
-        ],
-        medic: [
-          { name: 'medical-counselling', id: '2-1' },
-          { name: 'medical-care', id: '2-2' },
-          { name: 'psychological-counselling', id: '2-3' }
-        ],
-        jobs: [
-          { name: 'job-counselling', id: '3-1' },
-          { name: 'education-counselling', id: '3-2' },
-          { name: 'political-education', id: '3-3' },
-          { name: 'education-sponsorship', id: '3-4' },
-          { name: 'library', id: '3-5' }
-        ],
-        consultation: [
-          { name: 'asylum-counselling', id: '4-1' },
-          { name: 'legal-advice', id: '4-2' },
-          { name: 'social-counselling', id: '4-3' },
-          { name: 'family-counselling', id: '4-4' },
-          { name: 'women-counselling', id: '4-5' },
-          { name: 'volunteer-coordination', id: '4-6' }
-        ],
-        leisure: [
-          { name: 'youth-club', id: '5-1' },
-          { name: 'sports', id: '5-2' },
-          { name: 'museum', id: '5-3' },
-          { name: 'music', id: '5-4' },
-          { name: 'stage', id: '5-5' },
-          { name: 'craft-art', id: '5-6' },
-          { name: 'gardening', id: '5-7' },
-          { name: 'cooking', id: '5-8' },
-          { name: 'festival', id: '5-9' },
-          { name: 'lecture', id: '5-10' }
-        ],
-        community: [
-          { name: 'welcome-network', id: '6-1' },
-          { name: 'meeting-place', id: '6-2' },
-          { name: 'childcare', id: '6-3' },
-          { name: 'workshop', id: '6-4' },
-          { name: 'sponsorship', id: '6-5' },
-          { name: 'lgbt', id: '6-6' },
-          { name: 'housing-project', id: '6-7' }
-        ],
-        donation: [
-          { name: 'food', id: '7-1' },
-          { name: 'clothes', id: '7-2' },
-          { name: 'furniture', id: '7-3' }
-        ],
-        eventseries: [
-          { name: 'iwgr', id: '8-1' },
-          { name: 'political-education', id: '8-2' }
-        ]
-      }
+        # mapping for subcategories given by old frontend
+        {
+            general: [
+                {name: 'wifi', id: '0-1'},
+                {name: 'jewish', id: '0-2'},
+                {name: 'christian', id: '0-3'},
+                {name: 'islam', id: '0-4'},
+                {name: 'religious-other', id: '0-5'},
+                {name: 'shop', id: '0-6'},
+                {name: 'nature', id: '0-7'},
+                {name: 'authority', id: '0-8'},
+                {name: 'hospital', id: '0-9'},
+                {name: 'police', id: '0-10'},
+                {name: 'public-transport', id: '0-11'}
+            ],
+            language: [
+                {name: 'german-course', id: '1-1'},
+                {name: 'interpreter', id: '1-2'},
+                {name: 'learning-place', id: '1-3'},
+                {name: 'tandem', id: '1-4'}
+            ],
+            medic: [
+                {name: 'medical-counselling', id: '2-1'},
+                {name: 'medical-care', id: '2-2'},
+                {name: 'psychological-counselling', id: '2-3'}
+            ],
+            jobs: [
+                {name: 'job-counselling', id: '3-1'},
+                {name: 'education-counselling', id: '3-2'},
+                {name: 'political-education', id: '3-3'},
+                {name: 'education-sponsorship', id: '3-4'},
+                {name: 'library', id: '3-5'}
+            ],
+            consultation: [
+                {name: 'asylum-counselling', id: '4-1'},
+                {name: 'legal-advice', id: '4-2'},
+                {name: 'social-counselling', id: '4-3'},
+                {name: 'family-counselling', id: '4-4'},
+                {name: 'women-counselling', id: '4-5'},
+                {name: 'volunteer-coordination', id: '4-6'}
+            ],
+            leisure: [
+                {name: 'youth-club', id: '5-1'},
+                {name: 'sports', id: '5-2'},
+                {name: 'museum', id: '5-3'},
+                {name: 'music', id: '5-4'},
+                {name: 'stage', id: '5-5'},
+                {name: 'craft-art', id: '5-6'},
+                {name: 'gardening', id: '5-7'},
+                {name: 'cooking', id: '5-8'},
+                {name: 'festival', id: '5-9'},
+                {name: 'lecture', id: '5-10'}
+            ],
+            community: [
+                {name: 'welcome-network', id: '6-1'},
+                {name: 'meeting-place', id: '6-2'},
+                {name: 'childcare', id: '6-3'},
+                {name: 'workshop', id: '6-4'},
+                {name: 'sponsorship', id: '6-5'},
+                {name: 'lgbt', id: '6-6'},
+                {name: 'housing-project', id: '6-7'}
+            ],
+            donation: [
+                {name: 'food', id: '7-1'},
+                {name: 'clothes', id: '7-2'},
+                {name: 'furniture', id: '7-3'}
+            ],
+            eventseries: [
+                {name: 'iwgr', id: '8-1'},
+                {name: 'political-education', id: '8-2'}
+            ]
+        }
 
     class << self
       def migrate(migrate_phraseapp: false, limit: {})
@@ -142,10 +142,13 @@ module Neos
           puts_process(type: 'setting event timestamps', processed: count += 1, all: events.count)
         end
 
+        puts "Step 4: Migrating PhraseApp (because of reasons) (#{Time.current.to_s})"
+        migrate_phraseapp_faster
+
         puts "Migration finished (#{Time.current.to_s})."
         puts "Categories: IS: #{::Category.count}, " +
-          "SHOULD: #{SUB_CATEGORIES.keys.count} maincategories from configuration + " +
-          "#{SUB_CATEGORIES.values.flatten.count} subcategories from configuration"
+                 "SHOULD: #{SUB_CATEGORIES.keys.count} maincategories from configuration + " +
+                 "#{SUB_CATEGORIES.values.flatten.count} subcategories from configuration"
         puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{orgas.count}"
         puts "Events: IS: #{::Event.count}, SHOULD: #{events.count}"
       end
@@ -170,10 +173,43 @@ module Neos
 
       private
 
+      def migrate_phraseapp_faster
+        @client_old ||=
+            PhraseAppClient.new(
+                project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
+        @client_new ||= PhraseAppClient.new
+
+        @client_old.get_all_translations.each do |old_translation|
+          lagacy_id = old_translation.id.split('.')[1]
+          object = ::Orga.find_by_legacy_entry_id(lagacy_id)
+          if object.nil?
+            object = ::Event.find_by_legacy_entry_id(lagacy_id)
+            raise "no orga or event with legacy_id #{lagacy_id} found " if object.nil?
+            key = 'event.'
+          else
+            key = 'orga.'
+          end
+
+          key += object.id
+
+            case ld_translation.id.split('.')[2]
+              when 'name'
+                attribute = 'title'
+              when 'descriptionShort'
+                attribute = 'short_description'
+              when 'description'
+                attribute = 'description'
+              else
+                raise 'invalid attribute'
+          end
+          create_translation_for_key(create_key("#{key}.#{attribute}"), old_translation.locale, old_translation.content)
+        end
+      end
+
       def migrate_phraseapp_data(entry, new_entry)
         @client_old ||=
-          PhraseAppClient.new(
-            project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
+            PhraseAppClient.new(
+                project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
         @client_new ||= PhraseAppClient.new
         responses = []
 
@@ -181,7 +217,7 @@ module Neos
           next if locale == Translatable::DEFAULT_LOCALE
 
           translated_attributes =
-            @client_old.get_translation(entry, locale, fallback: false)
+              @client_old.get_translation(entry, locale, fallback: false)
           if translated_attributes[:name].present?
             translated_attributes[:title] = translated_attributes.delete(:name)
           end
@@ -242,7 +278,7 @@ module Neos
       def parent_or_root_orga(parent) # neos parent
         if parent && parent.orga? &&
             (orgas = ::Orga.where(legacy_entry_id: parent.entry_id)) &&
-          (orgas.count == 1)
+            (orgas.count == 1)
           orgas.first
         else
           ::Orga.root_orga
@@ -272,18 +308,18 @@ module Neos
         if !new_entry.valid?
           # filter out any past events
           past_event =
-            if new_entry.is_a?(::Event)
-              new_entry.in?(::Event.past)
-            else
-              false
-            end
+              if new_entry.is_a?(::Event)
+                new_entry.in?(::Event.past)
+              else
+                false
+              end
 
           # add migration annotations only to future events and active entries
           if !past_event && new_entry.active
             # do not add annotations for short_descriptions
             details =
-              new_entry.errors.full_messages.
-                reject { |detail| detail == 'Kurzbeschreibung muss ausgefüllt werden' }
+                new_entry.errors.full_messages.
+                    reject {|detail| detail == 'Kurzbeschreibung muss ausgefüllt werden'}
 
             create_annotations(new_entry, details)
           end
@@ -298,9 +334,9 @@ module Neos
         end
         create_contact_info(new_entry, entry)
 
-        if new_entry.persisted? && @migrate_phraseapp
-          migrate_phraseapp_data(entry, new_entry)
-        end
+        # if new_entry.persisted? && @migrate_phraseapp
+        #   migrate_phraseapp_data(entry, new_entry)
+        # end
 
         new_entry
       rescue => exception
@@ -322,7 +358,7 @@ module Neos
         unless lat.blank? && lon.blank? && street.blank? &&
             placename.blank? && zip.blank? && city.blank? && directions.blank?
           new_location =
-            ::Location.new(locatable: new_entry, migrated_from_neos: true)
+              ::Location.new(locatable: new_entry, migrated_from_neos: true)
 
           set_attribute!(new_location, location.entry, :lat) do |entry|
             entry.locations.order('updated desc').first.try(:lat).try(:strip)
@@ -370,7 +406,7 @@ module Neos
           new_entry.save(validate: false)
         else
           new_contact_info =
-            ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
+              ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
 
           set_attribute!(new_contact_info, entry, :web, by_recursion: true) do |entry|
             entry.web.try(:strip)
@@ -403,11 +439,11 @@ module Neos
       def create_annotations(new_entry, details)
         [details].flatten.each do |detail|
           todo =
-            Annotation.new(
-              entry: new_entry,
-              annotation_category: AnnotationCategory.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
-              detail: detail.try(:strip)
-            )
+              Annotation.new(
+                  entry: new_entry,
+                  annotation_category: AnnotationCategory.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
+                  detail: detail.try(:strip)
+              )
           unless todo.save
             puts "Annotation is not valid, but we will save it. Errors: #{todo.errors.full_messages}"
             todo.save(validate: false)
@@ -442,22 +478,22 @@ module Neos
         build_entry_from_neos_entry(event, new_event)
 
         type_datetime_from =
-          parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
+            parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
         type_datetime_to =
-          if event.timeto.blank?
-            if event.dateto.blank?
-              nil
-            else
-              if event.dateto == event.datefrom
+            if event.timeto.blank?
+              if event.dateto.blank?
                 nil
               else
-                parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
+                if event.dateto == event.datefrom
+                  nil
+                else
+                  parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
+                end
               end
+            else
+              parse_datetime_and_return_type(:date_end,
+                                             event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
             end
-          else
-            parse_datetime_and_return_type(:date_end,
-              event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
-          end
         if type_datetime_from.first.nil? || type_datetime_from.last.nil?
           puts "failing on parsing date or time for event: #{event.inspect}"
         end
@@ -533,13 +569,13 @@ module Neos
         tmp_entry = old_entry
         loop do
           value =
-            if block_given?
-              yield tmp_entry
-            elsif old_attribute
-              tmp_entry.send(old_attribute)
-            else
-              tmp_entry.send(new_attribute)
-            end
+              if block_given?
+                yield tmp_entry
+              elsif old_attribute
+                tmp_entry.send(old_attribute)
+              else
+                tmp_entry.send(new_attribute)
+              end
           new_entry.send("#{new_attribute}=", value)
           tmp_entry = tmp_entry.parent
 
