@@ -342,7 +342,11 @@ module Neos
 
         if web.blank? && social_media.blank? && spoken_languages.blank? &&
             mail.blank? && phone.blank? && contact_person.blank?
-          new_entry.add_inheritance_flag :contact_infos
+
+          if entry.parent.present?
+            new_entry.add_inheritance_flag :contact_infos
+          end
+
           new_entry.save(validate: false)
         else
           new_contact_info =
