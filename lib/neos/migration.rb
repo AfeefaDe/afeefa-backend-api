@@ -115,6 +115,15 @@ module Neos
         end
 
         count = 0
+        orgas = Neos::Orga.where(locale: :de).limit(limit[:orgas])
+        puts "Step 2c: Setting #{orgas.count} orga timestamps (#{Time.current.to_s})"
+        orgas.each do |orga|
+          new_orga = ::Orga.find_by(legacy_entry_id: orga.entry_id)
+          set_timestamps(new_orga, orga)
+          puts_process(type: 'setting orga timestamps', processed: count += 1, all: orgas.count)
+        end
+
+        count = 0
         events = Neos::Event.where(locale: :de).limit(limit[:events])
         puts "Step 3: Migrating #{events.count} events (#{Time.current.to_s})"
         events.each do |event|
@@ -122,6 +131,15 @@ module Neos
             build_event_from_neos_event(event)
           end
           puts_process(type: 'events', processed: count += 1, all: events.count)
+        end
+
+        count = 0
+        events = Neos::Event.where(locale: :de).limit(limit[:events])
+        puts "Step 3b: Setting #{events.count} event timestamps (#{Time.current.to_s})"
+        events.each do |event|
+          new_event = ::Event.find_by(legacy_entry_id: event.entry_id)
+          set_timestamps(new_event, event)
+          puts_process(type: 'setting event timestamps', processed: count += 1, all: events.count)
         end
 
         puts "Migration finished (#{Time.current.to_s})."
@@ -135,17 +153,19 @@ module Neos
 
       def migrate_event(entry_id)
         event = Neos::Event.where(entry_id: entry_id).first
-        create_entry_and_handle_validation(event) do
+        new_event = create_entry_and_handle_validation(event) do
           build_event_from_neos_event(event)
         end
+        set_timestamps(new_event, event)
       end
 
       def migrate_orga(entry_id)
         orga = Neos::Orga.where(entry_id: entry_id).first
-        create_entry_and_handle_validation(orga) do
+        new_orga = create_entry_and_handle_validation(orga) do
           build_orga_from_neos_orga(orga)
         end
         set_parent_orga_to_orga!(orga)
+        set_timestamps(new_orga, orga)
       end
 
       private
@@ -399,6 +419,14 @@ module Neos
         new_orga = ::Orga.new
         build_entry_from_neos_entry(orga, new_orga)
         new_orga
+      end
+
+      def set_timestamps(new_entry, entry)
+        ActiveRecord::Base.record_timestamps = false
+        new_entry.created_at = entry.created
+        new_entry.updated_at = entry.updated
+        new_entry.save(validate: false)
+        ActiveRecord::Base.record_timestamps = true
       end
 
       def set_parent_orga_to_orga!(orga)
