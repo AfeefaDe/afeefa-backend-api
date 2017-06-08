@@ -12,7 +12,7 @@ platforms :ruby do
 end
 # TODO: use puma for production, modify deployment!
 # Use Puma as the app server
-# gem 'puma', '~> 3.0'
+# gem 'puma', '~> 3.0'undefined method `+' for nil:NilClass
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
 # Use Redis adapter to run Action Cable in production
@@ -73,7 +73,7 @@ gem 'geocoder'
 # comfortable rails console and debugger, also useful in production:
 gem 'pry'
 gem 'pry-rails'
-gem 'pry-byebug'
+# gem 'pry-byebug'
 
 # integrate PhraseApp
 gem 'phraseapp-ruby'
