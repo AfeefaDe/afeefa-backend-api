@@ -131,6 +131,20 @@ class EventTest < ActiveSupport::TestCase
       assert_equal ['Can not be the parent of itself!'],  @event.errors[:parent_id]
     end
 
+    should 'set inheritance to null if no parent orga given' do
+      orga = create(:orga, title: 'hohoho', parent_orga_id: nil)
+      event = create(:event, orga_id: orga.id, inheritance: 'short_description' )
+
+      assert_equal orga.id, event.orga.id
+      assert_equal 'short_description', event.inheritance
+
+      event.orga = nil
+      event.save
+
+      assert_equal Orga.root_orga.id, event.reload.orga_id
+      assert_equal nil, event.inheritance
+    end
+
     should 'have contact_informations' do
       event = build(:event, orga: @orga, creator: @user, contact_infos: [])
       assert event.contact_infos.blank?

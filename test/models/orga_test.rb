@@ -105,6 +105,20 @@ class OrgaTest < ActiveSupport::TestCase
     assert_equal expected, orga.translation(locale: 'en')
   end
 
+  should 'set inheritance to null if no parent orga given' do
+    orga1 = create(:orga, parent_orga_id: nil)
+    orga2 = create(:orga, parent_orga_id: orga1.id, title: 'neu', inheritance: 'short_description' )
+
+    assert_equal orga1.id, orga2.parent_orga.id
+    assert_equal 'short_description', orga2.inheritance
+
+    orga2.parent_orga = nil
+    orga2.save
+
+    assert_equal Orga.root_orga.id, orga2.reload.parent_orga_id
+    assert_equal nil, orga2.inheritance
+  end
+
   should 'set root orga as parent if no parent given' do
     orga = build(:orga, parent_orga_id: nil)
     assert orga.save, orga.errors.messages
