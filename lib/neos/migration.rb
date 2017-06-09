@@ -143,7 +143,11 @@ module Neos
         end
 
         puts "Step 4: Migrating PhraseApp (because of reasons) (#{Time.current.to_s})"
-        migrate_phraseapp_faster
+        if @migrate_phraseapp
+          migrate_phraseapp_faster
+        else
+          puts "(skiped)"
+        end
 
         puts "Migration finished (#{Time.current.to_s})."
         puts "Categories: IS: #{::Category.count}, " +
@@ -171,43 +175,60 @@ module Neos
         set_timestamps(new_orga, orga)
       end
 
-      private
 
       def migrate_phraseapp_faster
+        #todo flag
         @client_old ||=
             PhraseAppClient.new(
                 project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
         @client_new ||= PhraseAppClient.new
 
-        count = 0
-        old_translations = @client_old.get_all_translations
-        old_translations.each do |old_translation|
-          legacy_id = old_translation.id.split('.')[1]
-          object = ::Orga.find_by_legacy_entry_id(legacy_id)
-          if object.nil?
-            object = ::Event.find_by_legacy_entry_id(legacy_id)
-            raise "no orga or event with legacy_id #{legacy_id} found " if object.nil?
-            key = 'event.'
-          else
-            key = 'orga.'
+        #@client_new.delete_all_keys
+
+        foo = {}
+
+        @client_old.locales.each do |locale|
+          foo[locale] = {
+              event: {},
+              orga: {}
+          }
+
+          file = @client_old.get_locale_file(locale)
+
+          File.open(file, 'rb').read.scan(/"([0-9]+[0-z]*)": {([^}]*?)}/) do |legacy_id, content|
+
+            object = ::Orga.find_by_legacy_entry_id(legacy_id)
+            if object.nil?
+              object = ::Event.find_by_legacy_entry_id(legacy_id)
+
+              if object.nil?
+                puts "no orga or event with legacy_id #{legacy_id} found"
+                next
+              end
+              type = :event
+            else
+              type = :orga
+            end
+
+            foo[locale][type][object.id] = content
           end
 
-          key += object.id
+          #todo: file is written as fucking ascii-8bin garbage…
 
-            case old_translation.id.split('.')[2]
-              when 'name'
-                attribute = 'title'
-              when 'descriptionShort'
-                attribute = 'short_description'
-              when 'description'
-                attribute = 'description'
-              else
-                raise 'invalid attribute'
-          end
-          @client_new.create_translation_for_key(@client_new.create_key("#{key}.#{attribute}"), old_translation.locale, old_translation.content)
-          puts_process(type: 'creating new translation keys', processed: count += 1, all: old_translation.count)
+          file = Tempfile.new(basename: "translations-new-#{locale}", encoding: 'UTF-8')
+          file.write(foo[locale].to_json.to_s.force_encoding('UTF-8'))
+          file.close
+
+          pp file.path
+          return
+
+          @client_new.push_locale_file(file, locale)
         end
+
+        #.to_s.gsub('"name"', '"title"').gsub('"descriptionShort"', '"short_description"')
       end
+
+      private
 
       def migrate_phraseapp_data(entry, new_entry)
         @client_old ||=
