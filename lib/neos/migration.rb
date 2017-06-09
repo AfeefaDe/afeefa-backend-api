@@ -20,50 +20,52 @@ module Neos
         ],
         language: [
           { name: 'german-course', id: '1-1' },
-          { name: 'interpreter', id: '1-2' },
-          { name: 'learning-place', id: '1-3' },
-          { name: 'tandem', id: '1-4' }
+          { name: 'german-course-state', id: '1-2' },
+          { name: 'meet-and-speak', id: '1-3' },
+          { name: 'learning-place', id: '1-4' },
+          { name: 'interpreter', id: '1-5' },
+          { name: 'foreign-language', id: '1-6' }
         ],
         medic: [
-          { name: 'medical-counselling', id: '2-1' },
-          { name: 'medical-care', id: '2-2' },
+          { name: 'medical-counselling', id: '2-2' },
           { name: 'psychological-counselling', id: '2-3' }
         ],
         jobs: [
           { name: 'job-counselling', id: '3-1' },
           { name: 'education-counselling', id: '3-2' },
           { name: 'political-education', id: '3-3' },
-          { name: 'education-sponsorship', id: '3-4' },
-          { name: 'library', id: '3-5' }
+          { name: 'library', id: '3-4' }
         ],
         consultation: [
           { name: 'asylum-counselling', id: '4-1' },
           { name: 'legal-advice', id: '4-2' },
           { name: 'social-counselling', id: '4-3' },
           { name: 'family-counselling', id: '4-4' },
-          { name: 'women-counselling', id: '4-5' },
-          { name: 'volunteer-coordination', id: '4-6' }
+          { name: 'volunteer-coordination', id: '4-5' }
         ],
         leisure: [
-          { name: 'youth-club', id: '5-1' },
           { name: 'sports', id: '5-2' },
           { name: 'museum', id: '5-3' },
           { name: 'music', id: '5-4' },
           { name: 'stage', id: '5-5' },
           { name: 'craft-art', id: '5-6' },
-          { name: 'gardening', id: '5-7' },
-          { name: 'cooking', id: '5-8' },
-          { name: 'festival', id: '5-9' },
-          { name: 'lecture', id: '5-10' }
+          { name: 'workspace', id: '5-7' },
+          { name: 'gardening', id: '5-8' },
+          { name: 'cooking', id: '5-9' },
+          { name: 'festival', id: '5-10' },
+          { name: 'lecture', id: '5-11' },
+          { name: 'film', id: '5-12' },
+          { name: 'congress', id: '5-13' }
         ],
         community: [
           { name: 'welcome-network', id: '6-1' },
           { name: 'meeting-place', id: '6-2' },
-          { name: 'childcare', id: '6-3' },
-          { name: 'workshop', id: '6-4' },
-          { name: 'sponsorship', id: '6-5' },
-          { name: 'lgbt', id: '6-6' },
-          { name: 'housing-project', id: '6-7' }
+          { name: 'youth-club', id: '6-3' },
+          { name: 'childcare', id: '6-4' },
+          { name: 'workshop', id: '6-5' },
+          { name: 'sponsorship', id: '6-6' },
+          { name: 'lgbt', id: '6-7' },
+          { name: 'housing-project', id: '6-8' }
         ],
         donation: [
           { name: 'food', id: '7-1' },
