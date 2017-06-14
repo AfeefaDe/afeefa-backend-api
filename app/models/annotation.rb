@@ -5,7 +5,7 @@ class Annotation < ApplicationRecord
   belongs_to :annotation_category
   belongs_to :entry, polymorphic: true
 
-  scope :with_annotation_category, -> { joins(:annotation_category) }
+  scope :with_annotation_category, -> { includes(:annotation_category) }
 
   scope :with_entries,
     -> {
@@ -34,17 +34,8 @@ class Annotation < ApplicationRecord
     end
   end
 
-  # def entry_to_hash
-  #   entry.try(&:to_hash)
-  # end
-
   def to_todos_hash
-    default_hash(type: 'todos').
-      merge(relationships: {
-        annotation: { data: self.to_hash(relationships: nil) },
-        annotation_category: { data: annotation_category.try(&:to_hash) },
-        entry: { data: entry.try(&:to_hash) },
-      })
+    entry.try(&:to_hash)
   end
 
 end

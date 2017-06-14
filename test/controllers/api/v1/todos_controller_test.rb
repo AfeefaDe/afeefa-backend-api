@@ -62,7 +62,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
     should 'get todos default filter and sort' do
       assert orga = create(:another_orga)
       todo1 = Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
-      sleep(1)
+
       assert event = create(:event)
       todo2 = Annotation.create!(detail: 'Mache ma!', entry: event, annotation_category: @annotation_category)
 
@@ -72,25 +72,24 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      expected = {
-        data: [
-          {
-            type: 'todos', id: todo2.id.to_s,
-            relationships: {
-              annotation: { data: todo2.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: event.to_hash }
-            }
-          },
-          {
-            type: 'todos', id: todo1.id.to_s,
-            relationships: {
-              annotation: { data: todo1.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: orga.to_hash }
-            }
-          }
-        ]
-      }
-      assert_equal expected.deep_stringify_keys, json
+      orga_json =
+        if json['data'].first['type'] == 'orgas'
+          json['data'].first
+        else
+          json['data'].last
+        end
+      event_json =
+        if json['data'].first['type'] == 'events'
+          json['data'].first
+        else
+          json['data'].last
+        end
+
+      expected = event.to_hash.deep_stringify_keys
+      assert_equal expected, event_json
+
+      expected = orga.to_hash.deep_stringify_keys
+      assert_equal expected, orga_json
     end
 
     should 'multiple sort todos' do
@@ -106,25 +105,24 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      expected = {
-        data: [
-          {
-            type: 'todos', id: todo2.id.to_s,
-            relationships: {
-              annotation: { data: todo2.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: event.to_hash }
-            }
-          },
-          {
-            type: 'todos', id: todo1.id.to_s,
-            relationships: {
-              annotation: { data: todo1.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: orga.to_hash }
-            }
-          }
-        ]
-      }
-      assert_equal expected.deep_stringify_keys, json
+      orga_json =
+        if json['data'].first['type'] == 'orgas'
+          json['data'].first
+        else
+          json['data'].last
+        end
+      event_json =
+        if json['data'].first['type'] == 'events'
+          json['data'].first
+        else
+          json['data'].last
+        end
+
+      expected = event.to_hash.deep_stringify_keys
+      assert_equal expected, event_json
+
+      expected = orga.to_hash.deep_stringify_keys
+      assert_equal expected, orga_json
     end
 
   end

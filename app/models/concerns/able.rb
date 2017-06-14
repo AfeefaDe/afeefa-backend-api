@@ -79,6 +79,10 @@ module Able
         errors.add(:sub_category, 'Unterkategorie passt nicht zur Hauptkategorie')
       end
     end
+
+    def annotations_to_hash
+      annotations.map(&:to_hash)
+    end
   end
 
 end
