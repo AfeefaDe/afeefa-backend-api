@@ -8,7 +8,6 @@ FactoryGirl.define do
       creator { User.first }
       association :orga, factory: :orga
       association :category, factory: :category
-      association :sub_category, factory: :sub_category
       contact_infos { [build(:contact_info)] }
       locations { [build(:location)] }
 

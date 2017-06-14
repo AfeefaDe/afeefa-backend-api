@@ -18,10 +18,10 @@ class EventTest < ActiveSupport::TestCase
     assert event.locations.blank?
     assert_not event.valid?
     assert event.errors[:locations].blank?
-    assert_match 'muss ausgefüllt werden', event.errors[:title].first
-    assert_match 'muss ausgefüllt werden', event.errors[:short_description].first
+    assert_match 'fehlt', event.errors[:title].first
+    assert_match 'fehlt', event.errors[:short_description].first
     # FIXME: validate category
-    # assert_match 'muss ausgefüllt werden', event.errors[:category].first
+    # assert_match 'fehlt', event.errors[:category].first
 
     event.tags = 'foo bar'
     assert_not event.valid?
@@ -159,7 +159,7 @@ class EventTest < ActiveSupport::TestCase
       @event.category.blank?
       @event.sub_category.blank?
       @event.category = category = create(:category)
-      @event.sub_category = sub_category = create(:sub_category)
+      @event.sub_category = sub_category = create(:sub_category, parent_id: category.id)
       assert @event.save
       assert_equal category, @event.reload.category
       assert_equal sub_category, @event.reload.sub_category

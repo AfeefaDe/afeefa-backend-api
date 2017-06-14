@@ -10,7 +10,6 @@ FactoryGirl.define do
     contact_infos { [build(:contact_info)] }
     locations { [build(:location)] }
     association :category, factory: :category
-    association :sub_category, factory: :sub_category
 
     after(:build) do |orga|
       orga.contact_infos.each do |ci|

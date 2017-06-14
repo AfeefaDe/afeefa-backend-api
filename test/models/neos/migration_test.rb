@@ -52,7 +52,7 @@ module Neos
       assert_difference '::Orga.count' do
         Neos::Migration.migrate(limit: { orgas: 1, events: 1 })
       end
-      assert ::Orga.last.annotations.where(detail: 'Kurzbeschreibung muss ausgefüllt werden').blank?
+      assert ::Orga.last.annotations.where('detail like ?', 'Kurzbeschreibung%').any?
     end
 
     should 'handle inheritance on setting attributes' do

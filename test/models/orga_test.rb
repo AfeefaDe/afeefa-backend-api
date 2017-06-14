@@ -24,16 +24,34 @@ class OrgaTest < ActiveSupport::TestCase
     assert_jsonable_hash(orga, relationships: orga.class.relation_whitelist_for_json)
   end
 
+  should 'validate sub_category' do
+    orga = Orga.new
+    orga.valid?
+    assert orga.errors[:sub_category].blank?
+
+    orga.sub_category = Category.sub_categories.last
+    orga.valid?
+    assert_match 'passt nicht', orga.errors[:sub_category].first
+
+    orga.category = Category.main_categories.first
+    orga.valid?
+    assert_match 'passt nicht', orga.errors[:sub_category].first
+
+    orga.sub_category = Category.main_categories.first.sub_categories.last
+    orga.valid?
+    assert orga.errors[:sub_category].blank?
+  end
+
   should 'validate attributes' do
     parent_orga = create(:orga)
     orga = Orga.new(parent: parent_orga)
     assert orga.locations.blank?
     assert_not orga.valid?
     assert orga.errors[:locations].blank?
-    assert_match 'muss ausgefüllt werden', orga.errors[:title].first
-    assert_match 'muss ausgefüllt werden', orga.errors[:short_description].first
+    assert_match 'fehlt', orga.errors[:title].first
+    assert_match 'fehlt', orga.errors[:short_description].first
     # FIXME: validate category
-    # assert_match 'muss ausgefüllt werden', orga.errors[:category].first
+    # assert_match 'fehlt', orga.errors[:category].first
 
     orga.tags = 'foo bar'
     assert_not orga.valid?
@@ -162,14 +180,14 @@ class OrgaTest < ActiveSupport::TestCase
     end
 
     should 'have categories' do
-      @orga = build(:orga, category: nil, sub_category: nil)
-      @orga.category.blank?
-      @orga.sub_category.blank?
-      @orga.category = category = create(:category)
-      @orga.sub_category = sub_category = create(:sub_category)
-      assert @orga.save
-      assert_equal category, @orga.reload.category
-      assert_equal sub_category, @orga.reload.sub_category
+      orga = build(:orga, category: nil, sub_category: nil)
+      orga.category.blank?
+      orga.sub_category.blank?
+      orga.category = category = create(:category)
+      orga.sub_category = sub_category = create(:sub_category, parent_id: category.id)
+      assert orga.save
+      assert_equal category, orga.reload.category
+      assert_equal sub_category, orga.reload.sub_category
     end
 
     should 'deactivate orga' do

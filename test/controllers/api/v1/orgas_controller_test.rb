@@ -116,10 +116,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 json = JSON.parse(response.body)
                 assert_equal(
                   [
-                    'Titel - muss ausgefüllt werden',
-                    'Kurzbeschreibung - muss ausgefüllt werden',
-                  # 'Beschreibung - muss ausgefüllt werden',
-                  # 'Kategorie - ist kein gültiger Wert'
+                    'Titel - fehlt',
+                    'Kurzbeschreibung - fehlt',
                   ],
                   json['errors'].map { |x| x['detail'] }
                 )

@@ -18,6 +18,7 @@ class LocationTest < ActiveSupport::TestCase
     location = build(:location_dresden)
     assert_equal 'Reißigerstr. 6, 01307, Dresden, Deutschland', location.address_for_geocoding
     coords = location.geocode
+    assert coords.present?
     assert_equal [51.0436, 13.76696], coords
     assert_equal coords.first.to_s, location.lat
     assert_equal coords.last.to_s, location.lon

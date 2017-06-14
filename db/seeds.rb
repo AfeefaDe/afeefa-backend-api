@@ -63,12 +63,33 @@ module Seeds
     end
 
     # annotations
-    AnnotationCategory.create!(title: 'Eintrag fehlerhaft')
-    AnnotationCategory.create!(title: 'Eintrag gemeldet')
-    AnnotationCategory.create!(title: 'Übersetzung fehlt')
-    AnnotationCategory.create!(title: 'Sonstige Anmerkung')
-    # Be careful with changes, replace usages this annotation title!
-    AnnotationCategory.create!(title: 'Migration nur teilweise erfolgreich')
+    AnnotationCategory.create!(title: 'Titel ist zu lang', generated_by_system: true)
+    AnnotationCategory.create!(title: 'Titel ist bereits vergeben', generated_by_system: true)
+    AnnotationCategory.create!(title: 'Kurzbeschreibung ist zu lang', generated_by_system: true)
+    AnnotationCategory.create!(title: 'Kurzbeschreibung fehlt', generated_by_system: true)
+    AnnotationCategory.create!(title: 'Hauptkategorie fehlt', generated_by_system: true)
+
+    # TODO: Validierung einbauen und Migration handlen!
+    AnnotationCategory.create!(title: 'Unterkategorie passt nicht zur Hauptkategorie',
+      generated_by_system: true)
+
+    # nice to have (for maintenance views):
+    # accessible media_url and correct media_type for entry
+    # no phone nor mail in contact_info
+
+    # beseitigen:
+    # Kategorie fehlerhaft
+
+    AnnotationCategory.create!(title: 'Start-Datum fehlt', generated_by_system: true)
+
+    AnnotationCategory.create!(title: 'Kontaktdaten', generated_by_system: false)
+    AnnotationCategory.create!(title: 'Ort', generated_by_system: false)
+    AnnotationCategory.create!(title: 'Beschreibung', generated_by_system: false)
+    AnnotationCategory.create!(title: 'Bild', generated_by_system: false)
+    AnnotationCategory.create!(title: 'Kategorie', generated_by_system: false)
+    AnnotationCategory.create!(title: 'Zugehörigkeit', generated_by_system: false)
+
+    AnnotationCategory.create!(title: 'Sonstiges', generated_by_system: false)
   end
 
   private
@@ -86,7 +107,11 @@ pp "Seeding database finished (#{Time.current.to_s})."
 unless Rails.env.test?
   begin
     Neos::Migration.
-      migrate(migrate_phraseapp: (Settings.phraseapp.active rescue false), limit: { orgas: nil, events: nil })
+      migrate(
+        migrate_phraseapp: (Settings.phraseapp.active rescue false),
+        limit: {
+          orgas: Settings.try(:migration).try(:limit).try(:orgas),
+          events: Settings.try(:migration).try(:limit).try(:events) })
   rescue ActiveRecord::NoDatabaseError => _exception
     pp 'Migration of live db data could not be processed because the db configured in database.yml ' +
       'could not be found. Is db connection \'afeefa\' defined correctly? ' +

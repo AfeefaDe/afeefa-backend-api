@@ -41,6 +41,7 @@ module Able
     # VALIDATIONS
     # validates :contact_infos, presence: true, on: :update
     validates :category, presence: true, on: :update, unless: :skip_all_validations?
+    validate :validate_sub_category, if: -> { sub_category_id.present? && !skip_all_validations? }
 
     validates :title, presence: true, length: { maximum: 150 }, unless: :skip_all_validations?
     # FIXME: Disabled for testing Todos
@@ -71,6 +72,12 @@ module Able
 
     def validate_parent_id
       errors.add(:parent_id, 'Can not be the parent of itself!') if parent_id == id
+    end
+
+    def validate_sub_category
+      if category_id != sub_category.parent_id
+        errors.add(:sub_category, 'Unterkategorie passt nicht zur Hauptkategorie')
+      end
     end
   end
 

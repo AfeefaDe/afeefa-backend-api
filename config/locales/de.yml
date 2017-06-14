@@ -1,4 +1,12 @@
 de:
+  errors:
+    messages:
+      blank: fehlt
+      empty: fehlt
+      required: fehlt
+      too_long:
+        one: ist zu lang
+        other: ist zu lang
   api:
     attributes: &attributes
       orga: Organisation

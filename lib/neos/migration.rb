@@ -109,7 +109,7 @@ module Neos
         end
 
         count = 0
-        # TODO: Limit can be wrong here, assume there is a limit of 100 and
+        # FIXME: Limit can be wrong here, assume there is a limit of 100 and
         # there are 100 orgas without parent and 100 with parent → Too much childorgas would be processed...
         childorgas = Neos::Orga.where(locale: :de).where.not(parent_entry_id: nil).limit(limit[:orgas])
         puts "Step 2b: Setting parent to #{childorgas.count} child orgas (#{Time.current.to_s})"
@@ -278,14 +278,9 @@ module Neos
               false
             end
 
-          # add migration annotations only to future events and active entries
+          # add migration annotations only to not past events and active entries
           if !past_event && new_entry.active
-            # do not add annotations for short_descriptions
-            details =
-              new_entry.errors.full_messages.
-                reject { |detail| detail == 'Kurzbeschreibung muss ausgefüllt werden' }
-
-            create_annotations(new_entry, details)
+            create_annotations(new_entry, new_entry.errors.full_messages)
           end
         end
 
@@ -402,10 +397,13 @@ module Neos
 
       def create_annotations(new_entry, details)
         [details].flatten.each do |detail|
+          annotation_category =
+            AnnotationCategory.where('title LIKE ?', detail).first ||
+              AnnotationCategory.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first
           todo =
             Annotation.new(
               entry: new_entry,
-              annotation_category: AnnotationCategory.where('title LIKE ?', 'Migration nur teilweise erfolgreich').first,
+              annotation_category: annotation_category,
               detail: detail.try(:strip)
             )
           unless todo.save
