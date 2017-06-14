@@ -11,7 +11,11 @@ module Seeds
   def self.recreate_all(cleanup_phraseapp: false)
     # clean up
     Orga.without_root.delete_all
-    User.delete_all
+
+    unless Rails.env.production?
+      User.delete_all
+    end
+
     Event.delete_all
     Entry.delete_all
 
