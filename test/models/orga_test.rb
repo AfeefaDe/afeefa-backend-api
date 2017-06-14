@@ -25,7 +25,8 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'validate attributes' do
-    orga = Orga.new
+    parent_orga = create(:orga)
+    orga = Orga.new(parent: parent_orga)
     assert orga.locations.blank?
     assert_not orga.valid?
     assert orga.errors[:locations].blank?

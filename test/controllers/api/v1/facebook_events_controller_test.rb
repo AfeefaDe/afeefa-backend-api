@@ -41,18 +41,20 @@ class Api::V1::FacebookEventsControllerTest < ActionController::TestCase
     end
   end
 
-  should 'not has cross origin header on unauthorized request' do
+  should 'not have cross origin header on unauthorized request' do
     get :index
     assert_response :unauthorized
     assert_nil response.headers['Access-Control-Allow-Origin']
     assert_nil response.headers['Access-Control-Request-Method']
   end
 
-  should 'has cross origin header on authorized request' do
+  should 'not have cross origin header on authorized request' do
     get :index, params: { token: Settings.facebook.api_token_for_event_request }
     assert_response :ok
-    assert_equal 'https://afeefa.de', response.headers['Access-Control-Allow-Origin']
-    assert_equal '*', response.headers['Access-Control-Request-Method']
+    # assert_equal 'https://afeefa.de', response.headers['Access-Control-Allow-Origin']
+    # assert_equal '*', response.headers['Access-Control-Request-Method']
+    assert_nil response.headers['Access-Control-Allow-Origin']
+    assert_nil response.headers['Access-Control-Request-Method']
   end
 
 end

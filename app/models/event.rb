@@ -14,7 +14,7 @@ class Event < ApplicationRecord
 
   validates :date_start, presence: true, unless: :skip_all_validations?
 
-  before_validation :unset_inheritance, if: -> { orga.root_orga? }
+  before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance }
 
   scope :upcoming, -> {
     now = Time.now.beginning_of_day
@@ -66,10 +66,6 @@ class Event < ApplicationRecord
   end
 
   private
-
-  def unset_inheritance
-    self.inheritance = nil
-  end
 
   def deny_destroy_if_associated_objects_present
     errors.clear

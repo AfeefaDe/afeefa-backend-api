@@ -28,7 +28,8 @@ module Able
     belongs_to :sub_category, class_name: 'Category', optional: true
 
     # can be removed after migration
-    attr_accessor :skip_short_description_validation
+    attr_accessor :skip_validations_for_migration
+    attr_accessor :skip_unset_inheritance
 
     scope :annotated, -> { joins(:annotations) }
     scope :unannotated,
@@ -45,7 +46,7 @@ module Able
     # FIXME: Disabled for testing Todos
     # validates :description, presence: true
     validates :short_description, presence: true, length: { maximum: 350 },
-      unless: -> { skip_short_description_validation || skip_all_validations? }
+      unless: -> { skip_validations_for_migration || skip_all_validations? }
 
     validates :tags, format: /\A[^\s]+\z/, allow_blank: true, unless: :skip_all_validations?
 

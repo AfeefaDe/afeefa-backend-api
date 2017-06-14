@@ -13,7 +13,8 @@ class EventTest < ActiveSupport::TestCase
   end
 
   should 'validate attributes' do
-    event = Event.new
+    orga = create(:orga)
+    event = Event.new(orga: orga)
     assert event.locations.blank?
     assert_not event.valid?
     assert event.errors[:locations].blank?
@@ -57,7 +58,7 @@ class EventTest < ActiveSupport::TestCase
     event.title = nil
     event.short_description = nil
     assert_not event.valid?
-    assert event.deactivate!
+    assert event.deactivate!, event.errors.messages
     assert event.inactive?
   end
 

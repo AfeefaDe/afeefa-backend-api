@@ -24,14 +24,14 @@ class Orga < ApplicationRecord
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
   # VALIDATIONS
-  validates_uniqueness_of :title, unless: -> { skip_short_description_validation || skip_all_validations? } # skip_short_description_validation can be removed after migration
+  validates_uniqueness_of :title, unless: -> { skip_validations_for_migration || skip_all_validations? } # skip_validations_for_migration can be removed after migration
 
   validate :add_root_orga_edit_error, if: -> { root_orga? }
   validates_presence_of :parent_id, unless: :root_orga?
 
   # HOOKS
   before_validation :set_parent_orga_as_default, if: -> { parent_orga.blank? }
-  before_validation :unset_inheritance, if: -> { parent_orga.root_orga? }
+  before_validation :unset_inheritance, if: -> { parent_orga.root_orga? && !skip_unset_inheritance }
   # before_destroy :move_sub_orgas_to_parent, prepend: true
 
   # SCOPES
@@ -98,10 +98,6 @@ class Orga < ApplicationRecord
   end
 
   private
-
-  def unset_inheritance
-    self.inheritance = nil
-  end
 
   def set_parent_orga_as_default
     self.parent_orga = Orga.root_orga

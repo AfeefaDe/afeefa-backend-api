@@ -18,4 +18,10 @@ module Inheritable
     end
   end
 
+  private
+
+  def unset_inheritance
+    self.inheritance = nil
+  end
+
 end

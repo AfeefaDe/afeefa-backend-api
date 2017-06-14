@@ -51,19 +51,22 @@ module Seeds
     end
 
     # users
-    User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'MapCat_050615')
-    User.create!(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'MapCat_050615')
-    User.create!(email: 'joschka@afeefa.de', forename: 'Joschka', surname: 'Heinrich', password: 'MapCat_050615')
-    User.create!(email: 'steve@afeefa.de', forename: 'Steve', surname: 'Reinke', password: 'MapCat_050615')
-    User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'MapCat_050615')
-    User.create!(email: 'alex@afeefa.de', forename: 'Alex', surname: 'Weiß', password: 'MapCat_050615')
-    User.create!(email: 'friedrich@afeefa.de', forename: 'Friedrich', surname: 'Weise', password: 'MapCat_050615')
-    User.create!(email: 'hagen@afeefa.de', forename: 'Hagen', surname: 'Belitz', password: 'MapCat_050615')
+    unless Rails.env.production?
+      User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'MapCat_050615')
+      User.create!(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'MapCat_050615')
+      User.create!(email: 'joschka@afeefa.de', forename: 'Joschka', surname: 'Heinrich', password: 'MapCat_050615')
+      User.create!(email: 'steve@afeefa.de', forename: 'Steve', surname: 'Reinke', password: 'MapCat_050615')
+      User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'MapCat_050615')
+      User.create!(email: 'alex@afeefa.de', forename: 'Alex', surname: 'Weiß', password: 'MapCat_050615')
+      User.create!(email: 'friedrich@afeefa.de', forename: 'Friedrich', surname: 'Weise', password: 'MapCat_050615')
+      User.create!(email: 'hagen@afeefa.de', forename: 'Hagen', surname: 'Belitz', password: 'MapCat_050615')
+    end
 
     # annotations
     AnnotationCategory.create!(title: 'Eintrag fehlerhaft')
     AnnotationCategory.create!(title: 'Eintrag gemeldet')
     AnnotationCategory.create!(title: 'Übersetzung fehlt')
+    AnnotationCategory.create!(title: 'Sonstige Anmerkung')
     # Be careful with changes, replace usages this annotation title!
     AnnotationCategory.create!(title: 'Migration nur teilweise erfolgreich')
   end

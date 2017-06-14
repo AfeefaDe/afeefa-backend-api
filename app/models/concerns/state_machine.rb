@@ -24,6 +24,9 @@ module StateMachine
 
       event :deactivate do
         transitions from: ACTIVE, to: INACTIVE
+        before do
+          skip_all_validations!
+        end
         after do
           touch :state_changed_at
         end

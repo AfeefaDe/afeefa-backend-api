@@ -109,6 +109,8 @@ module Neos
         end
 
         count = 0
+        # TODO: Limit can be wrong here, assume there is a limit of 100 and
+        # there are 100 orgas without parent and 100 with parent → Too much childorgas would be processed...
         childorgas = Neos::Orga.where(locale: :de).where.not(parent_entry_id: nil).limit(limit[:orgas])
         puts "Step 2b: Setting parent to #{childorgas.count} child orgas (#{Time.current.to_s})"
         childorgas.each do |orga|
@@ -118,10 +120,12 @@ module Neos
 
         count = 0
         orgas = Neos::Orga.where(locale: :de).limit(limit[:orgas])
-        puts "Step 2c: Setting #{orgas.count} orga timestamps (#{Time.current.to_s})"
+        puts "Step 2c: Setting #{orgas.count} orga timestamps and handle inheritance stuff (#{Time.current.to_s})"
         orgas.each do |orga|
           new_orga = ::Orga.find_by(legacy_entry_id: orga.entry_id)
           set_timestamps(new_orga, orga)
+          # association to parent set in 2b, so we can do this here
+          handle_inheritance(new_orga)
           puts_process(type: 'setting orga timestamps', processed: count += 1, all: orgas.count)
         end
 
@@ -137,7 +141,7 @@ module Neos
 
         count = 0
         events = Neos::Event.where(locale: :de).limit(limit[:events])
-        puts "Step 3b: Setting #{events.count} event timestamps (#{Time.current.to_s})"
+        puts "Step 3b: Setting #{events.count} event timestamps and handle inheritance stuff (#{Time.current.to_s})"
         events.each do |event|
           new_event = ::Event.find_by(legacy_entry_id: event.entry_id)
           set_timestamps(new_event, event)
@@ -159,15 +163,6 @@ module Neos
           build_event_from_neos_event(event)
         end
         set_timestamps(new_event, event)
-      end
-
-      def migrate_orga(entry_id)
-        orga = Neos::Orga.where(entry_id: entry_id).first
-        new_orga = create_entry_and_handle_validation(orga) do
-          build_orga_from_neos_orga(orga)
-        end
-        set_parent_orga_to_orga!(orga)
-        set_timestamps(new_orga, orga)
       end
 
       private
@@ -257,17 +252,20 @@ module Neos
 
         new_entry.skip_phraseapp_translations! unless @migrate_phraseapp
 
+        # association to parent is created later, so can not check inheritance stuff here
+        new_entry.skip_unset_inheritance = true
+
         if new_entry.save
           # puts "saved valid entry '#{new_entry.title}'"
         else
           # binding.pry if new_entry.title.blank?
-          new_entry.skip_short_description_validation = true
+          new_entry.skip_validations_for_migration = true
           if new_entry.save(validate: false)
             # puts "saved invalid entry '#{new_entry.title}'"
           else
             puts "Entry not creatable: #{new_entry.errors.messages}"
           end
-          new_entry.skip_short_description_validation = false
+          new_entry.skip_validations_for_migration = false
         end
 
         # handle invalid entries
@@ -429,6 +427,13 @@ module Neos
         new_entry.updated_at = entry.updated
         new_entry.save(validate: false)
         ActiveRecord::Base.record_timestamps = true
+      end
+
+      def handle_inheritance(new_entry)
+        new_entry.skip_unset_inheritance = false
+        # run before_validation hook for handling inheritance
+        new_entry.valid?
+        new_entry.save(validate: false)
       end
 
       def set_parent_orga_to_orga!(orga)
