@@ -13,7 +13,7 @@ class AnnotationCategory < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(title).freeze
+      %i(title generated_by_system).freeze
     end
   end
 
