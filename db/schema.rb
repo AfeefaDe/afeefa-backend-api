@@ -178,7 +178,7 @@ ActiveRecord::Schema.define(version: 20170607143533) do
     t.index ["category_id"], name: "index_thing_category_relations_on_category_id", using: :btree
   end
 
-  create_table "translation_caches", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci" do |t|
+  create_table "translation_caches", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "cacheable_id"
     t.string   "cacheable_type",    limit: 20
     t.string   "language",          limit: 3,     null: false

@@ -1,4 +1,5 @@
 facebook:
+  active: false
   app_id: <%= ENV["FB_APP_ID"] %>
   app_secret: <%= ENV["FB_APP_SECRET"] %>
   api_token_for_event_request: <%= ENV["FB_API_TOKEN"] %>

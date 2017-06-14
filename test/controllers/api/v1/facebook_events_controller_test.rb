@@ -2,6 +2,10 @@ require 'test_helper'
 
 class Api::V1::FacebookEventsControllerTest < ActionController::TestCase
 
+  setup do
+    skip 'facebook deactivated' unless facebook_active?
+  end
+
   should 'get facebook events' do
     # TODO: stub facebook api
     get :index

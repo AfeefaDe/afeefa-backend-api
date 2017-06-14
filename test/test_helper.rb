@@ -56,6 +56,10 @@ class ActiveSupport::TestCase
     Settings.phraseapp.active rescue false
   end
 
+  def facebook_active?
+    Settings.facebook.active rescue false
+  end
+
   def assert_jsonable_hash(object, attributes: nil, relationships: nil)
     object_keys = %i(id type attributes)
     if (relationships.nil? || relationships.present?) && object.class.relation_whitelist_for_json.any?
