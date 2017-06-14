@@ -11,7 +11,7 @@ de:
     attributes: &attributes
       orga: Organisation
       event: Veranstaltung
-      category: Kategorie
+      category: Hauptkategorie
       sub_category: Unterkategorie
       location: Ort
       locations: Ortsangaben
