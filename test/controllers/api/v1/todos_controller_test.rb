@@ -8,7 +8,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       @annotation_category = AnnotationCategory.first
     end
 
-    should 'get filter title and description' do
+    should 'get filtered for title and description' do
       assert orga = create(:orga, title: 'Gartenschmutz', description: 'hallihallo')
       assert event = create(:event, title: 'GartenFOObar')
 
@@ -29,6 +29,30 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_equal 2, json['data'].size
 
       get :index, params: { filter: { title: 'Garten', description: 'hallo' } }
+      json = JSON.parse(response.body)
+      assert_response :ok
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+    end
+
+    should 'get filtered for annotation category' do
+      annotation_category2 = AnnotationCategory.last
+      assert_not_equal @annotation_category, annotation_category2
+
+      assert orga = create(:orga, title: 'Gartenschmutz', description: 'hallihallo')
+      assert event = create(:event, title: 'GartenFOObar')
+
+      get :index, params: { filter: { title: 'Garten', description: 'hallo' } }
+      json = JSON.parse(response.body)
+      assert_response :ok
+      assert_kind_of Array, json['data']
+      assert_equal 0, json['data'].size
+
+      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
+      Annotation.create!(detail: 'ganz wichtig 2', entry: orga, annotation_category: annotation_category2)
+      Annotation.create!(detail: 'ganz wichtig', entry: event, annotation_category: @annotation_category)
+
+      get :index, params: { filter: { annotation_category_id: annotation_category2.id } }
       json = JSON.parse(response.body)
       assert_response :ok
       assert_kind_of Array, json['data']

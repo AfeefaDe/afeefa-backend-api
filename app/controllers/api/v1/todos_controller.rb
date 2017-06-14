@@ -1,5 +1,9 @@
 class Api::V1::TodosController < Api::V1::EntriesController
 
+  def filter_whitelist
+    %w(annotation_category_id).freeze
+  end
+
   private
 
   def to_hash_method
