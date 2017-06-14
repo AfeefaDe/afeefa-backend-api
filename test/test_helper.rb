@@ -27,6 +27,10 @@ require 'pp'
 #   config.hook_into :webmock # or :fakeweb
 # end
 
+# TODO: This is needed because of the strange issues in frontend api... DAMN!
+require File.expand_path('../../db/seeds', __FILE__)
+::Seeds.recreate_all
+
 class ActiveSupport::TestCase
 
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
