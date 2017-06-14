@@ -123,7 +123,7 @@ class PhraseAppClient
         file_format: 'nested_json',
         encoding: 'UTF-8'
     )
-    file = Tempfile.new(basename: "translations-old-#{locale_id}", encoding: 'UTF-8')
+    file = Tempfile.new("translations-old-#{locale_id}-", encoding: 'UTF-8')
     file.write @client.locale_download(@project_id, locale_id, params).force_encoding('UTF-8')
     file.close
     file

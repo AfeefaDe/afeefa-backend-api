@@ -195,7 +195,7 @@ module Neos
 
           file = @client_old.get_locale_file(locale)
 
-          File.open(file, 'rb').read.scan(/"([0-9]+[0-z]*)": {([^}]*?)}/) do |legacy_id, content|
+          File.open(file, 'rb:UTF-8').read.scan(/"([0-9]+[0-z]*)": {([^}]*?)}/) do |legacy_id, content|
 
             object = ::Orga.find_by_legacy_entry_id(legacy_id)
             if object.nil?
@@ -215,12 +215,13 @@ module Neos
 
           #todo: file is written as fucking ascii-8bin garbage…
 
-          file = Tempfile.new(basename: "translations-new-#{locale}", encoding: 'UTF-8')
+          file = Tempfile.new("translations-new-#{locale}-", encoding: 'UTF-8')
           file.write(foo[locale].to_json.to_s.force_encoding('UTF-8'))
           file.close
 
           pp file.path
-          return
+
+          next
 
           @client_new.push_locale_file(file, locale)
         end
