@@ -177,13 +177,14 @@ module Neos
 
 
       def migrate_phraseapp_faster
-        #todo flag
+        ActiveRecord::Base.logger.level = 1
+
         @client_old ||=
             PhraseAppClient.new(
                 project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
         @client_new ||= PhraseAppClient.new
 
-        #@client_new.delete_all_keys
+        @client_new.delete_all_keys
 
         foo = {}
 
@@ -195,8 +196,7 @@ module Neos
 
           file = @client_old.get_locale_file(locale)
 
-          File.open(file, 'rb:UTF-8').read.scan(/"([0-9]+[0-z]*)": {([^}]*?)}/) do |legacy_id, content|
-
+          File.open(file, 'rb:UTF-8').read.scan(/"([0-9]+[0-z]*)": ({[^}]*?})/) do |legacy_id, content|
             object = ::Orga.find_by_legacy_entry_id(legacy_id)
             if object.nil?
               object = ::Event.find_by_legacy_entry_id(legacy_id)
@@ -210,23 +210,16 @@ module Neos
               type = :orga
             end
 
-            foo[locale][type][object.id] = content
+            foo[locale][type][object.id] = JSON.parse(content)
           end
 
-          #todo: file is written as fucking ascii-8bin garbage…
-
-          file = Tempfile.new("translations-new-#{locale}-", encoding: 'UTF-8')
-          file.write(foo[locale].to_json.to_s.force_encoding('UTF-8'))
+          # file = Tempfile.new("translations-new-#{locale}-", encoding: 'UTF-8')
+          file = File.new(Dir.pwd + '/tmp/translations/' + "translation-new-#{locale}.json", 'w:UTF-8')
+          file.write(JSON.pretty_generate(foo[locale]))
           file.close
 
-          pp file.path
-
-          next
-
-          @client_new.push_locale_file(file, locale)
+          @client_new.push_locale_file(file.path, @client_new.locale_id(locale))
         end
-
-        #.to_s.gsub('"name"', '"title"').gsub('"descriptionShort"', '"short_description"')
       end
 
       private

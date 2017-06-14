@@ -130,17 +130,29 @@ class PhraseAppClient
   end
 
   def push_locale_file(file, locale_id)
-    params = PhraseApp::RequestParams::UploadParams.new(
-        file: file,
-        encoding: 'UTF-8',
-        file_format: 'nested_json',
-        locale_id: locale_id
-    )
+    begin
+      params = PhraseApp::RequestParams::UploadParams.new(
+          file: file,
+          encoding: 'UTF-8',
+          file_format: 'nested_json',
+          locale_id: locale_id
+      )
 
-    @client.upload_create(@project_id, params)
+      puts
+      puts params
+      puts
+
+      @client.upload_create(@project_id, params)
+    rescue => exception
+      pp exception
+      message = 'Could not upload file '
+      message << "the following error: #{exception.message}\n"
+      message << "#{exception.backtrace[0..14].join("\n")}"
+      logger.error message
+      raise message if Rails.env.development?
+    end
   end
 
-  private
 
   def delete_all_keys
     begin
@@ -155,15 +167,20 @@ class PhraseAppClient
     end
   end
 
+
+  def locale_id(locale)
+    @locales[locale].try(:id) || raise('invalid locale')
+  end
+
+
+  private
+
+
   def initialize_locales_for_project
     @locales = {}
     @client.locales_list(@project_id, 1, 100)[0].each do |locale|
       @locales[locale.code] = locale
     end
-  end
-
-  def locale_id(locale)
-    @locales[locale].try(:id) || raise('invalid locale')
   end
 
   def create_translation_for_key(key_id, locale, content)
