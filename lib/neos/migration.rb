@@ -313,7 +313,8 @@ module Neos
         puts "migrating entry '#{entry.name}'"
         new_entry = yield
 
-        new_entry.skip_phraseapp_translations! unless @migrate_phraseapp
+        # we are bulk migrating the phraseapp translations in step 4
+        new_entry.skip_phraseapp_translations!
 
         # association to parent is created later, so can not check inheritance stuff here
         new_entry.skip_unset_inheritance = true
