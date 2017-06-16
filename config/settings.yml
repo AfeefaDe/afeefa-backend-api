@@ -12,7 +12,7 @@ geocoding:
 translations:
   api_token: <%= ENV["_API_TOKEN"] %>
 phraseapp:
-  active: false
+  active: true
   project_id: <%= ENV["PA_LIVE_PROJECT_ID"] %>
   api_token: <%= ENV["PA_WRITE_TOKEN"] %>
   fallback_list: [en, de]
