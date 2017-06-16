@@ -148,10 +148,17 @@ module Neos
           puts_process(type: 'setting event timestamps', processed: count += 1, all: events.count)
         end
 
+        puts "Step 4: Migrating PhraseApp (because of reasons) (#{Time.current.to_s})"
+        if @migrate_phraseapp
+          migrate_phraseapp_faster
+        else
+          puts "(skiped)"
+        end
+
         puts "Migration finished (#{Time.current.to_s})."
         puts "Categories: IS: #{::Category.count}, " +
-          "SHOULD: #{SUB_CATEGORIES.keys.count} maincategories from configuration + " +
-          "#{SUB_CATEGORIES.values.flatten.count} subcategories from configuration"
+                 "SHOULD: #{SUB_CATEGORIES.keys.count} maincategories from configuration + " +
+                 "#{SUB_CATEGORIES.values.flatten.count} subcategories from configuration"
         puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{orgas.count}"
         puts "Events: IS: #{::Event.count}, SHOULD: #{events.count}"
       end
@@ -165,12 +172,68 @@ module Neos
         set_timestamps(new_event, event)
       end
 
+      def migrate_orga(entry_id)
+        orga = Neos::Orga.where(entry_id: entry_id).first
+        new_orga = create_entry_and_handle_validation(orga) do
+          build_orga_from_neos_orga(orga)
+        end
+        set_parent_orga_to_orga!(orga)
+        set_timestamps(new_orga, orga)
+      end
+
+
+      def migrate_phraseapp_faster
+        ActiveRecord::Base.logger.level = 1
+
+        @client_old ||=
+            PhraseAppClient.new(
+                project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
+        @client_new ||= PhraseAppClient.new
+
+        @client_new.delete_all_keys
+
+        foo = {}
+
+        @client_old.locales.each do |locale|
+          foo[locale] = {
+              event: {},
+              orga: {}
+          }
+
+          file = @client_old.get_locale_file(locale)
+
+          File.open(file, 'rb:UTF-8').read.scan(/"([0-9]+[0-z]*)": ({[^}]*?})/) do |legacy_id, content|
+            object = ::Orga.find_by_legacy_entry_id(legacy_id)
+            if object.nil?
+              object = ::Event.find_by_legacy_entry_id(legacy_id)
+
+              if object.nil?
+                puts "no orga or event with legacy_id #{legacy_id} found"
+                next
+              end
+              type = :event
+            else
+              type = :orga
+            end
+
+            foo[locale][type][object.id] = JSON.parse(content)
+          end
+
+          # file = Tempfile.new("translations-new-#{locale}-", encoding: 'UTF-8')
+          file = File.new(Dir.pwd + '/tmp/translations/' + "translation-new-#{locale}.json", 'w:UTF-8')
+          file.write(JSON.pretty_generate(foo[locale]))
+          file.close
+
+          @client_new.push_locale_file(file.path, @client_new.locale_id(locale))
+        end
+      end
+
       private
 
       def migrate_phraseapp_data(entry, new_entry)
         @client_old ||=
-          PhraseAppClient.new(
-            project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
+            PhraseAppClient.new(
+                project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
         @client_new ||= PhraseAppClient.new
         responses = []
 
@@ -178,7 +241,7 @@ module Neos
           next if locale == Translatable::DEFAULT_LOCALE
 
           translated_attributes =
-            @client_old.get_translation(entry, locale, fallback: false)
+              @client_old.get_translation(entry, locale, fallback: false)
           if translated_attributes[:name].present?
             translated_attributes[:title] = translated_attributes.delete(:name)
           end
@@ -239,7 +302,7 @@ module Neos
       def parent_or_root_orga(parent) # neos parent
         if parent && parent.orga? &&
             (orgas = ::Orga.where(legacy_entry_id: parent.entry_id)) &&
-          (orgas.count == 1)
+            (orgas.count == 1)
           orgas.first
         else
           ::Orga.root_orga
@@ -272,11 +335,11 @@ module Neos
         if !new_entry.valid?
           # filter out any past events
           past_event =
-            if new_entry.is_a?(::Event)
-              new_entry.in?(::Event.past)
-            else
-              false
-            end
+              if new_entry.is_a?(::Event)
+                new_entry.in?(::Event.past)
+              else
+                false
+              end
 
           # add migration annotations only to not past events and active entries
           if !past_event && new_entry.active
@@ -293,9 +356,9 @@ module Neos
         end
         create_contact_info(new_entry, entry)
 
-        if new_entry.persisted? && @migrate_phraseapp
-          migrate_phraseapp_data(entry, new_entry)
-        end
+        # if new_entry.persisted? && @migrate_phraseapp
+        #   migrate_phraseapp_data(entry, new_entry)
+        # end
 
         new_entry
       rescue => exception
@@ -317,7 +380,7 @@ module Neos
         unless lat.blank? && lon.blank? && street.blank? &&
             placename.blank? && zip.blank? && city.blank? && directions.blank?
           new_location =
-            ::Location.new(locatable: new_entry, migrated_from_neos: true)
+              ::Location.new(locatable: new_entry, migrated_from_neos: true)
 
           set_attribute!(new_location, location.entry, :lat) do |entry|
             entry.locations.order('updated desc').first.try(:lat).try(:strip)
@@ -365,7 +428,7 @@ module Neos
           new_entry.save(validate: false)
         else
           new_contact_info =
-            ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
+              ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
 
           set_attribute!(new_contact_info, entry, :web, by_recursion: true) do |entry|
             entry.web.try(:strip)
@@ -447,22 +510,22 @@ module Neos
         build_entry_from_neos_entry(event, new_event)
 
         type_datetime_from =
-          parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
+            parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
         type_datetime_to =
-          if event.timeto.blank?
-            if event.dateto.blank?
-              nil
-            else
-              if event.dateto == event.datefrom
+            if event.timeto.blank?
+              if event.dateto.blank?
                 nil
               else
-                parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
+                if event.dateto == event.datefrom
+                  nil
+                else
+                  parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
+                end
               end
+            else
+              parse_datetime_and_return_type(:date_end,
+                                             event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
             end
-          else
-            parse_datetime_and_return_type(:date_end,
-              event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
-          end
         if type_datetime_from.first.nil? || type_datetime_from.last.nil?
           puts "failing on parsing date or time for event: #{event.inspect}"
         end
@@ -538,13 +601,13 @@ module Neos
         tmp_entry = old_entry
         loop do
           value =
-            if block_given?
-              yield tmp_entry
-            elsif old_attribute
-              tmp_entry.send(old_attribute)
-            else
-              tmp_entry.send(new_attribute)
-            end
+              if block_given?
+                yield tmp_entry
+              elsif old_attribute
+                tmp_entry.send(old_attribute)
+              else
+                tmp_entry.send(new_attribute)
+              end
           new_entry.send("#{new_attribute}=", value)
           tmp_entry = tmp_entry.parent
 

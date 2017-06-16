@@ -118,17 +118,69 @@ class PhraseAppClient
     translations
   end
 
+  def get_locale_file(locale_id)
+    params = PhraseApp::RequestParams::LocaleDownloadParams.new(
+        file_format: 'nested_json',
+        encoding: 'UTF-8'
+    )
+    file = Tempfile.new("translations-old-#{locale_id}-", encoding: 'UTF-8')
+    file.write @client.locale_download(@project_id, locale_id, params).force_encoding('UTF-8')
+    file.close
+    file
+  end
+
+  def push_locale_file(file, locale_id)
+    begin
+      params = PhraseApp::RequestParams::UploadParams.new(
+          file: file,
+          encoding: 'UTF-8',
+          file_format: 'nested_json',
+          locale_id: locale_id
+      )
+
+      puts
+      puts params
+      puts
+
+      @client.upload_create(@project_id, params)
+    rescue => exception
+      pp exception
+      message = 'Could not upload file '
+      message << "the following error: #{exception.message}\n"
+      message << "#{exception.backtrace[0..14].join("\n")}"
+      logger.error message
+      raise message if Rails.env.development?
+    end
+  end
+
+
+  def delete_all_keys
+    begin
+      params = PhraseApp::RequestParams::KeysDeleteParams.new(q: '*')
+      @client.keys_delete(@project_id, params).first.records_affected
+    rescue => exception
+      message = 'Could not delete all keys for '
+      message << "the following error: #{exception.message}\n"
+      message << "#{exception.backtrace[0..14].join("\n")}"
+      logger.error message
+      raise message if Rails.env.development?
+    end
+  end
+
+
+  def locale_id(locale)
+    @locales[locale].try(:id) || raise('invalid locale')
+  end
+
+
   private
+
 
   def initialize_locales_for_project
     @locales = {}
     @client.locales_list(@project_id, 1, 100)[0].each do |locale|
       @locales[locale.code] = locale
     end
-  end
-
-  def locale_id(locale)
-    @locales[locale].try(:id) || raise('invalid locale')
   end
 
   def create_translation_for_key(key_id, locale, content)
@@ -167,18 +219,4 @@ class PhraseAppClient
     end
     nil
   end
-
-  def delete_all_keys
-    begin
-      params = PhraseApp::RequestParams::KeysDeleteParams.new(q: '*')
-      @client.keys_delete(@project_id, params).first.records_affected
-    rescue => exception
-      message = 'Could not delete all keys for '
-      message << "the following error: #{exception.message}\n"
-      message << "#{exception.backtrace[0..14].join("\n")}"
-      logger.error message
-      raise message if Rails.env.development?
-    end
-  end
-
 end
