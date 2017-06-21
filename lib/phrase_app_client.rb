@@ -165,12 +165,10 @@ class PhraseAppClient
   end
 
   def locale_id(locale)
-    @locales[locale].try(:id) || raise('invalid locale')
+    @locales[locale].try(:id) || raise("locale #{locale} could not be found in list of locales: #{@locales.keys}")
   end
 
-
   private
-
 
   def initialize_locales_for_project
     @locales = {}
