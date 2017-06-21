@@ -217,12 +217,18 @@ module Neos
           file = @client_old.get_locale_file(locale)
 
           File.open(file, 'rb:UTF-8').read.scan(/"([0-9]+[0-z]*)": ({[^}]*?})/) do |legacy_id, content|
-            object = ::Orga.find_by_legacy_entry_id(legacy_id)
+            object = ::Orga.find_by(legacy_entry_id: legacy_id)
             if object.nil?
-              object = ::Event.find_by_legacy_entry_id(legacy_id)
+              object = ::Event.find_by(legacy_entry_id: legacy_id)
+              old_entry = Entry.find_by(entry_id: legacy_id)
+
+              if old_entry && !old_entry.orga? && !old_entry.event?
+                # this is POI or marketentry, these should not be migrated yet
+                next
+              end
 
               if object.nil?
-                puts "no orga or event with legacy_id #{legacy_id} found"
+                puts "no orga or event with legacy_id #{legacy_id} found, old entry was: #{old_entry.inspect}"
                 next
               end
               type = :event
