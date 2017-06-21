@@ -222,7 +222,12 @@ module Neos
               object = ::Event.find_by(legacy_entry_id: legacy_id)
               old_entry = Entry.find_by(entry_id: legacy_id)
 
-              if old_entry && !old_entry.orga? && !old_entry.event?
+              if old_entry.nil?
+                # this seems to be an old phraseapp key, entry does no longer exist, skip it
+                next
+              end
+
+              unless old_entry.orga? || old_entry.event?
                 # this is POI or marketentry, these should not be migrated yet
                 next
               end
