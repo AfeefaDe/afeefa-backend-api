@@ -163,7 +163,7 @@ module Neos
         if @migrate_phraseapp
           migrate_phraseapp_faster
         else
-          puts "(skipped)"
+          puts '(skipped)'
         end
 
         puts "Migration finished (#{Time.current.to_s})."
@@ -389,7 +389,9 @@ module Neos
             end
 
           # add migration annotations only to not past events and active entries
-          if !past_event && new_entry.active
+          if !past_event &&
+              # epic fuck up on active getter in state machine -> TODO/FIXME: Fix this!
+              new_entry.instance_variable_get('@active')
             create_annotations(new_entry, new_entry.errors.full_messages)
           end
         end

@@ -73,7 +73,7 @@ gem 'geocoder'
 # comfortable rails console and debugger, also useful in production:
 gem 'pry'
 gem 'pry-rails'
-# gem 'pry-byebug'
+gem 'pry-byebug'
 
 # integrate PhraseApp
 gem 'phraseapp-ruby'
