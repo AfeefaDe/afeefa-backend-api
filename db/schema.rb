@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170614113241) do
+ActiveRecord::Schema.define(version: 20170621070740) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -39,8 +39,8 @@ ActiveRecord::Schema.define(version: 20170614113241) do
   create_table "contact_infos", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "contactable_type"
     t.integer  "contactable_id"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
     t.string   "mail"
     t.string   "phone"
     t.string   "contact_person"
@@ -48,8 +48,8 @@ ActiveRecord::Schema.define(version: 20170614113241) do
     t.string   "web"
     t.string   "social_media"
     t.string   "spoken_languages"
-    t.boolean  "migrated_from_neos", default: false
-    t.string   "opening_hours"
+    t.boolean  "migrated_from_neos",               default: false
+    t.text     "opening_hours",      limit: 65535
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
   end
 

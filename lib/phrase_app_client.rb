@@ -138,13 +138,8 @@ class PhraseAppClient
           locale_id: locale_id
       )
 
-      puts
-      puts params
-      puts
-
       @client.upload_create(@project_id, params)
     rescue => exception
-      pp exception
       message = 'Could not upload file '
       message << "the following error: #{exception.message}\n"
       message << "#{exception.backtrace[0..14].join("\n")}"
@@ -153,20 +148,23 @@ class PhraseAppClient
     end
   end
 
-
   def delete_all_keys
     begin
       params = PhraseApp::RequestParams::KeysDeleteParams.new(q: '*')
       @client.keys_delete(@project_id, params).first.records_affected
     rescue => exception
-      message = 'Could not delete all keys for '
-      message << "the following error: #{exception.message}\n"
-      message << "#{exception.backtrace[0..14].join("\n")}"
-      logger.error message
-      raise message if Rails.env.development?
+      if exception =~ 'unexpected status code (504) received'
+        logger.warn 'PhraseAppServer timed out while deleting all keys.'
+        -1
+      else
+        message = 'Could not delete all keys for '
+        message << "the following error: #{exception.message}\n"
+        message << "#{exception.backtrace[0..14].join("\n")}"
+        logger.error message
+        raise message if Rails.env.development?
+      end
     end
   end
-
 
   def locale_id(locale)
     @locales[locale].try(:id) || raise('invalid locale')

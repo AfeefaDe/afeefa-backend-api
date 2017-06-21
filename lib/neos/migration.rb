@@ -88,6 +88,7 @@ module Neos
         count = 0
         categories = Neos::Category.where(locale: :de).limit(limit[:categories])
         puts "Step 1: Migrating #{categories.count} categories (#{Time.current.to_s})"
+        reset_progress
         categories.each do |category|
           next if ::Category.find_by_title(category.name)
           new_category = ::Category.new(title: category.name.try(:strip))
@@ -95,17 +96,18 @@ module Neos
             puts "Category is not valid, but we will save it. Errors: #{new_category.errors.full_messages}"
             new_category.save(validate: false)
           end
-          puts_process(type: 'categories', processed: count += 1, all: categories.count)
+          puts_progress(type: 'categories', processed: count += 1, all: categories.count)
         end
 
         count = 0
         orgas = Neos::Orga.where(locale: :de).limit(limit[:orgas])
         puts "Step 2: Migrating #{orgas.count} orgas (#{Time.current.to_s})"
+        reset_progress
         orgas.each do |orga|
           create_entry_and_handle_validation(orga) do
             build_orga_from_neos_orga(orga)
           end
-          puts_process(type: 'orgas', processed: count += 1, all: orgas.count)
+          puts_progress(type: 'orgas', processed: count += 1, all: orgas.count)
         end
 
         count = 0
@@ -113,52 +115,61 @@ module Neos
         # there are 100 orgas without parent and 100 with parent → Too much childorgas would be processed...
         childorgas = Neos::Orga.where(locale: :de).where.not(parent_entry_id: nil).limit(limit[:orgas])
         puts "Step 2b: Setting parent to #{childorgas.count} child orgas (#{Time.current.to_s})"
+        reset_progress
         childorgas.each do |orga|
           set_parent_orga_to_orga!(orga)
-          puts_process(type: 'setting parent orgas', processed: count += 1, all: childorgas.count)
+          puts_progress(type: 'setting parent orgas', processed: count += 1, all: childorgas.count)
         end
 
         count = 0
         orgas = Neos::Orga.where(locale: :de).limit(limit[:orgas])
         puts "Step 2c: Setting #{orgas.count} orga timestamps and handle inheritance stuff (#{Time.current.to_s})"
+        reset_progress
         orgas.each do |orga|
           new_orga = ::Orga.find_by(legacy_entry_id: orga.entry_id)
+          # skip phraseapp stuff here
+          new_orga.skip_phraseapp_translations!
           set_timestamps(new_orga, orga)
           # association to parent set in 2b, so we can do this here
           handle_inheritance(new_orga)
-          puts_process(type: 'setting orga timestamps', processed: count += 1, all: orgas.count)
+          puts_progress(type: 'setting orga timestamps', processed: count += 1, all: orgas.count)
         end
 
         count = 0
         events = Neos::Event.where(locale: :de).limit(limit[:events])
         puts "Step 3: Migrating #{events.count} events (#{Time.current.to_s})"
+        reset_progress
         events.each do |event|
           create_entry_and_handle_validation(event) do
             build_event_from_neos_event(event)
           end
-          puts_process(type: 'events', processed: count += 1, all: events.count)
+          puts_progress(type: 'events', processed: count += 1, all: events.count)
         end
 
         count = 0
         events = Neos::Event.where(locale: :de).limit(limit[:events])
         puts "Step 3b: Setting #{events.count} event timestamps and handle inheritance stuff (#{Time.current.to_s})"
+        reset_progress
         events.each do |event|
           new_event = ::Event.find_by(legacy_entry_id: event.entry_id)
+          # skip phraseapp stuff here
+          new_event.skip_phraseapp_translations!
           set_timestamps(new_event, event)
-          puts_process(type: 'setting event timestamps', processed: count += 1, all: events.count)
+          puts_progress(type: 'setting event timestamps', processed: count += 1, all: events.count)
         end
 
         puts "Step 4: Migrating PhraseApp (because of reasons) (#{Time.current.to_s})"
+        reset_progress
         if @migrate_phraseapp
           migrate_phraseapp_faster
         else
-          puts "(skiped)"
+          puts "(skipped)"
         end
 
         puts "Migration finished (#{Time.current.to_s})."
         puts "Categories: IS: #{::Category.count}, " +
-                 "SHOULD: #{SUB_CATEGORIES.keys.count} maincategories from configuration + " +
-                 "#{SUB_CATEGORIES.values.flatten.count} subcategories from configuration"
+          "SHOULD: #{SUB_CATEGORIES.keys.count} maincategories from configuration + " +
+          "#{SUB_CATEGORIES.values.flatten.count} subcategories from configuration"
         puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{orgas.count}"
         puts "Events: IS: #{::Event.count}, SHOULD: #{events.count}"
       end
@@ -186,18 +197,21 @@ module Neos
         ActiveRecord::Base.logger.level = 1
 
         @client_old ||=
-            PhraseAppClient.new(
-                project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
+          PhraseAppClient.new(
+            project_id: Settings.migration.phraseapp.project_id,
+            token: Settings.migration.phraseapp.api_token)
         @client_new ||= PhraseAppClient.new
 
-        @client_new.delete_all_keys
+        puts 'Cleaning up phraseapp.'
+        delete_count = @client_new.delete_all_keys
+        puts "Cleaned up phraseapp. Deleted #{delete_count} keys."
 
-        foo = {}
+        translation_hash = {}
 
-        @client_old.locales.each do |locale|
-          foo[locale] = {
-              event: {},
-              orga: {}
+        @client_old.locales.each_with_index do |locale, index|
+          translation_hash[locale] = {
+            event: {},
+            orga: {}
           }
 
           file = @client_old.get_locale_file(locale)
@@ -216,15 +230,20 @@ module Neos
               type = :orga
             end
 
-            foo[locale][type][object.id] = JSON.parse(content)
+            translation_hash[locale][type][object.id] = JSON.parse(content)
           end
 
-          # file = Tempfile.new("translations-new-#{locale}-", encoding: 'UTF-8')
-          file = File.new(Dir.pwd + '/tmp/translations/' + "translation-new-#{locale}.json", 'w:UTF-8')
-          file.write(JSON.pretty_generate(foo[locale]))
+          phraseapp_translations_dir = Rails.root.join('tmp', 'translations')
+          FileUtils.mkdir_p(phraseapp_translations_dir)
+          phraseapp_translations_file_path =
+            File.join(phraseapp_translations_dir, "translation-new-#{locale}.json")
+          file = File.new(phraseapp_translations_file_path, 'w:UTF-8')
+          file.write(JSON.pretty_generate(translation_hash[locale]))
           file.close
 
           @client_new.push_locale_file(file.path, @client_new.locale_id(locale))
+
+          puts_progress(type: 'migrating phraseapp', processed: index + 1, all: @client_old.locales.count)
         end
       end
 
@@ -232,8 +251,9 @@ module Neos
 
       def migrate_phraseapp_data(entry, new_entry)
         @client_old ||=
-            PhraseAppClient.new(
-                project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
+          PhraseAppClient.new(
+            project_id: Settings.migration.phraseapp.project_id,
+            token: Settings.migration.phraseapp.api_token)
         @client_new ||= PhraseAppClient.new
         responses = []
 
@@ -241,7 +261,7 @@ module Neos
           next if locale == Translatable::DEFAULT_LOCALE
 
           translated_attributes =
-              @client_old.get_translation(entry, locale, fallback: false)
+            @client_old.get_translation(entry, locale, fallback: false)
           if translated_attributes[:name].present?
             translated_attributes[:title] = translated_attributes.delete(:name)
           end
@@ -254,8 +274,17 @@ module Neos
         responses
       end
 
-      def puts_process(type:, processed:, all:)
-        puts "processed #{processed} of #{all} #{type}: #{'%.2f' % (processed.to_f/all*100)}%"
+      def puts_progress(type:, processed:, all:)
+        @old_percent ||= 0
+        percent = processed.to_f / all * 100
+        if percent - @old_percent > 10
+          @old_percent = percent
+          puts "processed #{processed} of #{all} #{type}: #{'%.2f' % (percent)}%"
+        end
+      end
+
+      def reset_progress
+        @old_percent = 0
       end
 
       def parse_datetime_and_return_type(attribute, date_string, time_string)
@@ -301,8 +330,8 @@ module Neos
 
       def parent_or_root_orga(parent) # neos parent
         if parent && parent.orga? &&
-            (orgas = ::Orga.where(legacy_entry_id: parent.entry_id)) &&
-            (orgas.count == 1)
+          (orgas = ::Orga.where(legacy_entry_id: parent.entry_id)) &&
+          (orgas.count == 1)
           orgas.first
         else
           ::Orga.root_orga
@@ -310,7 +339,7 @@ module Neos
       end
 
       def create_entry_and_handle_validation(entry)
-        puts "migrating entry '#{entry.name}'"
+        # puts "migrating entry '#{entry.name}'"
         new_entry = yield
 
         # we are bulk migrating the phraseapp translations in step 4
@@ -336,11 +365,11 @@ module Neos
         if !new_entry.valid?
           # filter out any past events
           past_event =
-              if new_entry.is_a?(::Event)
-                new_entry.in?(::Event.past)
-              else
-                false
-              end
+            if new_entry.is_a?(::Event)
+              new_entry.in?(::Event.past)
+            else
+              false
+            end
 
           # add migration annotations only to not past events and active entries
           if !past_event && new_entry.active
@@ -357,6 +386,7 @@ module Neos
         end
         create_contact_info(new_entry, entry)
 
+        # we are bulk migrating the phraseapp translations in step 4
         # if new_entry.persisted? && @migrate_phraseapp
         #   migrate_phraseapp_data(entry, new_entry)
         # end
@@ -379,9 +409,9 @@ module Neos
         directions = location.arrival.try(:strip)
 
         unless lat.blank? && lon.blank? && street.blank? &&
-            placename.blank? && zip.blank? && city.blank? && directions.blank?
+          placename.blank? && zip.blank? && city.blank? && directions.blank?
           new_location =
-              ::Location.new(locatable: new_entry, migrated_from_neos: true)
+            ::Location.new(locatable: new_entry, migrated_from_neos: true)
 
           set_attribute!(new_location, location.entry, :lat) do |entry|
             entry.locations.order('updated desc').first.try(:lat).try(:strip)
@@ -420,7 +450,7 @@ module Neos
         contact_person = entry.speakerpublic.try(:strip)
 
         if web.blank? && social_media.blank? && spoken_languages.blank? &&
-            mail.blank? && phone.blank? && contact_person.blank?
+          mail.blank? && phone.blank? && contact_person.blank?
 
           if entry.parent.present?
             new_entry.add_inheritance_flag :contact_infos
@@ -429,7 +459,7 @@ module Neos
           new_entry.save(validate: false)
         else
           new_contact_info =
-              ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
+            ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
 
           set_attribute!(new_contact_info, entry, :web, by_recursion: true) do |entry|
             entry.web.try(:strip)
@@ -501,6 +531,8 @@ module Neos
       def set_parent_orga_to_orga!(orga)
         new_orga = ::Orga.where(legacy_entry_id: orga.entry_id).last
         if new_orga
+          # skip phraseapp stuff here
+          new_orga.skip_phraseapp_translations!
           new_orga.parent = parent_or_root_orga(orga.parent)
           new_orga.save!(validate: false)
         end
@@ -511,22 +543,22 @@ module Neos
         build_entry_from_neos_entry(event, new_event)
 
         type_datetime_from =
-            parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
+          parse_datetime_and_return_type(:date_start, event.datefrom, event.timefrom)
         type_datetime_to =
-            if event.timeto.blank?
-              if event.dateto.blank?
+          if event.timeto.blank?
+            if event.dateto.blank?
+              nil
+            else
+              if event.dateto == event.datefrom
                 nil
               else
-                if event.dateto == event.datefrom
-                  nil
-                else
-                  parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
-                end
+                parse_datetime_and_return_type(:date_end, event.dateto, event.timeto)
               end
-            else
-              parse_datetime_and_return_type(:date_end,
-                                             event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
             end
+          else
+            parse_datetime_and_return_type(:date_end,
+              event.dateto.present? ? event.dateto : event.datefrom, event.timeto)
+          end
         if type_datetime_from.first.nil? || type_datetime_from.last.nil?
           puts "failing on parsing date or time for event: #{event.inspect}"
         end
@@ -602,13 +634,13 @@ module Neos
         tmp_entry = old_entry
         loop do
           value =
-              if block_given?
-                yield tmp_entry
-              elsif old_attribute
-                tmp_entry.send(old_attribute)
-              else
-                tmp_entry.send(new_attribute)
-              end
+            if block_given?
+              yield tmp_entry
+            elsif old_attribute
+              tmp_entry.send(old_attribute)
+            else
+              tmp_entry.send(new_attribute)
+            end
           new_entry.send("#{new_attribute}=", value)
           tmp_entry = tmp_entry.parent
 

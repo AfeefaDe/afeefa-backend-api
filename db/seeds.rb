@@ -8,7 +8,7 @@
 
 module Seeds
 
-  def self.recreate_all(cleanup_phraseapp: false)
+  def self.recreate_all
     # clean up
     Orga.without_root.delete_all
 
@@ -26,10 +26,6 @@ module Seeds
     Annotation.delete_all
 
     Category.delete_all
-
-    if cleanup_phraseapp
-      cleanup_phraseapp!
-    end
 
     # categories and sub categories
     Neos::Migration::SUB_CATEGORIES.each do |main_category, categories|
@@ -96,17 +92,10 @@ module Seeds
     AnnotationCategory.create!(title: 'Sonstiges', generated_by_system: false)
   end
 
-  private
-
-  def self.cleanup_phraseapp!
-    delete_count = (@client ||= PhraseAppClient.new).send(:delete_all_keys)
-    pp "Cleaned up phraseapp. Deleted #{delete_count} keys."
-  end
-
 end
 
 pp "Start seeding database (#{Time.current.to_s})."
-Seeds.recreate_all(cleanup_phraseapp: (Settings.phraseapp.active rescue false))
+Seeds.recreate_all
 pp "Seeding database finished (#{Time.current.to_s})."
 unless Rails.env.test?
   begin
