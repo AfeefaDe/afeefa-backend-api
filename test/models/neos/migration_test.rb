@@ -153,5 +153,12 @@ module Neos
       assert new_orga.contact_infos.blank?
     end
 
+    should 'migrate phraseapp faster' do
+      skip 'phraseapp deactivated' unless phraseapp_active?
+      VCR.use_cassette('migration_test_migrate_phraseapp_faster') do
+        Neos::Migration.migrate(migrate_phraseapp: true, limit: { orgas: 1, events: 1 })
+      end
+    end
+
   end
 end

@@ -19,13 +19,18 @@ require 'minitest/rails/capybara'
 # require "minitest/pride"
 
 require 'pp'
-# TODO: VCR integration and mocks for APIs
-# require 'vcr'
-#
-# VCR.configure do |config|
-#   config.cassette_library_dir = "fixtures/vcr_cassettes"
-#   config.hook_into :webmock # or :fakeweb
-# end
+
+# VCR integration and mocks for APIs
+require 'vcr'
+
+VCR.configure do |config|
+  config.cassette_library_dir = 'test/data/vcr_cassettes'
+  config.hook_into :webmock # or :fakeweb
+
+  config.default_cassette_options = {
+    record: :new_episodes, erb: true
+  }
+end
 
 # TODO: This is needed because of the strange issues in frontend api... DAMN!
 require File.expand_path('../../db/seeds', __FILE__)
@@ -50,11 +55,11 @@ class ActiveSupport::TestCase
     )
   end
 
-  teardown do
-    if phraseapp_active?
-      (@client ||= PhraseAppClient.new).send(:delete_all_keys)
-    end
-  end
+  # teardown do
+  #   if phraseapp_active?
+  #     (@client ||= PhraseAppClient.new).send(:delete_all_keys)
+  #   end
+  # end
 
   def phraseapp_active?
     Settings.phraseapp.active rescue false

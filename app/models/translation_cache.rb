@@ -4,11 +4,12 @@ class TranslationCache < ApplicationRecord
     TranslationCache.delete_all
 
     num = 0
+
     translations.each do |translation|
       if translation.is_a?(PhraseApp::ResponseObjects::Translation) &&
           translation.locale['code'] != Translatable::DEFAULT_LOCALE
 
-       decoded_key = translation.key['name'].split('.')
+        decoded_key = translation.key['name'].split('.')
 
         cached_entry =
           TranslationCache.find_by(

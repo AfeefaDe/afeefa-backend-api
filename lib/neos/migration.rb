@@ -158,7 +158,7 @@ module Neos
           puts_progress(type: 'setting event timestamps', processed: count += 1, all: events.count)
         end
 
-        puts "Step 4: Migrating PhraseApp (because of reasons) (#{Time.current.to_s})"
+        puts "Step 4: Migrating PhraseApp (#{Time.current.to_s})"
         reset_progress
         if @migrate_phraseapp
           migrate_phraseapp_faster
@@ -173,7 +173,6 @@ module Neos
         puts "Orgas:: IS: #{::Orga.count}, SHOULD: #{orgas.count}"
         puts "Events: IS: #{::Event.count}, SHOULD: #{events.count}"
       end
-
 
       def migrate_event(entry_id)
         event = Neos::Event.where(entry_id: entry_id).first
@@ -191,7 +190,6 @@ module Neos
         set_parent_orga_to_orga!(orga)
         set_timestamps(new_orga, orga)
       end
-
 
       def migrate_phraseapp_faster
         ActiveRecord::Base.logger.level = 1
@@ -241,7 +239,12 @@ module Neos
               type = :orga
             end
 
-            translation_hash[locale][type][object.id] = JSON.parse(content)
+            old_translation = JSON.parse(content)
+            new_translation = old_translation.deep_dup
+            new_translation['title'] = new_translation.delete('name')
+            new_translation['short_description'] = new_translation.delete('descriptionshort')
+
+            translation_hash[locale][type][object.id] = new_translation
           end
 
           phraseapp_translations_dir = Rails.root.join('tmp', 'translations')
@@ -377,7 +380,10 @@ module Neos
           # filter out any past events
           past_event =
             if new_entry.is_a?(::Event)
-              new_entry.in?(::Event.past)
+              new_entry.in?(::Event.past) &&
+                # events without date_start should be validated
+                # because we do not really know if they are gone
+                new_entry.date_start.present?
             else
               false
             end

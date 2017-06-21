@@ -15,27 +15,30 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
     end
 
     should 'trigger cache rebuild' do
-      get :index
-      assert_response :ok
-      time_before = JSON.parse(response.body)['updated_at']
+      # TODO: Check cassette and write tests for other responses
+      VCR.use_cassette('translation_cache_controller_test_trigger_cache_rebuild') do
+        get :index
+        assert_response :ok
+        time_before = JSON.parse(response.body)['updated_at']
 
-      post :update
-      post_response = response.status
+        post :update
+        post_response = response.status
 
-      get :index
+        get :index
 
-      case post_response
-        when 200 # caching table got updated –> timestamp changed
-          assert_operator time_before, :<, JSON.parse(response.body)['updated_at']
-        when 204 # no updated was necessary -> nothing changed
-          assert_equal time_before, JSON.parse(response.body)['updated_at']
-        else
-          fail 'unexpacted behavior on translation cache update'
+        case post_response
+          when 200 # caching table got updated –> timestamp changed
+            assert_operator time_before, :<, JSON.parse(response.body)['updated_at']
+          when 204 # no updated was necessary -> nothing changed
+            assert_equal time_before, JSON.parse(response.body)['updated_at']
+          else
+            fail 'unexpacted behavior on translation cache update'
+        end
+
+        # caching table contains no 'de' entries
+        assert_nil TranslationCache.find_by(language: Translatable::DEFAULT_LOCALE)
       end
-
-      # caching table contains no 'de' entries
-      assert_nil TranslationCache.find_by(language: Translatable::DEFAULT_LOCALE)
-
     end
   end
+
 end
