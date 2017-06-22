@@ -21,7 +21,7 @@ class Api::V1::FacebookEventsController < ApplicationController
   end
 
   def set_access_control_headers
-    headers['Access-Control-Allow-Origin'] = 'https://afeefa.de'
+    headers['Access-Control-Allow-Origin'] = 'https://dev.afeefa.de'
     headers['Access-Control-Request-Method'] = '*'
   end
 
