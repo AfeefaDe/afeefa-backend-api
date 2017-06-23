@@ -21,8 +21,21 @@ class Api::V1::FacebookEventsController < ApplicationController
   end
 
   def set_access_control_headers
-    headers['Access-Control-Allow-Origin'] = 'https://dev.afeefa.de'
-    headers['Access-Control-Request-Method'] = '*'
+    origin = request.headers["Origin"]
+    unless origin.nil?
+      # change to nice [].each syntax
+      if origin == "https://dev.afeefa.de"
+        headers['Access-Control-Allow-Origin'] = origin
+        headers['Access-Control-Request-Method'] = '*'
+      elsif origin == "https://afeefa.de"
+        headers['Access-Control-Allow-Origin'] = origin
+        headers['Access-Control-Request-Method'] = '*'
+      elsif origin == "http://localhost:3002"
+        # maybe something like starts with localhost: would be better
+        headers['Access-Control-Allow-Origin'] = origin
+        headers['Access-Control-Request-Method'] = '*'
+      end
+    end
   end
 
 end
