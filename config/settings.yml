@@ -7,6 +7,9 @@ facebook:
   pages_for_events:
     montagscafedresden: 1680988942178044
     dresdenfueralle: 1568930816673620
+    johannstaedterkulturtreff: 168294379862523
+    golgipark: 473356176149010
+    HELLERAU.FAN: 148383831850095
 geocoding:
   api_token: <%= ENV["GEO_API_TOKEN"] %>
 translations:
