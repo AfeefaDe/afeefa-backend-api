@@ -22,7 +22,7 @@ class Annotation < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(detail).freeze
+      %i(detail annotation_category_id).freeze
     end
 
     def relation_whitelist_for_json
@@ -30,7 +30,7 @@ class Annotation < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(annotation_category entry).freeze
+      [].freeze
     end
   end
 
