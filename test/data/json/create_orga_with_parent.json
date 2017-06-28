@@ -1,0 +1,53 @@
+{
+  "data": {
+    "attributes": {
+      "title": "some unique title",
+      "active": true,
+      "description": "",
+      "short_description": "short description",
+      "inheritance": "short_description",
+      "created_at": null,
+      "updated_at": null,
+      "state_changed_at": null
+    },
+    "relationships": {
+      "parent_orga": {
+        "data": {
+          "type": "orgas",
+          "id": "<parent_orga_id>"
+        }
+      },
+      "category": {
+        "data": {
+          "type": "categories",
+          "id": "<category_id>"
+        }
+      },
+      "sub_category": {
+        "data": {
+          "type": "categories",
+          "id": "<sub_category_id>"
+        }
+      },
+      "contact_infos": {
+        "data": [
+          {
+            "attributes": {
+              "mail": "weisefred@googlemail.com",
+              "phone": "377436332",
+              "contact_person": "Friedrich Weise"
+            },
+            "type": "contact_infos"
+          }
+        ]
+      },
+      "annotations": {
+        "data": []
+      },
+      "locations": {
+        "data": []
+      }
+    },
+    "type": "orgas"
+  }
+}
