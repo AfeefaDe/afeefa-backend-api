@@ -360,6 +360,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         new_orga_id = response_json['data']['id']
 
         assert_equal Orga.find(new_orga_id).parent_orga, @orga
+
+        #todo: ticket #276 somehow in create methode parent_orga is set to 1 (ROOT_ORGA) so inheritance gets unset, but WHY!!! #secondsave
         assert_equal inh, response_json['data']['attributes']['inheritance']
         assert_not_nil response_json['data']['attributes']['inheritance']
       end
