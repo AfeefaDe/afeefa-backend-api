@@ -5,7 +5,7 @@ facebook:
   api_token_for_event_request: <%= ENV["FB_API_TOKEN"] %>
   log_file: log/facebook.log
   pages_for_events:
-    afeefa: 3A1616918288526361
+    afeefa: 1616918288526361
     montagscafedresden: 1680988942178044
     dresdenfueralle: 1568930816673620
     johannstaedterkulturtreff: 168294379862523
