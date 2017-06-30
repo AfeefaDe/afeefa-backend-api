@@ -19,8 +19,8 @@ class OrgaTest < ActiveSupport::TestCase
     assert_jsonable_hash(orga)
     assert_jsonable_hash(orga, attributes: orga.class.attribute_whitelist_for_json)
     assert_jsonable_hash(orga,
-      attributes: orga.class.attribute_whitelist_for_json,
-      relationships: orga.class.relation_whitelist_for_json)
+                         attributes: orga.class.attribute_whitelist_for_json,
+                         relationships: orga.class.relation_whitelist_for_json)
     assert_jsonable_hash(orga, relationships: orga.class.relation_whitelist_for_json)
   end
 
@@ -107,7 +107,7 @@ class OrgaTest < ActiveSupport::TestCase
     assert_not orga.translation.blank?
     assert orga.translation(locale: 'en').blank?, orga.translation(locale: 'en')
     assert orga.save
-    expected = { title: 'an orga', description: 'this is a short description of this orga' }
+    expected = {title: 'an orga', description: 'this is a short description of this orga'}
     assert_equal expected, orga.translation
     assert_equal expected, orga.translation(locale: 'en')
   end
@@ -115,18 +115,18 @@ class OrgaTest < ActiveSupport::TestCase
   should 'update translation on orga update' do
     skip 'phraseapp deactivated' unless phraseapp_active?
     orga = create(:orga)
-    expected = { title: 'an orga', description: 'this is a short description of this orga' }
+    expected = {title: 'an orga', description: 'this is a short description of this orga'}
     assert_equal expected, orga.translation
     assert_equal expected, orga.translation(locale: 'en')
     assert orga.update(title: 'foo-bar')
-    expected = { title: 'foo-bar', description: 'this is a short description of this orga' }
+    expected = {title: 'foo-bar', description: 'this is a short description of this orga'}
     assert_equal expected, orga.translation
     assert_equal expected, orga.translation(locale: 'en')
   end
 
   should 'set inheritance to null if no parent orga given' do
     orga1 = create(:orga, parent_orga_id: nil)
-    orga2 = create(:orga, parent_orga_id: orga1.id, title: 'neu', inheritance: 'short_description' )
+    orga2 = create(:orga, parent_orga_id: orga1.id, title: 'neu', inheritance: 'short_description')
 
     assert_equal orga1.id, orga2.parent_orga.id
     assert_equal 'short_description', orga2.inheritance
@@ -168,7 +168,7 @@ class OrgaTest < ActiveSupport::TestCase
       @orga.save!
       @orga.parent_id = @orga.id
       assert_not @orga.valid?
-      assert_equal ['Can not be the parent of itself!'],  @orga.errors[:parent_id]
+      assert_equal ['Can not be the parent of itself!'], @orga.errors[:parent_id]
     end
 
     should 'have contact_informations' do
@@ -231,9 +231,9 @@ class OrgaTest < ActiveSupport::TestCase
       assert_no_difference 'Orga.count' do
         assert_no_difference 'Orga.undeleted.count' do
           exception =
-            assert_raise CustomDeleteRestrictionError do
-              @orga.destroy!
-            end
+              assert_raise CustomDeleteRestrictionError do
+                @orga.destroy!
+              end
           assert_equal 'Unterorganisationen müssen gelöscht werden', exception.message
         end
       end
@@ -252,9 +252,9 @@ class OrgaTest < ActiveSupport::TestCase
           assert_no_difference 'Orga.count' do
             assert_no_difference 'Orga.undeleted.count' do
               exception =
-                assert_raise CustomDeleteRestrictionError do
-                  @orga.destroy!
-                end
+                  assert_raise CustomDeleteRestrictionError do
+                    @orga.destroy!
+                  end
               assert_equal 'Events müssen gelöscht werden', exception.message
             end
           end

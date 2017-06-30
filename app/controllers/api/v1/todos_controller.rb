@@ -11,7 +11,7 @@ class Api::V1::TodosController < Api::V1::EntriesController
   end
 
   def base_for_find_objects
-    Annotation.with_annotation_category.with_entries
+    Annotation.with_entries
   end
 
   def do_includes!(objects)
