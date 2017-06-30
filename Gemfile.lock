@@ -81,6 +81,7 @@ GEM
     config (1.2.1)
       activesupport (>= 3.0)
       deep_merge (~> 1.0, >= 1.0.1)
+    connection_pool (2.2.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     deep_merge (1.1.1)
@@ -176,6 +177,8 @@ GEM
     pry-rails (0.3.4)
       pry (>= 0.9.10)
     rack (2.0.1)
+    rack-protection (2.0.0)
+      rack
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (5.0.0.1)
@@ -217,6 +220,7 @@ GEM
     rb-fsevent (0.9.7)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
+    redis (3.3.3)
     require_all (1.3.3)
     responders (2.3.0)
       railties (>= 4.2.0, < 5.1)
@@ -224,6 +228,11 @@ GEM
     safe_yaml (1.0.4)
     sexp_processor (4.7.0)
     shoulda-context (1.2.1)
+    sidekiq (5.0.3)
+      concurrent-ruby (~> 1.0)
+      connection_pool (~> 2.2, >= 2.2.0)
+      rack-protection (>= 1.5.0)
+      redis (~> 3.3, >= 3.3.3)
     simplecov (0.12.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -297,6 +306,7 @@ DEPENDENCIES
   rails-i18n (~> 5.0.0)
   rails_best_practices
   shoulda-context
+  sidekiq
   simplecov
   spring
   spring-watcher-listen (~> 2.0.0)
