@@ -17,7 +17,7 @@ module Import
         end
       end
       orga = Orga.last
-      assert_equal 'Andrea Gneuß', orga.title
+      assert_equal 'TESTORGA', orga.title
       assert_equal 'bautzen', orga.area
       assert orga.active?
     end
@@ -35,7 +35,7 @@ module Import
         end
       end
       orga = Orga.last
-      assert_equal 'Willkommen in Bautzen e.V.', orga.title
+      assert_equal 'TESTORGA4', orga.title
       assert_equal 'bautzen', orga.area
       assert orga.active?
     end
