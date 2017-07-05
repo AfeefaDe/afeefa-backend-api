@@ -668,5 +668,6 @@ module Neos
         new_entry
       end
     end
+
   end
 end
