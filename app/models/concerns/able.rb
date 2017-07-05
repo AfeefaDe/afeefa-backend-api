@@ -50,7 +50,7 @@ module Able
     # FIXME: Disabled for testing Todos
     # validates :description, presence: true
     validates :short_description, presence: true, length: { maximum: 350 },
-      unless: -> { skip_validations_for_migration || skip_all_validations? }
+      unless: -> { skip_validations_for_migration || skip_all_validations? || skip_short_description_validation? }
 
     validates :tags, format: /\A[^\s]+\z/, allow_blank: true, unless: :skip_all_validations?
 
@@ -81,6 +81,18 @@ module Able
       if category_id != sub_category.parent_id
         errors.add(:sub_category, 'Unterkategorie passt nicht zur Hauptkategorie')
       end
+    end
+
+    def do_not_skip_short_description_validation!
+      @skip_short_description_validation = false
+    end
+
+    def skip_short_description_validation!
+      @skip_short_description_validation = true
+    end
+
+    def skip_short_description_validation?
+      @skip_short_description_validation || false
     end
   end
 
