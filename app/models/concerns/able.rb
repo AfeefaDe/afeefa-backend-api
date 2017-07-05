@@ -30,6 +30,9 @@ module Able
     # can be removed after migration
     attr_accessor :skip_validations_for_migration
     attr_accessor :skip_unset_inheritance
+    def skip_unset_inheritance?
+      skip_unset_inheritance || false
+    end
 
     scope :annotated, -> { joins(:annotations) }
     scope :unannotated,

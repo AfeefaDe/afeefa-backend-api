@@ -456,6 +456,33 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert @controller.current_api_v1_user, event.reload.creator
       end
     end
+
+    should 'create new event with parent relation and inheritance' do
+      orga = create(:orga)
+
+      params = parse_json_file file: 'create_event_with_orga.json' do |payload|
+        payload.gsub!('<orga_id>', orga.id.to_s)
+        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+      end
+
+      assert_not_nil params['data']['attributes']['inheritance']
+      inh = params['data']['attributes']['inheritance']
+
+      assert_difference 'Event.count' do
+        post :create, params: params
+        assert_response :created, response.body
+      end
+
+      response_json = JSON.parse(response.body)
+      new_event_id = response_json['data']['id']
+
+      assert_equal Event.find(new_event_id).orga, orga
+
+      #todo: ticket #276 somehow in create methode parent_orga is set to 1 (ROOT_ORGA) so inheritance gets unset, but WHY!!! #secondsave
+      assert_equal inh, response_json['data']['attributes']['inheritance']
+      assert_not_nil response_json['data']['attributes']['inheritance']
+    end
   end
 
 end
