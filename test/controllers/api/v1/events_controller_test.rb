@@ -291,6 +291,9 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           Event.last.send(relation).first.id.to_s,
           json['data']['relationships'][relation]['data'].first['id'])
       end
+
+      user = @controller.current_api_v1_user
+      assert_equal user.area, Orga.last.area
     end
 
     should 'An event should only change allowed states' do

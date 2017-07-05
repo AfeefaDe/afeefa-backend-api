@@ -98,21 +98,22 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      todos = Annotation.all
+      todo1 = Annotation.find(json['data'].first['id'])
+      todo2 = Annotation.find(json['data'].last['id'])
       expected = {
         data: [
           {
-            type: 'todos', id: todos.first.id.to_s,
+            type: 'todos', id: todo1.id.to_s,
             relationships: {
-              annotation: { data: todos.first.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todos.first.entry.to_hash }
+              annotation: { data: todo1.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todo1.entry.to_hash }
             }
           },
           {
-            type: 'todos', id: todos.last.id.to_s,
+            type: 'todos', id: todo2.id.to_s,
             relationships: {
-              annotation: { data: todos.last.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todos.last.entry.to_hash }
+              annotation: { data: todo2.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todo2.entry.to_hash }
             }
           }
         ]
@@ -132,21 +133,22 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      todos = Annotation.all
+      todo1 = Annotation.find(json['data'].first['id'])
+      todo2 = Annotation.find(json['data'].last['id'])
       expected = {
         data: [
           {
-            type: 'todos', id: todos.first.id.to_s,
+            type: 'todos', id: todo1.id.to_s,
             relationships: {
-              annotation: { data: todos.first.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todos.first.entry.to_hash }
+              annotation: { data: todo1.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todo1.entry.to_hash }
             }
           },
           {
-            type: 'todos', id: todos.last.id.to_s,
+            type: 'todos', id: todo2.id.to_s,
             relationships: {
-              annotation: { data: todos.last.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todos.last.entry.to_hash }
+              annotation: { data: todo2.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todo2.entry.to_hash }
             }
           }
         ]
