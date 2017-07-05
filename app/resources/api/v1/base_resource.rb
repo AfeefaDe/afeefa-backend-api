@@ -26,7 +26,10 @@ class Api::V1::BaseResource < JSONAPI::Resource
       # binding.pry
       # associations are build later so we can not check for parent orga here:
       _model.skip_unset_inheritance = true
-      _model.save # TODO: save!
+      if context[:current_user]
+        _model.area = context[:current_user].area
+      end
+        _model.save # TODO: save!
 
       # handle associations
       field_data[:to_one].each do |relationship_type, value|

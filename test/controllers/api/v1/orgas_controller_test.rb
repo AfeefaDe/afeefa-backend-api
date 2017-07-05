@@ -109,6 +109,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         to_check = json['data']['relationships'][relation]['data'].first
         assert_equal relation, to_check['type']
       end
+
+      user = @controller.current_api_v1_user
+      assert_equal user.area, Orga.last.area
     end
 
     context 'with given orga' do
