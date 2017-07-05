@@ -1,0 +1,74 @@
+{
+  "data": {
+    "attributes": {
+      "title": "some title",
+      "description": "some description",
+      "short_description": "short description",
+      "inheritance": "short_description",
+      "date_start": "2016-12-12"
+    },
+    "relationships": {
+      "orga": {
+        "data": {
+          "type": "orgas",
+          "id": "<orga_id>"
+        }
+      },
+      "category": {
+        "data": {
+          "type": "categories",
+          "id": "<category_id>"
+        }
+      },
+      "sub_category": {
+        "data": {
+          "type": "categories",
+          "id": "<sub_category_id>"
+        }
+      },
+      "contact_infos": {
+        "data": [
+          {
+            "attributes": {
+              "mail": "weisefred@googlemail.com",
+              "phone": "377436332",
+              "contact_person": "Friedrich Weise"
+            },
+            "type": "contact_infos"
+          }
+        ]
+      },
+      "annotations": {
+        "data": [
+          {
+            "type": "annotations",
+            "attributes": {
+              "detail": "foo-bar",
+              "annotation_category_id": "<annotation_category_id_1>"
+            }
+          },
+          {
+            "type": "annotations",
+            "attributes": {
+              "detail": "foo-bar",
+              "annotation_category_id": "<annotation_category_id_2>"
+            }
+          }
+        ]
+      },
+      "locations": {
+        "data": [
+          {
+            "attributes": {
+              "street": "Ernst Nier Straße 8",
+              "city": "Beierfeld",
+              "placename": ""
+            },
+            "type": "locations"
+          }
+        ]
+      }
+    },
+    "type": "events"
+  }
+}

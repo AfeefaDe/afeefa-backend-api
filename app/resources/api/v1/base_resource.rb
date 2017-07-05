@@ -24,6 +24,8 @@ class Api::V1::BaseResource < JSONAPI::Resource
       # initialize model
       super(field_data.reject { |key, _value| key.in?(%i(to_one to_many)) })
       # binding.pry
+      # associations are build later so we can not check for parent orga here:
+      _model.skip_unset_inheritance = true
       _model.save # TODO: save!
 
       # handle associations

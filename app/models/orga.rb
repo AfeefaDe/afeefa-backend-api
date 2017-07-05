@@ -31,7 +31,7 @@ class Orga < ApplicationRecord
 
   # HOOKS
   before_validation :set_parent_orga_as_default, if: -> { parent_orga.blank? }
-  before_validation :unset_inheritance, if: -> { parent_orga.root_orga? || (!skip_unset_inheritance.nil? && !skip_unset_inheritance) }
+  before_validation :unset_inheritance, if: -> { parent_orga.root_orga? && !skip_unset_inheritance? }
   # before_destroy :move_sub_orgas_to_parent, prepend: true
 
   # SCOPES
