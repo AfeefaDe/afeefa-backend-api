@@ -8,12 +8,12 @@ class Annotation < ApplicationRecord
   #scope :with_annotation_category, -> {joins(:annotation_category)}
 
   scope :with_entries,
-        -> {
-          joins("LEFT JOIN orgas ON orgas.id = #{table_name}.entry_id AND entry_type = 'Orga'").
-              joins("LEFT JOIN events ON events.id = #{table_name}.entry_id AND entry_type = 'Event'")
-        }
+    -> {
+      joins("LEFT JOIN orgas ON orgas.id = #{table_name}.entry_id AND entry_type = 'Orga'").
+        joins("LEFT JOIN events ON events.id = #{table_name}.entry_id AND entry_type = 'Event'")
+    }
 
-  scope :grouped_by_entries, -> {group(:entry_id, :entry_type)}
+  scope :grouped_by_entries, -> { group(:entry_id, :entry_type) }
 
   # CLASS METHODS
   class << self
@@ -38,13 +38,17 @@ class Annotation < ApplicationRecord
   #   entry.try(&:to_hash)
   # end
 
+  def annotation_to_hash
+    self.to_hash(relationships: nil)
+  end
+
   def to_todos_hash
     default_hash(type: 'todos').
-        merge(relationships: {
-            annotation: {data: self.to_hash(relationships: nil)},
-            annotation_category: {data: annotation_category.try(&:to_hash)},
-            entry: {data: entry.try(&:to_hash)},
-        })
+      merge(relationships: {
+        annotation: { data: annotation_to_hash },
+        annotation_category: { data: annotation_category.try(&:to_hash) },
+        entry: { data: entry.try(&:to_hash) },
+      })
   end
 
 end
