@@ -97,11 +97,11 @@ class Api::V1::BaseController < ApplicationController
 
   def filter_whitelist
     # raise NotImplementedError, 'Define filter whitelist in your class!'
-    []
+    [].freeze
   end
 
   def custom_filter_whitelist
-    []
+    [].freeze
   end
 
   def apply_custom_filter!(_filter, _filter_criterion, objects)
@@ -113,7 +113,7 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def default_filter
-    {}
+    {}.freeze
   end
 
   def find_objects_for_related_to
@@ -135,7 +135,11 @@ class Api::V1::BaseController < ApplicationController
   def filter_objects
     filter_params.to_h.reverse_merge(default_filter).each do |filter, filter_criterion|
       if filter.to_s.in?(filter_whitelist)
-        @objects = @objects.where("#{filter} LIKE ?", "%#{filter_criterion}%")
+        if filter_criterion.present?
+          @objects = @objects.where("#{filter} LIKE ?", "%#{filter_criterion}%")
+        else
+          @objects = @objects.none
+        end
       elsif filter.to_s.in?(custom_filter_whitelist)
         @objects = apply_custom_filter!(filter, filter_criterion, @objects)
       end

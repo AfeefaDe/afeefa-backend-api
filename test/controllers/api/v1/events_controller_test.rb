@@ -20,6 +20,34 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal Event.last.to_hash.deep_stringify_keys, json['data'].last
     end
 
+    should 'get index only data of area of user' do
+      user = @controller.current_api_v1_user
+
+      dummy_user = create(:user)
+      orga = create(:orga)
+      event =
+        create(:event,
+          title: 'Hackathon', description: 'Mate fuer alle!', creator: dummy_user, orga: orga,
+          area: user.area + ' is different')
+
+      get :index, params: { include: 'annotations,category,sub_category' }
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 0, json['data'].size
+
+      assert event.update(area: user.area)
+
+      get :index, params: { include: 'annotations,category,sub_category' }
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal Event.by_area(user.area).count, json['data'].size
+      event_from_db = Event.by_area(user.area).last
+      assert_equal event_from_db.to_hash.deep_stringify_keys, json['data'].last
+      assert_equal event_from_db.active, json['data'].last['attributes']['active']
+    end
+
     should 'get title filtered list for events' do
       user = create(:user)
       orga = create(:orga)

@@ -1,14 +1,11 @@
 class Api::V1::EventsController < Api::V1::EntriesBaseController
 
-  def filter_whitelist
-    %w(title description short_description).freeze
-  end
-
   def custom_filter_whitelist
-    %w(date).freeze
+    (super.deep_dup + %w(date)).freeze
   end
 
   def apply_custom_filter!(filter, filter_criterion, objects)
+    objects = super
     objects =
       case filter.to_sym
         when :date
@@ -20,6 +17,8 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
             else
               objects
           end
+        else
+          objects
       end
     objects
   end
