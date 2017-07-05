@@ -8,6 +8,33 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       @annotation_category = AnnotationCategory.first
     end
 
+    should 'get index only data of area of user' do
+      user = @controller.current_api_v1_user
+
+      # useful sample data
+      orga = create(:orga, area: user.area + ' is different', parent: nil)
+      assert_not_equal orga.area, user.area
+      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: AnnotationCategory.first)
+      orga.annotations.last
+      orga.sub_orgas.create(attributes_for(:another_orga, parent_orga: orga, area: 'foo'))
+
+      get :index
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 0, json['data'].size
+
+      assert orga.update(area: user.area)
+
+      get :index
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal Orga.by_area(user.area).count, json['data'].size
+      orga_from_db = Orga.by_area(user.area).last
+      assert_equal orga_from_db.annotations.first.to_todos_hash.deep_stringify_keys, json['data'].last
+    end
+
     should 'get filtered for title and description' do
       assert orga = create(:orga, title: 'Gartenschmutz', description: 'hallihallo')
       assert event = create(:event, title: 'GartenFOObar')
@@ -61,10 +88,9 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
 
     should 'get todos default filter and sort' do
       assert orga = create(:another_orga)
-      todo1 = Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
-      sleep(1)
+      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
       assert event = create(:event)
-      todo2 = Annotation.create!(detail: 'Mache ma!', entry: event, annotation_category: @annotation_category)
+      Annotation.create!(detail: 'Mache ma!', entry: event, annotation_category: @annotation_category)
 
       get :index, params: { include: 'annotations', filter: { todo: '' } }
       json = JSON.parse(response.body)
@@ -72,20 +98,21 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
+      todos = Annotation.all
       expected = {
         data: [
           {
-            type: 'todos', id: todo2.id.to_s,
+            type: 'todos', id: todos.first.id.to_s,
             relationships: {
-              annotation: { data: todo2.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: event.to_hash }
+              annotation: { data: todos.first.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todos.first.entry.to_hash }
             }
           },
           {
-            type: 'todos', id: todo1.id.to_s,
+            type: 'todos', id: todos.last.id.to_s,
             relationships: {
-              annotation: { data: todo1.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: orga.to_hash }
+              annotation: { data: todos.last.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todos.last.entry.to_hash }
             }
           }
         ]
@@ -95,10 +122,9 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
 
     should 'multiple sort todos' do
       assert orga = create(:another_orga, title: 'foo'*3)
-      todo1 = Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
-      sleep(1)
+      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
       assert event = create(:event, title: 'foo'*3)
-      todo2 = Annotation.create!(detail: 'Mache ma!', entry: event, annotation_category: @annotation_category)
+      Annotation.create!(detail: 'Mache ma!', entry: event, annotation_category: @annotation_category)
 
       get :index, params: { filter: { todo: '' }, sort: 'title,-state_changed_at,title' }
       json = JSON.parse(response.body)
@@ -106,20 +132,21 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
+      todos = Annotation.all
       expected = {
         data: [
           {
-            type: 'todos', id: todo2.id.to_s,
+            type: 'todos', id: todos.first.id.to_s,
             relationships: {
-              annotation: { data: todo2.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: event.to_hash }
+              annotation: { data: todos.first.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todos.first.entry.to_hash }
             }
           },
           {
-            type: 'todos', id: todo1.id.to_s,
+            type: 'todos', id: todos.last.id.to_s,
             relationships: {
-              annotation: { data: todo1.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: orga.to_hash }
+              annotation: { data: todos.last.to_hash(relationships: nil) },
+              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todos.last.entry.to_hash }
             }
           }
         ]

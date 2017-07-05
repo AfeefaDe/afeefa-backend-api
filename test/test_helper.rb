@@ -51,7 +51,8 @@ class ActiveSupport::TestCase
       forename: 'Max',
       surname: 'Mustermann',
       # TODO: remove required password from device
-      password: 'abc12346'
+      password: 'abc12346',
+      area: 'dresden'
     )
   end
 

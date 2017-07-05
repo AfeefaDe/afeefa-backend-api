@@ -14,7 +14,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       orga.annotations.last
       orga.sub_orgas.create(attributes_for(:another_orga, parent_orga: orga))
 
-      get :index, params: {include: 'annotations,category,sub_category'}
+      get :index, params: { include: 'annotations,category,sub_category' }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
@@ -23,19 +23,47 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal Orga.last.active, json['data'].last['attributes']['active']
     end
 
+    should 'get index only data of area of user' do
+      user = @controller.current_api_v1_user
+
+      # useful sample data
+      orga = create(:orga, area: user.area + ' is different', parent: nil)
+      assert_not_equal orga.area, user.area
+      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: AnnotationCategory.first)
+      orga.annotations.last
+      orga.sub_orgas.create(attributes_for(:another_orga, parent_orga: orga, area: 'foo'))
+
+      get :index, params: { include: 'annotations,category,sub_category' }
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal 0, json['data'].size
+
+      assert orga.update(area: user.area)
+
+      get :index, params: { include: 'annotations,category,sub_category' }
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal Orga.by_area(user.area).count, json['data'].size
+      orga_from_db = Orga.by_area(user.area).last
+      assert_equal orga_from_db.to_hash.deep_stringify_keys, json['data'].last
+      assert_equal orga_from_db.active, json['data'].last['attributes']['active']
+    end
+
     should 'get title filtered list for orgas' do
       user = create(:user)
       orga0 = create(:orga, title: 'Hackathon', description: 'Mate fuer alle!')
       orga1 = create(:orga, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus')
       orga2 = create(:orga, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten')
 
-      get :index, params: {filter: {title: 'Garten'}}
+      get :index, params: { filter: { title: 'Garten' } }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal 1, json['data'].size
 
-      get :index, params: {filter: {title: 'foo'}}
+      get :index, params: { filter: { title: 'foo' } }
       assert_response :ok
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
@@ -45,7 +73,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'not get show root_orga' do
       not_existing_id = 999
       assert Orga.where(id: not_existing_id).blank?
-      get :show, params: {id: not_existing_id}
+      get :show, params: { id: not_existing_id }
       assert_response :not_found, response.body
     end
 
@@ -89,7 +117,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'get show' do
-        get :show, params: {id: @orga.id}
+        get :show, params: { id: @orga.id }
         assert_response :ok, response.body
         json = JSON.parse(response.body)
         assert_kind_of Hash, json['data']
@@ -104,22 +132,22 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             assert_no_difference 'ContactInfo.count' do
               assert_no_difference 'Location.count' do
                 post :create, params: {
-                    data: {
-                        type: 'orgas',
-                        attributes: {
-                        },
-                        relationships: {
-                        }
+                  data: {
+                    type: 'orgas',
+                    attributes: {
+                    },
+                    relationships: {
                     }
+                  }
                 }
                 assert_response :unprocessable_entity, response.body
                 json = JSON.parse(response.body)
                 assert_equal(
-                    [
-                        'Titel - fehlt',
-                        'Kurzbeschreibung - fehlt',
-                    ],
-                    json['errors'].map {|x| x['detail']}
+                  [
+                    'Titel - fehlt',
+                    'Kurzbeschreibung - fehlt',
+                  ],
+                  json['errors'].map { |x| x['detail'] }
                 )
               end
             end
@@ -140,18 +168,18 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               assert_no_difference 'Annotation.count' do
                 assert_no_difference 'AnnotationCategory.count' do
                   post :update,
-                       params: {
-                           id: orga.id,
-                       }.merge(
-                           parse_json_file(
-                               file: 'update_orga_with_nested_models.json'
-                           ) do |payload|
-                             payload.gsub!('<id>', orga.id.to_s)
-                             payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-                             payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-                             payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-                           end
-                       )
+                    params: {
+                      id: orga.id,
+                    }.merge(
+                      parse_json_file(
+                        file: 'update_orga_with_nested_models.json'
+                      ) do |payload|
+                        payload.gsub!('<id>', orga.id.to_s)
+                        payload.gsub!('<annotation_id_1>', annotation.id.to_s)
+                        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+                      end
+                    )
                   assert_response :ok, response.body
                 end
               end
@@ -179,15 +207,15 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               assert_no_difference 'Annotation.count' do
                 assert_no_difference 'AnnotationCategory.count' do
                   post :update,
-                       params: {
-                           id: orga.id,
-                       }.merge(
-                           parse_json_file(
-                               file: 'deactivate_orga.json'
-                           ) do |payload|
-                             payload.gsub!('<id>', orga.id.to_s)
-                           end
-                       )
+                    params: {
+                      id: orga.id,
+                    }.merge(
+                      parse_json_file(
+                        file: 'deactivate_orga.json'
+                      ) do |payload|
+                        payload.gsub!('<id>', orga.id.to_s)
+                      end
+                    )
                   assert_response :ok, response.body
                 end
               end
@@ -212,15 +240,15 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               assert_no_difference 'Annotation.count' do
                 assert_no_difference 'AnnotationCategory.count' do
                   post :update,
-                       params: {
-                           id: orga.id,
-                       }.merge(
-                           parse_json_file(
-                               file: 'deactivate_orga.json'
-                           ) do |payload|
-                             payload.gsub!('<id>', orga.id.to_s)
-                           end
-                       )
+                    params: {
+                      id: orga.id,
+                    }.merge(
+                      parse_json_file(
+                        file: 'deactivate_orga.json'
+                      ) do |payload|
+                        payload.gsub!('<id>', orga.id.to_s)
+                      end
+                    )
                   assert_response :ok, response.body
                 end
               end
@@ -246,17 +274,17 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               assert_no_difference 'AnnotationCategory.count' do
                 assert_difference 'Annotation.count', -1 do
                   post :update,
-                       params: {
-                           id: orga.id,
-                       }.merge(
-                           parse_json_file(
-                               file: 'update_orga_remove_annotations.json'
-                           ) do |payload|
-                             payload.gsub!('<id>', orga.id.to_s)
-                             payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-                             payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-                           end
-                       )
+                    params: {
+                      id: orga.id,
+                    }.merge(
+                      parse_json_file(
+                        file: 'update_orga_remove_annotations.json'
+                      ) do |payload|
+                        payload.gsub!('<id>', orga.id.to_s)
+                        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+                      end
+                    )
                   assert_response :ok, response.body
                 end
               end
@@ -278,9 +306,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               assert_difference 'Location.count', -1 do
                 assert_no_difference 'AnnotationCategory.count' do
                   delete :destroy,
-                         params: {
-                             id: @orga.id,
-                         }
+                    params: {
+                      id: @orga.id,
+                    }
                   assert_response :no_content, response.body
                 end
               end
@@ -300,9 +328,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
               assert_no_difference 'Location.count' do
                 assert_no_difference 'AnnotationCategory.count' do
                   delete :destroy,
-                         params: {
-                             id: @orga.id,
-                         }
+                    params: {
+                      id: @orga.id,
+                    }
                   assert_response :locked, response.body
                   json = JSON.parse(response.body)
                   assert_equal 'Unterorganisationen müssen gelöscht werden', json['errors'].first['detail']
@@ -326,9 +354,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                   assert_no_difference 'Location.count' do
                     assert_no_difference 'AnnotationCategory.count' do
                       delete :destroy,
-                             params: {
-                                 id: @orga.id,
-                             }
+                        params: {
+                          id: @orga.id,
+                        }
                       assert_response :locked, response.body
                       json = JSON.parse(response.body)
                       assert_equal 'Events müssen gelöscht werden', json['errors'].first['detail']

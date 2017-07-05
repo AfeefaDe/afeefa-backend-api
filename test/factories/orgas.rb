@@ -4,6 +4,7 @@ FactoryGirl.define do
     title 'an orga'
     description 'this is a description of this orga'
     short_description 'this is the short description'
+    area 'dresden'
 
     parent_orga { Orga.root_orga }
 

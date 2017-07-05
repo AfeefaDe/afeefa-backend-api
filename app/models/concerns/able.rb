@@ -40,6 +40,7 @@ module Able
         includes(:annotation_categories).references(:annotation_categories).
           where(annotation_categories: { id: nil })
       }
+    scope :by_area, ->(area) { where(area: area) }
 
     # VALIDATIONS
     # validates :contact_infos, presence: true, on: :update
