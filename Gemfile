@@ -108,6 +108,9 @@ group :development, :test do
   # mock requests in tests, needed by vcr
   gem 'webmock'
 
+  #crone
+  gem 'whenever', require: false
+
   # We do not longer use sqlite3:
   # gem 'sqlite3'
 end
