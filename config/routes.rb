@@ -24,7 +24,7 @@ Rails.application.routes.draw do
   #
   # }
 
-  scope format: false, defaults: { format: :json } do
+  scope format: false, defaults: {format: :json} do
     namespace :api do
       namespace :v1 do
         get 'facebook_events', to: 'facebook_events#index'
@@ -35,10 +35,10 @@ Rails.application.routes.draw do
 
         #routes.call
         mount_devise_token_auth_for 'User',
-          at: 'users',
-          controllers: {
-            sessions: 'api/v1/sessions'
-          }
+                                    at: 'users',
+                                    controllers: {
+                                        sessions: 'api/v1/sessions'
+                                    }
 
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
