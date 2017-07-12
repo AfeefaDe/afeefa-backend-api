@@ -32,7 +32,7 @@ append :linked_files, 'config/database.yml', 'config/secrets.yml', 'config/setti
 
 # Default value for linked_dirs is []
 # append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system'
-append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets'#, 'public/system'
+append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets' #, 'public/system'
 
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
@@ -106,7 +106,16 @@ namespace :deploy do
     end
   end
 
+  task :update_crontab do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      within release_path do
+        execute "cd #{release_path} && RAILS_ENV=production bundle exec whenever --update-crontab"
+      end
+    end
+  end
+
 end
 
+after 'deploy', 'deploy:update_crontab'
 after 'deploy', 'deploy:restart'
 after 'deploy:rollback', 'deploy:restart'
