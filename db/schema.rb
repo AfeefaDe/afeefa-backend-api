@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170705134904) do
+ActiveRecord::Schema.define(version: 20170712124414) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "title"
-    t.boolean  "generated_by_system", default: false, null: false
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
+    t.string   "title",               limit: 1000
+    t.boolean  "generated_by_system",              default: false, null: false
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
   end
 
   create_table "annotations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -29,10 +29,10 @@ ActiveRecord::Schema.define(version: 20170705134904) do
   end
 
   create_table "categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "title"
+    t.string   "title",      limit: 1000
     t.integer  "parent_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
     t.index ["parent_id"], name: "index_categories_on_parent_id", using: :btree
   end
 
@@ -41,13 +41,12 @@ ActiveRecord::Schema.define(version: 20170705134904) do
     t.integer  "contactable_id"
     t.datetime "created_at",                                       null: false
     t.datetime "updated_at",                                       null: false
-    t.string   "mail"
+    t.string   "mail",               limit: 1000
     t.string   "phone"
-    t.string   "contact_person"
-    t.string   "internal_id"
-    t.string   "web"
-    t.string   "social_media"
-    t.string   "spoken_languages"
+    t.string   "contact_person",     limit: 1000
+    t.string   "web",                limit: 1000
+    t.string   "social_media",       limit: 1000
+    t.string   "spoken_languages",   limit: 1000
     t.boolean  "migrated_from_neos",               default: false
     t.text     "opening_hours",      limit: 65535
     t.string   "fax"
@@ -61,10 +60,10 @@ ActiveRecord::Schema.define(version: 20170705134904) do
   end
 
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "title"
+    t.string   "title",              limit: 1000
     t.text     "description",        limit: 65535
     t.text     "short_description",  limit: 65535
-    t.string   "public_speaker"
+    t.string   "public_speaker",     limit: 1000
     t.string   "location_type"
     t.boolean  "support_wanted"
     t.integer  "creator_id"
@@ -80,38 +79,37 @@ ActiveRecord::Schema.define(version: 20170705134904) do
     t.datetime "date_end"
     t.boolean  "time_start",                       default: false
     t.boolean  "time_end",                         default: false
-    t.string   "media_url"
+    t.string   "media_url",          limit: 1000
     t.string   "media_type"
     t.boolean  "for_children"
     t.boolean  "certified_sfr"
     t.string   "legacy_entry_id"
     t.boolean  "migrated_from_neos",               default: false
-    t.string   "tags"
+    t.string   "tags",               limit: 1000
     t.string   "inheritance"
-    t.string   "area"
+    t.string   "area",               limit: 1000
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
   end
 
   create_table "locations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "lat"
-    t.string   "lon"
-    t.string   "street"
-    t.string   "placename"
+    t.string   "lat",                limit: 1000
+    t.string   "lon",                limit: 1000
+    t.string   "street",             limit: 1000
+    t.string   "placename",          limit: 1000
     t.string   "zip"
-    t.string   "city"
-    t.string   "district"
+    t.string   "city",               limit: 1000
+    t.string   "district",           limit: 1000
     t.string   "state"
-    t.string   "country"
+    t.string   "country",            limit: 1000
     t.boolean  "displayed"
     t.string   "locatable_type"
     t.integer  "locatable_id"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.string   "internal_id"
-    t.boolean  "migrated_from_neos", default: false
-    t.string   "directions"
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
+    t.boolean  "migrated_from_neos",              default: false
+    t.string   "directions",         limit: 1000
     t.index ["locatable_type", "locatable_id"], name: "index_locations_on_locatable_type_and_locatable_id", using: :btree
   end
 
@@ -128,7 +126,7 @@ ActiveRecord::Schema.define(version: 20170705134904) do
   create_table "orgas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.datetime "created_at",                                       null: false
     t.datetime "updated_at",                                       null: false
-    t.string   "title"
+    t.string   "title",              limit: 1000
     t.text     "description",        limit: 65535
     t.text     "short_description",  limit: 65535
     t.integer  "parent_orga_id"
@@ -136,16 +134,16 @@ ActiveRecord::Schema.define(version: 20170705134904) do
     t.datetime "state_changed_at"
     t.integer  "category_id"
     t.integer  "sub_category_id"
-    t.string   "media_url"
+    t.string   "media_url",          limit: 1000
     t.string   "media_type"
     t.boolean  "support_wanted"
     t.boolean  "for_children"
     t.boolean  "certified_sfr"
     t.string   "legacy_entry_id"
     t.boolean  "migrated_from_neos",               default: false
-    t.string   "tags"
+    t.string   "tags",               limit: 1000
     t.string   "inheritance"
-    t.string   "area"
+    t.string   "area",               limit: 1000
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end
@@ -162,11 +160,11 @@ ActiveRecord::Schema.define(version: 20170705134904) do
   end
 
   create_table "roles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "title"
+    t.string   "title",      limit: 1000
     t.integer  "user_id"
     t.integer  "orga_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
     t.index ["orga_id"], name: "index_roles_on_orga_id", using: :btree
     t.index ["user_id"], name: "index_roles_on_user_id", using: :btree
   end
@@ -186,7 +184,7 @@ ActiveRecord::Schema.define(version: 20170705134904) do
     t.integer  "cacheable_id"
     t.string   "cacheable_type",    limit: 20
     t.string   "language",          limit: 3,     null: false
-    t.string   "title"
+    t.string   "title",             limit: 1000
     t.text     "short_description", limit: 65535
     t.text     "description",       limit: 65535
     t.datetime "created_at",                      null: false
@@ -195,9 +193,9 @@ ActiveRecord::Schema.define(version: 20170705134904) do
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "email",                                default: "",      null: false
-    t.string   "encrypted_password",                   default: "",      null: false
-    t.string   "reset_password_token"
+    t.string   "email",                  limit: 1000,  default: "",      null: false
+    t.string   "encrypted_password",     limit: 1000,  default: "",      null: false
+    t.string   "reset_password_token",   limit: 1000
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.integer  "sign_in_count",                        default: 0,       null: false
@@ -207,12 +205,12 @@ ActiveRecord::Schema.define(version: 20170705134904) do
     t.string   "last_sign_in_ip"
     t.datetime "created_at",                                             null: false
     t.datetime "updated_at",                                             null: false
-    t.string   "forename"
-    t.string   "surname"
+    t.string   "forename",               limit: 1000
+    t.string   "surname",                limit: 1000
     t.string   "provider",                             default: "email", null: false
     t.string   "uid",                                  default: "",      null: false
     t.text     "tokens",                 limit: 65535
-    t.string   "area"
+    t.string   "area",                   limit: 1000
     t.index ["email"], name: "index_users_on_email", using: :btree
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true, using: :btree
