@@ -3,6 +3,7 @@ class Api::V1::BaseController < ApplicationController
   include DeviseTokenAuth::Concerns::SetUserByToken
   include JSONAPI::ActsAsResourceController
   include CustomHeaders
+  include Filter
 
   respond_to :json
 
@@ -18,13 +19,13 @@ class Api::V1::BaseController < ApplicationController
   end
 
   # on_server_error do |error|
-    # do custom code or debugging here
-    # binding.pry
-    # pp error
-    # pp error.backtrace
+  # do custom code or debugging here
+  # binding.pry
+  # pp error
+  # pp error.backtrace
   # end
 
-##############################
+  ##############################
 
   before_action :find_objects, only: %i(index show update)
   before_action :find_objects_for_related_to, only: %i(get_related_resources)
@@ -46,7 +47,7 @@ class Api::V1::BaseController < ApplicationController
   def update
     params_hash = params['data']['attributes'].to_unsafe_h
     if params_hash.in?([{ 'active' => 'false' }, { 'active' => 'false' }]) &&
-        !params['data'].key?('relationships')
+      !params['data'].key?('relationships')
       object = @objects.find(params[:id])
       active = params_hash['active']
 
@@ -92,16 +93,16 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def filter_params
-    params.fetch(:filter, {}).permit(filter_whitelist + custom_filter_whitelist)
+    params.fetch(:filter, {}).permit!.except(params.keys - (filter_whitelist + custom_filter_whitelist))
   end
 
   def filter_whitelist
     # raise NotImplementedError, 'Define filter whitelist in your class!'
-    [].freeze
+    %w().freeze
   end
 
   def custom_filter_whitelist
-    [].freeze
+    %w().freeze
   end
 
   def apply_custom_filter!(_filter, _filter_criterion, objects)
@@ -134,15 +135,12 @@ class Api::V1::BaseController < ApplicationController
 
   def filter_objects
     filter_params.to_h.reverse_merge(default_filter).each do |filter, filter_criterion|
-      if filter.to_s.in?(filter_whitelist)
-        if filter_criterion.present?
-          @objects = @objects.where("#{filter} LIKE ?", "%#{filter_criterion}%")
-        else
-          @objects = @objects.none
+      @objects =
+        if filter.to_s.in?(filter_whitelist)
+          apply_filter!(filter, filter_criterion, @objects)
+        elsif filter.to_s.in?(custom_filter_whitelist)
+          apply_custom_filter!(filter, filter_criterion, @objects)
         end
-      elsif filter.to_s.in?(custom_filter_whitelist)
-        @objects = apply_custom_filter!(filter, filter_criterion, @objects)
-      end
     end
 
     @objects = do_includes!(@objects)
@@ -152,7 +150,7 @@ class Api::V1::BaseController < ApplicationController
     objects
   end
 
-###############################
+  ###############################
 
   def permit_params
     params.try(:[], :data).try(:[], :attributes).try(:delete, :state)

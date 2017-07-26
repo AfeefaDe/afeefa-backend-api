@@ -37,6 +37,29 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
       end
     end
 
+    should 'search by multiple keywords' do
+      assert orga = create(:orga, title: 'Gartenschmutz', description: 'hallihallo')
+      assert event = create(:event, title: 'GartenFOObar')
+
+      get :index, params: { filter: { title: 'Garten schmutz' } }
+      json = JSON.parse(response.body)
+      assert_response :ok
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+
+      get :index, params: { filter: { title: 'Garten foo' } }
+      json = JSON.parse(response.body)
+      assert_response :ok
+      assert_kind_of Array, json['data']
+      assert_equal 1, json['data'].size
+
+      get :index, params: { filter: { title: 'Garten Garten' } }
+      json = JSON.parse(response.body)
+      assert_response :ok
+      assert_kind_of Array, json['data']
+      assert_equal 2, json['data'].size
+    end
+
   end
 
 end
