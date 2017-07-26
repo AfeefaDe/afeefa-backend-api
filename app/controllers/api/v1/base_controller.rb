@@ -114,7 +114,7 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def default_filter
-    {}.freeze
+    %w().freeze
   end
 
   def find_objects_for_related_to
@@ -135,12 +135,11 @@ class Api::V1::BaseController < ApplicationController
 
   def filter_objects
     filter_params.to_h.reverse_merge(default_filter).each do |filter, filter_criterion|
-      @objects =
-        if filter.to_s.in?(filter_whitelist)
-          apply_filter!(filter, filter_criterion, @objects)
-        elsif filter.to_s.in?(custom_filter_whitelist)
-          apply_custom_filter!(filter, filter_criterion, @objects)
-        end
+      if filter.to_s.in?(filter_whitelist)
+        @objects = apply_filter!(filter, filter_criterion, @objects)
+      elsif filter.to_s.in?(custom_filter_whitelist)
+        @objects = apply_custom_filter!(filter, filter_criterion, @objects)
+      end
     end
 
     @objects = do_includes!(@objects)
