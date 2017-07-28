@@ -32,14 +32,14 @@ class Api::V1::EntriesController < Api::V1::EntriesBaseController
         when :any
           # objects1 = apply_address_filter!(objects.deep_dup, filter_criterion)
           # objects2 = apply_contact_info_filter!(objects.deep_dup, filter_criterion)
-          # allowed_attributes = %w(orgas.title orgas.short_description events.title events.short_description)
+          # allowed_attributes = %w(orgas.title orgas.short_description orgas.description events.title events.short_description events.description)
           # objects3 = search(filter_criterion, allowed_attributes, objects.deep_dup)
           # objects.where(id: (objects1.map(&:id) + objects2.map(&:id) + objects3.map(&:id)).uniq)
           # allowed_attributes =
           #   %w(locations.street locations.placename locations.city locations.district)
 
           # build allowed attributes
-          allowed_attributes = %w(orgas.title orgas.short_description events.title events.short_description)
+          allowed_attributes = %w(orgas.title orgas.short_description orgas.description events.title events.short_description events.description)
           allowed_attributes +=
             %w(contact_infos.mail contact_infos.phone contact_infos.fax
           contact_infos.contact_person contact_infos.web contact_infos.social_media)
