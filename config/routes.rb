@@ -27,6 +27,7 @@ Rails.application.routes.draw do
   scope format: false, defaults: {format: :json} do
     namespace :api do
       namespace :v1 do
+        # TODO: Should we move them to frontend api?
         get 'facebook_events', to: 'facebook_events#index'
         get 'geocoding', to: 'geocodings#index'
 

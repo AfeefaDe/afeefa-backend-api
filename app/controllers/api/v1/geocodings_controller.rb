@@ -1,28 +1,34 @@
 class Api::V1::GeocodingsController < ApplicationController
 
-  before_action :ensure_token, only: :index
+  include EnsureToken
+  include Cors
 
   def index
     location = Location.new(geocoding_params)
-    if coords = location.geocode
-      render json: { latitude: coords.first, longitude: coords.last }
+    results = Geocoder.search(location.address_for_geocoding)
+    if results && results.any? && result = results.first
+      street = result.address.split(',').first
+      render json: {
+        latitude: result.latitude,
+        longitude: result.longitude,
+        street: street,
+        city: result.city,
+        full_address: result.address
+      }
     else
       render json: 'geocoding failed', status: :unprocessable_entity
     end
   end
-  alias_method :facebook_events_for_frontend, :index
 
   private
 
-  def ensure_token
-    if params.blank? || params[:token].blank? || params[:token] != Settings.geocoding.api_token
-      head :unauthorized
-      return
-    end
-  end
-
   def geocoding_params
     params.permit(:address, :street, :zip, :city, :country)
+  end
+
+  # for EnsureToken
+  def token_to_ensure
+    Settings.geocoding.api_token
   end
 
 end

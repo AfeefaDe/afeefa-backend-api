@@ -1,7 +1,7 @@
 class Api::V1::MetasController < ApplicationController
 
   include DeviseTokenAuth::Concerns::SetUserByToken
-  include CustomHeaders
+  include NoCaching
 
   respond_to :json
 

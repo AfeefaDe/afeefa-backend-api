@@ -25,6 +25,9 @@ class Api::V1::GeocodingsControllerTest < ActionController::TestCase
       assert_kind_of Hash, json
       assert_equal '51.0436', json['latitude'].to_s
       assert_equal '13.76696', json['longitude'].to_s
+      assert_equal 'Reißigerstraße 6', json['street'].to_s
+      assert_equal 'Dresden', json['city'].to_s
+      assert_equal 'Reißigerstraße 6, 01307 Dresden, Deutschland', json['full_address'].to_s
     end
   end
 
