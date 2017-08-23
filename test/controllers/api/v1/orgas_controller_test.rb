@@ -21,6 +21,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal Orga.count, json['data'].size
       assert_equal Orga.last.to_hash.deep_stringify_keys, json['data'].last
       assert_equal Orga.last.active, json['data'].last['attributes']['active']
+
+      assert json['data'].last['attributes'].key?('support_wanted_detail')
     end
 
     should 'get index only data of area of user' do

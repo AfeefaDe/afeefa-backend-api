@@ -18,6 +18,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal Event.count, json['data'].size
       assert_equal Event.last.to_hash.deep_stringify_keys, json['data'].last
+
+      assert json['data'].last['attributes'].key?('support_wanted_detail')
     end
 
     should 'get index only data of area of user' do

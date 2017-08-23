@@ -22,6 +22,18 @@ class OrgaTest < ActiveSupport::TestCase
                          attributes: orga.class.attribute_whitelist_for_json,
                          relationships: orga.class.relation_whitelist_for_json)
     assert_jsonable_hash(orga, relationships: orga.class.relation_whitelist_for_json)
+
+    assert json = JSON.parse(orga.to_json)
+    assert json['attributes'].key?('support_wanted_detail')
+  end
+
+  should 'validate length of support_wanted_detail' do
+    orga = Orga.new
+    orga.valid?
+    assert orga.errors[:support_wanted_detail].blank?
+    orga.support_wanted_detail = 'x' * 400
+    orga.valid?
+    assert orga.errors[:support_wanted_detail].any?
   end
 
   should 'validate sub_category' do

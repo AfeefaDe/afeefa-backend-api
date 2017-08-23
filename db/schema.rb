@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170712124414) do
+ActiveRecord::Schema.define(version: 20170823112513) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title",               limit: 1000
@@ -60,15 +60,16 @@ ActiveRecord::Schema.define(version: 20170712124414) do
   end
 
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "title",              limit: 1000
-    t.text     "description",        limit: 65535
-    t.text     "short_description",  limit: 65535
-    t.string   "public_speaker",     limit: 1000
+    t.string   "title",                 limit: 1000
+    t.text     "description",           limit: 65535
+    t.text     "short_description",     limit: 65535
+    t.string   "public_speaker",        limit: 1000
     t.string   "location_type"
     t.boolean  "support_wanted"
+    t.string   "support_wanted_detail", limit: 1000
     t.integer  "creator_id"
-    t.datetime "created_at",                                       null: false
-    t.datetime "updated_at",                                       null: false
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
     t.integer  "parent_event_id"
     t.integer  "orga_id"
     t.datetime "date_start"
@@ -77,17 +78,17 @@ ActiveRecord::Schema.define(version: 20170712124414) do
     t.integer  "category_id"
     t.integer  "sub_category_id"
     t.datetime "date_end"
-    t.boolean  "time_start",                       default: false
-    t.boolean  "time_end",                         default: false
-    t.string   "media_url",          limit: 1000
+    t.boolean  "time_start",                          default: false
+    t.boolean  "time_end",                            default: false
+    t.string   "media_url",             limit: 1000
     t.string   "media_type"
     t.boolean  "for_children"
     t.boolean  "certified_sfr"
     t.string   "legacy_entry_id"
-    t.boolean  "migrated_from_neos",               default: false
-    t.string   "tags",               limit: 1000
+    t.boolean  "migrated_from_neos",                  default: false
+    t.string   "tags",                  limit: 1000
     t.string   "inheritance"
-    t.string   "area",               limit: 1000
+    t.string   "area",                  limit: 1000
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
@@ -124,26 +125,27 @@ ActiveRecord::Schema.define(version: 20170712124414) do
   end
 
   create_table "orgas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.datetime "created_at",                                       null: false
-    t.datetime "updated_at",                                       null: false
-    t.string   "title",              limit: 1000
-    t.text     "description",        limit: 65535
-    t.text     "short_description",  limit: 65535
+    t.datetime "created_at",                                          null: false
+    t.datetime "updated_at",                                          null: false
+    t.string   "title",                 limit: 1000
+    t.text     "description",           limit: 65535
+    t.text     "short_description",     limit: 65535
     t.integer  "parent_orga_id"
     t.string   "state"
     t.datetime "state_changed_at"
     t.integer  "category_id"
     t.integer  "sub_category_id"
-    t.string   "media_url",          limit: 1000
+    t.string   "media_url",             limit: 1000
     t.string   "media_type"
     t.boolean  "support_wanted"
+    t.string   "support_wanted_detail", limit: 1000
     t.boolean  "for_children"
     t.boolean  "certified_sfr"
     t.string   "legacy_entry_id"
-    t.boolean  "migrated_from_neos",               default: false
-    t.string   "tags",               limit: 1000
+    t.boolean  "migrated_from_neos",                  default: false
+    t.string   "tags",                  limit: 1000
     t.string   "inheritance"
-    t.string   "area",               limit: 1000
+    t.string   "area",                  limit: 1000
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end

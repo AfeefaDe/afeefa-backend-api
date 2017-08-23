@@ -55,6 +55,8 @@ module Able
 
     validates :tags, format: /\A[^\s]+\z/, allow_blank: true, unless: :skip_all_validations?
 
+    validates :support_wanted_detail, length: { maximum: 350 }, unless: :skip_all_validations?
+
     validate :validate_parent_id, if: -> { parent_id.present? }
 
     # HOOKS

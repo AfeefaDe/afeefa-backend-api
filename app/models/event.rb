@@ -47,7 +47,9 @@ class Event < ApplicationRecord
   class << self
     def attribute_whitelist_for_json
       (default_attributes_for_json +
-        %i(description short_description media_url media_type support_wanted for_children tags certified_sfr
+        %i(description short_description media_url media_type
+            support_wanted support_wanted_detail
+            for_children tags certified_sfr
             public_speaker location_type legacy_entry_id)).freeze
     end
 
