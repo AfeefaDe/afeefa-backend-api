@@ -8,15 +8,17 @@ class Api::V1::MetasController < ApplicationController
   before_action :authenticate_api_v1_user!
 
   def index
+    area = current_api_v1_user.area
+
     meta_hash = {
       meta: {
-        orgas: Orga.count,
+        orgas: Orga.by_area(area).count,
         events: {
-          :all => Event.count,
-          :past => Event.past.count,
-          :upcoming => Event.upcoming.count
+          :all => Event.by_area(area).count,
+          :past => Event.by_area(area).past.count,
+          :upcoming => Event.by_area(area).upcoming.count
         },
-        todos: Annotation.grouped_by_entries.count.count,
+        todos: Annotation.grouped_by_entries.with_entries.by_area(area).count.count,
       }
     }
     render json: meta_hash

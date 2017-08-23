@@ -47,6 +47,22 @@ class Api::V1::MetasControllerTest < ActionController::TestCase
       assert_equal 1, json['meta']['events']['upcoming']
 
       assert_equal Annotation.grouped_by_entries.count.count, json['meta']['todos']
+
+      # now try it as user from leipzig
+      area = 'leipzig'
+      User.any_instance.stubs(:area).returns(area)
+
+      get :index
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Hash, json['meta']
+      assert_equal 0, Orga.by_area(area).count
+      assert_equal 0, json['meta']['orgas']
+
+      assert_equal 0, Event.by_area(area).count
+      assert_equal 0, json['meta']['events']['all']
+      assert_equal 0, json['meta']['events']['past']
+      assert_equal 0, json['meta']['events']['upcoming']
     end
   end
 

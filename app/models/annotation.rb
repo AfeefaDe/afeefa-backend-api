@@ -15,6 +15,13 @@ class Annotation < ApplicationRecord
 
   scope :grouped_by_entries, -> { group(:entry_id, :entry_type) }
 
+  scope :by_area,
+    ->(area) {
+      where(
+        'orgas.area = ? AND events.area IS NULL OR orgas.area IS NULL AND events.area = ?',
+        area, area)
+    }
+
   # CLASS METHODS
   class << self
     def attribute_whitelist_for_json
