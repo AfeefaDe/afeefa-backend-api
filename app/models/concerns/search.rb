@@ -10,10 +10,12 @@ module Search
     terms = normalize_terms(terms)
     term_conditions = build_term_conditions(terms, attributes)
 
-    objects.where(
+    x = objects.where(
       build_statements_for_terms(term_conditions, attributes_operator, terms_operator),
       *build_bind_variables_for_terms(term_conditions)
     )
+    pp x.to_sql
+    x
   end
 
   def build_statements_for_terms(term_conditions, attributes_operator, terms_operator)

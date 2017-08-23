@@ -1,6 +1,6 @@
 class Api::V1::TodosController < Api::V1::EntriesController
 
-  def filter_whitelist
+  def custom_filter_whitelist
     (super.deep_dup + %w(annotation_category_id)).freeze
   end
 
