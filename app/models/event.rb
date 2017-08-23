@@ -49,7 +49,7 @@ class Event < ApplicationRecord
       (default_attributes_for_json +
         %i(description short_description media_url media_type
             support_wanted support_wanted_detail
-            for_children tags certified_sfr
+            tags certified_sfr
             public_speaker location_type legacy_entry_id)).freeze
     end
 
