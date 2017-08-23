@@ -4,7 +4,7 @@ module Import
   module Csv
 
     class << self
-      def import(file:, limit: nil, headers: true, area: :bautzen)
+      def import(file:, area:, limit: nil, headers: true)
         imported = 0
         limit = limit.try(:to_i)
         csv_text = File.read(file)
