@@ -4,8 +4,9 @@ module Import
   module Csv
 
     class << self
-      def import(file:, area:, limit: nil, headers: true)
+      def import(file:, area:, limit: nil, headers: true, handle_title_duplicates: true)
         imported = 0
+        errors = []
         limit = limit.try(:to_i)
         csv_text = File.read(file)
         csv = CSV.parse(csv_text, headers: headers)
@@ -19,6 +20,10 @@ module Import
 
             orga = Orga.new(orga_attributes.merge(active: true, area: area))
             orga.skip_short_description_validation!
+
+            if handle_title_duplicates
+              orga = handle_title_duplicates(orga)
+            end
             orga.save!
 
             contact_info_attributes =
@@ -31,17 +36,38 @@ module Import
             location = Location.new(location_attributes.merge(locatable: orga))
             location.save!
 
-            imported = index + 1
-            break if limit && limit > 0 && index >= limit - 1
+            imported = imported + 1
           rescue => exception
             puts 'Error while importing file, during the following entry:'
             puts orga.attributes.inspect
             puts orga.errors.messages.inspect
             puts exception.message
             puts exception.backtrace.join("\n")
+            errors << "#{exception.message} for #{orga.title}"
           end
+          break if limit && limit > 0 && index >= limit - 1
+        end
+        puts "overall errors: #{errors.count}"
+        errors.each do |error|
+          puts error
         end
         imported
+      end
+
+      private
+
+      def handle_title_duplicates(orga, max_number: 100)
+        original_title = orga.title
+        title_suffix = 2
+
+        while orga.invalid? &&
+            (title_validation_error = orga.errors[:title].first) &&
+            (title_validation_error =~ /bereits vergeben/) &&
+            (title_suffix < max_number)
+          orga.title = "#{original_title}##{title_suffix}"
+          title_suffix = title_suffix + 1
+        end
+        orga
       end
     end
 
