@@ -14,7 +14,7 @@ module Import
           begin
             attributes = row.to_hash.deep_symbolize_keys
             attributes[:category] = Category.main_categories.find_by(title: attributes[:category])
-            attributes[:sub_category] = Category.sub_categories.find_by(title: attributes[:category])
+            attributes[:sub_category] = Category.sub_categories.find_by(title: attributes[:sub_category])
             orga_attributes =
               attributes.slice(*%i(title description category sub_category))
 
