@@ -161,7 +161,7 @@ module Neos
         puts "Step 4: Migrating PhraseApp (#{Time.current.to_s})"
         reset_progress
         if @migrate_phraseapp
-          migrate_phraseapp_faster
+          migrate_phraseapp_faster(show_objects_in_phraseapp_not_found_in_database_errors: false)
         else
           puts '(skipped)'
         end
@@ -191,7 +191,7 @@ module Neos
         set_timestamps(new_orga, orga)
       end
 
-      def migrate_phraseapp_faster
+      def migrate_phraseapp_faster#(show_objects_in_phraseapp_not_found_in_database_errors: true)
         ActiveRecord::Base.logger.level = 1
 
         @client_old ||=
@@ -231,7 +231,9 @@ module Neos
               end
 
               if object.nil?
-                puts "no orga or event with legacy_id #{legacy_id} found, old entry was: #{old_entry.inspect}"
+                if show_objects_in_phraseapp_not_found_in_database_errors
+                  puts "no orga or event with legacy_id #{legacy_id} found, old entry was: #{old_entry.inspect}"
+                end
                 next
               end
               type = :event
@@ -647,6 +649,8 @@ module Neos
             ::Category.find_by_title(entry.category.name)
           end
         end
+
+        set_attribute!(new_entry, old_entry, :area)
       end
 
       def set_attribute!(new_entry, old_entry, new_attribute, old_attribute: nil, by_recursion: false)
