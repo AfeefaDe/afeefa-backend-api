@@ -1,6 +1,0 @@
-api:
-  hosts:
-    - '*'
-  protocols:
-    - '*'
-  admin_secret: '0815'

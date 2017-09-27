@@ -4,12 +4,12 @@ class PhraseAppClient
 
   def initialize(project_id: nil, token: nil)
     @project_id =
-        project_id ||
-            if Rails.env.production?
-              Settings.phraseapp.project_id
-            else
-              Settings.phraseapp.test_project_id
-            end || ''
+      project_id ||
+        if Rails.env.production?
+          Settings.phraseapp.project_id
+        else
+          Settings.phraseapp.test_project_id
+        end || ''
     @token = token || Settings.phraseapp.api_token || ''
     @fallback_list = Settings.phraseapp.fallback_list || []
 
@@ -24,11 +24,11 @@ class PhraseAppClient
 
   def logger
     @logger ||=
-        if log_file = Settings.phraseapp.log_file
-          Logger.new(log_file)
-        else
-          Rails.logger
-        end
+      if log_file = Settings.phraseapp.log_file
+        Logger.new(log_file)
+      else
+        Rails.logger
+      end
   end
 
   def create_or_update_translation(model, locale)
@@ -38,8 +38,8 @@ class PhraseAppClient
         content = model.send(attribute)
         key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
         key_id =
-            find_key_id_by_key_name(key) ||
-                create_key(key)
+          find_key_id_by_key_name(key) ||
+            create_key(key)
         next if content.blank?
 
         if translation_id = find_translation_id_by_key_id_and_locale(key_id, locale)
@@ -75,11 +75,11 @@ class PhraseAppClient
     {}.tap do |translation_hash|
       model.class.translatable_attributes.each do |attribute|
         key =
-            if model.class.to_s.start_with?('Neos::')
-              "entry.#{model.entry_id}.#{attribute}"
-            else
-              "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
-            end
+          if model.class.to_s.start_with?('Neos::')
+            "entry.#{model.entry_id}.#{attribute}"
+          else
+            "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
+          end
         key_id = find_key_id_by_key_name(key)
         next unless key_id
 
@@ -118,8 +118,8 @@ class PhraseAppClient
 
   def get_locale_file(locale_id)
     params = PhraseApp::RequestParams::LocaleDownloadParams.new(
-        file_format: 'nested_json',
-        encoding: 'UTF-8'
+      file_format: 'nested_json',
+      encoding: 'UTF-8'
     )
     file = Tempfile.new("translations-old-#{locale_id}-", encoding: 'UTF-8')
     file.write @client.locale_download(@project_id, locale_id, params).force_encoding('UTF-8')
@@ -127,19 +127,21 @@ class PhraseAppClient
     file
   end
 
-  def push_locale_file(file, locale_id)
+  def push_locale_file(file, locale_id, tags: nil)
     begin
       params = PhraseApp::RequestParams::UploadParams.new(
-          file: file,
-          encoding: 'UTF-8',
-          file_format: 'nested_json',
-          locale_id: locale_id
+        file: file,
+        update_translations: true,
+        tags: tags || '',
+        encoding: 'UTF-8',
+        file_format: 'nested_json',
+        locale_id: locale_id
       )
 
       @client.upload_create(@project_id, params)
     rescue => exception
       message = 'Could not upload file '
-      message << "the following error: #{exception.message}\n"
+      message << "for the following error: #{exception.message}\n"
       message << "#{exception.backtrace[0..14].join("\n")}"
       logger.error message
       raise message if Rails.env.development?
@@ -179,10 +181,10 @@ class PhraseAppClient
 
   def create_translation_for_key(key_id, locale, content)
     params =
-        PhraseApp::RequestParams::TranslationParams.new(
-            locale_id: locale_id(locale),
-            content: content.to_s,
-            key_id: key_id)
+      PhraseApp::RequestParams::TranslationParams.new(
+        locale_id: locale_id(locale),
+        content: content.to_s,
+        key_id: key_id)
     @client.translation_create(@project_id, params)
   end
 

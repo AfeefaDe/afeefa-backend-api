@@ -24,11 +24,13 @@ require 'pp'
 require 'vcr'
 
 VCR.configure do |config|
+  config.allow_http_connections_when_no_cassette = true
   config.cassette_library_dir = 'test/data/vcr_cassettes'
   config.hook_into :webmock # or :fakeweb
 
   config.default_cassette_options = {
-    record: :new_episodes, erb: true
+    record: :once,
+    erb: true
   }
 end
 
@@ -70,6 +72,16 @@ class ActiveSupport::TestCase
     Settings.facebook.active rescue false
   end
 
+  def stub_phraseapp_inactive!
+    @phraseapp_config = Settings.phraseapp
+    Settings.stubs(:phraseapp).returns(@phraseapp_config)
+    @phraseapp_config.stubs(:active).returns(false)
+  end
+
+  def unstub_phraseapp!
+    Settings.unstub(:phraseapp)
+  end
+
   def assert_jsonable_hash(object, attributes: nil, relationships: nil)
     object_keys = %i(id type attributes)
     if (relationships.nil? || relationships.present?) && object.class.relation_whitelist_for_json.any?
@@ -101,8 +113,7 @@ class ActionController::TestCase
   setup do
     request.class.any_instance.stubs(:content_type).returns(JSONAPI::MEDIA_TYPE)
     # stub phraseapp stuff
-    Orga.any_instance.stubs(:update_or_create_translations).returns(true)
-    Event.any_instance.stubs(:update_or_create_translations).returns(true)
+    stub_phraseapp_inactive!
   end
 
   private

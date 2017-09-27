@@ -27,6 +27,29 @@ class OrgaTest < ActiveSupport::TestCase
     assert json['attributes'].key?('support_wanted_detail')
   end
 
+  test 'generate json for phraseapp' do
+    unstub_phraseapp!
+
+    VCR.use_cassette('generate_json_for_phraseapp') do
+      orga = create(:orga)
+      Orga::translatable_attributes.each do |attribute|
+        orga.send("#{attribute}=", "#{Time.current.to_s} change xyz")
+      end
+      hash = orga.send(:build_json_for_phraseapp)
+      assert_equal ['orga'], hash.keys
+      rendered_orgas = hash.values
+      assert_equal 1, rendered_orgas.count
+      rendered_orga = rendered_orgas.first
+      assert_equal 1, rendered_orga.keys.count
+      assert_equal orga.id.to_s, rendered_orga.keys.first
+      attributes = rendered_orga.values.first
+      assert_equal Orga::translatable_attributes.map(&:to_s), attributes.keys
+      attributes.each do |attribute, value|
+        assert_equal orga.send(attribute), value
+      end
+    end
+  end
+
   should 'validate length of support_wanted_detail' do
     orga = Orga.new
     orga.valid?

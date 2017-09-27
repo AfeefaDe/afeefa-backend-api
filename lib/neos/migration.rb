@@ -161,7 +161,7 @@ module Neos
         puts "Step 4: Migrating PhraseApp (#{Time.current.to_s})"
         reset_progress
         if @migrate_phraseapp
-          migrate_phraseapp_faster(show_objects_in_phraseapp_not_found_in_database_errors: false)
+          migrate_phraseapp_faster#(show_objects_in_phraseapp_not_found_in_database_errors: false)
         else
           puts '(skipped)'
         end
@@ -191,7 +191,7 @@ module Neos
         set_timestamps(new_orga, orga)
       end
 
-      def migrate_phraseapp_faster#(show_objects_in_phraseapp_not_found_in_database_errors: true)
+      def migrate_phraseapp_faster(show_objects_in_phraseapp_not_found_in_database_errors: true)
         ActiveRecord::Base.logger.level = 1
 
         @client_old ||=
