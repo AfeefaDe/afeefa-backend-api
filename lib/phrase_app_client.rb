@@ -65,18 +65,22 @@ class PhraseAppClient
     model.build_translation_key(attribute)
   end
 
-  def delete_translation(model, dry_run: true)
+  def delete_translation(model, dry_run: true, only_blank: false)
     deleted = 0
     model.class.translatable_attributes.each do |attribute|
       key = self.class.build_translation_key(attribute, model)
       key_id = find_key_id_by_key_name(key)
       next unless key_id
 
+      if only_blank
+        next unless model.send(attribute).blank?
+      end
+
       deleted = deleted + 1
       if dry_run
         Rails.logger.info "delete key #{key}, id #{key_id}"
       else
-        Rails.logger.debug @client.key_delete(@project_id, key_id)
+        @client.key_delete(@project_id, key_id)
       end
     end
     deleted
