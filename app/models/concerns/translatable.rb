@@ -6,10 +6,31 @@ module Translatable
   PHRASEAPP_TRANSLATIONS_DIR = Rails.root.join('tmp', 'translations').freeze
 
   included do
+    scope :empty_translatable_attributes, ->() {
+      conditions =
+        translatable_attributes.map do |attribute|
+          "#{attribute} IS NULL OR #{attribute} = ''"
+        end.join(' OR ')
+      where(conditions)
+    }
+
     after_save :update_or_create_translations,
       if: -> { (Settings.phraseapp.active rescue false) && !skip_phraseapp_translations? }
     after_destroy :destroy_translations,
       if: -> { (Settings.phraseapp.active rescue false) && !skip_phraseapp_translations? }
+
+    def build_translation_key(attribute)
+      "#{self.class.name.underscore}.#{id}.#{attribute}"
+    end
+
+    def self.destroy_translation_keys_for_models_with_empty_translation_attributes(dry_run: true)
+      deleted = 0
+      empty_translatable_attributes.each do |model|
+        deleted = deleted + model.client.delete_translation(model, dry_run: dry_run)
+      end
+      deleted
+    end
+
   end
 
   module ClassMethods
@@ -99,7 +120,7 @@ module Translatable
   end
 
   def destroy_translations
-    client.delete_translation(self)
+    client.delete_translation(self, dry_run: false)
   end
 
 end

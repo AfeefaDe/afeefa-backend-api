@@ -94,7 +94,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     sleep 0.25
     assert_translations(orga)
 
-    @client.delete_translation(orga)
+    @client.delete_translation(orga, dry_run: false)
     sleep 0.25
     assert_not_translations(orga)
   end

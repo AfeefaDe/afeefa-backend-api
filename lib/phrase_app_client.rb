@@ -36,7 +36,7 @@ class PhraseAppClient
     model.class.translatable_attributes.each do |attribute|
       begin
         content = model.send(attribute)
-        key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
+        key = build_translation_key(attribute, model)
         key_id =
           find_key_id_by_key_name(key) ||
             create_key(key)
@@ -61,14 +61,25 @@ class PhraseAppClient
     responses
   end
 
-  def delete_translation(model)
+  def self.build_translation_key(attribute, model)
+    model.build_translation_key(attribute)
+  end
+
+  def delete_translation(model, dry_run: true)
+    deleted = 0
     model.class.translatable_attributes.each do |attribute|
-      key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
+      key = self.class.build_translation_key(attribute, model)
       key_id = find_key_id_by_key_name(key)
       next unless key_id
 
-      @client.key_delete(@project_id, key_id)
+      deleted = deleted + 1
+      if dry_run
+        Rails.logger.info "delete key #{key}, id #{key_id}"
+      else
+        Rails.logger.debug @client.key_delete(@project_id, key_id)
+      end
     end
+    deleted
   end
 
   def get_translation(model, locale, fallback: true)
@@ -78,7 +89,7 @@ class PhraseAppClient
           if model.class.to_s.start_with?('Neos::')
             "entry.#{model.entry_id}.#{attribute}"
           else
-            "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
+            build_translation_key(attribute, model)
           end
         key_id = find_key_id_by_key_name(key)
         next unless key_id
