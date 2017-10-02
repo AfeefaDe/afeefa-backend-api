@@ -106,13 +106,13 @@ namespace :deploy do
     end
   end
 
-  # task :update_crontab do
-  #   on roles(:web), in: :groups, limit: 3, wait: 10 do
-  #     within release_path do
-  #       execute "cd #{release_path} && RAILS_ENV=production bundle exec whenever --update-crontab"
-  #     end
-  #   end
-  # end
+  task :update_crontab do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      within release_path do
+        execute "cd #{release_path} && RAILS_ENV=production bundle exec whenever --update-crontab"
+      end
+    end
+  end
 
 end
 
