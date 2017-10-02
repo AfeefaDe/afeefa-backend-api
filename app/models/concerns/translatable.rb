@@ -76,7 +76,8 @@ module Translatable
         phraseapp_translations_file_path =
           File.join(PHRASEAPP_TRANSLATIONS_DIR,
             "translation-new-#{DEFAULT_LOCALE}-#{self.class.name.to_s}-#{id.to_s}.json")
-        write_json_file_for_phraseapp(phraseapp_translations_file_path)
+        write_json_file_for_phraseapp(phraseapp_translations_file_path,
+          only_changes: !force_translatable_attribute_update?, skip_empty_content: true)
         push_json_file_to_phraseapp(phraseapp_translations_file_path, tags: area)
       else
         Rails.logger.debug(
@@ -93,7 +94,7 @@ module Translatable
         any? { |attribute| attribute.to_s.in?(changes.keys.map(&:to_s)) }
   end
 
-  def build_json_for_phraseapp(only_changes: true)
+  def build_json_for_phraseapp(only_changes: true, skip_empty_content: false)
     attribute_translations = {}
     attributes_to_handle = self.class.translatable_attributes
     if only_changes
@@ -101,6 +102,7 @@ module Translatable
         select! { |attribute| attribute.to_s.in?(changes.keys.map(&:to_s)) }
     end
     attributes_to_handle.each do |attribute|
+      next if skip_empty_content && send(attribute).blank?
       # set one space as default because phraseapp api does not
       # import empty translations via json file upload
       attribute_translations[attribute.to_s] =
@@ -113,9 +115,11 @@ module Translatable
     }
   end
 
-  def write_json_file_for_phraseapp(phraseapp_translations_file_path, only_changes: true)
+  def write_json_file_for_phraseapp(phraseapp_translations_file_path, only_changes: true, skip_empty_content: false)
     file = File.new(phraseapp_translations_file_path, 'w:UTF-8')
-    file.write(JSON.pretty_generate(build_json_for_phraseapp(only_changes: only_changes)))
+    file.write(
+      JSON.pretty_generate(
+        build_json_for_phraseapp(only_changes: only_changes, skip_empty_content: skip_empty_content)))
     file.close
   end
 
