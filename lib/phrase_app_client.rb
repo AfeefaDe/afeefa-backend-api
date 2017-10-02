@@ -36,7 +36,7 @@ class PhraseAppClient
     model.class.translatable_attributes.each do |attribute|
       begin
         content = model.send(attribute)
-        key = build_translation_key(attribute, model)
+        key = model.build_translation_key(attribute)
         key_id =
           find_key_id_by_key_name(key) ||
             create_key(key)
@@ -61,26 +61,24 @@ class PhraseAppClient
     responses
   end
 
-  def self.build_translation_key(attribute, model)
-    model.build_translation_key(attribute)
-  end
-
   def delete_translation(model, dry_run: true, only_blank: false)
     deleted = 0
     model.class.translatable_attributes.each do |attribute|
-      key = self.class.build_translation_key(attribute, model)
-      key_id = find_key_id_by_key_name(key)
-      next unless key_id
+      key = model.build_translation_key(attribute)
 
       if only_blank
         next unless model.send(attribute).blank?
       end
 
-      deleted = deleted + 1
       if dry_run
-        Rails.logger.info "delete key #{key}, id #{key_id}"
+        Rails.logger.info "delete key #{key}"
       else
-        @client.key_delete(@project_id, key_id)
+        params = PhraseApp::RequestParams::KeysDeleteParams.new(q: key)
+        affected = @client.keys_delete(@project_id, params).first.records_affected
+        if affected.to_s == '0'
+        else
+          deleted = deleted + affected
+        end
       end
     end
     deleted
@@ -93,7 +91,7 @@ class PhraseAppClient
           if model.class.to_s.start_with?('Neos::')
             "entry.#{model.entry_id}.#{attribute}"
           else
-            build_translation_key(attribute, model)
+            model.build_translation_key(attribute)
           end
         key_id = find_key_id_by_key_name(key)
         next unless key_id
