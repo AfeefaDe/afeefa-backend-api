@@ -186,8 +186,8 @@ class PhraseAppClient
   def delete_unused_keys(dry_run: true)
     begin
       json = JSON.parse(get_locale_file(Translatable::DEFAULT_LOCALE))
-      event_ids = json['event'].keys
-      orga_ids = json['orga'].keys
+      event_ids = json['event'].try(:keys)
+      orga_ids = json['orga'].try(:keys)
 
       keys_to_destroy =
         get_keys_to_destroy(Orga, orga_ids) +
