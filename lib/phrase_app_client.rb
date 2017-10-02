@@ -183,6 +183,36 @@ class PhraseAppClient
     @locales[locale].try(:id) || raise("locale #{locale} could not be found in list of locales: #{@locales.keys}")
   end
 
+  def delete_unused_keys(dry_run: true)
+    begin
+      json = JSON.parse(get_locale_file(Translatable::DEFAULT_LOCALE))
+      event_ids = json['event'].keys
+      orga_ids = json['orga'].keys
+
+      keys_to_destroy =
+        get_keys_to_destroy(Orga, orga_ids) +
+          get_keys_to_destroy(Event, event_ids)
+
+      if dry_run
+        Rails.logger.info 'would delete the following keys:'
+        Rails.logger.info keys_to_destroy.join("\n")
+      else
+        deleted = 0
+        keys_to_destroy.each do |key|
+          params = PhraseApp::RequestParams::KeysDeleteParams.new(q: key)
+          affected = @client.keys_delete(@project_id, params).first.records_affected
+          deleted = deleted + affected
+        end
+        Rails.logger.debug "deleted #{deleted} keys."
+      end
+    rescue => exception
+      Rails.logger.error 'error for delete_all_keys_not_used_in_database'
+      Rails.logger.error exception.message
+      Rails.logger.error exception.backtrace.join("\n")
+      raise exception unless Rails.env.production?
+    end
+  end
+
   private
 
   def initialize_locales_for_project
@@ -190,6 +220,32 @@ class PhraseAppClient
     @client.locales_list(@project_id, 1, 100)[0].each do |locale|
       @locales[locale.code] = locale
     end
+  end
+
+  def get_keys_to_destroy(model_class, ids)
+    list = []
+    ids.each do |id|
+      if model = model_class.find_by(id: id)
+        model_class.translatable_attributes.each do |attribute|
+          if model.send(attribute).blank?
+            list << model.build_translation_key(attribute)
+          end
+        end
+      else
+        list << model_class.build_translation_key(id, '*')
+      end
+    end
+    list
+  end
+
+  def get_locale_file(locale)
+    params =
+      PhraseApp::RequestParams::LocaleDownloadParams.new(
+        encoding: 'UTF-8',
+        file_format: 'nested_json',
+        include_empty_translations: true
+      )
+    @client.locale_download(@project_id, locale_id('de'), params)
   end
 
   def create_translation_for_key(key_id, locale, content)
@@ -207,7 +263,7 @@ class PhraseAppClient
   end
 
   def find_key_id_by_key_name(keyname)
-    params = PhraseApp::RequestParams::KeysSearchParams.new(:q => keyname)
+    params = PhraseApp::RequestParams::KeysSearchParams.new(q: keyname)
     response = @client.keys_search(@project_id, 1, 100, params)
     response[0][0].try(:id)
   end

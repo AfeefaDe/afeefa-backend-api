@@ -23,13 +23,8 @@ module Translatable
       "#{self.class.name.underscore}.#{id}.#{attribute}"
     end
 
-    def self.destroy_translation_keys_for_models_with_empty_translation_attributes(dry_run: true)
-      deleted = 0
-      empty_translatable_attributes.each do |model|
-        Rails.logger.debug "Deleting translation for #{model.class.name} #{model.id}"
-        deleted = deleted + model.client.delete_translation(model, dry_run: dry_run, only_blank: true)
-      end
-      deleted
+    def self.build_translation_key(id, attribute)
+      "#{name.underscore}.#{id}.#{attribute}"
     end
 
   end
