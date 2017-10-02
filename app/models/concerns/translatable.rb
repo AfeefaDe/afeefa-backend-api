@@ -27,6 +27,17 @@ module Translatable
       "#{name.underscore}.#{id}.#{attribute}"
     end
 
+    def force_translatable_attribute_update!
+      @force_translatable_attribute_update = true
+    end
+
+    def do_not_force_translatable_attribute_update!
+      @force_translatable_attribute_update = false
+    end
+
+    def force_translatable_attribute_update?
+      @force_translatable_attribute_update || false
+    end
   end
 
   module ClassMethods
@@ -55,11 +66,9 @@ module Translatable
     @skip_phraseapp_translations || false
   end
 
-  private
-
   def update_or_create_translations
     unless respond_to?(:root_orga?) && root_orga?
-      if translatable_attribute_changed?
+      if translatable_attribute_changed? || force_translatable_attribute_update?
         # client.create_or_update_translation(self, 'de')
 
         # use json file upload
@@ -67,7 +76,8 @@ module Translatable
         phraseapp_translations_file_path =
           File.join(PHRASEAPP_TRANSLATIONS_DIR,
             "translation-new-#{DEFAULT_LOCALE}-#{self.class.name.to_s}-#{id.to_s}.json")
-        write_json_file_for_phraseapp(phraseapp_translations_file_path)
+        write_json_file_for_phraseapp(phraseapp_translations_file_path,
+          only_changes: !force_translatable_attribute_update?)
         push_json_file_to_phraseapp(phraseapp_translations_file_path, tags: area)
       else
         Rails.logger.debug(
@@ -75,6 +85,8 @@ module Translatable
       end
     end
   end
+
+  private
 
   def translatable_attribute_changed?
     changed? &&
@@ -102,9 +114,9 @@ module Translatable
     }
   end
 
-  def write_json_file_for_phraseapp(phraseapp_translations_file_path)
+  def write_json_file_for_phraseapp(phraseapp_translations_file_path, only_changes: true)
     file = File.new(phraseapp_translations_file_path, 'w:UTF-8')
-    file.write(JSON.pretty_generate(build_json_for_phraseapp))
+    file.write(JSON.pretty_generate(build_json_for_phraseapp(only_changes: only_changes)))
     file.close
   end
 

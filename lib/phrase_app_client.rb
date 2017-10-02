@@ -183,6 +183,16 @@ class PhraseAppClient
     @locales[locale].try(:id) || raise("locale #{locale} could not be found in list of locales: #{@locales.keys}")
   end
 
+  def add_all_translations(limit: nil)
+    [Orga, Event].each do |model_class|
+      model_class.limit(limit).each do |model|
+        model.force_translatable_attribute_update!
+        model.update_or_create_translations
+      end
+    end
+    Rails.logger.info 'finished add_all_translations'
+  end
+
   def delete_unused_keys(dry_run: true)
     begin
       json = JSON.parse(get_locale_file(Translatable::DEFAULT_LOCALE))
