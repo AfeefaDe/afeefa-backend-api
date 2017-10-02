@@ -13,6 +13,8 @@ module Dev
         puts "Cleaned up phraseapp. Deleted #{delete_count} keys."
 
         orgas = Orga.all
+        events = Event.all
+        entries = orgas + events
 
         client.locales.each_with_index do |locale, index|
           translation_hash = {
@@ -20,14 +22,16 @@ module Dev
             orga: {}
           }
 
-          orgas.each do |orga|
-            title = locale === 'de' ? orga.title : "orga.#{orga.id}.title.#{locale}"
-            short_description = locale === 'de' ? orga.short_description : "orga.#{orga.id}.short_description.#{locale}"
-
-            translation_hash[:orga][orga.id] = {
-              title: title,
-              short_description: short_description
-            }
+          entries.each do |entry|
+            if (locale === 'de' or rand(100) === 0) # not de => translate randomly 1 percent
+              type = entry.is_a?(Event) ? :event : :orga
+              title = locale === 'de' ? entry.title : "#{type}.#{entry.id}.title.#{locale}"
+              short_description = locale === 'de' ? entry.short_description : "#{type}.#{entry.id}.short_description.#{locale}"
+              translation_hash[type][entry.id] = {
+                title: title,
+                short_description: short_description
+              }
+            end
           end
 
           phraseapp_translations_dir = Rails.root.join('tmp', 'translations')
