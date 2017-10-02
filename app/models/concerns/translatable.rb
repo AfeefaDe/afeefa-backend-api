@@ -76,8 +76,7 @@ module Translatable
         phraseapp_translations_file_path =
           File.join(PHRASEAPP_TRANSLATIONS_DIR,
             "translation-new-#{DEFAULT_LOCALE}-#{self.class.name.to_s}-#{id.to_s}.json")
-        write_json_file_for_phraseapp(phraseapp_translations_file_path,
-          only_changes: !force_translatable_attribute_update?)
+        write_json_file_for_phraseapp(phraseapp_translations_file_path)
         push_json_file_to_phraseapp(phraseapp_translations_file_path, tags: area)
       else
         Rails.logger.debug(
