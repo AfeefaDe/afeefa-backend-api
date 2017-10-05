@@ -24,6 +24,7 @@ module Import
             if handle_title_duplicates
               orga = handle_title_duplicates(orga)
             end
+
             orga.save!
 
             contact_info_attributes =

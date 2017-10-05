@@ -8,7 +8,7 @@ module Import
       @area = 'bautzen'
     end
 
-    test 'import first element of csv file' do
+    should 'import first element of csv file' do
       assert_difference 'Orga.count' do
         assert_difference 'ContactInfo.count' do
           assert_difference 'Location.count' do
@@ -23,7 +23,7 @@ module Import
       assert orga.active?
     end
 
-    test 'import complete csv file' do
+    should 'import complete csv file' do
       file = Rails.root.join('test', 'data', 'csv', 'entries_de.csv').to_s
       csv = CSV.parse(File.read(file), headers: true)
       rows = csv.count
