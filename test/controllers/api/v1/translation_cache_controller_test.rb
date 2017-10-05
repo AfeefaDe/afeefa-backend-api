@@ -10,6 +10,20 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       stub_current_user
     end
 
+    should 'get status 401 for unauthenticated phraseapp webhook' do
+      get :phraseapp_webhook
+      assert_response :unauthorized
+    end
+
+    should 'get status 200 for token authenticated phraseapp webhook' do
+      get :phraseapp_webhook, params: { token: Settings.phraseapp.webhook_api_token }
+
+      assert_response :ok
+
+      json = JSON.parse(response.body)
+      assert_equal 'ok', json['status']
+    end
+
     should 'get last updated timestamp' do
       get :index
 
@@ -23,7 +37,6 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
         get :index
         assert_response :ok
         time_before = JSON.parse(response.body)['updated_at']
-
 
         perform_enqueued_jobs do
           post :update
