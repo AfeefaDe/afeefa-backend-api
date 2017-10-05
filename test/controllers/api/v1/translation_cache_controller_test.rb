@@ -1,5 +1,8 @@
 require 'test_helper'
 
+include ActiveJob::TestHelper
+Rails.application.config.active_job.queue_adapter = :test
+
 class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
   context 'as authorized user' do
@@ -21,7 +24,13 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
         assert_response :ok
         time_before = JSON.parse(response.body)['updated_at']
 
-        post :update
+
+        perform_enqueued_jobs do
+          post :update
+        end
+
+        assert_enqueued_jobs 0
+
         post_response = response.status
 
         get :index
