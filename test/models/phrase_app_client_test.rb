@@ -100,6 +100,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
   end
 
   should 'get locales file' do
+    skip 'kakenbok'
     client_old ||=
         PhraseAppClient.new(
             project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)

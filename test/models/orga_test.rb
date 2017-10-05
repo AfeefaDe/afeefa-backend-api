@@ -139,24 +139,58 @@ class OrgaTest < ActiveSupport::TestCase
   should 'create translation on orga create' do
     skip 'phraseapp deactivated' unless phraseapp_active?
     orga = build(:orga)
-    assert_not orga.translation.blank?
-    assert orga.translation(locale: 'en').blank?, orga.translation(locale: 'en')
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+      orga_id = Orga.last.id.to_s
+
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['orga']
+      assert_not_nil json['orga'][orga_id]
+      assert_equal 'an orga', json['orga'][orga_id]['title']
+      assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
+
+      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
     assert orga.save
-    expected = {title: 'an orga', description: 'this is a short description of this orga'}
-    assert_equal expected, orga.translation
-    assert_equal expected, orga.translation(locale: 'en')
   end
 
   should 'update translation on orga update' do
     skip 'phraseapp deactivated' unless phraseapp_active?
+
     orga = create(:orga)
-    expected = {title: 'an orga', description: 'this is a short description of this orga'}
-    assert_equal expected, orga.translation
-    assert_equal expected, orga.translation(locale: 'en')
-    assert orga.update(title: 'foo-bar')
-    expected = {title: 'foo-bar', description: 'this is a short description of this orga'}
-    assert_equal expected, orga.translation
-    assert_equal expected, orga.translation(locale: 'en')
+    orga_id = orga.id.to_s
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['orga']
+      assert_not_nil json['orga'][orga_id]
+      assert_equal 'foo-bar', json['orga'][orga_id]['title']
+      assert_equal 'short-fo-ba', json['orga'][orga_id]['short_description']
+
+      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
+    assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
+  end
+
+  should 'update translation on orga update only once' do
+    skip 'phraseapp deactivated' unless phraseapp_active?
+
+    orga = create(:orga)
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).once.with do |file, phraseapp_locale_id, tags_hash|
+      assert true
+    end
+
+    assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
+    assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
   end
 
   should 'set inheritance to null if no parent orga given' do

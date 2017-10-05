@@ -75,27 +75,62 @@ class EventTest < ActiveSupport::TestCase
     assert_equal 'abc 123', event.short_description
   end
 
+
   should 'create translation on event create' do
     skip 'phraseapp deactivated' unless phraseapp_active?
     event = build(:event)
-    assert_not event.translation.blank?
-    assert event.translation(locale: 'en').blank?
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+      event_id = Event.last.id.to_s
+
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['event']
+      assert_not_nil json['event'][event_id]
+      assert_equal 'an event', json['event'][event_id]['title']
+      assert_equal 'short description', json['event'][event_id]['short_description']
+
+      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
     assert event.save
-    expected = { title: 'an event', description: 'description of an event' }
-    assert_equal expected, event.translation
-    assert_equal expected, event.translation(locale: 'en')
   end
 
   should 'update translation on event update' do
     skip 'phraseapp deactivated' unless phraseapp_active?
+
     event = create(:event)
-    expected = { title: 'an event', description: 'description of an event' }
-    assert_equal expected, event.translation
-    assert_equal expected, event.translation(locale: 'en')
-    assert event.update(title: 'foo-bar')
-    expected = { title: 'foo-bar', description: 'description of an event' }
-    assert_equal expected, event.translation
-    assert_equal expected, event.translation(locale: 'en')
+    event_id = event.id.to_s
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['event']
+      assert_not_nil json['event'][event_id]
+      assert_equal 'foo-bar', json['event'][event_id]['title']
+      assert_equal 'short-fo-ba', json['event'][event_id]['short_description']
+
+      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
+    assert event.update(title: 'foo-bar', short_description: 'short-fo-ba')
+  end
+
+  should 'update translation on event update only once' do
+    skip 'phraseapp deactivated' unless phraseapp_active?
+
+    event = create(:event)
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).once.with do |file, phraseapp_locale_id, tags_hash|
+      assert true
+    end
+
+    assert event.update(title: 'foo-bar', short_description: 'short-fo-ba')
+    assert event.update(title: 'foo-bar', short_description: 'short-fo-ba')
   end
 
   should 'set initial state for event' do
