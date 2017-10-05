@@ -80,6 +80,8 @@ module Neos
 
     class << self
       def migrate(migrate_phraseapp: false, limit: {})
+        puts 'not implemented'
+        return
         limit = limit || {}
         @migrate_phraseapp = migrate_phraseapp
 
@@ -175,6 +177,8 @@ module Neos
       end
 
       def migrate_event(entry_id)
+        puts 'not implemented'
+        return
         event = Neos::Event.where(entry_id: entry_id).first
         new_event = create_entry_and_handle_validation(event) do
           build_event_from_neos_event(event)
@@ -183,6 +187,8 @@ module Neos
       end
 
       def migrate_orga(entry_id)
+        puts 'not implemented'
+        return
         orga = Neos::Orga.where(entry_id: entry_id).first
         new_orga = create_entry_and_handle_validation(orga) do
           build_orga_from_neos_orga(orga)
