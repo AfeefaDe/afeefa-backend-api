@@ -18,10 +18,10 @@ translations:
 phraseapp:
   active: true
   project_id: <%= ENV["PA_LIVE_PROJECT_ID"] %>
-  api_token: <%= ENV["PA_WRITE_TOKEN"] %>
-  fallback_list: [en, de]
   dev_project_id: <%= ENV["PA_DEV_PROJECT_ID"] %>
   test_project_id: <%= ENV["PA_TEST_PROJECT_ID"] %>
+  api_token: <%= ENV["PA_WRITE_TOKEN"] %>
+  fallback_list: [en, de]
   log_file: log/phraseapp.log
 migration:
   phraseapp:
