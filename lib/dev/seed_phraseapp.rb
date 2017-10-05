@@ -27,10 +27,16 @@ module Dev
               type = entry.is_a?(Event) ? :event : :orga
               title = locale === 'de' ? entry.title : "#{type}.#{entry.id}.title.#{locale}"
               short_description = locale === 'de' ? entry.short_description : "#{type}.#{entry.id}.short_description.#{locale}"
-              translation_hash[type][entry.id] = {
-                title: title,
-                short_description: short_description
-              }
+
+              if !title.blank? || !short_description.blank?
+                translation_hash[type][entry.id] = {}
+                if !title.blank?
+                  translation_hash[type][entry.id][:title] = title
+                end
+                if !short_description.blank?
+                  translation_hash[type][entry.id][:short_description] = short_description
+                end
+              end
             end
           end
 
