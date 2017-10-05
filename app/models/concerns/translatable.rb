@@ -15,9 +15,9 @@ module Translatable
     }
 
     after_save :update_or_create_translations,
-      if: -> { (Settings.phraseapp.active rescue false) && !skip_phraseapp_translations? }
+      if: -> { (Settings.phraseapp.active rescue false) }
     after_destroy :destroy_translations,
-      if: -> { (Settings.phraseapp.active rescue false) && !skip_phraseapp_translations? }
+      if: -> { (Settings.phraseapp.active rescue false) }
 
     def build_translation_key(attribute)
       "#{self.class.name.underscore}.#{id}.#{attribute}"
@@ -52,18 +52,6 @@ module Translatable
 
   def client
     @@client ||= PhraseAppClient.new
-  end
-
-  def skip_phraseapp_translations!
-    @skip_phraseapp_translations = true
-  end
-
-  def do_not_skip_phraseapp_translations!
-    @skip_phraseapp_translations = false
-  end
-
-  def skip_phraseapp_translations?
-    @skip_phraseapp_translations || false
   end
 
   def update_or_create_translations
