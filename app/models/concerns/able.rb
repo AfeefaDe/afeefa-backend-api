@@ -10,7 +10,7 @@ module Able
 
     class << self
       def translatable_attributes
-        %i(title description short_description)
+        %i(title short_description)
       end
     end
     # TRANSLATABLE END
