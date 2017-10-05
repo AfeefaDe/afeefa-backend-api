@@ -2,7 +2,7 @@ class Api::V1::SessionsController < DeviseTokenAuth::SessionsController
 
   include NoCaching
 
-  before_filter :configure_permitted_parameters
+  before_action :configure_permitted_parameters
 
   private
 
