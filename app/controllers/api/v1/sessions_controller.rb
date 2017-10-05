@@ -4,7 +4,7 @@ class Api::V1::SessionsController < DeviseTokenAuth::SessionsController
 
   before_filter :configure_permitted_parameters
 
-  protected
+  private
 
   def configure_permitted_parameters
     devise_parameter_sanitizer.permit(:sign_in, keys: [:format])
