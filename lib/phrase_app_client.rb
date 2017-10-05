@@ -117,27 +117,28 @@ class PhraseAppClient
   end
 
   def get_all_translations
-    params = PhraseApp::RequestParams::TranslationsListParams.new
-    page = 1
     translations = []
-    loop do
-      t = @client.translations_list(@project_id, page, 100, params)
-      break if t[0].empty?
-      translations += t[0]
-      page += 1
-    end
-    translations
-  end
 
-  def get_locale_file(locale_id)
-    params = PhraseApp::RequestParams::LocaleDownloadParams.new(
-      file_format: 'nested_json',
-      encoding: 'UTF-8'
-    )
-    file = Tempfile.new("translations-old-#{locale_id}-", encoding: 'UTF-8')
-    file.write @client.locale_download(@project_id, locale_id, params).force_encoding('UTF-8')
-    file.close
-    file
+    locales.each do |locale|
+      next if locale === Translatable::DEFAULT_LOCALE
+      translationsForLocale = download_locale(locale)
+
+      translationsForLocale.each do |type, translationForType|
+        translationForType.each do |id, translationValues|
+          translationValues.each do |key, value|
+            translations.push({
+              id: id,
+              type: type,
+              language: locale,
+              key: key,
+              content: value
+            })
+          end
+        end
+      end
+    end
+
+    translations
   end
 
   def push_locale_file(file, locale_id, tags: nil)
@@ -224,6 +225,15 @@ class PhraseAppClient
   end
 
   private
+
+  def download_locale(locale_id)
+    params = PhraseApp::RequestParams::LocaleDownloadParams.new(
+      file_format: 'nested_json',
+      encoding: 'UTF-8'
+    )
+    json = @client.locale_download(@project_id, locale_id, params).force_encoding('UTF-8')
+    return JSON.parse json
+  end
 
   def initialize_locales_for_project
     @locales = {}

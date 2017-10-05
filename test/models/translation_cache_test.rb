@@ -6,6 +6,7 @@ class TranslationCacheTest < ActiveSupport::TestCase
     Settings.phraseapp.stubs(:active).returns(true)
 
     translations = nil
+
     VCR.use_cassette('get_all_translations') do
       translations = client.get_all_translations
     end
@@ -13,9 +14,15 @@ class TranslationCacheTest < ActiveSupport::TestCase
     VCR.use_cassette('rebuild_translation_cache') do
       assert translations.any?
       changes = TranslationCache.rebuild_db_cache!(translations)
+
+      assert_equal translations.count, changes
+
+      countTranslatedDbFields = TranslationCache.where.not(title: nil).count + TranslationCache.where.not(short_description: nil).count
+      assert_equal translations.count, countTranslatedDbFields
+
       # initial there was only english and german,
       # german should not be in caching table
-      assert_equal translations.count / 2, changes
+      assert_equal 0, TranslationCache.where(language: 'de').count
     end
   end
 
