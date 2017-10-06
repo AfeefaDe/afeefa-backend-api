@@ -198,6 +198,8 @@ module Neos
       end
 
       def migrate_phraseapp_faster(show_objects_in_phraseapp_not_found_in_database_errors: true)
+        puts 'not implemented'
+        return
         ActiveRecord::Base.logger.level = 1
 
         @client_old ||=
