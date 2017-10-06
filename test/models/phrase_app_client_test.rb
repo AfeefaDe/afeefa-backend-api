@@ -3,7 +3,6 @@ require 'test_helper'
 class PhraseAppClientTest < ActiveSupport::TestCase
 
   setup do
-    skip 'phraseapp deactivated' unless phraseapp_active?
     @client ||= PhraseAppClient.new
   end
 
@@ -14,17 +13,6 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 15, locales.size
     assert @client.instance_variable_get('@locales').key?('de')
     assert @client.instance_variable_get('@locales').key?('en')
-  end
-
-  should 'delete all keys' do
-    skip 'foobar'
-
-    assert orga = create(:orga)
-    translations = @client.get_translation(orga, 'en')
-    assert translations.any?
-    @client.send(:delete_all_keys)
-    translations = @client.get_translation(orga, 'en')
-    assert translations.blank?
   end
 
   should 'handle get translation for not given key in phraseapp' do
@@ -88,6 +76,71 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_nil translation_without_fallback[:short_description]
   end
 
+  should 'delete all keys' do
+    skip 'foobar'
+
+    assert orga = create(:orga)
+    translations = @client.get_translation(orga, 'en')
+    assert translations.any?
+    @client.send(:delete_all_keys)
+    translations = @client.get_translation(orga, 'en')
+    assert translations.blank?
+  end
+
+  should 'delete all unsused keys' do
+    existing_orga = create(:orga)
+
+    orga_whithout_title = build(:orga)
+    orga_whithout_title.title = ''
+    orga_whithout_title.skip_all_validations!
+    orga_whithout_title.save
+
+    orga_whithout_short_description = build(:orga)
+    orga_whithout_short_description.short_description = ''
+    orga_whithout_short_description.skip_all_validations!
+    orga_whithout_short_description.save
+
+    orga_whithout_attributes = build(:orga)
+    orga_whithout_attributes.title = ''
+    orga_whithout_attributes.short_description = ''
+    orga_whithout_attributes.skip_all_validations!
+    orga_whithout_attributes.save
+
+    json = parse_json_file file: 'phraseapp_locale_de.json' do |payload|
+      payload.gsub!('<existing_orga_id>', existing_orga.id.to_s)
+      payload.gsub!('<nonexisting_orga_id>', 100000000000000.to_s)
+      payload.gsub!('<orga_whithout_title_id>', orga_whithout_title.id.to_s)
+      payload.gsub!('<orga_whithout_short_description_id>', orga_whithout_short_description.id.to_s)
+      payload.gsub!('<orga_whithout_attributes_id>', orga_whithout_attributes.id.to_s)
+    end
+
+    PhraseAppClient.any_instance.expects(:download_locale).returns(json)
+
+    expect_deletes_key("orga.100000000000000.*")
+    expect_deletes_key("orga.#{orga_whithout_title.id}.title")
+    expect_deletes_key("orga.#{orga_whithout_short_description.id}.short_description")
+    expect_deletes_key("orga.#{orga_whithout_attributes.id}.title")
+    expect_deletes_key("orga.#{orga_whithout_attributes.id}.short_description")
+
+    @client.delete_unused_keys(dry_run: false)
+
+    assert true
+  end
+
+  def expect_deletes_key(key)
+    params = create_delete_params(key)
+    result = mock()
+    result.stubs(:records_affected).returns(1)
+    PhraseApp::Client.any_instance.expects(:keys_delete)
+      .once
+      .with(Settings.phraseapp.test_project_id, params)
+      .returns([result])
+  end
+
+  def create_delete_params(key)
+    PhraseApp::RequestParams::KeysDeleteParams.new(q: key)
+  end
+
   should 'delete translation for orga and locale' do
     skip 'foobar'
     assert orga = create(:orga)
@@ -99,12 +152,11 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_not_translations(orga)
   end
 
-  should 'get locales file' do
-    skip 'kakenbok'
-    client_old ||=
-        PhraseAppClient.new(
-            project_id: Settings.migration.phraseapp.project_id, token: Settings.migration.phraseapp.api_token)
-    client_old.get_locale_file('en')
+  should 'download locale file' do
+    VCR.use_cassette('download_locale_en') do
+      json = @client.send(:download_locale, 'en')
+      assert_equal ['event', 'orga'], json.keys
+    end
   end
 
   private

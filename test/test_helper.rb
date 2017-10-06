@@ -38,6 +38,14 @@ end
 require File.expand_path('../../db/seeds', __FILE__)
 ::Seeds.recreate_all
 
+
+def parse_json_file(file: 'create_orga_with_nested_models.json')
+  content = File.read(Rails.root.join('test', 'data', 'json', file))
+  yield content if block_given?
+  JSON.parse(content)
+end
+
+
 class ActiveSupport::TestCase
 
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
@@ -124,12 +132,6 @@ class ActionController::TestCase
 
   def unstub_current_user
     @controller.class.any_instance.unstub(:set_user_by_token)
-  end
-
-  def parse_json_file(file: 'create_orga_with_nested_models.json')
-    content = File.read(Rails.root.join('test', 'data', 'json', file))
-    yield content if block_given?
-    JSON.parse(content)
   end
 
 end

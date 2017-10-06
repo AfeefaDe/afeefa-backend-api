@@ -1,0 +1,24 @@
+{
+  "orga": {
+    "<existing_orga_id>": {
+      "short_description": "orga.<existing_orga_id>.short_description",
+      "title": "orga.<existing_orga_id>.title"
+    },
+    "<nonexisting_orga_id>": {
+        "short_description": "orga.<nonexisting_orga_id>.short_description",
+        "title": "orga.<nonexisting_orga_id>.title"
+    },
+    "<orga_whithout_title_id>": {
+        "short_description": "orga.<orga_whithout_title_id>.short_description",
+        "title": "orga.<orga_whithout_title_id>.title"
+    },
+    "<orga_whithout_short_description_id>": {
+        "short_description": "orga.<orga_whithout_short_description_id>.short_description",
+        "title": "orga.<orga_whithout_short_description_id>.title"
+    },
+    "<orga_whithout_attributes_id>": {
+      "short_description": "orga.<orga_whithout_attributes_id>.title",
+      "title": "orga.<orga_whithout_attributes_id>.short_description"
+    }
+  }
+}

@@ -196,9 +196,9 @@ class PhraseAppClient
 
   def delete_unused_keys(dry_run: true)
     begin
-      json = JSON.parse(get_locale_file(Translatable::DEFAULT_LOCALE))
-      event_ids = json['event'].try(:keys)
-      orga_ids = json['orga'].try(:keys)
+      json = download_locale(Translatable::DEFAULT_LOCALE, true)
+      event_ids = json['event'].try(:keys) || []
+      orga_ids = json['orga'].try(:keys) || []
 
       keys_to_destroy =
         get_keys_to_destroy(Orga, orga_ids) +
@@ -226,7 +226,7 @@ class PhraseAppClient
 
   private
 
-  def download_locale(locale_id)
+  def download_locale(locale_id, include_empty_translations = false)
     params = PhraseApp::RequestParams::LocaleDownloadParams.new(
       file_format: 'nested_json',
       encoding: 'UTF-8'
@@ -256,16 +256,6 @@ class PhraseAppClient
       end
     end
     list
-  end
-
-  def get_locale_file(locale)
-    params =
-      PhraseApp::RequestParams::LocaleDownloadParams.new(
-        encoding: 'UTF-8',
-        file_format: 'nested_json',
-        include_empty_translations: true
-      )
-    @client.locale_download(@project_id, locale_id('de'), params)
   end
 
   def create_translation_for_key(key_id, locale, content)
