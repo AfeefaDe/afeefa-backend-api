@@ -40,19 +40,16 @@ module Dev
             end
           end
 
-          phraseapp_translations_dir = Rails.root.join('tmp', 'translations')
-          FileUtils.mkdir_p(phraseapp_translations_dir)
-          phraseapp_translations_file_path =
-            File.join(phraseapp_translations_dir, "translation-new-#{locale}.json")
-          file = File.new(phraseapp_translations_file_path, 'w:UTF-8')
+          translation_file_name = "translation-new-#{locale}-"
+          file = Tempfile.new([translation_file_name, '.json'], encoding: 'UTF-8')
           file.write(JSON.pretty_generate(translation_hash))
           file.close
 
-          puts "created file #{phraseapp_translations_file_path}"
+          puts "created file #{file.path}"
 
-          client.push_locale_file(file.path, client.locale_id(locale))
+          client.push_locale_file(file, client.locale_id(locale))
 
-          puts "pushed file #{phraseapp_translations_file_path}"
+          puts "pushed file #{file.path}"
         end
 
 
