@@ -66,28 +66,8 @@ class ActiveSupport::TestCase
     )
   end
 
-  # teardown do
-  #   if phraseapp_active?
-  #     (@client ||= PhraseAppClient.new).send(:delete_all_keys)
-  #   end
-  # end
-
-  def phraseapp_active?
-    Settings.phraseapp.active rescue false
-  end
-
   def facebook_active?
     Settings.facebook.active rescue false
-  end
-
-  def stub_phraseapp_inactive!
-    @phraseapp_config = Settings.phraseapp
-    Settings.stubs(:phraseapp).returns(@phraseapp_config)
-    @phraseapp_config.stubs(:active).returns(false)
-  end
-
-  def unstub_phraseapp!
-    Settings.unstub(:phraseapp)
   end
 
   def assert_jsonable_hash(object, attributes: nil, relationships: nil)
@@ -120,8 +100,6 @@ class ActionController::TestCase
 
   setup do
     request.class.any_instance.stubs(:content_type).returns(JSONAPI::MEDIA_TYPE)
-    # stub phraseapp stuff
-    stub_phraseapp_inactive!
   end
 
   private

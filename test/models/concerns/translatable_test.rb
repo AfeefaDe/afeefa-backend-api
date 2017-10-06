@@ -34,21 +34,24 @@ class TranslatableTest < ActiveSupport::TestCase
   end
 
 
-  should 'generate json for phraseapp' do
-    unstub_phraseapp!
-
+  should 'build json for phraseapp' do
     VCR.use_cassette('generate_json_for_phraseapp') do
       orga = create(:orga)
       Orga::translatable_attributes.each do |attribute|
         orga.send("#{attribute}=", "#{Time.current.to_s} change xyz")
       end
+
       hash = orga.send(:build_json_for_phraseapp)
+
       assert_equal ['orga'], hash.keys
+
       rendered_orgas = hash.values
       assert_equal 1, rendered_orgas.count
+
       rendered_orga = rendered_orgas.first
       assert_equal 1, rendered_orga.keys.count
       assert_equal orga.id.to_s, rendered_orga.keys.first
+
       attributes = rendered_orga.values.first
       assert_equal Orga::translatable_attributes.map(&:to_s), attributes.keys
       attributes.each do |attribute, value|
@@ -181,4 +184,16 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.update(title: '', short_description: 'short-fo-ba')
   end
 
+
+  should 'remove translations of all attributes on entry delete' do
+    orga = create(:orga)
+    orga.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:delete_translation).with do |orga_to_delete, dry_run_hash|
+      assert_equal orga, orga_to_delete
+      assert !dry_run_hash[:dry_run]
+    end
+
+    assert orga.destroy
+  end
 end

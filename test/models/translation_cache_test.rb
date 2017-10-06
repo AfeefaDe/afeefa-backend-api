@@ -29,7 +29,6 @@ class TranslationCacheTest < ActiveSupport::TestCase
   private
 
   def client
-    skip 'phraseapp deactivated' unless phraseapp_active?
     @@client ||= PhraseAppClient.new
   end
 
