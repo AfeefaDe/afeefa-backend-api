@@ -2,6 +2,38 @@ require 'test_helper'
 
 class TranslatableTest < ActiveSupport::TestCase
 
+  should 'not update phraseapp translation if force flag is not set' do
+    orga = create(:orga)
+    orga.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).never
+
+    orga.update_or_create_translations
+  end
+
+  should 'always update phraseapp translation if force flag is set' do
+    orga = create(:orga)
+    orga_id = orga.id.to_s
+    orga.force_translatable_attribute_update!
+    orga.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['orga']
+      assert_not_nil json['orga'][orga_id]
+      assert_equal 'an orga', json['orga'][orga_id]['title']
+      assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
+
+      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
+    orga.update_or_create_translations
+  end
+
+
   should 'generate json for phraseapp' do
     unstub_phraseapp!
 
