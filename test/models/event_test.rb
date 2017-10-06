@@ -75,62 +75,6 @@ class EventTest < ActiveSupport::TestCase
     assert_equal 'abc 123', event.short_description
   end
 
-
-  should 'create translation on event create' do
-    event = build(:event)
-    event.force_translation_after_save = true
-
-    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
-      event_id = Event.last.id.to_s
-
-      file = File.read(file)
-      json = JSON.parse(file)
-
-      assert_not_nil json['event']
-      assert_not_nil json['event'][event_id]
-      assert_equal 'an event', json['event'][event_id]['title']
-      assert_equal 'short description', json['event'][event_id]['short_description']
-
-      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
-      assert_equal 'dresden', tags_hash[:tags]
-    end
-
-    assert event.save
-  end
-
-  should 'update translation on event update' do
-    event = create(:event)
-    event_id = event.id.to_s
-    event.force_translation_after_save = true
-
-    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
-      file = File.read(file)
-      json = JSON.parse(file)
-
-      assert_not_nil json['event']
-      assert_not_nil json['event'][event_id]
-      assert_equal 'foo-bar', json['event'][event_id]['title']
-      assert_equal 'short-fo-ba', json['event'][event_id]['short_description']
-
-      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
-      assert_equal 'dresden', tags_hash[:tags]
-    end
-
-    assert event.update(title: 'foo-bar', short_description: 'short-fo-ba')
-  end
-
-  should 'update translation on event update only once' do
-    event = create(:event)
-    event.force_translation_after_save = true
-
-    PhraseAppClient.any_instance.expects(:push_locale_file).once.with do |file, phraseapp_locale_id, tags_hash|
-      assert true
-    end
-
-    assert event.update(title: 'foo-bar', short_description: 'short-fo-ba')
-    assert event.update(title: 'foo-bar', short_description: 'short-fo-ba')
-  end
-
   should 'set initial state for event' do
     assert Event.new.inactive?
     assert_equal StateMachine::INACTIVE, Event.new.state.to_sym
