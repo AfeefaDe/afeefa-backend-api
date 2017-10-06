@@ -47,6 +47,42 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save
   end
 
+  should 'not create translation on entry create if related attributes are empty' do
+    orga = build(:orga)
+    orga.force_translation_after_save = true
+    orga.title = ''
+    orga.short_description = ''
+    orga.skip_all_validations!
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).never
+
+    assert orga.save
+  end
+
+  should 'only create translation for nonempty attributes on entry create' do
+    orga = build(:orga)
+    orga.force_translation_after_save = true
+    orga.title = ''
+    orga.skip_all_validations!
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+      orga_id = Orga.last.id.to_s
+
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['orga']
+      assert_not_nil json['orga'][orga_id]
+      assert_nil json['orga'][orga_id]['title']
+      assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
+
+      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
+    assert orga.save
+  end
+
   should 'update translation on entry update' do
     orga = create(:orga)
     orga_id = orga.id.to_s
@@ -78,6 +114,39 @@ class TranslatableTest < ActiveSupport::TestCase
 
     assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
     assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
+  end
+
+  should 'not update translation on entry update if all related attributes are empty' do
+    orga = create(:orga)
+    orga.force_translation_after_save = true
+    orga.skip_all_validations!
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).never
+
+    assert orga.update(title: '', short_description: '')
+  end
+
+  should 'only update translation for nonempty attributes on entry update' do
+    orga = create(:orga)
+    orga.force_translation_after_save = true
+    orga.skip_all_validations!
+
+    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+      orga_id = Orga.last.id.to_s
+
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['orga']
+      assert_not_nil json['orga'][orga_id]
+      assert_nil json['orga'][orga_id]['title']
+      assert_equal 'short-fo-ba', json['orga'][orga_id]['short_description']
+
+      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
+    assert orga.update(title: '', short_description: 'short-fo-ba')
   end
 
 end

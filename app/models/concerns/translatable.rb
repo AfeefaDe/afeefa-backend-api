@@ -59,10 +59,15 @@ module Translatable
   def update_or_create_translations
     unless respond_to?(:root_orga?) && root_orga?
       if translatable_attribute_changed? || force_translatable_attribute_update?
-        translation_file_name = "#{self.class.name.to_s.downcase}-#{id.to_s}-translation-#{DEFAULT_LOCALE}-"
-        file = write_json_file_for_phraseapp(translation_file_name,
-          only_changes: !force_translatable_attribute_update?, skip_empty_content: true)
-        push_json_file_to_phraseapp(file, tags: area)
+        json = build_json_for_phraseapp(only_changes: !force_translatable_attribute_update?, skip_empty_content: true)
+        if json
+          translation_file_name = "#{self.class.name.to_s.downcase}-#{id.to_s}-translation-#{DEFAULT_LOCALE}-"
+          file = write_json_file_for_phraseapp(translation_file_name, json)
+          push_json_file_to_phraseapp(file, tags: area)
+        else
+          Rails.logger.debug(
+            'skip phraseapp save hook because no nonempty translatable attributes present')
+        end
       else
         Rails.logger.debug(
           'skip phraseapp save hook because no translatable attribute was changed')
@@ -92,18 +97,21 @@ module Translatable
       attribute_translations[attribute.to_s] =
         send(attribute).presence || ' '
     end
-    {
-      self.class.name.to_s.underscore => {
-        id.to_s => attribute_translations
+
+    if !attribute_translations.empty?
+      return {
+        self.class.name.to_s.underscore => {
+          id.to_s => attribute_translations
+        }
       }
-    }
+    end
+
+    return nil
   end
 
-  def write_json_file_for_phraseapp(translation_file_name, only_changes: true, skip_empty_content: false)
+  def write_json_file_for_phraseapp(translation_file_name, json)
     file = Tempfile.new([translation_file_name, '.json'], encoding: 'UTF-8')
-    file.write(
-      JSON.pretty_generate(
-        build_json_for_phraseapp(only_changes: only_changes, skip_empty_content: skip_empty_content)))
+    file.write(JSON.pretty_generate(json))
     file.close
     file
   end
