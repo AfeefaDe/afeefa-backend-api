@@ -67,4 +67,4 @@ Attach your local IDE debugger. VSCode example config:
 `rails test`
 `rails test -n /face\|author/`
 `rails test -n /given\ orga/`
-`tail -f log/test.log | grep '^Api::'`
+`tail -f log/test.log | grep 'Test: '`
