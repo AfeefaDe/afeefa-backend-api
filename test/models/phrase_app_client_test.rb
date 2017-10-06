@@ -122,9 +122,9 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     expect_deletes_key("orga.#{orga_whithout_attributes.id}.title")
     expect_deletes_key("orga.#{orga_whithout_attributes.id}.short_description")
 
-    @client.delete_unused_keys(dry_run: false)
+    num_deletes = @client.delete_unused_keys(dry_run: false)
 
-    assert true
+    assert_equal 5, num_deletes
   end
 
   def expect_deletes_key(key)

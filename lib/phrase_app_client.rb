@@ -215,6 +215,7 @@ class PhraseAppClient
           deleted = deleted + affected
         end
         Rails.logger.debug "deleted #{deleted} keys."
+        return deleted
       end
     rescue => exception
       Rails.logger.error 'error for delete_all_keys_not_used_in_database'
