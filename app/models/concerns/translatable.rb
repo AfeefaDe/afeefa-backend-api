@@ -3,6 +3,7 @@ module Translatable
   extend ActiveSupport::Concern
 
   DEFAULT_LOCALE = 'de'.freeze
+  TRANSLATABLE_LOCALES = ['ar', 'en', 'es', 'fa', 'fr', 'ku', 'pa', 'ps', 'ru', 'sq', 'sr', 'ti', 'tr', 'ur'].freeze
   PHRASEAPP_TRANSLATIONS_DIR = Rails.root.join('tmp', 'translations').freeze
 
   attr_accessor :force_translation_after_save
@@ -46,10 +47,6 @@ module Translatable
     def translatable_attributes
       raise NotImplementedError "translatable_attributes must be defined for class #{self.class}"
     end
-  end
-
-  def translation(locale: DEFAULT_LOCALE)
-    client.get_translation(self, locale)
   end
 
   def client
@@ -117,14 +114,11 @@ module Translatable
   end
 
   def push_json_file_to_phraseapp(file, tags: nil)
-    client.push_locale_file(file,
-      client.locale_id(DEFAULT_LOCALE),
-      tags: tags
-    )
+    client.push_locale_file(file, DEFAULT_LOCALE, tags: tags)
   end
 
   def destroy_translations
-    client.delete_translation(self, dry_run: false)
+    client.delete_translation(self)
   end
 
 end

@@ -8,7 +8,7 @@ class TranslationCacheTest < ActiveSupport::TestCase
     translations = nil
 
     VCR.use_cassette('get_all_translations') do
-      translations = client.get_all_translations
+      translations = client.get_all_translations(Translatable::TRANSLATABLE_LOCALES)
     end
 
     VCR.use_cassette('rebuild_translation_cache') do
@@ -20,9 +20,7 @@ class TranslationCacheTest < ActiveSupport::TestCase
       countTranslatedDbFields = TranslationCache.where.not(title: nil).count + TranslationCache.where.not(short_description: nil).count
       assert_equal translations.count, countTranslatedDbFields
 
-      # initial there was only english and german,
-      # german should not be in caching table
-      assert_equal 0, TranslationCache.where(language: 'de').count
+      assert_equal 0, TranslationCache.where(language: Translatable::DEFAULT_LOCALE).count
     end
   end
 

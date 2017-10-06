@@ -16,24 +16,25 @@ module Dev
         events = Event.all
         entries = orgas + events
 
-        client.locales.each_with_index do |locale, index|
+        locales = [Translatable::DEFAULT_LOCALE] + Translatable::TRANSLATABLE_LOCALES
+        locales.each do |locale|
           translation_hash = {
             event: {},
             orga: {}
           }
 
           entries.each do |entry|
-            if (locale === 'de' or rand(100) === 0) # not de => translate randomly 1 percent
+            if (locale === Translatable::DEFAULT_LOCALE or rand(100) === 0) # not de => translate randomly 1 percent
               type = entry.is_a?(Event) ? :event : :orga
 
               if !entry.title.blank? || !entry.short_description.blank?
                 translation_hash[type][entry.id] = {}
                 if !entry.title.blank?
-                  title = locale === 'de' ? entry.title : "#{type}.#{entry.id}.title.#{locale}"
+                  title = locale === Translatable::DEFAULT_LOCALE ? entry.title : "#{type}.#{entry.id}.title.#{locale}"
                   translation_hash[type][entry.id][:title] = title
                 end
                 if !entry.short_description.blank?
-                  short_description = locale === 'de' ? entry.short_description : "#{type}.#{entry.id}.short_description.#{locale}"
+                  short_description = locale === Translatable::DEFAULT_LOCALE ? entry.short_description : "#{type}.#{entry.id}.short_description.#{locale}"
                   translation_hash[type][entry.id][:short_description] = short_description
                 end
               end
@@ -47,7 +48,7 @@ module Dev
 
           puts "created file #{file.path}"
 
-          client.push_locale_file(file, client.locale_id(locale))
+          client.push_locale_file(file, locale)
 
           puts "pushed file #{file.path}"
         end

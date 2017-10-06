@@ -5,7 +5,7 @@ class TranslationCacheJob < ActiveJob::Base
 
   def perform
     @@client ||= ::PhraseAppClient.new
-    translations = @@client.get_all_translations
+    translations = @@client.get_all_translations(Translatable::TRANSLATABLE_LOCALES)
 
     if translations.empty?
       Rails.logger.info 'no updates of translation cache necessary'

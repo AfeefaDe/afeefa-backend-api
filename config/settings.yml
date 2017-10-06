@@ -22,7 +22,6 @@ phraseapp:
   test_project_id: <%= ENV["PA_TEST_PROJECT_ID"] %>
   api_token: <%= ENV["PA_WRITE_TOKEN"] %>
   webhook_api_token: <%= ENV["PA_WEBHOOK_API_TOKEN"] %>
-  fallback_list: [en, de]
   log_file: log/phraseapp.log
 migration:
   phraseapp:

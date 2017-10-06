@@ -4,6 +4,15 @@ module Import
   module Csv
 
     class << self
+      def logger
+        @logger ||=
+          if log_file = Settings.phraseapp.log_file
+            Logger.new(log_file)
+          else
+            Rails.logger
+          end
+      end
+
       def import(file:, area:, limit: nil, headers: true, handle_title_duplicates: true)
         imported = 0
         errors = []
@@ -39,19 +48,25 @@ module Import
 
             imported = imported + 1
           rescue => exception
-            puts 'Error while importing file, during the following entry:'
-            puts orga.attributes.inspect
-            puts orga.errors.messages.inspect
-            puts exception.message
-            puts exception.backtrace.join("\n")
-            errors << "#{exception.message} for #{orga.title}"
+            message = "Error while importing file, during the following entry:\n\n"
+            message << "#{orga.attributes.inspect}\n"
+            message << "#{orga.errors.messages.inspect}\n"
+            message << "#{exception.message} for #{orga.title}\n"
+            message << "#{exception.backtrace[0..14].join("\n")}\n\n"
+            errors << message
           end
           break if limit && limit > 0 && index >= limit - 1
         end
-        puts "overall errors: #{errors.count}"
-        errors.each do |error|
-          puts error
+
+        if errors.count > 0
+          errors << "overall errors: #{errors.count}\n"
         end
+
+        errors.each do |error|
+          logger.error error
+          raise error if Rails.env.development?
+        end
+
         imported
       end
 

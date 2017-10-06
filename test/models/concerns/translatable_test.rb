@@ -26,7 +26,7 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_equal 'an orga', json['orga'][orga_id]['title']
       assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
 
-      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
       assert_equal 'dresden', tags_hash[:tags]
     end
 
@@ -75,7 +75,7 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_equal 'an orga', json['orga'][orga_id]['title']
       assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
 
-      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
       assert_equal 'dresden', tags_hash[:tags]
     end
 
@@ -111,7 +111,7 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_nil json['orga'][orga_id]['title']
       assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
 
-      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
       assert_equal 'dresden', tags_hash[:tags]
     end
 
@@ -132,7 +132,7 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_equal 'foo-bar', json['orga'][orga_id]['title']
       assert_equal 'short-fo-ba', json['orga'][orga_id]['short_description']
 
-      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
       assert_equal 'dresden', tags_hash[:tags]
     end
 
@@ -177,7 +177,7 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_nil json['orga'][orga_id]['title']
       assert_equal 'short-fo-ba', json['orga'][orga_id]['short_description']
 
-      assert_equal 'd4f1ed77b0efb45b7ebfeaff7675eeba', phraseapp_locale_id
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
       assert_equal 'dresden', tags_hash[:tags]
     end
 
@@ -189,9 +189,8 @@ class TranslatableTest < ActiveSupport::TestCase
     orga = create(:orga)
     orga.force_translation_after_save = true
 
-    PhraseAppClient.any_instance.expects(:delete_translation).with do |orga_to_delete, dry_run_hash|
+    PhraseAppClient.any_instance.expects(:delete_translation).with do |orga_to_delete|
       assert_equal orga, orga_to_delete
-      assert !dry_run_hash[:dry_run]
     end
 
     assert orga.destroy
