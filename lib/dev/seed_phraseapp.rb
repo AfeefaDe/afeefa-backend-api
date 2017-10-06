@@ -25,15 +25,15 @@ module Dev
           entries.each do |entry|
             if (locale === 'de' or rand(100) === 0) # not de => translate randomly 1 percent
               type = entry.is_a?(Event) ? :event : :orga
-              title = locale === 'de' ? entry.title : "#{type}.#{entry.id}.title.#{locale}"
-              short_description = locale === 'de' ? entry.short_description : "#{type}.#{entry.id}.short_description.#{locale}"
 
-              if !title.blank? || !short_description.blank?
+              if !entry.title.blank? || !entry.short_description.blank?
                 translation_hash[type][entry.id] = {}
-                if !title.blank?
+                if !entry.title.blank?
+                  title = locale === 'de' ? entry.title : "#{type}.#{entry.id}.title.#{locale}"
                   translation_hash[type][entry.id][:title] = title
                 end
-                if !short_description.blank?
+                if !entry.short_description.blank?
+                  short_description = locale === 'de' ? entry.short_description : "#{type}.#{entry.id}.short_description.#{locale}"
                   translation_hash[type][entry.id][:short_description] = short_description
                 end
               end
