@@ -77,8 +77,8 @@ class EventTest < ActiveSupport::TestCase
 
 
   should 'create translation on event create' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
     event = build(:event)
+    event.force_translation_after_save = true
 
     PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
       event_id = Event.last.id.to_s
@@ -99,10 +99,9 @@ class EventTest < ActiveSupport::TestCase
   end
 
   should 'update translation on event update' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
-
     event = create(:event)
     event_id = event.id.to_s
+    event.force_translation_after_save = true
 
     PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
       file = File.read(file)
@@ -121,9 +120,8 @@ class EventTest < ActiveSupport::TestCase
   end
 
   should 'update translation on event update only once' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
-
     event = create(:event)
+    event.force_translation_after_save = true
 
     PhraseAppClient.any_instance.expects(:push_locale_file).once.with do |file, phraseapp_locale_id, tags_hash|
       assert true

@@ -137,8 +137,8 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'create translation on orga create' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
     orga = build(:orga)
+    orga.force_translation_after_save = true
 
     PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
       orga_id = Orga.last.id.to_s
@@ -159,10 +159,9 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'update translation on orga update' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
-
     orga = create(:orga)
     orga_id = orga.id.to_s
+    orga.force_translation_after_save = true
 
     PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
       file = File.read(file)
@@ -181,9 +180,8 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'update translation on orga update only once' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
-
     orga = create(:orga)
+    orga.force_translation_after_save = true
 
     PhraseAppClient.any_instance.expects(:push_locale_file).once.with do |file, phraseapp_locale_id, tags_hash|
       assert true

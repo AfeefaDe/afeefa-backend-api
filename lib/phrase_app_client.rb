@@ -144,7 +144,7 @@ class PhraseAppClient
   def push_locale_file(file, locale_id, tags: nil)
     begin
       params = PhraseApp::RequestParams::UploadParams.new(
-        file: file,
+        file: file.path,
         update_translations: true,
         tags: tags || '',
         encoding: 'UTF-8',

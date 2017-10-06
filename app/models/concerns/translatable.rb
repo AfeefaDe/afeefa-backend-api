@@ -5,6 +5,8 @@ module Translatable
   DEFAULT_LOCALE = 'de'.freeze
   PHRASEAPP_TRANSLATIONS_DIR = Rails.root.join('tmp', 'translations').freeze
 
+  attr_accessor :force_translation_after_save
+
   included do
     scope :empty_translatable_attributes, ->() {
       conditions =
@@ -15,9 +17,9 @@ module Translatable
     }
 
     after_save :update_or_create_translations,
-      if: -> { (Settings.phraseapp.active rescue false) }
+      if: -> { (Settings.phraseapp.active || force_translation_after_save) }
     after_destroy :destroy_translations,
-      if: -> { (Settings.phraseapp.active rescue false) }
+      if: -> { (Settings.phraseapp.active || force_translation_after_save) }
 
     def build_translation_key(attribute)
       "#{self.class.name.underscore}.#{id}.#{attribute}"
@@ -57,16 +59,10 @@ module Translatable
   def update_or_create_translations
     unless respond_to?(:root_orga?) && root_orga?
       if translatable_attribute_changed? || force_translatable_attribute_update?
-        # client.create_or_update_translation(self, 'de')
-
-        # use json file upload
-        FileUtils.mkdir_p(PHRASEAPP_TRANSLATIONS_DIR)
-        phraseapp_translations_file_path =
-          File.join(PHRASEAPP_TRANSLATIONS_DIR,
-            "translation-new-#{DEFAULT_LOCALE}-#{self.class.name.to_s}-#{id.to_s}.json")
-        write_json_file_for_phraseapp(phraseapp_translations_file_path,
+        translation_file_name = "#{self.class.name.to_s.downcase}-#{id.to_s}-translation-#{DEFAULT_LOCALE}-"
+        file = write_json_file_for_phraseapp(translation_file_name,
           only_changes: !force_translatable_attribute_update?, skip_empty_content: true)
-        push_json_file_to_phraseapp(phraseapp_translations_file_path, tags: area)
+        push_json_file_to_phraseapp(file, tags: area)
       else
         Rails.logger.debug(
           'skip phraseapp save hook because no translatable attribute was changed')
@@ -103,16 +99,17 @@ module Translatable
     }
   end
 
-  def write_json_file_for_phraseapp(phraseapp_translations_file_path, only_changes: true, skip_empty_content: false)
-    file = File.new(phraseapp_translations_file_path, 'w:UTF-8')
+  def write_json_file_for_phraseapp(translation_file_name, only_changes: true, skip_empty_content: false)
+    file = Tempfile.new([translation_file_name, '.json'], encoding: 'UTF-8')
     file.write(
       JSON.pretty_generate(
         build_json_for_phraseapp(only_changes: only_changes, skip_empty_content: skip_empty_content)))
     file.close
+    file
   end
 
-  def push_json_file_to_phraseapp(phraseapp_translations_file_path, tags: nil)
-    client.push_locale_file(phraseapp_translations_file_path,
+  def push_json_file_to_phraseapp(file, tags: nil)
+    client.push_locale_file(file,
       client.locale_id(DEFAULT_LOCALE),
       tags: tags
     )
