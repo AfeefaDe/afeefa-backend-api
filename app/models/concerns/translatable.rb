@@ -56,11 +56,11 @@ module Translatable
   def update_or_create_translations
     unless respond_to?(:root_orga?) && root_orga?
       if translatable_attribute_changed? || force_translatable_attribute_update?
-        json = build_json_for_phraseapp(only_changes: !force_translatable_attribute_update?, skip_empty_content: true)
+        json = build_json_for_phraseapp(only_changes: !force_translatable_attribute_update?)
         if json
           translation_file_name = "#{self.class.name.to_s.downcase}-#{id.to_s}-translation-#{DEFAULT_LOCALE}-"
-          file = write_json_file_for_phraseapp(translation_file_name, json)
-          push_json_file_to_phraseapp(file, tags: area)
+          file = client.write_translation_upload_json(translation_file_name, json)
+          client.push_locale_file(file, DEFAULT_LOCALE, tags: area)
         else
           Rails.logger.debug(
             'skip phraseapp save hook because no nonempty translatable attributes present')
@@ -72,27 +72,17 @@ module Translatable
     end
   end
 
-  private
-
-  def translatable_attribute_changed?
-    changed? &&
-      self.class.translatable_attributes.
-        any? { |attribute| attribute.to_s.in?(changes.keys.map(&:to_s)) }
-  end
-
-  def build_json_for_phraseapp(only_changes: true, skip_empty_content: false)
+  def build_json_for_phraseapp(only_changes: true)
     attribute_translations = {}
     attributes_to_handle = self.class.translatable_attributes
+
     if only_changes
-      attributes_to_handle.
-        select! { |attribute| attribute.to_s.in?(changes.keys.map(&:to_s)) }
+      attributes_to_handle.select! { |attribute| attribute.to_s.in?(changes.keys.map(&:to_s)) }
     end
+
     attributes_to_handle.each do |attribute|
-      next if skip_empty_content && send(attribute).blank?
-      # set one space as default because phraseapp api does not
-      # import empty translations via json file upload
-      attribute_translations[attribute.to_s] =
-        send(attribute).presence || ' '
+      next if send(attribute).blank?
+      attribute_translations[attribute.to_s] = send(attribute).presence
     end
 
     if !attribute_translations.empty?
@@ -106,15 +96,12 @@ module Translatable
     return nil
   end
 
-  def write_json_file_for_phraseapp(translation_file_name, json)
-    file = Tempfile.new([translation_file_name, '.json'], encoding: 'UTF-8')
-    file.write(JSON.pretty_generate(json))
-    file.close
-    file
-  end
+  private
 
-  def push_json_file_to_phraseapp(file, tags: nil)
-    client.push_locale_file(file, DEFAULT_LOCALE, tags: tags)
+  def translatable_attribute_changed?
+    changed? &&
+      self.class.translatable_attributes.
+        any? { |attribute| attribute.to_s.in?(changes.keys.map(&:to_s)) }
   end
 
   def destroy_translations

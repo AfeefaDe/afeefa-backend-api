@@ -102,32 +102,38 @@ class PhraseAppClient
     end
   end
 
-  def add_all_translations(limit: nil)
-    [Orga, Event].each do |model_class|
-      model_class.limit(limit).each do |model|
-        model.force_translatable_attribute_update!
-        model.update_or_create_translations
-      end
-    end
-    Rails.logger.info 'finished add_all_translations'
+  def delete_keys_by_name(keys)
+    q = 'name:' + keys.join(',')
+    params = PhraseApp::RequestParams::KeysDeleteParams.new(q: q)
+    @client.keys_delete(@project_id, params).first.records_affected
   end
 
-  def delete_unused_keys
+  def create_tag_for_models(tags, models)
+    keys = []
+    models.each do |model|
+      keys << model.build_translation_key('title')
+      keys << model.build_translation_key('short_description')
+    end
+    q = 'name:' + keys.join(',')
+    params = PhraseApp::RequestParams::KeysTagParams.new(tags: tags, q: q)
+    @client.keys_tag(@project_id, params).first.records_affected
+  end
+
+  def sync_all_translations
+    json = download_locale(Translatable::DEFAULT_LOCALE, true)
+    delete_unused_keys(json)
+    add_missing_or_invalid_keys(json)
+    # TODO: tags sync
+  end
+
+  def delete_unused_keys(json)
     begin
-      json = download_locale(Translatable::DEFAULT_LOCALE, true)
       event_ids = json['event'].try(:keys) || []
       orga_ids = json['orga'].try(:keys) || []
 
-      keys_to_destroy =
-        get_keys_to_destroy(Orga, orga_ids) +
-          get_keys_to_destroy(Event, event_ids)
+      keys_to_destroy = get_keys_to_destroy(Orga, orga_ids) + get_keys_to_destroy(Event, event_ids)
+      deleted = delete_keys_by_name(keys_to_destroy)
 
-      deleted = 0
-      keys_to_destroy.each do |key|
-        params = PhraseApp::RequestParams::KeysDeleteParams.new(q: key)
-        affected = @client.keys_delete(@project_id, params).first.records_affected
-        deleted = deleted + affected
-      end
       Rails.logger.debug "deleted #{deleted} keys."
       return deleted
     rescue => exception
@@ -136,6 +142,37 @@ class PhraseAppClient
       Rails.logger.error exception.backtrace.join("\n")
       raise exception unless Rails.env.production?
     end
+  end
+
+  def add_missing_or_invalid_keys(json)
+    updates_json = {}
+    added = 0
+    [Orga, Event].each do |model_class|
+      model_class.all.each do |model|
+        type = model.class.name.underscore
+        id = model.id.to_s
+        if (!json[type][id] ||
+          json[type][id]['title'] != model.title ||
+          json[type][id]['short_description'] != model.short_description)
+          update_json = model.build_json_for_phraseapp(only_changes: false)
+          updates_json = updates_json.deep_merge(update_json)
+          added += 1
+        end
+      end
+    end
+
+    file = write_translation_upload_json('missing-or-invalid-keys-', updates_json)
+    push_locale_file(file, Translatable::DEFAULT_LOCALE)
+
+    Rails.logger.info 'finished add_missing_keys'
+    added
+  end
+
+  def write_translation_upload_json(filename, json)
+    file = Tempfile.new([filename, '.json'], encoding: 'UTF-8')
+    file.write(JSON.pretty_generate(json))
+    file.close
+    file
   end
 
   private
@@ -159,7 +196,8 @@ class PhraseAppClient
           end
         end
       else
-        list << model_class.build_translation_key(id, '*')
+        list << model_class.build_translation_key(id, 'title')
+        list << model_class.build_translation_key(id, 'short_description')
       end
     end
     list

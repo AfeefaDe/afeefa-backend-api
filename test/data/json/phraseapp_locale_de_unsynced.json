@@ -1,0 +1,14 @@
+{
+  "orga": {
+    "<existing_orga_id>": {
+      "short_description": "orga.<existing_orga_id>.short_description",
+      "title": "orga.<existing_orga_id>.title"
+    },
+    "<orga_whithout_title_id>": {
+        "short_description": "orga.<orga_whithout_title_id>.short_description"
+    },
+    "<orga_whithout_short_description_id>": {
+        "title": "orga.<orga_whithout_short_description_id>.title"
+    }
+  }
+}
