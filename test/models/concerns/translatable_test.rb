@@ -6,7 +6,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga = create(:orga)
     orga.force_translation_after_save = true
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).never
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).never
 
     orga.update_or_create_translations
   end
@@ -17,7 +17,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.force_translatable_attribute_update!
     orga.force_translation_after_save = true
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       file = File.read(file)
       json = JSON.parse(file)
 
@@ -41,7 +41,7 @@ class TranslatableTest < ActiveSupport::TestCase
         orga.send("#{attribute}=", "#{Time.current.to_s} change xyz")
       end
 
-      hash = orga.send(:build_json_for_phraseapp)
+      hash = orga.send(:create_json_for_translation_file)
 
       assert_equal ['orga'], hash.keys
 
@@ -64,7 +64,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga = build(:orga)
     orga.force_translation_after_save = true
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       orga_id = Orga.last.id.to_s
 
       file = File.read(file)
@@ -89,7 +89,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.short_description = ''
     orga.skip_all_validations!
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).never
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).never
 
     assert orga.save
   end
@@ -100,7 +100,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.title = ''
     orga.skip_all_validations!
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       orga_id = Orga.last.id.to_s
 
       file = File.read(file)
@@ -123,7 +123,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga_id = orga.id.to_s
     orga.force_translation_after_save = true
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       file = File.read(file)
       json = JSON.parse(file)
 
@@ -143,7 +143,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga = create(:orga)
     orga.force_translation_after_save = true
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).once.with do |file, phraseapp_locale_id, tags_hash|
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).once.with do |file, phraseapp_locale_id, tags_hash|
       assert true
     end
 
@@ -156,7 +156,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.force_translation_after_save = true
     orga.skip_all_validations!
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).never
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).never
 
     assert orga.update(title: '', short_description: '')
   end
@@ -166,7 +166,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.force_translation_after_save = true
     orga.skip_all_validations!
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       orga_id = Orga.last.id.to_s
 
       file = File.read(file)

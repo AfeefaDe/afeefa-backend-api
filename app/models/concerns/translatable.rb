@@ -56,11 +56,11 @@ module Translatable
   def update_or_create_translations
     unless respond_to?(:root_orga?) && root_orga?
       if translatable_attribute_changed? || force_translatable_attribute_update?
-        json = build_json_for_phraseapp(only_changes: !force_translatable_attribute_update?)
+        json = create_json_for_translation_file(only_changes: !force_translatable_attribute_update?)
         if json
           translation_file_name = "#{self.class.name.to_s.downcase}-#{id.to_s}-translation-#{DEFAULT_LOCALE}-"
           file = client.write_translation_upload_json(translation_file_name, json)
-          client.push_locale_file(file, DEFAULT_LOCALE, tags: area)
+          client.upload_translation_file_for_locale(file, DEFAULT_LOCALE, tags: area)
         else
           Rails.logger.debug(
             'skip phraseapp save hook because no nonempty translatable attributes present')
@@ -72,7 +72,7 @@ module Translatable
     end
   end
 
-  def build_json_for_phraseapp(only_changes: true)
+  def create_json_for_translation_file(only_changes: true)
     attribute_translations = {}
     attributes_to_handle = self.class.translatable_attributes
 

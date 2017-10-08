@@ -48,7 +48,7 @@ module Dev
 
           puts "created file #{file.path}"
 
-          client.push_locale_file(file, locale)
+          client.upload_translation_file_for_locale(file, locale)
 
           puts "pushed file #{file.path}"
         end

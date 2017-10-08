@@ -265,7 +265,7 @@ module Neos
           file.write(JSON.pretty_generate(translation_hash[locale]))
           file.close
 
-          @client_new.push_locale_file(file.path, @client_new.locale_id(locale))
+          @client_new.upload_translation_file_for_locale(file.path, @client_new.locale_id(locale))
 
           puts_progress(type: 'migrating phraseapp', processed: index + 1, all: @client_old.locales.count)
         end

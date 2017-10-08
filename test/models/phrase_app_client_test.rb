@@ -83,7 +83,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     orga5.force_translation_after_save = true
     orga5.save
 
-    num_tagged = @client.create_tag_for_models('hana_war_hier', [orga, orga2, orga3, orga4, orga5])
+    num_tagged = @client.tag_models('hana_war_hier', [orga, orga2, orga3, orga4, orga5])
 
     assert_equal 8, num_tagged
   end
@@ -174,7 +174,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       payload.gsub!('<orga_whithout_short_description_id>', orga_whithout_short_description.id.to_s)
     end
 
-    PhraseAppClient.any_instance.expects(:push_locale_file).with do |file, phraseapp_locale_id, tags_hash|
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       file = File.read(file)
       json = JSON.parse(file)
 

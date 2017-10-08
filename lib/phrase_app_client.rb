@@ -63,7 +63,7 @@ class PhraseAppClient
     translations
   end
 
-  def push_locale_file(file, locale, tags: nil)
+  def upload_translation_file_for_locale(file, locale, tags: nil)
     begin
       params = PhraseApp::RequestParams::UploadParams.new(
         file: file.path,
@@ -108,7 +108,7 @@ class PhraseAppClient
     @client.keys_delete(@project_id, params).first.records_affected
   end
 
-  def create_tag_for_models(tags, models)
+  def tag_models(tags, models)
     keys = []
     models.each do |model|
       keys << model.build_translation_key('title')
@@ -154,7 +154,7 @@ class PhraseAppClient
         if (!json[type][id] ||
           json[type][id]['title'] != model.title ||
           json[type][id]['short_description'] != model.short_description)
-          update_json = model.build_json_for_phraseapp(only_changes: false)
+          update_json = model.create_json_for_translation_file(only_changes: false)
           updates_json = updates_json.deep_merge(update_json)
           added += 1
         end
@@ -162,7 +162,7 @@ class PhraseAppClient
     end
 
     file = write_translation_upload_json('missing-or-invalid-keys-', updates_json)
-    push_locale_file(file, Translatable::DEFAULT_LOCALE)
+    upload_translation_file_for_locale(file, Translatable::DEFAULT_LOCALE)
 
     Rails.logger.info 'finished add_missing_keys'
     added
