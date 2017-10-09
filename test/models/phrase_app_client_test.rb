@@ -83,7 +83,103 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     orga5.force_translation_after_save = true
     orga5.save
 
+    @client.delete_tag('hana_war_hier')
+
     num_tagged = @client.tag_models('hana_war_hier', [orga, orga2, orga3, orga4, orga5])
+
+    assert_equal 8, num_tagged
+
+    assert_equal 8, @client.get_count_keys_for_tag('hana_war_hier')
+  end
+
+  should 'delete tag' do
+    orga = build(:orga)
+    orga.area = 'leipzig'
+    orga.skip_all_validations!
+    orga.force_translation_after_save = true
+    orga.save
+
+    orga2 = build(:orga)
+    orga2.area = 'leipzig'
+    orga2.skip_all_validations!
+    orga2.force_translation_after_save = true
+    orga2.save
+
+    assert @client.get_count_keys_for_tag('leipzig') > 0
+
+    @client.delete_tag('leipzig')
+
+    assert_equal 0, @client.get_count_keys_for_tag('leipzig')
+  end
+
+  should 'delete all area tags' do
+    PhraseAppClient.any_instance.expects(:delete_tag).with('leipzig')
+    PhraseAppClient.any_instance.expects(:delete_tag).with('bautzen')
+    PhraseAppClient.any_instance.expects(:delete_tag).with('dresden')
+
+    @client.delete_all_area_tags
+  end
+
+  should 'tag all models with area' do
+    orga = build(:orga)
+    orga.area = 'leipzig'
+    orga.skip_all_validations!
+    orga.save
+
+    orga2 = build(:orga)
+    orga2.area = 'leipzig'
+    orga2.skip_all_validations!
+    orga2.save
+
+    orga3 = build(:orga)
+    orga3.area = 'dresden'
+    orga3.skip_all_validations!
+    orga3.save
+
+    orga4 = build(:orga)
+    orga4.area = 'bautzen'
+    orga4.skip_all_validations!
+    orga4.save
+
+    result = mock()
+    result.stubs(:records_affected).returns(2)
+    PhraseApp::Client.any_instance.expects(:keys_tag).with do |project_id, params|
+      next if params.tags != 'leipzig'
+      keys = [
+        "orga.#{orga.id}.title",
+        "orga.#{orga.id}.short_description",
+        "orga.#{orga2.id}.title",
+        "orga.#{orga2.id}.short_description"
+      ]
+      assert_equal 'name:' + keys.join(','), params.q
+    end
+    .returns([result])
+
+    result = mock()
+    result.stubs(:records_affected).returns(4)
+    PhraseApp::Client.any_instance.expects(:keys_tag).with do |project_id, params|
+      next if params.tags != 'dresden'
+      keys = [
+        "orga.#{orga3.id}.title",
+        "orga.#{orga3.id}.short_description"
+      ]
+      assert_equal params.q, 'name:' + keys.join(',')
+    end
+    .returns([result])
+
+    result = mock()
+    result.stubs(:records_affected).returns(2)
+    PhraseApp::Client.any_instance.expects(:keys_tag).with do |project_id, params|
+      next if params.tags != 'bautzen'
+      keys = [
+        "orga.#{orga4.id}.title",
+        "orga.#{orga4.id}.short_description"
+      ]
+      assert_equal params.q, 'name:' + keys.join(',')
+    end
+    .returns([result])
+
+    num_tagged = @client.tag_all_areas
 
     assert_equal 8, num_tagged
   end
@@ -97,6 +193,18 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     num_deletes = @client.delete_translation(orga)
 
     assert_equal 2, num_deletes
+  end
+
+  should 'sync all translations' do
+    json = '{test:ok}'
+
+    PhraseAppClient.any_instance.expects(:download_locale).returns(json)
+    PhraseAppClient.any_instance.expects(:delete_unused_keys).with(json)
+    PhraseAppClient.any_instance.expects(:add_missing_or_invalid_keys).with(json)
+    PhraseAppClient.any_instance.expects(:delete_all_area_tags)
+    PhraseAppClient.any_instance.expects(:tag_all_areas)
+
+    @client.sync_all_translations
   end
 
   should 'delete all unused keys' do

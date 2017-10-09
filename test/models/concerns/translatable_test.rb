@@ -118,6 +118,18 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save
   end
 
+  should 'set area tag on create translation' do
+    orga = build(:orga)
+    orga.area = 'heinz_landkreis'
+    orga.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
+      assert_equal 'heinz_landkreis', tags_hash[:tags]
+    end
+
+    assert orga.save
+  end
+
   should 'update translation on entry update' do
     orga = create(:orga)
     orga_id = orga.id.to_s
@@ -134,6 +146,18 @@ class TranslatableTest < ActiveSupport::TestCase
 
       assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
       assert_equal 'dresden', tags_hash[:tags]
+    end
+
+    assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
+  end
+
+  should 'set area tag on update translation' do
+    orga = create(:orga)
+    orga.area = 'heinz_landkreis'
+    orga.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
+      assert_equal 'heinz_landkreis', tags_hash[:tags]
     end
 
     assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')

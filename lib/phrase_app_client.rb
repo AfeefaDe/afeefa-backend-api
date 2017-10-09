@@ -108,6 +108,37 @@ class PhraseAppClient
     @client.keys_delete(@project_id, params).first.records_affected
   end
 
+  def delete_all_area_tags
+    Translatable::AREAS.each do |area|
+      delete_tag(area)
+    end
+  end
+
+  def tag_all_areas
+    num_tagged = 0
+    Translatable::AREAS.each do |area|
+      models = []
+      [Orga, Event].each do |model_class|
+        models = models + model_class.where(area: area)
+      end
+      num_tagged += tag_models(area, models)
+    end
+    num_tagged
+  end
+
+  def delete_tag(tag)
+      @client.tag_delete(@project_id, tag)
+  end
+
+  def get_count_keys_for_tag(tag)
+    begin
+      result = @client.tag_show(@project_id, tag)
+      result.first.keys_count
+    rescue => exception
+      0
+    end
+  end
+
   def tag_models(tags, models)
     keys = []
     models.each do |model|
@@ -116,14 +147,20 @@ class PhraseAppClient
     end
     q = 'name:' + keys.join(',')
     params = PhraseApp::RequestParams::KeysTagParams.new(tags: tags, q: q)
+
     @client.keys_tag(@project_id, params).first.records_affected
   end
 
   def sync_all_translations
     json = download_locale(Translatable::DEFAULT_LOCALE, true)
+    # compare local keys and remove all remotes that do not exist or are empty locally
     delete_unused_keys(json)
+    # compare local keys and update differing or create missing remote keys
     add_missing_or_invalid_keys(json)
-    # TODO: tags sync
+    # simply remove all remote tags
+    delete_all_area_tags
+    # create area tags for all keys
+    tag_all_areas
   end
 
   def delete_unused_keys(json)
