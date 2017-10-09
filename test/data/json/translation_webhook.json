@@ -1,0 +1,41 @@
+{
+  "event": "translations:<translation_operation>",
+  "message": "afeefabot updated translation for key event.1120.title in locale en in project Afeefa test\n",
+  "user": {
+      "id": "2c2be22faa9eb04ed77dbf4df77f00b9",
+      "username": "afeefabot",
+      "name": "Afeefa Bot"
+  },
+  "project": {
+      "id": "473a16f79defb1cd2d47464deb4c6008",
+      "name": "Afeefa test",
+      "main_format": "nested_json",
+      "created_at": "2016-12-15T12:27:56Z",
+      "updated_at": "2017-10-09T11:26:56Z"
+  },
+  "translation": {
+      "id": "cfdaefc26e65680bf3218436c813c640",
+      "content": "<translation_content>",
+      "unverified": false,
+      "excluded": false,
+      "plural_suffix": "",
+      "key": {
+          "id": "97e8e5d4422d498462ac7c6326a355a4",
+          "name": "<translation_key>",
+          "plural": false,
+          "data_type": "string",
+          "tags": [
+              "upload-20171006_200217"
+          ],
+          "description": ""
+      },
+      "created_at": "2017-10-09T11:26:48Z",
+      "updated_at": "2017-10-09T11:26:56Z",
+      "placeholders": [],
+      "locale": {
+          "id": "808c45f06df0b29cf891bdf633e8f2aa",
+          "name": "<translation_locale>",
+          "code": "<translation_locale>"
+      }
+  }
+}

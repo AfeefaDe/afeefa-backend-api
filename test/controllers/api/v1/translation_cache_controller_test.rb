@@ -11,17 +11,58 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
     end
 
     should 'get status 401 for unauthenticated phraseapp webhook' do
-      get :phraseapp_webhook
+      post :phraseapp_webhook
       assert_response :unauthorized
     end
 
-    should 'get status 200 for token authenticated phraseapp webhook' do
-      get :phraseapp_webhook, params: { token: Settings.phraseapp.webhook_api_token }
+    should 'start cache job upon created translation' do
+      orga = create(:orga)
 
-      assert_response :ok
+      json = parse_json_file file: 'translation_webhook.json' do |payload|
+        payload.gsub!('<translation_operation>', 'create')
+        payload.gsub!('<translation_content>', 'i am a magician')
+        payload.gsub!('<translation_key>', "orga.#{orga.id}.title")
+        payload.gsub!('<translation_locale>', 'en')
+      end
 
-      json = JSON.parse(response.body)
-      assert_equal 'ok', json['status']
+      request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
+      request.env['RAW_POST_DATA'] = json.to_json
+      post :phraseapp_webhook
+
+      assert_response :created, response.body
+
+      cache = TranslationCache.where(cacheable_type: 'orga', cacheable_id: orga.id, language: 'en').first
+
+      assert_equal 'i am a magician', cache.title
+    end
+
+    should 'start cache job upon updated translation' do
+      orga = create(:orga)
+
+      TranslationCache.create!(
+        cacheable_type: 'orga',
+        cacheable_id: orga.id,
+        title: orga.title,
+        short_description: orga.short_description,
+        language: 'ar'
+      )
+
+      json = parse_json_file file: 'translation_webhook.json' do |payload|
+        payload.gsub!('<translation_operation>', 'update')
+        payload.gsub!('<translation_content>', 'رفضت هيئة الإشراف على البث التلفزيوني')
+        payload.gsub!('<translation_key>', "orga.#{orga.id}.title")
+        payload.gsub!('<translation_locale>', 'ar')
+      end
+
+      request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
+      request.env['RAW_POST_DATA'] = json.to_json
+      post :phraseapp_webhook
+
+      assert_response :ok, response.body
+
+      cache = TranslationCache.where(cacheable_type: 'orga', cacheable_id: orga.id, language: 'ar').first
+
+      assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
     end
 
     should 'get last updated timestamp' do

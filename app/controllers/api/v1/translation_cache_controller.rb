@@ -12,7 +12,28 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
   end
 
   def phraseapp_webhook
-    render json: {status: 'ok'}
+    json = JSON.parse(request.raw_post)
+    type, id, field = json['translation']['key']['name'].split('.')
+    content = json['translation']['content']
+    language = json['translation']['locale']['code']
+
+    if json['event'] === 'translations:create'
+      TranslationCache.create!(
+        cacheable_type: type,
+        cacheable_id: id,
+        title: field === 'title' ? content : nil,
+        short_description: field === 'short_description' ? content : nil,
+        language: language
+      )
+      render json: {status: 'ok'}, status: :created
+    else
+      TranslationCache.where(
+        cacheable_type: type,
+        cacheable_id: id,
+        language: language
+        ).update(field => content)
+      render json: {status: 'ok'}, status: :ok
+    end
   end
 
   def index
