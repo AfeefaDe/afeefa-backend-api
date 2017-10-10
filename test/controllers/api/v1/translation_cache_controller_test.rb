@@ -10,9 +10,20 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       stub_current_user
     end
 
-    should 'get status 401 for unauthenticated phraseapp webhook' do
+    should 'get status 401 for missing phraseapp webhook token' do
       post :phraseapp_webhook
       assert_response :unauthorized
+    end
+
+    should 'get status 401 for wrong phraseapp webhook token' do
+      post :phraseapp_webhook, params: { token: '123' }
+      assert_response :unauthorized
+    end
+
+    should 'get status 200 for valid phraseapp webhook token' do
+      @controller.expects(:phraseapp_webhook)
+      post :phraseapp_webhook, params: { token: Settings.phraseapp.webhook_api_token }
+      assert_response :no_content
     end
 
     should 'start cache job upon created translation' do
