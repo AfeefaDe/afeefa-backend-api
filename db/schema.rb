@@ -204,9 +204,9 @@ ActiveRecord::Schema.define(version: 20170920100635) do
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "email",                  limit: 1000,  default: "",      null: false
+    t.string   "email",                                default: "",      null: false
     t.string   "encrypted_password",     limit: 1000,  default: "",      null: false
-    t.string   "reset_password_token",   limit: 1000
+    t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.integer  "sign_in_count",                        default: 0,       null: false
