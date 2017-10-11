@@ -3,15 +3,22 @@ require 'test_helper'
 class TranslatableTest < ActiveSupport::TestCase
 
   should 'not update phraseapp translation if force flag is not set' do
+    orga = build(:orga)
+
+    orga.expects(:update_or_create_translations).never
+
+    orga.save
+  end
+
+  should 'not upload translation if no attributes are changed' do
     orga = create(:orga)
-    orga.force_translation_after_save = true
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).never
 
     orga.update_or_create_translations
   end
 
-  should 'always update phraseapp translation if force flag is set' do
+  should 'upload translation when no attributes are changed but force_translatable_attribute_update is set' do
     orga = create(:orga)
     orga_id = orga.id.to_s
     orga.force_translatable_attribute_update!
@@ -206,7 +213,6 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save(validate: false)
   end
 
-
   should 'remove translations of all attributes on entry delete' do
     orga = create(:orga)
     orga.force_translation_after_save = true
@@ -217,4 +223,98 @@ class TranslatableTest < ActiveSupport::TestCase
 
     assert orga.destroy
   end
+
+  should 'not trigger fapi if force_sync_fapi_after_save is not set' do
+    orga = build(:orga)
+
+    orga.expects(:sync_fapi_after_change).never
+    FapiClient.any_instance.expects(:request).never
+
+    orga.save
+  end
+
+  should 'trigger fapi if force_sync_fapi_after_save is set' do
+    orga = build(:orga)
+    orga.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request)
+
+    orga.save
+  end
+
+  # currently not necessary since entries are fully indepentent in fapi
+  # should 'trigger fapi for parent orga' do
+  #   orga = create(:orga)
+  #   orga2 = create(:orga, title: 'orga2')
+  #   orga.force_sync_fapi_after_save = true
+
+  #   FapiClient.any_instance.expects(:request).with(has_entry(:id, orga.id))
+  #   FapiClient.any_instance.expects(:request).with(has_entry(:id, orga2.id))
+
+  #   orga.update(parent_orga_id: orga2.id)
+  # end
+
+  should 'trigger fapi for parent and sub orga' do
+    orga = create(:orga)
+    orga2 = create(:orga, title: 'orga2', parent_orga_id: orga.id)
+    orga3 = create(:orga, title: 'orga3', parent_orga_id: orga2.id, inheritance: 'short_description')
+    orga4 = create(:orga, title: 'orga4')
+    orga2.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga2.id))
+    # currently not necessary since entries are fully indepentent in fapi
+    # FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
+    # FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga4.id))
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga3.id))
+
+    orga2.update(parent_orga_id: orga4.id)
+  end
+
+  should 'trigger fapi for suborgas and events' do
+    orga = create(:orga)
+    orga2 = create(:orga, title: 'orga2', parent_orga_id: orga.id, inheritance: 'locations')
+    orga3 = create(:orga, title: 'orga3', parent_orga_id: orga.id) # no inheritance, no trigger
+    orga4 = create(:orga, title: 'orga4', parent_orga_id: orga.id, inheritance: 'contact_infos')
+    event = create(:event, orga_id: orga.id, inheritance: 'short_description')
+    event2 = create(:event, orga_id: orga.id) # no inheritance, no trigger
+    event3 = create(:event, orga_id: orga.id, inheritance: 'locations')
+
+    assert_equal orga.id, event.orga_id
+    assert_equal orga.id, orga2.parent_orga_id
+    assert_equal [orga2, orga3, orga4], orga.sub_orgas
+    assert_equal [event, event2, event3], Event.where(orga_id: orga.id)
+
+    orga.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga2.id))
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga4.id))
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id))
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event3.id))
+
+    orga.update(title: 'test')
+  end
+
+  # currently not necessary since entries are fully indepentent in fapi
+  # should 'trigger fapi for events orga' do
+  #   event = create(:event)
+  #   orga = create(:orga, title: 'orga')
+  #   event.force_sync_fapi_after_save = true
+
+  #   FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id))
+  #   FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: event.orga.id))
+  #   FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
+
+  #   event.update(orga_id: orga.id)
+  # end
+
+  should 'trigger fapi if entry deleted' do
+    event = create(:event)
+    event.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, deleted: true))
+
+    event.destroy
+  end
+
 end

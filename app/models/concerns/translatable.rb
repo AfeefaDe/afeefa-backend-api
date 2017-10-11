@@ -5,9 +5,9 @@ module Translatable
   DEFAULT_LOCALE = 'de'.freeze
   TRANSLATABLE_LOCALES = ['ar', 'en', 'es', 'fa', 'fr', 'ku', 'pa', 'ps', 'ru', 'sq', 'sr', 'ti', 'tr', 'ur'].freeze
   AREAS = ['leipzig', 'bautzen', 'dresden'].freeze
-  PHRASEAPP_TRANSLATIONS_DIR = Rails.root.join('tmp', 'translations').freeze
 
-  attr_accessor :force_translation_after_save
+  # test flag, phraseapp generally inactive in testing, can be activated on a per instance basis
+  attr_accessor :force_translation_after_save, :force_sync_fapi_after_save
 
   included do
     scope :empty_translatable_attributes, ->() {
@@ -20,8 +20,13 @@ module Translatable
 
     after_save :update_or_create_translations,
       if: -> { (Settings.phraseapp.active || force_translation_after_save) }
+    after_save :sync_fapi_after_change,
+      if: -> { (Settings.afeefa.fapi_sync_active || force_sync_fapi_after_save) }
+
     after_destroy :destroy_translations,
       if: -> { (Settings.phraseapp.active || force_translation_after_save) }
+    after_destroy :sync_fapi_after_destroy,
+      if: -> { (Settings.afeefa.fapi_sync_active || force_sync_fapi_after_save) }
 
     def build_translation_key(attribute)
       "#{self.class.name.underscore}.#{id}.#{attribute}"
@@ -54,8 +59,12 @@ module Translatable
     @@client ||= PhraseAppClient.new
   end
 
+  def fapi_client
+    @@fapi_client ||= FapiClient.new
+  end
+
   def update_or_create_translations
-    unless respond_to?(:root_orga?) && root_orga?
+    unless respond_to?(:root_orga?) && root_orga? # all entries except root orga
       if translatable_attribute_changed? || force_translatable_attribute_update?
         json = create_json_for_translation_file(only_changes: !force_translatable_attribute_update?)
         if json
@@ -71,6 +80,21 @@ module Translatable
           'skip phraseapp save hook because no translatable attribute was changed')
       end
     end
+  end
+
+  def sync_fapi_after_change
+    if changed?
+      entries_to_update = get_entries_to_update_in_frontend
+      if entries_to_update.any?
+        entries_to_update.each do |entry|
+          fapi_client.entry_updated(entry)
+        end
+      end
+    end
+  end
+
+  def sync_fapi_after_destroy
+    fapi_client.entry_deleted(self)
   end
 
   def create_json_for_translation_file(only_changes: true)
@@ -103,6 +127,51 @@ module Translatable
     changed? &&
       self.class.translatable_attributes.
         any? { |attribute| attribute.to_s.in?(changes.keys.map(&:to_s)) }
+  end
+
+  def get_entries_to_update_in_frontend
+    changed_entries = [self]
+
+    return changed_entries if !changed?
+
+    parent_orga_changes = nil
+
+    # parent orga, currently not necessary since entries are fully indepentent in fapi
+
+    # if changes.key?('parent_orga_id') # orga.orag
+    #   parent_orga_changes = changes['parent_orga_id']
+    # elsif changes.key?('orga_id') # event.orga
+    #   parent_orga_changes = changes['orga_id']
+    # end
+
+    # if parent_orga_changes
+    #   old_orga = Orga.find_by(id: parent_orga_changes[0])
+    #   if old_orga && !old_orga.root_orga?
+    #     changed_entries << old_orga
+    #   end
+
+    #   new_orga = Orga.find_by(id: parent_orga_changes[1])
+    #   if new_orga && !new_orga.root_orga?
+    #     changed_entries << new_orga
+    #   end
+    # end
+
+    # child orgas or events with inheritance
+
+    if is_a?(Orga)
+      sub_orgas.each do |suborga|
+        if suborga.inheritance.present?
+          changed_entries << suborga
+        end
+      end
+
+      Event.where(orga_id: id).each do |event|
+        if event.inheritance.present?
+          changed_entries << event
+        end
+      end
+    end
+    changed_entries
   end
 
   def destroy_translations

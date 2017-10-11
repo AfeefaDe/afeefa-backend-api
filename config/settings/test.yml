@@ -1,3 +1,5 @@
+afeefa:
+  fapi_sync_active: false
 phraseapp:
   active: false
   project_id: <%= ENV["PA_TEST_PROJECT_ID"] %>

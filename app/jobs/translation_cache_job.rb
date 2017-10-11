@@ -13,5 +13,8 @@ class TranslationCacheJob < ActiveJob::Base
       num = TranslationCache.rebuild_db_cache!(translations)
       Rails.logger.info "translation cache update succeeded, #{num} translations cached"
     end
+
+    fapi_client = FapiClient.new
+    fapi_client.all_updated
   end
 end

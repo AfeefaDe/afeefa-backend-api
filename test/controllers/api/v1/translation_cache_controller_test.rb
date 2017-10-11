@@ -38,6 +38,9 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
+
+      FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id, locale: 'en'))
+
       post :phraseapp_webhook
 
       assert_response :created, response.body
@@ -67,11 +70,46 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
+
+      FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id, locale: 'ar'))
+
       post :phraseapp_webhook
 
       assert_response :ok, response.body
 
       cache = TranslationCache.where(cacheable_type: 'orga', cacheable_id: orga.id, language: 'ar').first
+
+      assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
+    end
+
+    should 'start cache job upon updated translation with event' do
+      event = create(:event)
+
+      TranslationCache.create!(
+        cacheable_type: 'event',
+        cacheable_id: event.id,
+        title: event.title,
+        short_description: event.short_description,
+        language: 'ar'
+      )
+
+      json = parse_json_file file: 'translation_webhook.json' do |payload|
+        payload.gsub!('<translation_operation>', 'update')
+        payload.gsub!('<translation_content>', 'رفضت هيئة الإشراف على البث التلفزيوني')
+        payload.gsub!('<translation_key>', "event.#{event.id}.title")
+        payload.gsub!('<translation_locale>', 'ar')
+      end
+
+      request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
+      request.env['RAW_POST_DATA'] = json.to_json
+
+      FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, locale: 'ar'))
+
+      post :phraseapp_webhook
+
+      assert_response :ok, response.body
+
+      cache = TranslationCache.where(cacheable_type: 'event', cacheable_id: event.id, language: 'ar').first
 
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
     end
@@ -89,6 +127,8 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
         get :index
         assert_response :ok
         time_before = JSON.parse(response.body)['updated_at']
+
+        FapiClient.any_instance.expects(:all_updated).with()
 
         perform_enqueued_jobs do
           post :update

@@ -17,23 +17,30 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
     content = json['translation']['content']
     language = json['translation']['locale']['code']
 
-    if json['event'] === 'translations:create'
-      TranslationCache.create!(
-        cacheable_type: type,
-        cacheable_id: id,
-        title: field === 'title' ? content : nil,
-        short_description: field === 'short_description' ? content : nil,
-        language: language
-      )
-      render json: {status: 'ok'}, status: :created
-    else
-      TranslationCache.where(
-        cacheable_type: type,
-        cacheable_id: id,
-        language: language
-        ).update(field => content)
-      render json: {status: 'ok'}, status: :ok
+    entry = type == 'event' ? Event.find_by(id: id) : Orga.find_by(id: id)
+
+    if entry
+      if json['event'] === 'translations:create'
+        TranslationCache.create!(
+          cacheable_type: type,
+          cacheable_id: id,
+          title: field === 'title' ? content : nil,
+          short_description: field === 'short_description' ? content : nil,
+          language: language
+        )
+        render json: {status: 'ok'}, status: :created
+      else
+        TranslationCache.where(
+          cacheable_type: type,
+          cacheable_id: id,
+          language: language
+          ).update(field => content)
+        render json: {status: 'ok'}, status: :ok
+      end
+
+      fapi_client.entry_translated(entry, language)
     end
+
   end
 
   def index
@@ -43,6 +50,10 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
   end
 
   private
+
+  def fapi_client
+    @fapi_client ||= FapiClient.new
+  end
 
   def token_to_ensure
     Settings.phraseapp.webhook_api_token
