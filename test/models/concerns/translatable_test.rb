@@ -87,18 +87,16 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.force_translation_after_save = true
     orga.title = ''
     orga.short_description = ''
-    orga.skip_all_validations!
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).never
 
-    assert orga.save
+    assert orga.save(validate: false)
   end
 
   should 'only create translation for nonempty attributes on entry create' do
     orga = build(:orga)
     orga.force_translation_after_save = true
     orga.title = ''
-    orga.skip_all_validations!
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       orga_id = Orga.last.id.to_s
@@ -115,7 +113,7 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_equal 'dresden', tags_hash[:tags]
     end
 
-    assert orga.save
+    assert orga.save(validate: false)
   end
 
   should 'set area tag on create translation' do
@@ -178,17 +176,16 @@ class TranslatableTest < ActiveSupport::TestCase
   should 'not update translation on entry update if all related attributes are empty' do
     orga = create(:orga)
     orga.force_translation_after_save = true
-    orga.skip_all_validations!
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).never
 
-    assert orga.update(title: '', short_description: '')
+    orga.assign_attributes(title: '', short_description: '')
+    assert orga.save(validate: false)
   end
 
   should 'only update translation for nonempty attributes on entry update' do
     orga = create(:orga)
     orga.force_translation_after_save = true
-    orga.skip_all_validations!
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       orga_id = Orga.last.id.to_s
@@ -205,7 +202,8 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_equal 'dresden', tags_hash[:tags]
     end
 
-    assert orga.update(title: '', short_description: 'short-fo-ba')
+    orga.assign_attributes(title: '', short_description: 'short-fo-ba')
+    assert orga.save(validate: false)
   end
 
 

@@ -87,13 +87,6 @@ class OrgaTest < ActiveSupport::TestCase
     assert orga.errors[:inheritance].blank?
   end
 
-  should 'skip all validations if wanted' do
-    orga = Orga.new
-    orga.skip_all_validations!
-    assert orga.valid?
-    assert orga.save
-  end
-
   should 'have no validation on deactivate' do
     orga = create(:orga)
     assert orga.activate!
@@ -184,6 +177,22 @@ class OrgaTest < ActiveSupport::TestCase
       assert orga.active?
       orga.deactivate!
       assert orga.inactive?
+    end
+
+    should 'create active orga' do
+      orga = build(:orga, state: 'active')
+      assert orga.active?
+      orga.save!
+      assert orga.active?
+      orga.deactivate!
+      assert orga.inactive?
+    end
+
+    should 'activate orga2' do
+      orga = create(:orga)
+      assert orga.inactive?
+      orga.update(active: true)
+      assert orga.active?
     end
 
     should 'activate orga' do

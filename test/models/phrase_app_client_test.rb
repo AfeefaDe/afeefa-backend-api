@@ -16,29 +16,24 @@ class PhraseAppClientTest < ActiveSupport::TestCase
 
   should 'delete given keys by name' do
     orga = build(:orga)
-    orga.skip_all_validations!
     orga.force_translation_after_save = true
-    orga.save
+    orga.save(validate: false)
 
     orga2 = build(:orga)
-    orga2.skip_all_validations!
     orga2.force_translation_after_save = true
-    orga2.save
+    orga2.save(validate: false)
 
     orga3 = build(:orga)
-    orga3.skip_all_validations!
     orga3.force_translation_after_save = true
-    orga3.save
+    orga3.save(validate: false)
 
     orga4 = build(:orga)
-    orga4.skip_all_validations!
     orga4.force_translation_after_save = true
-    orga4.save
+    orga4.save(validate: false)
 
     orga5 = build(:orga)
-    orga5.skip_all_validations!
     orga5.force_translation_after_save = true
-    orga5.save
+    orga5.save(validate: false)
 
     keys_do_delete = [
       "orga.#{orga.id}.title",
@@ -57,31 +52,26 @@ class PhraseAppClientTest < ActiveSupport::TestCase
 
   should 'tag given models' do
     orga = build(:orga)
-    orga.skip_all_validations!
     orga.force_translation_after_save = true
-    orga.save
+    orga.save(validate: false)
 
     orga2 = build(:orga)
     orga2.title = '' # won't get tagged
-    orga2.skip_all_validations!
     orga2.force_translation_after_save = true
-    orga2.save
+    orga2.save(validate: false)
 
     orga3 = build(:orga)
-    orga3.skip_all_validations!
     orga3.force_translation_after_save = true
-    orga3.save
+    orga3.save(validate: false)
 
     orga4 = build(:orga)
     orga4.short_description = '' # won't get tagged
-    orga4.skip_all_validations!
     orga4.force_translation_after_save = true
-    orga4.save
+    orga4.save(validate: false)
 
     orga5 = build(:orga)
-    orga5.skip_all_validations!
     orga5.force_translation_after_save = true
-    orga5.save
+    orga5.save(validate: false)
 
     @client.delete_tag('hana_war_hier')
 
@@ -95,15 +85,13 @@ class PhraseAppClientTest < ActiveSupport::TestCase
   should 'delete tag' do
     orga = build(:orga)
     orga.area = 'leipzig'
-    orga.skip_all_validations!
     orga.force_translation_after_save = true
-    orga.save
+    orga.save(validate: false)
 
     orga2 = build(:orga)
     orga2.area = 'leipzig'
-    orga2.skip_all_validations!
     orga2.force_translation_after_save = true
-    orga2.save
+    orga2.save(validate: false)
 
     assert @client.get_count_keys_for_tag('leipzig') > 0
 
@@ -123,23 +111,19 @@ class PhraseAppClientTest < ActiveSupport::TestCase
   should 'tag all models with area' do
     orga = build(:orga)
     orga.area = 'leipzig'
-    orga.skip_all_validations!
-    orga.save
+    orga.save(validate: false)
 
     orga2 = build(:orga)
     orga2.area = 'leipzig'
-    orga2.skip_all_validations!
-    orga2.save
+    orga2.save(validate: false)
 
     orga3 = build(:orga)
     orga3.area = 'dresden'
-    orga3.skip_all_validations!
-    orga3.save
+    orga3.save(validate: false)
 
     orga4 = build(:orga)
     orga4.area = 'bautzen'
-    orga4.skip_all_validations!
-    orga4.save
+    orga4.save(validate: false)
 
     result = mock()
     result.stubs(:records_affected).returns(2)
@@ -212,19 +196,16 @@ class PhraseAppClientTest < ActiveSupport::TestCase
 
     orga_whithout_title = build(:orga)
     orga_whithout_title.title = ''
-    orga_whithout_title.skip_all_validations!
-    orga_whithout_title.save
+    orga_whithout_title.save(validate: false)
 
     orga_whithout_short_description = build(:orga)
     orga_whithout_short_description.short_description = ''
-    orga_whithout_short_description.skip_all_validations!
-    orga_whithout_short_description.save
+    orga_whithout_short_description.save(validate: false)
 
     orga_whithout_attributes = build(:orga)
     orga_whithout_attributes.title = ''
     orga_whithout_attributes.short_description = ''
-    orga_whithout_attributes.skip_all_validations!
-    orga_whithout_attributes.save
+    orga_whithout_attributes.save(validate: false)
 
     json = parse_json_file file: 'phraseapp_locale_de.json' do |payload|
       payload.gsub!('<existing_orga_id>', existing_orga.id.to_s)
@@ -263,18 +244,15 @@ class PhraseAppClientTest < ActiveSupport::TestCase
 
     orga_whithout_title = build(:orga)
     orga_whithout_title.title = 'orga_whithout_title'
-    orga_whithout_title.skip_all_validations!
-    orga_whithout_title.save
+    orga_whithout_title.save(validate: false)
 
     orga_whithout_short_description = build(:orga)
     orga_whithout_short_description.title = 'orga_whithout_short_description'
-    orga_whithout_short_description.skip_all_validations!
-    orga_whithout_short_description.save
+    orga_whithout_short_description.save(validate: false)
 
     new_orga = build(:orga)
     new_orga.title = 'new_orga'
-    new_orga.skip_all_validations!
-    new_orga.save
+    new_orga.save(validate: false)
 
     json = parse_json_file file: 'phraseapp_locale_de_unsynced.json' do |payload|
       payload.gsub!('<existing_orga_id>', existing_orga.id.to_s)

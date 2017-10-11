@@ -47,13 +47,6 @@ class EventTest < ActiveSupport::TestCase
     assert event.errors[:inheritance].blank?
   end
 
-  should 'skip all validations' do
-    event = Event.new
-    event.skip_all_validations!
-    assert event.valid?
-    assert event.save
-  end
-
   should 'have no validation on deactivate' do
     event = create(:event)
     assert event.activate!

@@ -28,7 +28,6 @@ module Able
     belongs_to :sub_category, class_name: 'Category', optional: true
 
     # can be removed after migration
-    attr_accessor :skip_validations_for_migration
     attr_accessor :skip_unset_inheritance
     def skip_unset_inheritance?
       skip_unset_inheritance || false
@@ -44,18 +43,18 @@ module Able
 
     # VALIDATIONS
     # validates :contact_infos, presence: true, on: :update
-    validates :category, presence: true, on: :update, unless: :skip_all_validations?
-    validate :validate_sub_category, if: -> { sub_category_id.present? && !skip_all_validations? }
+    validates :category, presence: true, on: :update
+    validate :validate_sub_category, if: -> { sub_category_id.present? }
 
-    validates :title, presence: true, length: { maximum: 150 }, unless: :skip_all_validations?
+    validates :title, presence: true, length: { maximum: 150 }
     # FIXME: Disabled for testing Todos
     # validates :description, presence: true
     validates :short_description, presence: true, length: { maximum: 350 },
-      unless: -> { skip_validations_for_migration || skip_all_validations? || skip_short_description_validation? }
+      unless: -> { skip_short_description_validation? }
 
-    validates :tags, format: /\A[^\s]+\z/, allow_blank: true, unless: :skip_all_validations?
+    validates :tags, format: /\A[^\s]+\z/, allow_blank: true
 
-    validates :support_wanted_detail, length: { maximum: 350 }, unless: :skip_all_validations?
+    validates :support_wanted_detail, length: { maximum: 350 }
 
     validate :validate_parent_id, if: -> { parent_id.present? }
 

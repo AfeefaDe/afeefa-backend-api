@@ -27,7 +27,7 @@ module Import
             orga_attributes =
               attributes.slice(*%i(title description category sub_category))
 
-            orga = Orga.new(orga_attributes.merge(active: true, area: area))
+            orga = Orga.new(orga_attributes.merge(state: 'active', area: area))
             orga.skip_short_description_validation!
 
             if handle_title_duplicates

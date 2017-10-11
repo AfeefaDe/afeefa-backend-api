@@ -6,8 +6,7 @@ module Inheritable
     /\A(short_description|contact_infos|locations)(\|(short_description|contact_infos|locations))*\z/
 
   included do
-    validates_format_of :inheritance, with: INHERITABLE_ATTRIBUTES_REGEX, allow_blank: true,
-      unless: :skip_all_validations?
+    validates_format_of :inheritance, with: INHERITABLE_ATTRIBUTES_REGEX, allow_blank: true
   end
 
   def add_inheritance_flag(flag)

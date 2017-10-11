@@ -12,7 +12,7 @@ class Event < ApplicationRecord
   alias_method :sub_events=, :children=
   alias_attribute :parent_id, :parent_event_id
 
-  validates :date_start, presence: true, unless: :skip_all_validations?
+  validates :date_start, presence: true
 
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
 

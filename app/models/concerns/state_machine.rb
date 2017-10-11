@@ -11,11 +11,14 @@ module StateMachine
   included do
     include AASM
 
-    aasm(column: :state) do
+    aasm(column: :state, skip_validation_on_save: true) do
       state INACTIVE, initial: true
       state *(STATES - [INACTIVE])
 
       event :activate do
+        before do
+          valid?
+        end
         transitions from: INACTIVE, to: ACTIVE
         after do
           touch :state_changed_at
@@ -24,9 +27,6 @@ module StateMachine
 
       event :deactivate do
         transitions from: ACTIVE, to: INACTIVE
-        before do
-          skip_all_validations!
-        end
         after do
           touch :state_changed_at
         end
@@ -51,12 +51,6 @@ module StateMachine
 
     before_create do
       self.state_changed_at = created_at
-    end
-
-    before_validation do
-      if !inactive? && @active.to_s == 'false'
-        skip_all_validations!
-      end
     end
 
     before_save do
@@ -86,17 +80,6 @@ module StateMachine
       active?
     end
 
-    def do_not_skip_all_validations!
-      @skip_all_validations = false
-    end
-
-    def skip_all_validations!
-      @skip_all_validations = true
-    end
-
-    def skip_all_validations?
-      @skip_all_validations || false
-    end
   end
 
 end
