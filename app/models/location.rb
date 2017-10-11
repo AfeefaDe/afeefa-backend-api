@@ -8,6 +8,18 @@ class Location < ApplicationRecord
   geocoded_by :address_for_geocoding, latitude: :lat, longitude: :lon
   attr_accessor :address
 
+  # VALIDATIONS
+  # validations to prevent mysql errors
+  validate :lat, length: { maximum: 255 }
+  validate :lon, length: { maximum: 255 }
+  validate :street, length: { maximum: 255 }
+  validate :placename, length: { maximum: 255 }
+  validate :zip, length: { maximum: 255 }
+  validate :city, length: { maximum: 255 }
+  validate :district, length: { maximum: 255 }
+  validate :state, length: { maximum: 255 }
+  validate :country, length: { maximum: 255 }
+
   def address_for_geocoding
     return self.address if self.address.present?
 

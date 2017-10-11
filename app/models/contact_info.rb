@@ -19,6 +19,15 @@ class ContactInfo < ApplicationRecord
   # validates_presence_of :contactable
   # validate :ensure_mail_or_phone_or_fax
 
+  # validations to prevent mysql errors
+  validate :mail, length: { maximum: 255 }
+  validate :phone, length: { maximum: 255 }
+  validate :contact_person, length: { maximum: 255 }
+  validate :web, length: { maximum: 1000 }
+  validate :social_media, length: { maximum: 1000 }
+  validate :spoken_languages, length: { maximum: 255 }
+  validate :fax, length: { maximum: 255 }
+
   # CLASS METHODS
   class << self
     def attribute_whitelist_for_json

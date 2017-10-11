@@ -12,8 +12,13 @@ class Event < ApplicationRecord
   alias_method :sub_events=, :children=
   alias_attribute :parent_id, :parent_event_id
 
+  # VALIDATIONS
   validates :date_start, presence: true
 
+  # validations to prevent mysql errors
+  validate :public_speaker, length: { maximum: 255 }
+
+  # HOOKS
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
 
   scope :upcoming, -> {

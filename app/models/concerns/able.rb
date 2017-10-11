@@ -58,6 +58,12 @@ module Able
 
     validate :validate_parent_id, if: -> { parent_id.present? }
 
+    # validations to prevent mysql errors
+    validate :media_url, length: { maximum: 1000 }
+    validate :media_type, length: { maximum: 255 }
+    validate :tags, length: { maximum: 255 }
+    validate :area, length: { maximum: 255 }
+
     # HOOKS
     after_create :create_entry!
     before_destroy :deny_destroy_if_associated_objects_present, prepend: true
