@@ -5,6 +5,7 @@ class AddAreaToCategories < ActiveRecord::Migration[5.0]
 
   def up
     add_column :categories, :area, :string, default: MAIN_AREA
+    Category.reset_column_information
 
     AREAS.each do |area|
       Category.where(area: MAIN_AREA).each do |category|
