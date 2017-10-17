@@ -1,4 +1,5 @@
 require 'phrase_app_client' #TODO: could vanish any time, may be
+require 'fapi_client' #TODO: could vanish any time, may be
 
 class Api::V1::TranslationCacheController < Api::V1::BaseController
   include EnsureToken
