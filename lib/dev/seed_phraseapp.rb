@@ -24,17 +24,17 @@ module Dev
           }
 
           entries.each do |entry|
-            if (locale === Translatable::DEFAULT_LOCALE or rand(100) === 0) # not de => translate randomly 1 percent
+            if (locale == Translatable::DEFAULT_LOCALE or rand(100) == 0) # not de => translate randomly 1 percent
               type = entry.is_a?(Event) ? :event : :orga
 
               if !entry.title.blank? || !entry.short_description.blank?
                 translation_hash[type][entry.id] = {}
                 if !entry.title.blank?
-                  title = locale === Translatable::DEFAULT_LOCALE ? entry.title : "#{type}.#{entry.id}.title.#{locale}"
+                  title = locale == Translatable::DEFAULT_LOCALE ? entry.title : "#{type}.#{entry.id}.title.#{locale}"
                   translation_hash[type][entry.id][:title] = title
                 end
                 if !entry.short_description.blank?
-                  short_description = locale === Translatable::DEFAULT_LOCALE ? entry.short_description : "#{type}.#{entry.id}.short_description.#{locale}"
+                  short_description = locale == Translatable::DEFAULT_LOCALE ? entry.short_description : "#{type}.#{entry.id}.short_description.#{locale}"
                   translation_hash[type][entry.id][:short_description] = short_description
                 end
               end

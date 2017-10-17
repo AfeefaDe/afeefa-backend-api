@@ -242,7 +242,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.save
   end
 
-  # currently not necessary since entries are fully indepentent in fapi
+  # currently not necessary since entries have no dependencies on other entries in fapi
   # should 'trigger fapi for parent orga' do
   #   orga = create(:orga)
   #   orga2 = create(:orga, title: 'orga2')
@@ -262,7 +262,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga2.force_sync_fapi_after_save = true
 
     FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga2.id))
-    # currently not necessary since entries are fully indepentent in fapi
+    # currently not necessary since entries have no dependencies on other entries in fapi
     # FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
     # FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga4.id))
     FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga3.id))
@@ -295,7 +295,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.update(title: 'test')
   end
 
-  # currently not necessary since entries are fully indepentent in fapi
+  # currently not necessary since entries have no dependencies on other entries in fapi
   # should 'trigger fapi for events orga' do
   #   event = create(:event)
   #   orga = create(:orga, title: 'orga')

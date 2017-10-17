@@ -20,12 +20,12 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
     entry = type == 'event' ? Event.find_by(id: id) : Orga.find_by(id: id)
 
     if entry
-      if json['event'] === 'translations:create'
+      if json['event'] == 'translations:create'
         TranslationCache.create!(
           cacheable_type: type,
           cacheable_id: id,
-          title: field === 'title' ? content : nil,
-          short_description: field === 'short_description' ? content : nil,
+          title: field == 'title' ? content : nil,
+          short_description: field == 'short_description' ? content : nil,
           language: language
         )
         render json: {status: 'ok'}, status: :created
