@@ -10,15 +10,15 @@ class Location < ApplicationRecord
 
   # VALIDATIONS
   # validations to prevent mysql errors
-  validate :lat, length: { maximum: 255 }
-  validate :lon, length: { maximum: 255 }
-  validate :street, length: { maximum: 255 }
-  validate :placename, length: { maximum: 255 }
-  validate :zip, length: { maximum: 255 }
-  validate :city, length: { maximum: 255 }
-  validate :district, length: { maximum: 255 }
-  validate :state, length: { maximum: 255 }
-  validate :country, length: { maximum: 255 }
+  validates :lat, length: { maximum: 255 }
+  validates :lon, length: { maximum: 255 }
+  validates :street, length: { maximum: 255 }
+  validates :placename, length: { maximum: 255 }
+  validates :zip, length: { maximum: 255 }
+  validates :city, length: { maximum: 255 }
+  validates :district, length: { maximum: 255 }
+  validates :state, length: { maximum: 255 }
+  validates :country, length: { maximum: 255 }
 
   def address_for_geocoding
     return self.address if self.address.present?

@@ -16,7 +16,7 @@ class Event < ApplicationRecord
   validates :date_start, presence: true
 
   # validations to prevent mysql errors
-  validate :public_speaker, length: { maximum: 255 }
+  validates :public_speaker, length: { maximum: 255 }
 
   # HOOKS
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
