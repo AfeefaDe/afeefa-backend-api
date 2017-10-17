@@ -17,6 +17,7 @@ class FapiClient
 
   def entry_deleted(model)
     request({
+      area: model.area,
       type: model.class.name.underscore,
       id: model.id,
       deleted: true

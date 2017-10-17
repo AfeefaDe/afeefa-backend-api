@@ -70,6 +70,7 @@ class FapiClientTest < ActiveSupport::TestCase
     result.stubs(:body).returns({status: 'ok'}.to_json)
     Net::HTTP.any_instance.expects(:request).with do |req|
       query = CGI::parse(URI::parse(req.path).query) # wtf, there is no method to parse an url query into a hash???
+      assert_equal 'dresden', query['area'][0]
       assert_equal 'orga', query['type'][0]
       assert_equal orga.id.to_s, query['id'][0]
       assert_nil query['locale'][0]
