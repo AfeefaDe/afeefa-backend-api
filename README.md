@@ -32,3 +32,53 @@ Run this command in your project folder:
 ```
 bundle exec cap [dev|production] deploy
 ```
+
+## Running the Api
+
+`rails s` or `rails s -b 10.0.3.130` or `rails s -b 10.0.3.130 -p 3001`
+
+## Remote Debugging
+
+On server and client both install:
+
+* `gem install ruby-debug-ide`
+* `gem install debase`
+
+Then start the remote server like this:
+
+`rdebug-ide --port 1235 --dispatcher-port 26166 --host 0.0.0.0 -- bin/rails s -b 10.0.3.130`
+
+Attach your local IDE debugger. VSCode example config:
+
+```
+    {
+      "name": "Listen for rdebug-ide",
+      "type": "Ruby",
+      "request": "attach",
+      "cwd": "${workspaceRoot}",
+      "remoteHost": "backend.afeefa.dev",
+      "remotePort": "1236",
+      "remoteWorkspaceRoot": "/afeefa/fapi"
+    }
+```
+
+## Testing
+
+`rails test`
+`rails test -n /face\|author/`
+`rails test -n /given\ orga/`
+`tail -f log/test.log | grep 'Test: '`
+
+## Maintenance Tasks
+
+To be called locally 'on my machine' and run remotely:
+
+*sync dev|production database entries to phraseapp*
+This command will harmonize all keys and tags between both worlds.
+
+`cap [dev|production] translation:sync_out`
+
+*sync phraseapp translations to dev|production database
+This command updates the according dev|production translation caching table.
+
+`cap [dev|production] translation:sync_in`

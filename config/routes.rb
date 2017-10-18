@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  get 'to_dos/show'
-
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   # routes = lambda {
@@ -33,8 +31,9 @@ Rails.application.routes.draw do
 
         get 'translations', to: 'translation_cache#index'
         post 'translations', to: 'translation_cache#update'
+        post 'translations/phraseapp_webhook', to: 'translation_cache#phraseapp_webhook'
 
-        #routes.call
+        #routes.call, generates /sign_in and /sign_out and probably more ;-)
         mount_devise_token_auth_for 'User',
                                     at: 'users',
                                     controllers: {
@@ -43,6 +42,7 @@ Rails.application.routes.draw do
 
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
+
         jsonapi_resources :orgas
         jsonapi_resources :events
 

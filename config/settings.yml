@@ -1,3 +1,7 @@
+afeefa:
+  fapi_sync_active: true
+  fapi_webhook_api_token: <%= ENV["FAPI_CHANGES_WEBHOOK_TOKEN"] %>
+  fapi_url: https://afeefa.de/api
 facebook:
   active: false
   app_id: <%= ENV["FB_APP_ID"] %>
@@ -16,14 +20,8 @@ geocoding:
 translations:
   api_token: <%= ENV["_API_TOKEN"] %>
 phraseapp:
-  active: false
-  project_id: <%= ENV["PA_LIVE_PROJECT_ID"] %>
-  api_token: <%= ENV["PA_WRITE_TOKEN"] %>
-  fallback_list: [en, de]
-  dev_project_id: <%= ENV["PA_DEV_PROJECT_ID"] %>
-  test_project_id: <%= ENV["PA_TEST_PROJECT_ID"] %>
+  active: true
+  project_id: <%= ENV["PA_PROJECT_ID"] %>
+  api_token: <%= ENV["PA_TOKEN"] %>
+  webhook_api_token: <%= ENV["PA_WEBHOOK_API_TOKEN"] %>
   log_file: log/phraseapp.log
-migration:
-  phraseapp:
-    project_id: <%= ENV["PA_LEGACY_LIVE_PROJECT_ID"] %>
-    api_token: <%= ENV["PA_READ_TOKEN"] %>

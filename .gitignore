@@ -40,3 +40,6 @@ config/database.yml
 
 # Byebug Gem
 .byebug_history
+
+# local bundled gems
+/vendor/bundle

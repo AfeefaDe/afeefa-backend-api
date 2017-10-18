@@ -12,8 +12,13 @@ class Event < ApplicationRecord
   alias_method :sub_events=, :children=
   alias_attribute :parent_id, :parent_event_id
 
-  validates :date_start, presence: true, unless: :skip_all_validations?
+  # VALIDATIONS
+  validates :date_start, presence: true
 
+  # validations to prevent mysql errors
+  validates :public_speaker, length: { maximum: 255 }
+
+  # HOOKS
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
 
   scope :upcoming, -> {
@@ -30,13 +35,9 @@ class Event < ApplicationRecord
     now = Time.now.beginning_of_day
     # kein date_end und date_start < today 00:00
     # hat date_end und date_end < today 00:00
-    where(date_end: nil).
+    where(date_end: [nil, '']).
       where.not(date_start: [nil, '']).
       where('date_start < ?', now).
-
-      or(where(date_end: '').
-        where.not(date_start: [nil, '']).
-        where('date_start < ?', now)).
 
       or(where.not(date_end: [nil, '']).
         where('date_end < ?', now)).
@@ -55,7 +56,8 @@ class Event < ApplicationRecord
 
     def default_attributes_for_json
       %i(title created_at updated_at state_changed_at
-          date_start date_end has_time_start has_time_end active inheritance).freeze
+          date_start date_end upcoming
+          has_time_start has_time_end active inheritance).freeze
     end
 
     def relation_whitelist_for_json
@@ -66,6 +68,34 @@ class Event < ApplicationRecord
       %i(annotations category sub_category).freeze
     end
   end
+
+  def upcoming?
+    if persisted?
+      id.in?(Event.upcoming.pluck(:id))
+    else
+      now = Time.now.beginning_of_day
+      # date_start > today 00:00
+      # date_end > today 00:00
+      date_start.present? && date_start >= now ||
+        date_start == now ||
+        date_end >= now
+    end
+  end
+  alias_method :upcoming, :upcoming?
+
+  def past?
+    if persisted?
+      id.in?(Event.past.pluck(:id))
+    else
+      now = Time.now.beginning_of_day
+      # kein date_end und date_start < today 00:00
+      # hat date_end und date_end < today 00:00
+      date_end.blank? && date_start.present? && date_start < now ||
+        date_end.present? == date_end < now ||
+        date_start.blank?
+    end
+  end
+  alias_method :past, :past?
 
   private
 

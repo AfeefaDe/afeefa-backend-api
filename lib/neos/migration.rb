@@ -80,6 +80,8 @@ module Neos
 
     class << self
       def migrate(migrate_phraseapp: false, limit: {})
+        puts 'not implemented'
+        return
         limit = limit || {}
         @migrate_phraseapp = migrate_phraseapp
 
@@ -161,7 +163,7 @@ module Neos
         puts "Step 4: Migrating PhraseApp (#{Time.current.to_s})"
         reset_progress
         if @migrate_phraseapp
-          migrate_phraseapp_faster
+          migrate_phraseapp_faster#(show_objects_in_phraseapp_not_found_in_database_errors: false)
         else
           puts '(skipped)'
         end
@@ -175,6 +177,8 @@ module Neos
       end
 
       def migrate_event(entry_id)
+        puts 'not implemented'
+        return
         event = Neos::Event.where(entry_id: entry_id).first
         new_event = create_entry_and_handle_validation(event) do
           build_event_from_neos_event(event)
@@ -183,6 +187,8 @@ module Neos
       end
 
       def migrate_orga(entry_id)
+        puts 'not implemented'
+        return
         orga = Neos::Orga.where(entry_id: entry_id).first
         new_orga = create_entry_and_handle_validation(orga) do
           build_orga_from_neos_orga(orga)
@@ -191,7 +197,9 @@ module Neos
         set_timestamps(new_orga, orga)
       end
 
-      def migrate_phraseapp_faster
+      def migrate_phraseapp_faster(show_objects_in_phraseapp_not_found_in_database_errors: true)
+        puts 'not implemented'
+        return
         ActiveRecord::Base.logger.level = 1
 
         @client_old ||=
@@ -231,7 +239,9 @@ module Neos
               end
 
               if object.nil?
-                puts "no orga or event with legacy_id #{legacy_id} found, old entry was: #{old_entry.inspect}"
+                if show_objects_in_phraseapp_not_found_in_database_errors
+                  puts "no orga or event with legacy_id #{legacy_id} found, old entry was: #{old_entry.inspect}"
+                end
                 next
               end
               type = :event
@@ -255,7 +265,7 @@ module Neos
           file.write(JSON.pretty_generate(translation_hash[locale]))
           file.close
 
-          @client_new.push_locale_file(file.path, @client_new.locale_id(locale))
+          @client_new.upload_translation_file_for_locale(file.path, @client_new.locale_id(locale))
 
           puts_progress(type: 'migrating phraseapp', processed: index + 1, all: @client_old.locales.count)
         end
@@ -647,6 +657,8 @@ module Neos
             ::Category.find_by_title(entry.category.name)
           end
         end
+
+        set_attribute!(new_entry, old_entry, :area)
       end
 
       def set_attribute!(new_entry, old_entry, new_attribute, old_attribute: nil, by_recursion: false)

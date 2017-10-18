@@ -47,8 +47,27 @@ set :keep_releases, 5
 # set this to the number of versions to keep
 set :keep_assets, 2
 
-namespace :deploy do
+namespace :translation do
+  task :sync_in do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      # Here we can do anything such as:
+      within release_path do
+        execute "source ~/.bash_profile && cd #{release_path} && bundle exec rails runner -e production 'PhraseappToBackendSyncJob.perform_now'"
+      end
+    end
+  end
 
+  task :sync_out do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      # Here we can do anything such as:
+      within release_path do
+        execute "source ~/.bash_profile && cd #{release_path} && bundle exec rails runner -e production 'BackendToPhraseappSyncJob.perform_now'"
+      end
+    end
+  end
+end
+
+namespace :deploy do
   task :restart do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       # Here we can do anything such as:
@@ -106,14 +125,13 @@ namespace :deploy do
     end
   end
 
-  # task :update_crontab do
-  #   on roles(:web), in: :groups, limit: 3, wait: 10 do
-  #     within release_path do
-  #       execute "cd #{release_path} && RAILS_ENV=production bundle exec whenever --update-crontab"
-  #     end
-  #   end
-  # end
-
+  task :update_crontab do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      within release_path do
+        execute "cd #{release_path} && RAILS_ENV=production bundle exec whenever --update-crontab"
+      end
+    end
+  end
 end
 
 # after 'deploy', 'deploy:update_crontab'

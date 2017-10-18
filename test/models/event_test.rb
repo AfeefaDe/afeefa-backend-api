@@ -10,6 +10,8 @@ class EventTest < ActiveSupport::TestCase
       attributes: event.class.attribute_whitelist_for_json,
       relationships: event.class.relation_whitelist_for_json)
     assert_jsonable_hash(event, relationships: event.class.relation_whitelist_for_json)
+    assert_includes event.to_json, '"upcoming":true'
+    assert_not_includes event.to_json, '"past":'
   end
 
   should 'validate attributes' do
@@ -45,13 +47,6 @@ class EventTest < ActiveSupport::TestCase
     assert event.errors[:inheritance].blank?
   end
 
-  should 'skip all validations' do
-    event = Event.new
-    event.skip_all_validations!
-    assert event.valid?
-    assert event.save
-  end
-
   should 'have no validation on deactivate' do
     event = create(:event)
     assert event.activate!
@@ -71,29 +66,6 @@ class EventTest < ActiveSupport::TestCase
     assert_equal 'abc 123', event.title
     assert_equal 'abc 123', event.description
     assert_equal 'abc 123', event.short_description
-  end
-
-  should 'create translation on event create' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
-    event = build(:event)
-    assert_not event.translation.blank?
-    assert event.translation(locale: 'en').blank?
-    assert event.save
-    expected = { title: 'an event', description: 'description of an event' }
-    assert_equal expected, event.translation
-    assert_equal expected, event.translation(locale: 'en')
-  end
-
-  should 'update translation on event update' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
-    event = create(:event)
-    expected = { title: 'an event', description: 'description of an event' }
-    assert_equal expected, event.translation
-    assert_equal expected, event.translation(locale: 'en')
-    assert event.update(title: 'foo-bar')
-    expected = { title: 'foo-bar', description: 'description of an event' }
-    assert_equal expected, event.translation
-    assert_equal expected, event.translation(locale: 'en')
   end
 
   should 'set initial state for event' do

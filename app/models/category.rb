@@ -12,6 +12,7 @@ class Category < ApplicationRecord
 
   scope :main_categories, -> { where(parent_id: nil) }
   scope :sub_categories, -> { where.not(parent_id: nil) }
+  scope :by_area, ->(area) { where(area: area) }
 
   # CLASS METHODS
   class << self

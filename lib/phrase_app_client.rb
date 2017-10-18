@@ -3,143 +3,74 @@ require 'phraseapp-ruby'
 class PhraseAppClient
 
   def initialize(project_id: nil, token: nil)
-    @project_id =
-        project_id ||
-            if Rails.env.production?
-              Settings.phraseapp.project_id
-            else
-              Settings.phraseapp.test_project_id
-            end || ''
+    @project_id = project_id || Settings.phraseapp.project_id
     @token = token || Settings.phraseapp.api_token || ''
-    @fallback_list = Settings.phraseapp.fallback_list || []
-
     credentials = PhraseApp::Auth::Credentials.new(token: @token)
     @client = PhraseApp::Client.new(credentials)
-    initialize_locales_for_project
-  end
-
-  def locales
-    @locales.try(:keys)
   end
 
   def logger
     @logger ||=
-        if log_file = Settings.phraseapp.log_file
-          Logger.new(log_file)
-        else
-          Rails.logger
-        end
-  end
-
-  def create_or_update_translation(model, locale)
-    responses = []
-    model.class.translatable_attributes.each do |attribute|
-      begin
-        content = model.send(attribute)
-        key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
-        key_id =
-            find_key_id_by_key_name(key) ||
-                create_key(key)
-        next if content.blank?
-
-        if translation_id = find_translation_id_by_key_id_and_locale(key_id, locale)
-          responses << update_translation_for_translation_id(translation_id, content)
-        else
-          responses << create_translation_for_key(key_id, locale, content)
-        end
-      rescue => exception
-        message = "Could not create or update translation for \n"
-        message << "model #{model.id}, '#{model.title}' and \n"
-        message << "locale '#{locale}' and key '#{key}' with \n"
-        message << "content '#{content}' for "
-        message << "the following error: #{exception.message}\n"
-        message << "#{exception.backtrace[0..14].join("\n")}"
-        logger.error message
-        raise message if Rails.env.development?
+      if log_file = Settings.phraseapp.log_file
+        Logger.new(log_file)
+      else
+        Rails.logger
       end
-    end
-    responses
   end
 
   def delete_translation(model)
+    deleted = 0
     model.class.translatable_attributes.each do |attribute|
-      key = "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
-      key_id = find_key_id_by_key_name(key)
-      next unless key_id
-
-      @client.key_delete(@project_id, key_id)
+      key = model.build_translation_key(attribute)
+      params = PhraseApp::RequestParams::KeysDeleteParams.new(q: key)
+      affected = @client.keys_delete(@project_id, params).first.records_affected
+      if affected.to_s == '0'
+      else
+        deleted = deleted + affected
+      end
     end
+    deleted
   end
 
-  def get_translation(model, locale, fallback: true)
-    {}.tap do |translation_hash|
-      model.class.translatable_attributes.each do |attribute|
-        key =
-            if model.class.to_s.start_with?('Neos::')
-              "entry.#{model.entry_id}.#{attribute}"
-            else
-              "#{model.class.to_s.underscore}.#{model.id}.#{attribute}"
-            end
-        key_id = find_key_id_by_key_name(key)
-        next unless key_id
+  def get_all_translations(locales)
+    translations = []
 
-        params = PhraseApp::RequestParams::TranslationsByKeyParams.new()
-        available_translations = @client.translations_by_key(@project_id, key_id, 1, 100000, params)[0]
+    locales.each do |locale|
+      translationsForLocale = download_locale(locale)
 
-        unless @fallback_list.include?(locale)
-          @fallback_list.unshift(locale)
-        end
-        (available_translations || []).each do |translation|
-          local_codes_to_use = [locale]
-          local_codes_to_use += @fallback_list if fallback
-
-          for locale_code in local_codes_to_use do
-            if translation.locale['code'].eql?(locale_code)
-              translation_hash[attribute] = translation.content
-            end
+      translationsForLocale.each do |type, translationForType|
+        translationForType.each do |id, translationValues|
+          translationValues.each do |key, value|
+            translations.push({
+              id: id,
+              type: type,
+              language: locale,
+              key: key,
+              content: value
+            })
           end
         end
       end
     end
-  end
 
-  def get_all_translations
-    params = PhraseApp::RequestParams::TranslationsListParams.new
-    page = 1
-    translations = []
-    loop do
-      t = @client.translations_list(@project_id, page, 100, params)
-      break if t[0].empty?
-      translations += t[0]
-      page += 1
-    end
     translations
   end
 
-  def get_locale_file(locale_id)
-    params = PhraseApp::RequestParams::LocaleDownloadParams.new(
-        file_format: 'nested_json',
-        encoding: 'UTF-8'
-    )
-    file = Tempfile.new("translations-old-#{locale_id}-", encoding: 'UTF-8')
-    file.write @client.locale_download(@project_id, locale_id, params).force_encoding('UTF-8')
-    file.close
-    file
-  end
-
-  def push_locale_file(file, locale_id)
+  def upload_translation_file_for_locale(file, locale, tags: nil)
     begin
       params = PhraseApp::RequestParams::UploadParams.new(
-          file: file,
-          encoding: 'UTF-8',
-          file_format: 'nested_json',
-          locale_id: locale_id
+        file: file.path,
+        update_translations: true,
+        tags: tags || '',
+        encoding: 'UTF-8',
+        file_format: 'nested_json',
+        locale_id: locale
       )
 
       @client.upload_create(@project_id, params)
     rescue => exception
       message = 'Could not upload file '
-      message << "the following error: #{exception.message}\n"
+      message << "for the following error: #{exception.message}\n"
       message << "#{exception.backtrace[0..14].join("\n")}"
       logger.error message
       raise message if Rails.env.development?
@@ -164,53 +95,162 @@ class PhraseAppClient
     end
   end
 
-  def locale_id(locale)
-    @locales[locale].try(:id) || raise("locale #{locale} could not be found in list of locales: #{@locales.keys}")
+  def delete_keys_by_name(keys)
+    keys = keys.dup
+    count_deleted = 0
+    while keys.any? do
+      keys_to_process = keys.shift(300)
+      q = 'name:' + keys_to_process.join(',')
+      params = PhraseApp::RequestParams::KeysDeleteParams.new(q: q)
+      count_deleted += @client.keys_delete(@project_id, params).first.records_affected
+    end
+    count_deleted
+  end
+
+  def delete_all_area_tags
+    Translatable::AREAS.each do |area|
+      delete_tag(area)
+    end
+  end
+
+  def tag_all_areas
+    num_tagged = 0
+    Translatable::AREAS.each do |area|
+      models = []
+      [Orga, Event].each do |model_class|
+        models = models + model_class.where(area: area)
+      end
+      num_tagged += tag_models(area, models)
+    end
+    num_tagged
+  end
+
+  def delete_tag(tag)
+    @client.tag_delete(@project_id, tag)
+  rescue => exception
+    if exception.message =~ /not found/
+      Rails.logger.info "There is not tag to delete called #{tag}"
+    else
+      raise exception
+    end
+  end
+
+  def get_count_keys_for_tag(tag)
+    begin
+      result = @client.tag_show(@project_id, tag)
+      result.first.keys_count
+    rescue => exception
+      0
+    end
+  end
+
+  def tag_models(tags, models)
+    models = models.dup
+    records_affected = 0
+
+    while models.any? do
+      models_to_process = models.shift(300)
+
+      keys = []
+      models_to_process.each do |model|
+        keys << model.build_translation_key('title')
+        keys << model.build_translation_key('short_description')
+      end
+      q = 'name:' + keys.join(',')
+      params = PhraseApp::RequestParams::KeysTagParams.new(tags: tags, q: q)
+      records_affected += @client.keys_tag(@project_id, params).first.records_affected
+    end
+
+    records_affected
+  end
+
+  def sync_all_translations
+    json = download_locale(Translatable::DEFAULT_LOCALE, true)
+    # compare local keys and remove all remotes that do not exist or are empty locally
+    delete_unused_keys(json)
+    # compare local keys and update differing or create missing remote keys
+    add_missing_or_invalid_keys(json)
+    # simply remove all remote tags
+    delete_all_area_tags
+    # create area tags for all keys
+    tag_all_areas
+  end
+
+  def delete_unused_keys(json)
+    begin
+      event_ids = json['event'].try(:keys) || []
+      orga_ids = json['orga'].try(:keys) || []
+
+      keys_to_destroy = get_keys_to_destroy(Orga, orga_ids) + get_keys_to_destroy(Event, event_ids)
+      deleted = delete_keys_by_name(keys_to_destroy)
+
+      Rails.logger.debug "deleted #{deleted} keys."
+      return deleted
+    rescue => exception
+      Rails.logger.error 'error for delete_all_keys_not_used_in_database'
+      Rails.logger.error exception.message
+      Rails.logger.error exception.backtrace.join("\n")
+      raise exception unless Rails.env.production?
+    end
+  end
+
+  def add_missing_or_invalid_keys(json)
+    updates_json = {}
+    added = 0
+    [Orga, Event].each do |model_class|
+      model_class.all.each do |model|
+        type = model.class.name.underscore
+        id = model.id.to_s
+        if (!json[type][id] ||
+          json[type][id]['title'] != model.title ||
+          json[type][id]['short_description'] != model.short_description)
+          update_json = model.create_json_for_translation_file(only_changes: false)
+          updates_json = updates_json.deep_merge(update_json)
+          added += 1
+        end
+      end
+    end
+
+    file = write_translation_upload_json('missing-or-invalid-keys-', updates_json)
+    upload_translation_file_for_locale(file, Translatable::DEFAULT_LOCALE)
+
+    Rails.logger.info 'finished add_missing_keys'
+    added
+  end
+
+  def write_translation_upload_json(filename, json)
+    file = Tempfile.new([filename, '.json'], encoding: 'UTF-8')
+    file.write(JSON.pretty_generate(json))
+    file.close
+    file
   end
 
   private
 
-  def initialize_locales_for_project
-    @locales = {}
-    @client.locales_list(@project_id, 1, 100)[0].each do |locale|
-      @locales[locale.code] = locale
-    end
+  def download_locale(locale, include_empty_translations = false)
+    params = PhraseApp::RequestParams::LocaleDownloadParams.new(
+      file_format: 'nested_json',
+      encoding: 'UTF-8'
+    )
+    json = @client.locale_download(@project_id, locale, params).force_encoding('UTF-8')
+    return JSON.parse json
   end
 
-  def create_translation_for_key(key_id, locale, content)
-    params =
-        PhraseApp::RequestParams::TranslationParams.new(
-            locale_id: locale_id(locale),
-            content: content.to_s,
-            key_id: key_id)
-    @client.translation_create(@project_id, params)
-  end
-
-  def update_translation_for_translation_id(translation_id, content)
-    params = PhraseApp::RequestParams::TranslationUpdateParams.new(content: content.to_s)
-    @client.translation_update(@project_id, translation_id, params)
-  end
-
-  def find_key_id_by_key_name(keyname)
-    params = PhraseApp::RequestParams::KeysSearchParams.new(:q => keyname)
-    response = @client.keys_search(@project_id, 1, 100, params)
-    response[0][0].try(:id)
-  end
-
-  def create_key(keyname)
-    params = PhraseApp::RequestParams::TranslationKeyParams.new(name: keyname)
-    response = @client.key_create(@project_id, params)
-    response[0].try(:id) || raise("could not create key #{keyname}")
-  end
-
-  def find_translation_id_by_key_id_and_locale(key_id, locale)
-    params = PhraseApp::RequestParams::TranslationsByKeyParams.new()
-    available_translations = @client.translations_by_key(@project_id, key_id, 1, 100000, params)[0]
-    for translation in available_translations do
-      if translation.locale['code'].eql?(locale)
-        return translation.id
+  def get_keys_to_destroy(model_class, ids)
+    list = []
+    ids.each do |id|
+      if model = model_class.find_by(id: id)
+        model_class.translatable_attributes.each do |attribute|
+          if model.send(attribute).blank?
+            list << model.build_translation_key(attribute)
+          end
+        end
+      else
+        list << model_class.build_translation_key(id, 'title')
+        list << model_class.build_translation_key(id, 'short_description')
       end
     end
-    nil
+    list
   end
+
 end

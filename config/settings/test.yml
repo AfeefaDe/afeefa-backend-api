@@ -1,6 +1,4 @@
-api:
-  hosts:
-    - '*'
-  protocols:
-    - '*'
-  admin_secret: '0815'
+afeefa:
+  fapi_sync_active: false
+phraseapp:
+  active: false

@@ -87,13 +87,6 @@ class OrgaTest < ActiveSupport::TestCase
     assert orga.errors[:inheritance].blank?
   end
 
-  should 'skip all validations if wanted' do
-    orga = Orga.new
-    orga.skip_all_validations!
-    assert orga.valid?
-    assert orga.save
-  end
-
   should 'have no validation on deactivate' do
     orga = create(:orga)
     assert orga.activate!
@@ -111,29 +104,6 @@ class OrgaTest < ActiveSupport::TestCase
     orga.valid?
     assert_equal 'abc 123', orga.title
     assert_equal 'abc 123', orga.description
-  end
-
-  should 'create translation on orga create' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
-    orga = build(:orga)
-    assert_not orga.translation.blank?
-    assert orga.translation(locale: 'en').blank?, orga.translation(locale: 'en')
-    assert orga.save
-    expected = {title: 'an orga', description: 'this is a short description of this orga'}
-    assert_equal expected, orga.translation
-    assert_equal expected, orga.translation(locale: 'en')
-  end
-
-  should 'update translation on orga update' do
-    skip 'phraseapp deactivated' unless phraseapp_active?
-    orga = create(:orga)
-    expected = {title: 'an orga', description: 'this is a short description of this orga'}
-    assert_equal expected, orga.translation
-    assert_equal expected, orga.translation(locale: 'en')
-    assert orga.update(title: 'foo-bar')
-    expected = {title: 'foo-bar', description: 'this is a short description of this orga'}
-    assert_equal expected, orga.translation
-    assert_equal expected, orga.translation(locale: 'en')
   end
 
   should 'set inheritance to null if no parent orga given' do
@@ -207,6 +177,22 @@ class OrgaTest < ActiveSupport::TestCase
       assert orga.active?
       orga.deactivate!
       assert orga.inactive?
+    end
+
+    should 'create active orga' do
+      orga = build(:orga, state: 'active')
+      assert orga.active?
+      orga.save!
+      assert orga.active?
+      orga.deactivate!
+      assert orga.inactive?
+    end
+
+    should 'activate orga2' do
+      orga = create(:orga)
+      assert orga.inactive?
+      orga.update(active: true)
+      assert orga.active?
     end
 
     should 'activate orga' do
