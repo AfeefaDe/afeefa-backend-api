@@ -287,7 +287,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     result.stubs(:records_affected).returns(1)
     PhraseApp::Client.any_instance.expects(:keys_delete)
       .once
-      .with(Settings.phraseapp.test_project_id, params)
+      .with(Settings.phraseapp.project_id, params)
       .returns([result])
   end
 
