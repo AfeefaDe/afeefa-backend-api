@@ -126,7 +126,13 @@ class PhraseAppClient
   end
 
   def delete_tag(tag)
-      @client.tag_delete(@project_id, tag)
+    @client.tag_delete(@project_id, tag)
+  rescue => exception
+    if exception.message =~ /not found/
+      Rails.logger.info "There is not tag to delete called #{tag}"
+    else
+      raise exception
+    end
   end
 
   def get_count_keys_for_tag(tag)
