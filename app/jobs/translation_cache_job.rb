@@ -1,5 +1,3 @@
-require 'phrase_app_client'
-
 class TranslationCacheJob < ActiveJob::Base
   queue_as :default
 

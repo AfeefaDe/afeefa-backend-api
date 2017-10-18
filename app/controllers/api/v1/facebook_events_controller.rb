@@ -1,5 +1,3 @@
-require 'facebook_client'
-
 class Api::V1::FacebookEventsController < ApplicationController
 
   include EnsureToken

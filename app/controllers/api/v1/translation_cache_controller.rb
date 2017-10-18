@@ -1,7 +1,5 @@
-require 'phrase_app_client' #TODO: could vanish any time, may be
-require 'fapi_client' #TODO: could vanish any time, may be
-
 class Api::V1::TranslationCacheController < Api::V1::BaseController
+
   include EnsureToken
 
   skip_before_action :authenticate_api_v1_user!, only: :phraseapp_webhook
