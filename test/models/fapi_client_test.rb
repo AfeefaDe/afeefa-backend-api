@@ -17,8 +17,7 @@ class FapiClientTest < ActiveSupport::TestCase
       assert_equal orga.id.to_s, query['id'][0]
       assert_equal 'fr', query['locale'][0]
       assert_equal Settings.afeefa.fapi_webhook_api_token, query['token'][0]
-    end
-    .returns(result)
+    end.returns(result)
 
     status = @client.entry_translated(orga, 'fr')
 
@@ -36,8 +35,7 @@ class FapiClientTest < ActiveSupport::TestCase
       assert_equal orga.id.to_s, query['id'][0]
       assert_nil query['locale'][0]
       assert_equal Settings.afeefa.fapi_webhook_api_token, query['token'][0]
-    end
-    .returns(result)
+    end.returns(result)
 
     status = @client.entry_updated(orga)
 
@@ -55,8 +53,7 @@ class FapiClientTest < ActiveSupport::TestCase
       assert_nil query['id'][0]
       assert_nil query['locale'][0]
       assert_equal Settings.afeefa.fapi_webhook_api_token, query['token'][0]
-    end
-    .returns(result)
+    end.returns(result)
 
     status = @client.all_updated
 
@@ -76,12 +73,19 @@ class FapiClientTest < ActiveSupport::TestCase
       assert_nil query['locale'][0]
       assert query['deleted'][0]
       assert_equal Settings.afeefa.fapi_webhook_api_token, query['token'][0]
-    end
-    .returns(result)
+    end.returns(result)
 
     status = @client.entry_deleted(orga)
 
     assert_equal 'ok', JSON.parse(status)['status']
+  end
+
+  should 'build correct url' do
+    params = { test: 'xyz', foo: 'bar' }
+    Net::HTTP.any_instance.expects(:request).with do |request|
+      assert_equal "#{Settings.afeefa.fapi_url}?test=xyz&foo=bar", request.path
+    end
+    FapiClient.new.send(:request, params)
   end
 
 end

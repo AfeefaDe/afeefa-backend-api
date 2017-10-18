@@ -32,13 +32,14 @@ class FapiClient
 
   def request(params)
     params[:token] = Settings.afeefa.fapi_webhook_api_token
-    path = "/changes_webhook?#{params.to_query}"
+    path = '/changes_webhook'
+    path << "?#{params.to_query}" if params.keys.any?
     url = URI.parse(Settings.afeefa.fapi_url + path)
-    req = Net::HTTP::Get.new(url.to_s)
-    res = Net::HTTP.start(url.host, url.port) {|http|
-      http.request(req)
-    }
-    res.body
+    request = Net::HTTP::Get.new(url.to_s)
+    response = Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == 'https') do |http|
+      http.request(request)
+    end
+    response.body
   end
 
 end
