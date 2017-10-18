@@ -81,6 +81,9 @@ gem 'pry-byebug'
 # integrate PhraseApp
 gem 'phraseapp-ruby'
 
+# cron
+gem 'whenever', require: false
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   # gem 'byebug', platform: :mri
@@ -109,9 +112,6 @@ group :development, :test do
   gem 'vcr'
   # mock requests in tests, needed by vcr
   gem 'webmock'
-
-  # crone
-  gem 'whenever', require: false
 
   # We do not longer use sqlite3:
   # gem 'sqlite3'

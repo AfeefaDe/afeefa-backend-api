@@ -134,6 +134,6 @@ namespace :deploy do
   end
 end
 
-# after 'deploy', 'deploy:update_crontab'
+after 'deploy', 'deploy:update_crontab'
 after 'deploy', 'deploy:restart'
 after 'deploy:rollback', 'deploy:restart'
