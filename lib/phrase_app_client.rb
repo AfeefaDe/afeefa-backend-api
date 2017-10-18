@@ -96,9 +96,15 @@ class PhraseAppClient
   end
 
   def delete_keys_by_name(keys)
-    q = 'name:' + keys.join(',')
-    params = PhraseApp::RequestParams::KeysDeleteParams.new(q: q)
-    @client.keys_delete(@project_id, params).first.records_affected
+    keys = keys.dup
+    count_deleted = 0
+    while keys.any? do
+      keys_to_process = keys.shift(300)
+      q = 'name:' + keys_to_process.join(',')
+      params = PhraseApp::RequestParams::KeysDeleteParams.new(q: q)
+      count_deleted += @client.keys_delete(@project_id, params).first.records_affected
+    end
+    count_deleted
   end
 
   def delete_all_area_tags
@@ -133,15 +139,23 @@ class PhraseAppClient
   end
 
   def tag_models(tags, models)
-    keys = []
-    models.each do |model|
-      keys << model.build_translation_key('title')
-      keys << model.build_translation_key('short_description')
-    end
-    q = 'name:' + keys.join(',')
-    params = PhraseApp::RequestParams::KeysTagParams.new(tags: tags, q: q)
+    models = models.dup
+    records_affected = 0
 
-    @client.keys_tag(@project_id, params).first.records_affected
+    while models.any? do
+      models_to_process = models.shift(300)
+
+      keys = []
+      models_to_process.each do |model|
+        keys << model.build_translation_key('title')
+        keys << model.build_translation_key('short_description')
+      end
+      q = 'name:' + keys.join(',')
+      params = PhraseApp::RequestParams::KeysTagParams.new(tags: tags, q: q)
+      records_affected += @client.keys_tag(@project_id, params).first.records_affected
+    end
+
+    records_affected
   end
 
   def sync_all_translations
