@@ -4,12 +4,7 @@ class PhraseAppClient
 
   def initialize(project_id: nil, token: nil)
     @project_id =
-      project_id ||
-        if Rails.env.production?
-          Settings.phraseapp.project_id
-        else
-          Settings.phraseapp.test_project_id
-        end || ''
+      project_id || default_project_id
     @token = token || Settings.phraseapp.api_token || ''
 
     credentials = PhraseApp::Auth::Credentials.new(token: @token)
@@ -213,6 +208,14 @@ class PhraseAppClient
   end
 
   private
+
+  def default_project_id
+    if Rails.env.production?
+      Settings.phraseapp.project_id
+    else
+      Settings.phraseapp.test_project_id
+    end || ''
+  end
 
   def download_locale(locale, include_empty_translations = false)
     params = PhraseApp::RequestParams::LocaleDownloadParams.new(

@@ -3,10 +3,7 @@ module Dev
 
     class << self
       def seed_now
-        client = PhraseAppClient.new(
-          project_id: Settings.phraseapp.test_project_id,
-          token: Settings.phraseapp.api_token
-        )
+        client = PhraseAppClient.new
 
         puts 'Cleaning up phraseapp.'
         delete_count = client.delete_all_keys
