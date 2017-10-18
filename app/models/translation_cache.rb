@@ -9,12 +9,12 @@ class TranslationCache < ApplicationRecord
       cached_entry =
         TranslationCache.find_by(
           cacheable_id: translation[:id],
-          cacheable_type: translation[:type],
+          cacheable_type: translation[:type].capitalize,
           language: translation[:language]
         ) ||
           TranslationCache.new(
             cacheable_id: translation[:id],
-            cacheable_type: translation[:type],
+            cacheable_type: translation[:type].capitalize,
             language: translation[:language]
           )
 
