@@ -1,4 +1,4 @@
-class TranslationSyncJob < ActiveJob::Base
+class BackendToPhraseappSyncJob < ActiveJob::Base
   queue_as :default
 
   def perform
