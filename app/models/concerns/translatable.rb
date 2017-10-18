@@ -86,7 +86,9 @@ module Translatable
   end
 
   def set_had_changes
-    @had_changes = changed?
+    # jsonapi calls two times save where the second call won't have changes anymore
+    # hence we only allow setting changes to true :-)
+    @had_changes = true if changed?
   end
 
   def sync_fapi_after_change
