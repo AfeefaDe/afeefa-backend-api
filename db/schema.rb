@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171011154428) do
+ActiveRecord::Schema.define(version: 20171018203353) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -186,15 +186,6 @@ ActiveRecord::Schema.define(version: 20171011154428) do
     t.datetime "updated_at",   null: false
     t.index ["catable_type", "catable_id"], name: "index_thing_category_relations_on_catable_type_and_catable_id", using: :btree
     t.index ["category_id"], name: "index_thing_category_relations_on_category_id", using: :btree
-  end
-
-  create_table "translation_cache_meta_data", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "locale"
-    t.datetime "locked_at"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.string   "area",       default: "dresden"
-    t.index ["area"], name: "index_translation_cache_meta_data_on_area", using: :btree
   end
 
   create_table "translation_caches", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
