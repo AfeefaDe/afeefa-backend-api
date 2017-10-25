@@ -17,6 +17,7 @@ class Orga < ApplicationRecord
   alias_attribute :parent_id, :parent_orga_id
 
   has_many :events
+  has_many :resources
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
   # has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user
@@ -60,7 +61,7 @@ class Orga < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(annotations category sub_category).freeze
+      %i(resources annotations category sub_category).freeze
     end
   end
 

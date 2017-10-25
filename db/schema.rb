@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171011154428) do
+ActiveRecord::Schema.define(version: 20171025102055) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -167,6 +167,20 @@ ActiveRecord::Schema.define(version: 20171011154428) do
     t.index ["thingable_type", "thingable_id"], name: "index_owner_thing_relations_on_thingable_type_and_thingable_id", using: :btree
   end
 
+  create_table "resources", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "name",               null: false
+    t.string   "description"
+    t.string   "tags"
+    t.integer  "orga_id"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.string   "image_file_name"
+    t.string   "image_content_type"
+    t.integer  "image_file_size"
+    t.datetime "image_updated_at"
+    t.index ["orga_id"], name: "index_resources_on_orga_id", using: :btree
+  end
+
   create_table "roles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.integer  "user_id"
@@ -186,15 +200,6 @@ ActiveRecord::Schema.define(version: 20171011154428) do
     t.datetime "updated_at",   null: false
     t.index ["catable_type", "catable_id"], name: "index_thing_category_relations_on_catable_type_and_catable_id", using: :btree
     t.index ["category_id"], name: "index_thing_category_relations_on_category_id", using: :btree
-  end
-
-  create_table "translation_cache_meta_data", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "locale"
-    t.datetime "locked_at"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.string   "area",       default: "dresden"
-    t.index ["area"], name: "index_translation_cache_meta_data_on_area", using: :btree
   end
 
   create_table "translation_caches", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
