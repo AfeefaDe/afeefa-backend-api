@@ -82,7 +82,10 @@ gem 'pry-byebug'
 gem 'phraseapp-ruby'
 
 # cron
-gem 'whenever', require: false
+gem 'whenever', '~> 0.9.7', require: false
+
+# image
+gem 'paperclip', '~> 5.1'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

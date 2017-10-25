@@ -1,21 +1,16 @@
 {
   "data": {
     "attributes": {
-      "title": "some title",
-      //      "active":true,
-      "description": "iwefowihjf",
+      "title": "some unique title",
+      "active": true,
+      "description": "",
       "short_description": "short description",
+      "inheritance": "short_description",
       "created_at": null,
       "updated_at": null,
       "state_changed_at": null
     },
     "relationships": {
-      //      "parent_orga":{
-      //        "data":{
-      //          "type":"orgas",
-      //          "id":"683"
-      //        }
-      //      },
       "category": {
         "data": {
           "type": "categories",
@@ -41,32 +36,24 @@
         ]
       },
       "annotations": {
-        "data": [
-          {
-            "type": "annotations",
-            "attributes": {
-              "detail": "foo-bar",
-              "annotation_category_id": "<annotation_category_id_1>"
-            }
-          },
-          {
-            "type": "annotations",
-            "attributes": {
-              "detail": "foo-bar",
-              "annotation_category_id": "<annotation_category_id_2>"
-            }
-          }
-        ]
+        "data": []
       },
       "locations": {
+        "data": []
+      },
+      "resource_items": {
         "data": [
           {
             "attributes": {
-              "street": "Ernst Nier Straße 8",
-              "city": "Beierfeld",
-              "placename": ""
+              "title": "resource 1"
             },
-            "type": "locations"
+            "type": "resource_items"
+          },
+          {
+            "attributes": {
+              "title": "resource 2"
+            },
+            "type": "resource_items"
           }
         ]
       }

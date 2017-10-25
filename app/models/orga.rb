@@ -17,6 +17,7 @@ class Orga < ApplicationRecord
   alias_attribute :parent_id, :parent_orga_id
 
   has_many :events
+  has_many :resource_items
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
   # has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user
@@ -56,7 +57,7 @@ class Orga < ApplicationRecord
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(locations contact_infos parent_orga sub_orgas)).freeze
+      (default_relations_for_json + %i(resource_items locations contact_infos parent_orga sub_orgas)).freeze
     end
 
     def default_relations_for_json

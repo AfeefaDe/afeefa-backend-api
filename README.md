@@ -69,6 +69,11 @@ Attach your local IDE debugger. VSCode example config:
 `rails test -n /given\ orga/`
 `tail -f log/test.log | grep 'Test: '`
 
+## Development
+
+create dummy resources using the following rake task:
+`bundle exec rake dev:create_resources`
+
 ## Maintenance Tasks
 
 To be called locally 'on my machine' and run remotely:

@@ -25,6 +25,7 @@ class OrgaTest < ActiveSupport::TestCase
 
     assert json = JSON.parse(orga.to_json)
     assert json['attributes'].key?('support_wanted_detail')
+    assert json['relationships'].key?('resource_items')
   end
 
   should 'validate length of support_wanted_detail' do
