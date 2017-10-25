@@ -20,7 +20,10 @@ module Translatable
 
     after_save :update_or_create_translations,
       if: -> { (Settings.phraseapp.active || force_translation_after_save) }
-    after_save :sync_fapi_after_change,
+
+    after_save :set_had_changes,
+      if: -> { (Settings.afeefa.fapi_sync_active || force_sync_fapi_after_save) }
+    after_commit :sync_fapi_after_change, on: [:create, :update],
       if: -> { (Settings.afeefa.fapi_sync_active || force_sync_fapi_after_save) }
 
     after_destroy :destroy_translations,
@@ -82,14 +85,21 @@ module Translatable
     end
   end
 
+  def set_had_changes
+    # jsonapi calls two times save where the second call won't have changes anymore
+    # hence we only allow setting changes to true :-)
+    @had_changes = true if changed?
+  end
+
   def sync_fapi_after_change
-    if changed?
+    if @had_changes
       entries_to_update = get_entries_to_update_in_frontend
       if entries_to_update.any?
         entries_to_update.each do |entry|
           fapi_client.entry_updated(entry)
         end
       end
+      @had_changes = false
     end
   end
 
@@ -132,13 +142,14 @@ module Translatable
   def get_entries_to_update_in_frontend
     changed_entries = [self]
 
-    return changed_entries if !changed?
+    return changed_entries if !@had_changes
 
     parent_orga_changes = nil
 
     # parent orga, currently not necessary since entries are fully indepentent in fapi
+    # when activating, please keep track of actual changes in after_save hook 'set_had_changes'
 
-    # if changes.key?('parent_orga_id') # orga.orag
+    # if changes.key?('parent_orga_id') # orga.orga
     #   parent_orga_changes = changes['parent_orga_id']
     # elsif changes.key?('orga_id') # event.orga
     #   parent_orga_changes = changes['orga_id']

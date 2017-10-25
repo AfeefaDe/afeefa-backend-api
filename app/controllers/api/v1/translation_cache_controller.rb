@@ -6,7 +6,7 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
   skip_before_action :ensure_token, except: :phraseapp_webhook
 
   def update
-    TranslationCacheJob.perform_later
+    PhraseappToBackendSyncJob.perform_later
     render json: {msg: 'translation cache update was triggered'}, status: :ok
   end
 

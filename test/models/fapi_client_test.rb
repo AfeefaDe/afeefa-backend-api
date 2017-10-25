@@ -81,10 +81,13 @@ class FapiClientTest < ActiveSupport::TestCase
   end
 
   should 'build correct url' do
-    params = { test: 'xyz', foo: 'bar' }
+    params = { test: 'xyz', foo: 'bar', token: Settings.afeefa.fapi_webhook_api_token }
+    result = mock()
+    result.stubs(:body).returns({status: 'ok'}.to_json)
     Net::HTTP.any_instance.expects(:request).with do |request|
-      assert_equal "#{Settings.afeefa.fapi_url}?test=xyz&foo=bar", request.path
-    end
+      assert_equal "#{Settings.afeefa.fapi_url}/changes_webhook?#{params.to_query}", request.path
+      true
+    end.returns(result)
     FapiClient.new.send(:request, params)
   end
 

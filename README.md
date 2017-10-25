@@ -68,3 +68,17 @@ Attach your local IDE debugger. VSCode example config:
 `rails test -n /face\|author/`
 `rails test -n /given\ orga/`
 `tail -f log/test.log | grep 'Test: '`
+
+## Maintenance Tasks
+
+To be called locally 'on my machine' and run remotely:
+
+*sync dev|production database entries to phraseapp*
+This command will harmonize all keys and tags between both worlds.
+
+`cap [dev|production] translation:sync_out`
+
+*sync phraseapp translations to dev|production database
+This command updates the according dev|production translation caching table.
+
+`cap [dev|production] translation:sync_in`

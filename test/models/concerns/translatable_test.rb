@@ -234,12 +234,12 @@ class TranslatableTest < ActiveSupport::TestCase
   end
 
   should 'trigger fapi if force_sync_fapi_after_save is set' do
-    orga = build(:orga)
+    orga = create(:orga)
     orga.force_sync_fapi_after_save = true
 
-    FapiClient.any_instance.expects(:request)
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
 
-    orga.save
+    orga.update(title: 'new title for orga')
   end
 
   # currently not necessary since entries have no dependencies on other entries in fapi

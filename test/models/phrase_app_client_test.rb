@@ -98,6 +98,10 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     @client.delete_tag('leipzig')
 
     assert_equal 0, @client.get_count_keys_for_tag('leipzig')
+
+    # handle key not found
+
+    @client.delete_tag('leipzig')
   end
 
   should 'delete all area tags' do
