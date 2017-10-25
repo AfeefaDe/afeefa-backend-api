@@ -40,7 +40,7 @@
       "resources": {
         "data": [
           {
-            "type": "resources",
+            "type": "resource_items",
             "id": "<resource_id_1>",
             "attributes": {
               "title": "foo-bar"

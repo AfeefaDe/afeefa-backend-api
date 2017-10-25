@@ -41,19 +41,19 @@
       "locations": {
         "data": []
       },
-      "resources": {
+      "resource_items": {
         "data": [
           {
             "attributes": {
               "title": "resource 1"
             },
-            "type": "resources"
+            "type": "resource_items"
           },
           {
             "attributes": {
               "title": "resource 2"
             },
-            "type": "resources"
+            "type": "resource_items"
           }
         ]
       }

@@ -1,4 +1,4 @@
-class Resource < ApplicationRecord
+class ResourceItem < ApplicationRecord
 
   include Jsonable
 
@@ -28,7 +28,7 @@ class Resource < ApplicationRecord
 
     def default_attributes_for_json
       # %i(title description url).freeze
-      %i(title description).freeze
+      %i(title description created_at updated_at).freeze
     end
 
     def relation_whitelist_for_json
@@ -73,7 +73,7 @@ class Resource < ApplicationRecord
     end
     20.times do |i|
       orga_id = Orga.find_by(id: (i % 2)).try(:id) || Orga.last.id
-      Resource.create!(
+      ResourceItem.create!(
         title: "dummy resource #{i}",
         description: "belongs to orga with id #{orga_id}",
         orga_id: orga_id)

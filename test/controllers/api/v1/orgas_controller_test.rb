@@ -134,7 +134,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'get show with resources' do
-        resource = Resource.create!(title: 'test resource', description: 'demo test', orga: @orga)
+        resource = ResourceItem.create!(title: 'test resource', description: 'demo test', orga: @orga)
 
         get :show, params: { id: @orga.id }
         assert_response :ok, response.body
@@ -180,8 +180,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: AnnotationCategory.first)
         end
         annotation = orga.reload.annotations.last
-        assert_difference 'Resource.count' do
-          Resource.create!(title: 'ganz wichtige Ressource', orga: orga)
+        assert_difference 'ResourceItem.count' do
+          ResourceItem.create!(title: 'ganz wichtige Ressource', orga: orga)
         end
         resource = orga.reload.resources.last
 
@@ -190,7 +190,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             assert_no_difference 'Location.count' do
               assert_no_difference 'Annotation.count' do
                 assert_no_difference 'AnnotationCategory.count' do
-                  assert_no_difference 'Resource.count' do
+                  assert_no_difference 'ResourceItem.count' do
                     post :update,
                       params: {
                         id: orga.id,
@@ -430,7 +430,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         end
 
         assert_difference 'Orga.count' do
-          assert_difference 'Resource.count', 2 do
+          assert_difference 'ResourceItem.count', 2 do
             post :create, params: params
             assert_response :created, response.body
           end
@@ -439,7 +439,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         response_json = JSON.parse(response.body)
         new_orga_id = response_json['data']['id']
 
-        resources = Resource.order(id: :desc)[0..1]
+        resources = ResourceItem.order(id: :desc)[0..1]
         resources.each do |resource|
           assert_equal new_orga_id.to_s, resource.orga_id.to_s
         end

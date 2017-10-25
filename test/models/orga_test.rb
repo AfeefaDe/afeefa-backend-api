@@ -25,7 +25,6 @@ class OrgaTest < ActiveSupport::TestCase
 
     assert json = JSON.parse(orga.to_json)
     assert json['attributes'].key?('support_wanted_detail')
-    pp json
     assert json['relationships'].key?('resources')
   end
 
