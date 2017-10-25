@@ -135,7 +135,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'get show with resources' do
         resource = Resource.create!(title: 'test resource', description: 'demo test', orga: @orga)
-        pp resource
 
         get :show, params: { id: @orga.id }
         assert_response :ok, response.body
