@@ -15,6 +15,9 @@ class ResourceItem < ApplicationRecord
   # validations to prevent mysql errors
   validates :title, length: { maximum: 255 }
   validates :description, length: { maximum: 255 }
+  validates :tags, length: { maximum: 255 }
+
+
 
   # HOOKS
   # before_save :decode_base64_image
@@ -28,7 +31,7 @@ class ResourceItem < ApplicationRecord
 
     def default_attributes_for_json
       # %i(title description url).freeze
-      %i(title description created_at updated_at).freeze
+      %i(title description tags created_at updated_at).freeze
     end
 
     def relation_whitelist_for_json

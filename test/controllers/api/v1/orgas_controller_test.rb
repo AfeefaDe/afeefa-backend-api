@@ -183,7 +183,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_difference 'ResourceItem.count' do
           ResourceItem.create!(title: 'ganz wichtige Ressource', orga: orga)
         end
-        resource = orga.reload.resources.last
+        resource = orga.reload.resource_items.last
 
         assert_no_difference 'Orga.count' do
           assert_no_difference 'ContactInfo.count' do
