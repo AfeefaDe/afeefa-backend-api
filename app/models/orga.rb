@@ -57,11 +57,11 @@ class Orga < ApplicationRecord
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(locations contact_infos parent_orga sub_orgas)).freeze
+      (default_relations_for_json + %i(resources locations contact_infos parent_orga sub_orgas)).freeze
     end
 
     def default_relations_for_json
-      %i(resources annotations category sub_category).freeze
+      %i(annotations category sub_category).freeze
     end
   end
 

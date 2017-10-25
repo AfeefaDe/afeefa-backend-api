@@ -22,8 +22,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal Orga.last.to_hash.deep_stringify_keys, json['data'].last
       assert_equal Orga.last.active, json['data'].last['attributes']['active']
 
-      assert !json['data'].last['attributes'].key?('support_wanted_detail')
+      assert_not json['data'].last['attributes'].key?('support_wanted_detail')
       assert json['data'].last['attributes'].key?('inheritance')
+      assert_not json['data'].last['relationships'].key?('resources')
     end
 
     should 'get index only data of area of user' do
@@ -132,6 +133,19 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal Orga.relation_whitelist_for_json.sort, json['data']['relationships'].symbolize_keys.keys.sort
       end
 
+      should 'get show with resources' do
+        resource = Resource.create!(title: 'test resource', description: 'demo test', orga: @orga)
+        pp resource
+
+        get :show, params: { id: @orga.id }
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_kind_of Hash, json['data']
+        assert_equal false, json['data']['attributes']['active']
+        assert_equal Orga.attribute_whitelist_for_json.sort, json['data']['attributes'].symbolize_keys.keys.sort
+        assert_equal Orga.relation_whitelist_for_json.sort, json['data']['relationships'].symbolize_keys.keys.sort
+      end
+
       should 'update should fail for invalid' do
         assert_no_difference 'Orga.count' do
           assert_no_difference 'AnnotationCategory.count' do
@@ -167,26 +181,33 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: AnnotationCategory.first)
         end
         annotation = orga.reload.annotations.last
+        assert_difference 'Resource.count' do
+          Resource.create!(title: 'ganz wichtige Ressource', orga: orga)
+        end
+        resource = orga.reload.resources.last
 
         assert_no_difference 'Orga.count' do
           assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
               assert_no_difference 'Annotation.count' do
                 assert_no_difference 'AnnotationCategory.count' do
-                  post :update,
-                    params: {
-                      id: orga.id,
-                    }.merge(
-                      parse_json_file(
-                        file: 'update_orga_with_nested_models.json'
-                      ) do |payload|
-                        payload.gsub!('<id>', orga.id.to_s)
-                        payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-                        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-                        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-                      end
-                    )
-                  assert_response :ok, response.body
+                  assert_no_difference 'Resource.count' do
+                    post :update,
+                      params: {
+                        id: orga.id,
+                      }.merge(
+                        parse_json_file(
+                          file: 'update_orga_with_nested_models.json'
+                        ) do |payload|
+                          payload.gsub!('<id>', orga.id.to_s)
+                          payload.gsub!('<annotation_id_1>', annotation.id.to_s)
+                          payload.gsub!('<resource_id_1>', resource.id.to_s)
+                          payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                          payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+                        end
+                      )
+                    assert_response :ok, response.body
+                  end
                 end
               end
             end
@@ -199,6 +220,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal 1, Orga.last.annotations.count
         assert_equal annotation, Orga.last.annotations.first
         assert_equal 'foo-bar', annotation.reload.detail
+        assert_equal 1, Orga.last.resources.count
+        assert_equal resource, Orga.last.resources.first
+        assert_equal 'foo-bar', resource.reload.title
       end
 
       should 'deactivate an inactive invalid orga' do
@@ -398,6 +422,28 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         #todo: ticket #276 somehow in create methode parent_orga is set to 1 (ROOT_ORGA) so inheritance gets unset, but WHY!!! #secondsave
         assert_equal inh, response_json['data']['attributes']['inheritance']
         assert_not_nil response_json['data']['attributes']['inheritance']
+      end
+
+      should 'create new orga with resources' do
+        params = parse_json_file file: 'create_orga_with_resources.json' do |payload|
+          payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+          payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+        end
+
+        assert_difference 'Orga.count' do
+          assert_difference 'Resource.count', 2 do
+            post :create, params: params
+            assert_response :created, response.body
+          end
+        end
+
+        response_json = JSON.parse(response.body)
+        new_orga_id = response_json['data']['id']
+
+        resources = Resource.order(id: :desc)[0..1]
+        resources.each do |resource|
+          assert_equal new_orga_id.to_s, resource.orga_id.to_s
+        end
       end
     end
   end

@@ -36,6 +36,17 @@
             }
           }
         ]
+      },
+      "resources": {
+        "data": [
+          {
+            "type": "resources",
+            "id": "<resource_id_1>",
+            "attributes": {
+              "title": "foo-bar"
+            }
+          }
+        ]
       }
     },
     "type": "orgas"

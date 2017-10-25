@@ -27,7 +27,8 @@ class Resource < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(name description url).freeze
+      # %i(title description url).freeze
+      %i(title description).freeze
     end
 
     def relation_whitelist_for_json
@@ -39,6 +40,10 @@ class Resource < ApplicationRecord
     end
   end
 
+  # def url
+  #   image.url
+  # end
+  #
   # def decode_base64_image
   #   if image_data && content_type && original_filename
   #     decoded_data = Base64.decode64(image_data)

@@ -168,7 +168,7 @@ ActiveRecord::Schema.define(version: 20171025102055) do
   end
 
   create_table "resources", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "name",               null: false
+    t.string   "title",              null: false
     t.string   "description"
     t.string   "tags"
     t.integer  "orga_id"
