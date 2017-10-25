@@ -60,4 +60,24 @@ class Resource < ApplicationRecord
   #   end
   # end
 
+  def self.create_dummy_data
+    # demo resources
+    if Orga.count < 5
+      flag = Settings.phraseapp.active
+      Settings.phraseapp.active = false
+      5.times do |i|
+        orga = Orga.new(title: "unique orga #{i}")
+        orga.save(validate: false)
+      end
+      Settings.phraseapp.active = flag
+    end
+    20.times do |i|
+      orga_id = Orga.find_by(id: (i % 2)).try(:id) || Orga.last.id
+      Resource.create!(
+        title: "dummy resource #{i}",
+        description: "belongs to orga with id #{orga_id}",
+        orga_id: orga_id)
+    end
+  end
+
 end
