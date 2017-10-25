@@ -55,9 +55,9 @@ class FacebookClient
       event1_start = Time.zone.parse(event1['start_time']).to_i rescue nil
       event2_start = Time.zone.parse(event2['start_time']).to_i rescue nil
       if event1_end.present? || event2_end.present?
-        event1_end <=> event2_end
+        event1_end <=> event2_end || -1
       else
-        event1_start <=> event2_start
+        event1_start <=> event2_start || -1
       end
     end
   end
