@@ -283,6 +283,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_equal StateMachine::ACTIVE.to_s, Event.last.state
       assert_equal true, json['data']['attributes']['active']
+      assert_equal false, json['data']['attributes']['upcoming']
       assert_includes AnnotationCategory.first.events, Event.last
       assert_includes AnnotationCategory.second.events, Event.last
 
