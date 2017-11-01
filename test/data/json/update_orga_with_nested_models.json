@@ -37,7 +37,7 @@
           }
         ]
       },
-      "resources": {
+      "resource_items": {
         "data": [
           {
             "type": "resource_items",
