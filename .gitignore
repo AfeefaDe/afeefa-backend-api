@@ -20,8 +20,7 @@
 # Ignore rubymine project files
 /.idea
 /.idea/*
-/.vscode
-/.vscode/*
+.vscode
 
 # Coverage
 /coverage
