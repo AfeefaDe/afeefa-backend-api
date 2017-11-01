@@ -7,7 +7,7 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
 
   def update
     PhraseappToBackendSyncJob.perform_later
-    render json: {msg: 'translation cache update was triggered'}, status: :ok
+    render json: { msg: 'translation cache update was triggered' }, status: :ok
   end
 
   def phraseapp_webhook
@@ -27,25 +27,24 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
           short_description: field == 'short_description' ? content : nil,
           language: language
         )
-        render json: {status: 'ok'}, status: :created
+        render json: { status: 'ok' }, status: :created
       else
         TranslationCache.where(
           cacheable_type: type,
           cacheable_id: id,
           language: language
-          ).update(field => content)
-        render json: {status: 'ok'}, status: :ok
+        ).update(field => content)
+        render json: { status: 'ok' }, status: :ok
       end
 
       fapi_client.entry_translated(entry, language)
     end
-
   end
 
   def index
     timestamp = TranslationCache.minimum(:updated_at) || Time.at(0)
 
-    render json: {updated_at: timestamp}
+    render json: { updated_at: timestamp }
   end
 
   private
