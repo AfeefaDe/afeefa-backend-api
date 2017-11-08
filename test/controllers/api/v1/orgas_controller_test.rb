@@ -219,8 +219,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal 1, Orga.last.annotations.count
         assert_equal annotation, Orga.last.annotations.first
         assert_equal 'foo-bar', annotation.reload.detail
-        assert_equal 1, Orga.last.resources.count
-        assert_equal resource, Orga.last.resources.first
+        assert_equal 1, Orga.last.resource_items.count
+        assert_equal resource, Orga.last.resource_items.first
         assert_equal 'foo-bar', resource.reload.title
       end
 
@@ -424,7 +424,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'create new orga with resources' do
-        params = parse_json_file file: 'create_orga_with_resources.json' do |payload|
+        params = parse_json_file file: 'create_orga_with_nested_models.json' do |payload|
           payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
           payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
         end

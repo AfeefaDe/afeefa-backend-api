@@ -69,6 +69,22 @@
             "type": "locations"
           }
         ]
+      },
+      "resource_items": {
+        "data": [
+          {
+            "attributes": {
+              "title": "title of resource"
+            },
+            "type": "resource_items"
+          },
+          {
+            "attributes": {
+              "title": "resource2"
+            },
+            "type": "resource_items"
+          }
+        ]
       }
     },
     "type": "orgas"
