@@ -1,5 +1,7 @@
 module Filter
 
+  extend ActiveSupport::Concern
+
   private
 
   def apply_filter!(filter, filter_criterion, objects)

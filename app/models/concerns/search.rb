@@ -1,5 +1,7 @@
 module Search
 
+  extend ActiveSupport::Concern
+
   def search(terms, attributes, objects, attributes_operator: 'OR', terms_operator: 'AND')
     search_with_custom_operators(terms, attributes, objects, attributes_operator, terms_operator)
   end
