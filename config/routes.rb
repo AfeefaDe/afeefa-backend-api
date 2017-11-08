@@ -35,10 +35,11 @@ Rails.application.routes.draw do
 
         #routes.call, generates /sign_in and /sign_out and probably more ;-)
         mount_devise_token_auth_for 'User',
-                                    at: 'users',
-                                    controllers: {
-                                        sessions: 'api/v1/sessions'
-                                    }
+          at: 'users',
+          controllers: {
+            sessions: 'api/v1/sessions',
+            token_validations: 'api/v1/token_validations'
+          }
 
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
