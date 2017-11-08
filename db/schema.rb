@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171101124044) do
+ActiveRecord::Schema.define(version: 20171108104417) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -36,6 +36,17 @@ ActiveRecord::Schema.define(version: 20171101124044) do
     t.string   "area",       default: "dresden"
     t.index ["area"], name: "index_categories_on_area", using: :btree
     t.index ["parent_id"], name: "index_categories_on_parent_id", using: :btree
+  end
+
+  create_table "chapters", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "title",                     null: false
+    t.text     "content",     limit: 65535
+    t.integer  "order"
+    t.string   "area"
+    t.integer  "category_id"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.index ["category_id"], name: "index_chapters_on_category_id", using: :btree
   end
 
   create_table "contact_infos", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
