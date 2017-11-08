@@ -115,11 +115,11 @@ namespace :deploy do
 
   task :seed_db do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
-      within release_path do
+      within current_path do
         if fetch(:stage).to_s == 'production'
           execute 'echo seed job is skipped for stage production'
         else
-          execute "cd #{release_path} && RAILS_ENV=production bundle exec rake db:seed"
+          execute "cd #{current_path} && RAILS_ENV=production bundle exec rake db:seed"
         end
       end
     end
@@ -127,8 +127,8 @@ namespace :deploy do
 
   task :update_crontab do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
-      within release_path do
-        execute "cd #{release_path} && RAILS_ENV=production bundle exec whenever --update-crontab"
+      within current_path do
+        execute "cd #{current_path} && RAILS_ENV=production bundle exec whenever --update-crontab"
       end
     end
   end
