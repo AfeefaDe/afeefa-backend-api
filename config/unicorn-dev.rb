@@ -1,3 +1,6 @@
+# Important: To get this file used add the following param to your start script:
+# bundle exec unicorn_rails -c /home/afeefa/rails/afeefa-backend-api-dev/current/config/unicorn-dev.rb
+
 # Sample verbose configuration file for Unicorn (not Rack)
 #
 # This configuration file documents many features of Unicorn
@@ -19,7 +22,7 @@ worker_processes 4
 # user, do this to switch euid/egid in the workers (also chowns logs):
 # user "unprivileged_user", "unprivileged_group"
 
-APP_ROOT = '/home/afeefa/rails/afeefa-backend/current'
+APP_ROOT = '/home/afeefa/rails/afeefa-backend-api-dev/current'
 
 # Help ensure your application will always spawn in the symlinked
 # "current" directory that Capistrano sets up.
