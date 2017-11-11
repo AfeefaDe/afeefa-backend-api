@@ -36,10 +36,14 @@ class FapiClient
     path << "?#{params.to_query}" if params.keys.any?
     url = URI.parse(Settings.afeefa.fapi_url + path)
     request = Net::HTTP::Get.new(url.to_s)
-    response = Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == 'https') do |http|
-      http.request(request)
+    begin
+      response = Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == 'https') do |http|
+        http.request(request)
+      end
+      response.body
+    rescue StandardError
+      Rails.logger.debug('fapi sync did not succeed. service not available')
     end
-    response.body
   end
 
 end
