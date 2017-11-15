@@ -116,6 +116,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       user = @controller.current_api_v1_user
       assert_equal user.area, Orga.last.area
+      assert_equal user.id, Orga.last.creator_id
+      assert_equal user.id, Orga.last.last_editor_id
     end
 
     context 'with given orga' do
@@ -222,6 +224,11 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal 1, Orga.last.resource_items.count
         assert_equal resource, Orga.last.resource_items.first
         assert_equal 'foo-bar', resource.reload.title
+
+        user = @controller.current_api_v1_user
+        assert_equal user.area, Orga.last.area
+        assert_equal user.id, Orga.last.creator_id
+        assert_equal user.id, Orga.last.last_editor_id
       end
 
       should 'deactivate an inactive invalid orga' do
