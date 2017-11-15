@@ -106,8 +106,6 @@ group :development, :test do
   gem 'rails_best_practices'
   gem 'bullet'
 
-  gem 'spring'
-
   # code coverage
   gem 'simplecov', require: false
 
