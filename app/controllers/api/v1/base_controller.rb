@@ -44,10 +44,15 @@ class Api::V1::BaseController < ApplicationController
     render_objects_to_json(@objects)
   end
 
+  # def create
+  #   binding.pry
+  #   super
+  # end
+
   def update
     params_hash = params['data']['attributes'].to_unsafe_h
     if params_hash.in?([{ 'active' => 'false' }, { 'active' => 'false' }]) &&
-      !params['data'].key?('relationships')
+        !params['data'].key?('relationships')
       object = @objects.find(params[:id])
       active = params_hash['active']
 
@@ -64,6 +69,7 @@ class Api::V1::BaseController < ApplicationController
         render_errors(object.errors)
       end
     else
+      # binding.pry
       super
     end
   end
@@ -80,12 +86,16 @@ class Api::V1::BaseController < ApplicationController
     render json: { data: json_hash }
   end
 
-  def render_single_object_to_json(object)
-    render json: {
-      data: object.send(to_hash_method,
-        attributes: object.class.attribute_whitelist_for_json,
-        relationships: object.class.relation_whitelist_for_json)
-    }
+  def render_single_object_to_json(object, status: nil)
+    render(
+      status: status || 200,
+      json: {
+        data:
+          object.send(to_hash_method,
+            attributes: object.class.attribute_whitelist_for_json,
+            relationships: object.class.relation_whitelist_for_json)
+      }
+    )
   end
 
   def to_hash_method
@@ -157,15 +167,27 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def render_results(operation_results)
-    response_doc = create_response_document(operation_results)
-    content = response_doc.contents
+    # binding.pry
+    # response_doc = create_response_document(operation_results)
+    # content = response_doc.contents
+    model =
+    if operation_results.results.first && operation_results.results.first.respond_to?(:resource)
+      operation_results.results.first.resource._model
+    end
 
-    if content.blank? || content.key?(:data) && content[:data].nil?
-      error =
-        JSONAPI::Exceptions::RecordNotFound.new(params[:id].presence || '(id not given)')
-      render_errors(error.errors)
-    else
+    # if content.blank? || content.key?(:data) && content[:data].nil?
+    if model.blank?
       super
+      # error =
+      #   JSONAPI::Exceptions::RecordNotFound.new(params[:id].presence || '(id not given)')
+      # render_errors(error.errors)
+    else
+      # super
+      status =
+        if params[:action].to_s == 'create'
+          201
+        end
+      render_single_object_to_json(model, status: status)
     end
   end
 
@@ -177,14 +199,9 @@ class Api::V1::BaseController < ApplicationController
     @resource_serializer_klass ||= Api::V1::BaseSerializer
   end
 
-  def render_results(operation_results)
-    # binding.pry
-    super
-  end
-
-  def render_errors(errors)
-    super
-  end
+  # def render_errors(errors)
+  #   super
+  # end
 
   def serialization_options
     # binding.pry

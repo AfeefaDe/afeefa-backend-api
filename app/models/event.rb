@@ -97,6 +97,12 @@ class Event < ApplicationRecord
   end
   alias_method :past, :past?
 
+  def orga_to_hash
+    if orga && !orga.root_orga?
+      orga.to_hash
+    end
+  end
+
   private
 
   def deny_destroy_if_associated_objects_present

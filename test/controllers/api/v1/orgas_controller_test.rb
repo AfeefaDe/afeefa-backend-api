@@ -105,7 +105,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       # ensure parent orga handling, do not render root_orga into relations
       assert_equal Orga.root_orga.id, Orga.last.parent_id
       parent_orga_json = json['data']['relationships']['parent_orga']
-      assert(parent_orga_json.blank?, 'Parent Orga should not be present in json relations.')
+      # TODO: Do we need this assertion? Can the UI handle that?
+      assert(parent_orga_json.blank?, 'Root Orga should not be present in json relations.')
 
       # Then we could deliver the mapping there
       %w(annotations locations contact_infos).each do |relation|

@@ -99,6 +99,12 @@ class Orga < ApplicationRecord
     title == ROOT_ORGA_TITLE
   end
 
+  def parent_orga_to_hash
+    if parent_orga && !parent_orga.root_orga?
+      parent_orga.to_hash
+    end
+  end
+
   private
 
   def set_parent_orga_as_default
