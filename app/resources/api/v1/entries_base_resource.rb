@@ -6,6 +6,7 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
     :title, :description, :short_description, :created_at, :updated_at,
     :media_url, :media_type, :support_wanted, :support_wanted_detail,
     :certified_sfr, :tags,
+    :creator_id, :last_editor_id,
     :state_changed_at, :active, :inheritance]
   # define attributes in sub class like this:
   # attributes *ATTRIBUTES
