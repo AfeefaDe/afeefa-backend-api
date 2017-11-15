@@ -57,7 +57,8 @@ class Event < ApplicationRecord
     def default_attributes_for_json
       %i(title created_at updated_at state_changed_at
           date_start date_end upcoming
-          has_time_start has_time_end active inheritance).freeze
+          has_time_start has_time_end active inheritance
+          creator_id last_editor_id).freeze
     end
 
     def relation_whitelist_for_json
