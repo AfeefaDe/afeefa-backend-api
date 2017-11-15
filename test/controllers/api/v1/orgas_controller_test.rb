@@ -118,6 +118,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal user.area, Orga.last.area
       assert_equal user.id, Orga.last.creator_id
       assert_equal user.id, Orga.last.last_editor_id
+      assert_equal user.id.to_s, json['data']['relationships']['creator']['data']['id']
     end
 
     context 'with given orga' do
@@ -177,7 +178,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       end
 
       should 'update orga with nested attributes' do
-        orga = create(:orga, title: 'foobar')
+        creator = create(:user)
+        orga = create(:orga, title: 'foobar', creator_id: creator.id)
         assert_difference 'Annotation.count' do
           Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: AnnotationCategory.first)
         end
@@ -226,12 +228,14 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal 'foo-bar', resource.reload.title
 
         user = @controller.current_api_v1_user
+        assert_not_equal creator.id, user.id
         assert_equal user.area, Orga.last.area
-        assert_equal user.id, Orga.last.creator_id
+        assert_equal creator.id, Orga.last.creator_id # kept
         assert_equal user.id, Orga.last.last_editor_id
+
         json = JSON.parse(response.body)
-        assert_equal user.id, json['data']['attributes']['creator_id']
-        assert_equal user.id, json['data']['attributes']['last_editor_id']
+        assert_equal creator.id.to_s, json['data']['relationships']['creator']['data']['id']
+        assert_equal user.id.to_s, json['data']['relationships']['last_editor']['data']['id']
       end
 
       should 'deactivate an inactive invalid orga' do

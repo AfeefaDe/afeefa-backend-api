@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   include Owner
+  include Jsonable
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -70,6 +71,17 @@ class User < ApplicationRecord
   #     @user = user
   #   end
   # end
+
+  # CLASS METHODS
+  class << self
+    def attribute_whitelist_for_json
+      default_attributes_for_json.freeze
+    end
+
+    def default_attributes_for_json
+      %i(forename surname organization).freeze
+    end
+  end
 
   def belongs_to_orga?(orga)
     orgas.pluck(:id).include?(orga.id)

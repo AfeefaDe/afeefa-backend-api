@@ -6,7 +6,6 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
     :title, :description, :short_description, :created_at, :updated_at,
     :media_url, :media_type, :support_wanted, :support_wanted_detail,
     :certified_sfr, :tags,
-    :creator_id, :last_editor_id,
     :state_changed_at, :active, :inheritance]
   # define attributes in sub class like this:
   # attributes *ATTRIBUTES
@@ -19,6 +18,8 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
 
   has_one :category
   has_one :sub_category, class_name: 'Category'
+  has_one :creator, class_name: 'User'
+  has_one :last_editor, class_name: 'User'
 
   def active
     _model.state == StateMachine::ACTIVE.to_s

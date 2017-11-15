@@ -53,8 +53,7 @@ class Orga < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(title created_at updated_at state_changed_at active inheritance
-          creator_id last_editor_id).freeze
+      %i(title created_at updated_at state_changed_at active inheritance).freeze
     end
 
     def relation_whitelist_for_json
@@ -62,7 +61,7 @@ class Orga < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(annotations category sub_category).freeze
+      %i(annotations category sub_category creator last_editor).freeze
     end
   end
 

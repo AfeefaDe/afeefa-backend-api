@@ -391,7 +391,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'update event without sub_category' do
-      event = create(:event, title: 'foobar')
+      creator = create(:user)
+      event = create(:event, title: 'foobar', creator_id: creator.id)
       Annotation.create!(detail: 'annotation123', entry: event, annotation_category: AnnotationCategory.first)
       annotation = event.annotations.last
 
@@ -425,13 +426,14 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal Category.main_categories.first.id, event.category_id
 
       user = @controller.current_api_v1_user
+      assert_not_equal creator.id, user.id
       assert_equal user.area, Event.last.area
-      assert_equal user.id, Event.last.creator_id
+      assert_equal creator.id, Event.last.creator_id
       assert_equal user.id, Event.last.last_editor_id
       json = JSON.parse(response.body)
-      assert_equal user.id, json['data']['attributes']['creator_id']
-      assert_equal user.id, json['data']['attributes']['last_editor_id']
-    end
+      assert_equal creator.id.to_s, json['data']['relationships']['creator']['data']['id']
+      assert_equal user.id.to_s, json['data']['relationships']['last_editor']['data']['id']
+  end
 
     should 'destroy event' do
       assert @event = create(:event)

@@ -15,20 +15,11 @@ class Api::V1::EventResource < Api::V1::EntriesBaseResource
   # has_many :ownables, class_name: 'Ownable'
   has_one :orga
 
-  has_one :creator, class_name: 'User'
-
   before_create do
     @model.creator_id = context[:current_user].id
-    @model.last_editor_id = context[:current_user].id
-  end
-
-  before_update do
-    @model.creator_id = context[:current_user].id
-    @model.last_editor_id = context[:current_user].id
   end
 
   before_save do
-    @model.creator_id = context[:current_user].id
     @model.last_editor_id = context[:current_user].id
   end
 
