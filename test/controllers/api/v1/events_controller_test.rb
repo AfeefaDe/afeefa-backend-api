@@ -297,7 +297,9 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       end
 
       user = @controller.current_api_v1_user
-      assert_equal user.area, Orga.last.area
+      assert_equal user.area, Event.last.area
+      assert_equal user.id, Event.last.creator_id
+      assert_equal user.id, Event.last.last_editor_id
     end
 
     should 'An event should only change allowed states' do
@@ -421,6 +423,11 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal annotation.reload, event.annotations.first
       assert_equal 'foo-bar', annotation.reload.detail
       assert_equal Category.main_categories.first.id, event.category_id
+
+      user = @controller.current_api_v1_user
+      assert_equal user.area, Event.last.area
+      assert_equal user.id, Event.last.creator_id
+      assert_equal user.id, Event.last.last_editor_id
     end
 
     should 'destroy event' do

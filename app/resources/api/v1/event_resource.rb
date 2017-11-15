@@ -19,14 +19,17 @@ class Api::V1::EventResource < Api::V1::EntriesBaseResource
 
   before_create do
     @model.creator_id = context[:current_user].id
+    @model.last_editor_id = context[:current_user].id
   end
 
   before_update do
     @model.creator_id = context[:current_user].id
+    @model.last_editor_id = context[:current_user].id
   end
 
   before_save do
     @model.creator_id = context[:current_user].id
+    @model.last_editor_id = context[:current_user].id
   end
 
 end

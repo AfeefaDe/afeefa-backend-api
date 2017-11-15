@@ -261,6 +261,10 @@ class OrgaTest < ActiveSupport::TestCase
       end
       assert_not @orga.reload.deleted?
     end
+
+    should 'set creator and last editor on save' do
+      orga = Orga.create!()
+    end
   end
 
 end

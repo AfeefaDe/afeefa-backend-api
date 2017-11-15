@@ -14,9 +14,9 @@ class Api::V1::MetasController < ApplicationController
       meta: {
         orgas: Orga.by_area(area).count,
         events: {
-          :all => Event.by_area(area).count,
-          :past => Event.by_area(area).past.count,
-          :upcoming => Event.by_area(area).upcoming.count
+          all: Event.by_area(area).count,
+          past: Event.by_area(area).past.count,
+          upcoming: Event.by_area(area).upcoming.count
         },
         todos: Annotation.grouped_by_entries.with_entries.by_area(area).count.count,
       }

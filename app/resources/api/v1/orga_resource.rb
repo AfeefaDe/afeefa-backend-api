@@ -10,4 +10,19 @@ class Api::V1::OrgaResource < Api::V1::EntriesBaseResource
   has_many :events, class_name: 'Event'
   has_many :resource_items, class_name: 'ResourceItem'
 
+  before_create do
+    @model.creator_id = context[:current_user].id
+    @model.last_editor_id = context[:current_user].id
+  end
+
+  before_update do
+    @model.creator_id = context[:current_user].id
+    @model.last_editor_id = context[:current_user].id
+  end
+
+  before_save do
+    @model.creator_id = context[:current_user].id
+    @model.last_editor_id = context[:current_user].id
+  end
+
 end
