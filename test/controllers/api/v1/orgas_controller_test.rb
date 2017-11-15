@@ -229,6 +229,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_equal user.area, Orga.last.area
         assert_equal user.id, Orga.last.creator_id
         assert_equal user.id, Orga.last.last_editor_id
+        json = JSON.parse(response.body)
+        assert_equal user.id, json['data']['attributes']['creator_id']
+        assert_equal user.id, json['data']['attributes']['last_editor_id']
       end
 
       should 'deactivate an inactive invalid orga' do

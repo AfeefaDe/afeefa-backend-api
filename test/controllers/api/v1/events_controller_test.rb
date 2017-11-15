@@ -428,6 +428,9 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal user.area, Event.last.area
       assert_equal user.id, Event.last.creator_id
       assert_equal user.id, Event.last.last_editor_id
+      json = JSON.parse(response.body)
+      assert_equal user.id, json['data']['attributes']['creator_id']
+      assert_equal user.id, json['data']['attributes']['last_editor_id']
     end
 
     should 'destroy event' do
