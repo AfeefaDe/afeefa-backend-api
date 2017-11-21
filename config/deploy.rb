@@ -128,10 +128,6 @@ namespace :deploy do
   task :update_crontab do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       within current_path do
-        puts
-        puts release_path
-        puts current_path
-        puts
         execute "cd #{current_path} && RAILS_ENV=production bundle exec whenever --update-crontab"
       end
     end
