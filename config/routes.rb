@@ -57,6 +57,7 @@ Rails.application.routes.draw do
 
         resources :entries, only: %i(index show)
         resources :todos, only: %i(index show)
+        resources :users, only: %i(update)
       end
     end
   end
