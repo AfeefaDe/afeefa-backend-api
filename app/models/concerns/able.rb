@@ -66,10 +66,17 @@ module Able
     validates :tags, length: { maximum: 255 }
     validates :area, length: { maximum: 255 }
 
+    validates_uniqueness_of :facebook_id, allow_blank: true
+    validates :facebook_id, numericality: { only_integer: true, allow_blank: true }, length: { minimum: 15, maximum: 64, allow_blank: true }
+
     # HOOKS
     after_create :create_entry!
     before_destroy :deny_destroy_if_associated_objects_present, prepend: true
     after_destroy :destroy_entry
+
+    before_save do
+      self.facebook_id.present? || self.facebook_id = nil
+    end
 
     def create_entry!
       if is_a?(Orga) && root_orga?

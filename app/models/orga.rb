@@ -49,7 +49,7 @@ class Orga < ApplicationRecord
       (default_attributes_for_json +
         %i(description short_description media_url media_type
             support_wanted support_wanted_detail
-            tags certified_sfr legacy_entry_id)).freeze
+            tags certified_sfr legacy_entry_id facebook_id)).freeze
     end
 
     def default_attributes_for_json
