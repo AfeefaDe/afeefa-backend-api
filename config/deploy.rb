@@ -1,5 +1,8 @@
 # config valid only for current version of Capistrano
-lock '3.8.2'
+lock '3.9.1'
+
+set :rbenv_type, :user # or :system, depends on your rbenv setup
+set :rbenv_ruby, '2.4.2'
 
 # set :application, 'my_app_name'
 # set :repo_url, 'git@example.com:me/my_repo.git'
@@ -11,7 +14,7 @@ set :repo_url, 'https://github.com/AfeefaDe/afeefa-backend-api.git'
 
 # Default deploy_to directory is /var/www/my_app_name
 # set :deploy_to, '/var/www/my_app_name'
-set :deploy_to, '/home/afeefa/rails/afeefa-backend-api'
+set :deploy_to, '/home/ruby/afeefa-backend-api'
 
 # Default value for :scm is :git
 # set :scm, :git
@@ -52,7 +55,7 @@ namespace :translation do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       # Here we can do anything such as:
       within release_path do
-        execute "source ~/.bash_profile && cd #{release_path} && bundle exec rails runner -e production 'PhraseappToBackendSyncJob.perform_now'"
+        execute "cd #{release_path} && /home/ruby/.rbenv/bin/rbenv exec bundle exec rails runner -e production 'PhraseappToBackendSyncJob.perform_now'"
       end
     end
   end
@@ -61,7 +64,7 @@ namespace :translation do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       # Here we can do anything such as:
       within release_path do
-        execute "source ~/.bash_profile && cd #{release_path} && bundle exec rails runner -e production 'BackendToPhraseappSyncJob.perform_now'"
+        execute "cd #{release_path} && /home/ruby/.rbenv/bin/rbenv exec bundle exec rails runner -e production 'BackendToPhraseappSyncJob.perform_now'"
       end
     end
   end
@@ -78,7 +81,7 @@ namespace :deploy do
             else
               'dev-api'
             end
-        execute "svc -du ~/service/#{api}" # maybe we can use -h instead of -du
+        execute "sudo /bin/systemctl restart #{api}.service" # maybe we can use -h instead of -du
       end
     end
   end
@@ -93,7 +96,7 @@ namespace :deploy do
             else
               'dev-api'
             end
-        execute "svc -d ~/service/#{api}" # maybe we can use -h instead of -du
+        execute "sudo /bin/systemctl stop #{api}.service" # maybe we can use -h instead of -du
       end
     end
   end
@@ -108,7 +111,7 @@ namespace :deploy do
             else
               'dev-api'
             end
-        execute "svc -u ~/service/#{api}" # maybe we can use -h instead of -du
+        execute "sudo /bin/systemctl start #{api}.service" # maybe we can use -h instead of -du
       end
     end
   end
