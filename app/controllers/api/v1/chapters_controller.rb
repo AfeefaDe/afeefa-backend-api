@@ -23,29 +23,34 @@ class Api::V1::ChaptersController < ApplicationController
   end
 
   def index
-    render json: JSON.parse(HTTP.get(@api_path).to_s)
+    response = HTTP.get(@api_path)
+    render status: response.status, json: response.body.to_s
   end
 
   def show
-    render json: JSON.parse(HTTP.get("#{@api_path}/#{params[:id]}").to_s)
+    response = HTTP.get("#{@api_path}/#{params[:id]}")
+    render status: response.status, json: response.body.to_s
   end
 
   def create
-    pp params.permit!.to_json
-    render json: JSON.parse(HTTP.post(@api_path, body: params.permit!.to_json)).to_s
+    response =
+      HTTP.post(@api_path,
+        headers: { 'Content-Type' => 'application/json' },
+        body: params.permit!.to_json)
+    render status: response.status, json: response.body.to_s
   end
 
   def update
-    render json: JSON.parse(HTTP.patch("#{@api_path}/#{params[:id]}", params).to_s)
+    response =
+      HTTP.patch("#{@api_path}/#{params[:id]}",
+        headers: { 'Content-Type' => 'application/json' },
+        body: params.permit!.to_json)
+    render status: response.status, json: response.body.to_s
   end
 
   def destroy
-    response = HTTP.delete("#{@api_path}/#{params[:id]}").to_s
-    if response.blank?
-      head :no_content
-    else
-      render json: response
-    end
+    response = HTTP.delete("#{@api_path}/#{params[:id]}")
+    render status: response.status, json: response.body.to_s
   end
 
 end
