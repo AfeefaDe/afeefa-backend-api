@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171108104417) do
+ActiveRecord::Schema.define(version: 20171213164544) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -103,8 +103,12 @@ ActiveRecord::Schema.define(version: 20171108104417) do
     t.string   "tags"
     t.string   "inheritance"
     t.string   "area"
+    t.integer  "last_editor_id"
+    t.string   "facebook_id"
     t.index ["area"], name: "index_events_on_area", using: :btree
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
+    t.index ["creator_id"], name: "index_events_on_creator_id", using: :btree
+    t.index ["last_editor_id"], name: "index_events_on_last_editor_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
   end
@@ -162,8 +166,13 @@ ActiveRecord::Schema.define(version: 20171108104417) do
     t.string   "tags"
     t.string   "inheritance"
     t.string   "area"
+    t.integer  "last_editor_id"
+    t.integer  "creator_id"
+    t.string   "facebook_id"
     t.index ["area"], name: "index_orgas_on_area", using: :btree
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
+    t.index ["creator_id"], name: "index_orgas_on_creator_id", using: :btree
+    t.index ["last_editor_id"], name: "index_orgas_on_last_editor_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
   end
 
@@ -244,6 +253,7 @@ ActiveRecord::Schema.define(version: 20171108104417) do
     t.string   "uid",                                  default: "",      null: false
     t.text     "tokens",                 limit: 65535
     t.string   "area"
+    t.string   "organization"
     t.index ["area"], name: "index_users_on_area", using: :btree
     t.index ["email"], name: "index_users_on_email", using: :btree
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
