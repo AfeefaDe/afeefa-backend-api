@@ -79,7 +79,7 @@ module Seeds
 
     AnnotationCategory.create!(title: 'Sonstiges', generated_by_system: false)
 
-    AnnotationCategory.create!(title: 'Externer Eintrag', generated_by_system: true)
+    AnnotationCategory.create!(title: 'Externe Eintragung', generated_by_system: true)
 
     AnnotationCategory.create!(title: 'ENTWURF', generated_by_system: false)
     AnnotationCategory.create!(title: 'DRINGEND', generated_by_system: false)

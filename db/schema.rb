@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171115111932) do
+ActiveRecord::Schema.define(version: 20171213164544) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -104,6 +104,7 @@ ActiveRecord::Schema.define(version: 20171115111932) do
     t.string   "inheritance"
     t.string   "area"
     t.integer  "last_editor_id"
+    t.string   "facebook_id"
     t.index ["area"], name: "index_events_on_area", using: :btree
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
     t.index ["creator_id"], name: "index_events_on_creator_id", using: :btree
@@ -167,6 +168,7 @@ ActiveRecord::Schema.define(version: 20171115111932) do
     t.string   "area"
     t.integer  "last_editor_id"
     t.integer  "creator_id"
+    t.string   "facebook_id"
     t.index ["area"], name: "index_orgas_on_area", using: :btree
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["creator_id"], name: "index_orgas_on_creator_id", using: :btree
