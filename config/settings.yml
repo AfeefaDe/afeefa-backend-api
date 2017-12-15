@@ -25,3 +25,4 @@ phraseapp:
   api_token: <%= ENV["PA_TOKEN"] %>
   webhook_api_token: <%= ENV["PA_WEBHOOK_API_TOKEN"] %>
   log_file: log/phraseapp.log
+chapters_api_path: 'http://localhost:3010/chapters'
