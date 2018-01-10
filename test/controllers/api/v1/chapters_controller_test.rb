@@ -17,6 +17,16 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
       assert_equal [], json
     end
 
+    should 'get area filtered list of chapters' do
+      # TODO: how to filter for ids?
+      WebMock.stub_request(:get, "#{@controller.base_path}").to_return(body: '[]')
+
+      get :index
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_equal [], json
+    end
+
     should 'create chapter' do
       WebMock.stub_request(:post, "#{@controller.base_path}").to_return(status: 201, body: chapter.to_json)
 
