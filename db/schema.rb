@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171213171244) do
+ActiveRecord::Schema.define(version: 20171123120034) do
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
@@ -28,6 +28,13 @@ ActiveRecord::Schema.define(version: 20171213171244) do
     t.index ["entry_type", "entry_id"], name: "index_annotations_on_entry_type_and_entry_id", using: :btree
   end
 
+  create_table "area_chapter_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "area"
+    t.integer  "chapter_config_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
   create_table "categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.integer  "parent_id"
@@ -36,6 +43,15 @@ ActiveRecord::Schema.define(version: 20171213171244) do
     t.string   "area",       default: "dresden"
     t.index ["area"], name: "index_categories_on_area", using: :btree
     t.index ["parent_id"], name: "index_categories_on_parent_id", using: :btree
+  end
+
+  create_table "chapter_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "chapter_id"
+    t.integer  "creator_id"
+    t.integer  "last_modifier_id"
+    t.boolean  "active"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
   end
 
   create_table "chapters", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

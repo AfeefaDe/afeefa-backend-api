@@ -4,8 +4,8 @@ class Api::V1::MetasControllerTest < ActionController::TestCase
 
   context 'as authorized user' do
     setup do
-      stub_current_user
-      WebMock.stub_request(:get, "#{@controller.base_path}/meta").to_return(body: '1')
+      @user = valid_user
+      stub_current_user(user: @user)
     end
 
     should 'I want to get all meta data' do
@@ -66,14 +66,31 @@ class Api::V1::MetasControllerTest < ActionController::TestCase
       assert_equal 0, json['meta']['events']['upcoming']
     end
 
-    should 'I want to the chapters meta data' do
+    should 'I want to get the chapters meta data' do
+      # default
+      get :index
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Hash, json['meta']
+      assert_equal 0, json['meta']['chapters']
+
+      # care for area_chapter_configs
+      assert AreaChapterConfig.create(area: @user.area, chapter_config_id: 1)
+
       get :index
       assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Hash, json['meta']
       assert_equal 1, json['meta']['chapters']
 
-      WebMock.assert_requested(:get, "#{@controller.base_path}/meta")
+      # care for area
+      User.any_instance.stubs(:area).returns('leipzig')
+
+      get :index
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Hash, json['meta']
+      assert_equal 0, json['meta']['chapters']
     end
   end
 

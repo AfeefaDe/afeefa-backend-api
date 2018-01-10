@@ -26,7 +26,7 @@ require 'vcr'
 VCR.configure do |config|
   config.allow_http_connections_when_no_cassette = true
   config.cassette_library_dir = 'test/data/vcr_cassettes'
-  config.hook_into :webmock # or :fakeweb
+  # config.hook_into :webmock # or :fakeweb
 
   config.default_cassette_options = {
     record: :once,
