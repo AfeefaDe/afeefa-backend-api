@@ -34,6 +34,9 @@ VCR.configure do |config|
   }
 end
 
+require 'webmock/minitest'
+WebMock.disable_net_connect!(allow_localhost: false)
+
 # TODO: This is needed because of the strange issues in frontend api... DAMN!
 require File.expand_path('../../db/seeds', __FILE__)
 ::Seeds.recreate_all

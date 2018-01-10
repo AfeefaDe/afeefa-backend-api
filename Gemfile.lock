@@ -308,7 +308,7 @@ GEM
       kgio (~> 2.6)
       raindrops (~> 0.7)
     uniform_notifier (1.10.0)
-    vcr (3.0.3)
+    vcr (4.0.0)
     warden (1.2.7)
       rack (>= 1.0)
     webmock (3.1.1)

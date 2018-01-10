@@ -2,6 +2,14 @@ require 'test_helper'
 
 class LocationTest < ActiveSupport::TestCase
 
+  setup do
+    # WebMock.allow_net_connect!(allow_localhost: false)
+  end
+
+  teardown do
+    # WebMock.disable_net_connect!(allow_localhost: false)
+  end
+
   should 'render json' do
     assert_equal(Location.attribute_whitelist_for_json.sort,
       JSON.parse(Location.new.to_json)['attributes'].symbolize_keys.keys.sort)
