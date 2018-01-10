@@ -2,6 +2,14 @@ require 'test_helper'
 
 class TranslationCacheTest < ActiveSupport::TestCase
 
+  setup do
+    # WebMock.allow_net_connect!(allow_localhost: false)
+  end
+
+  teardown do
+    # WebMock.disable_net_connect!(allow_localhost: false)
+  end
+
   should 'rebuild cache' do
     Settings.phraseapp.stubs(:active).returns(true)
 
