@@ -33,7 +33,7 @@ class Api::V1::MetasController < ApplicationController
   def amount_of_chapters(area)
     # TODO: use param area if its is supported by chapters api
     response = HTTP.get("#{base_path}/meta", headers: { 'Content-Type' => 'application/json' })
-    JSON.parse(response.body)
+    JSON.parse(response.body.to_s)['amount']
   end
 
 end
