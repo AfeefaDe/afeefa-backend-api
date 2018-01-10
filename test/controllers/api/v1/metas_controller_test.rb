@@ -5,7 +5,7 @@ class Api::V1::MetasControllerTest < ActionController::TestCase
   context 'as authorized user' do
     setup do
       stub_current_user
-      WebMock.stub_request(:get, "#{@controller.base_path}/meta").to_return(body: '1')
+      WebMock.stub_request(:get, "#{@controller.base_path}/meta").to_return(body: { amount: 1 }.to_json)
     end
 
     should 'I want to get all meta data' do
