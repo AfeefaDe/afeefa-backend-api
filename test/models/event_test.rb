@@ -115,7 +115,7 @@ class EventTest < ActiveSupport::TestCase
       event.save
 
       assert_equal Orga.root_orga.id, event.reload.orga_id
-      assert_equal nil, event.inheritance
+      assert_nil event.inheritance
     end
 
     should 'have contact_informations' do

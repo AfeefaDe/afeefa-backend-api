@@ -118,7 +118,7 @@ class OrgaTest < ActiveSupport::TestCase
     orga2.save
 
     assert_equal Orga.root_orga.id, orga2.reload.parent_orga_id
-    assert_equal nil, orga2.inheritance
+    assert_nil orga2.inheritance
   end
 
   should 'set root orga as parent if no parent given' do
