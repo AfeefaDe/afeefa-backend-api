@@ -1,6 +1,7 @@
 {
   "data": {
     "attributes": {
+      "orga_type_id": <orga_type_id>,
       "title": "some title",
       //      "active":true,
       "description": "iwefowihjf",

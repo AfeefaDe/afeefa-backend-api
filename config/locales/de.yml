@@ -18,6 +18,7 @@ de:
       locations: Ortsangaben
       contact_info: Kontaktinformation
       contact_infos: Kontaktinformationen
+      orga_type_id: Orga Typ
       title: Titel
       description: Beschreibung
       short_description: Kurzbeschreibung

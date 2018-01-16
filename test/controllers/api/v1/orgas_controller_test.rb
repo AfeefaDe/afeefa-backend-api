@@ -83,6 +83,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
     should 'I want to create a new orga' do
       params = parse_json_file do |payload|
+        payload.gsub!('<orga_type_id>', OrgaType.default_orga_type_id.to_s)
         payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
         payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
         payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
@@ -167,7 +168,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 assert_equal(
                   [
                     'Titel - fehlt',
-                    'Kurzbeschreibung - fehlt',
+                    'Kurzbeschreibung - fehlt'
                   ],
                   json['errors'].map { |x| x['detail'] }
                 )
@@ -414,6 +415,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'create new orga with parent relation and inheritance' do
         params = parse_json_file file: 'create_orga_with_parent.json' do |payload|
+          payload.gsub!('<orga_type_id>', OrgaType.default_orga_type_id.to_s)
           payload.gsub!('<parent_orga_id>', @orga.id.to_s)
           payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
           payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
@@ -439,6 +441,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'create new orga with resources' do
         params = parse_json_file file: 'create_orga_with_nested_models.json' do |payload|
+          payload.gsub!('<orga_type_id>', OrgaType.default_orga_type_id.to_s)
           payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
           payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
         end

@@ -13,6 +13,7 @@ FactoryGirl.define do
     association :category, factory: :category
 
     after(:build) do |orga|
+      orga.orga_type_id = OrgaType.default_orga_type_id
       orga.contact_infos.each do |ci|
         ci.contactable = orga
       end

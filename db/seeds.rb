@@ -39,14 +39,26 @@ module Seeds
       end
     end
 
+    # orga types
+    OrgaType.delete_all
+    OrgaType.create!(name: 'Root')
+    OrgaType.create!(name: 'Organization')
+    OrgaType.create!(name: 'Project')
+    OrgaType.create!(name: 'Offer')
+    OrgaType.create!(name: 'Location')
+    OrgaType.create!(name: 'Network')
+    OrgaType.create!(name: 'Department')
+
     # orgas
     if Orga.root_orga
       orga0 = Orga.root_orga
+      orga0.orga_type_id = OrgaType.where(name: 'Root').first['id']
       orga0.title = Orga::ROOT_ORGA_TITLE
       orga0.description = Orga::ROOT_ORGA_DESCRIPTION
       orga0.save!(validate: false)
     else
       orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE, description: Orga::ROOT_ORGA_DESCRIPTION)
+      orga0.orga_type_id = OrgaType.where(name: 'Root').first['id']
       orga0.save!(validate: false)
     end
 

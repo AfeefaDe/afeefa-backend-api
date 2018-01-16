@@ -25,6 +25,8 @@ class Orga < ApplicationRecord
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
   # VALIDATIONS
+  validate :validate_orga_type_id
+
   validates_uniqueness_of :title
 
   validate :add_root_orga_edit_error, if: -> { root_orga? }
@@ -38,6 +40,13 @@ class Orga < ApplicationRecord
   # SCOPES
   scope :without_root, -> { where(title: nil).or(where.not(title: ROOT_ORGA_TITLE)) }
   default_scope { without_root }
+
+  # DEFAULTS FOR NEW
+  after_initialize do |orga|
+    if orga.orga_type_id.blank?
+      orga.orga_type_id = OrgaType.default_orga_type_id
+    end
+  end
 
   # CLASS METHODS
   class << self
@@ -53,7 +62,7 @@ class Orga < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(title created_at updated_at state_changed_at active inheritance).freeze
+      %i(orga_type_id title created_at updated_at state_changed_at active inheritance).freeze
     end
 
     def relation_whitelist_for_json
@@ -106,6 +115,11 @@ class Orga < ApplicationRecord
   end
 
   private
+
+  def validate_orga_type_id
+    orga_type = OrgaType.where(id: orga_type_id).first
+    errors.add(:orga_type_id, 'Orga Type ist nicht gültig') if !orga_type
+  end
 
   def set_parent_orga_as_default
     self.parent_orga = Orga.root_orga

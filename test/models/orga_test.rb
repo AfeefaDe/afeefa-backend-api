@@ -66,6 +66,10 @@ class OrgaTest < ActiveSupport::TestCase
     # FIXME: validate category
     # assert_match 'fehlt', orga.errors[:category].first
 
+    orga.orga_type_id = 100000000
+    assert_not orga.valid?
+    assert_match 'ist nicht gültig', orga.errors[:orga_type_id].first
+
     orga.tags = 'foo bar'
     assert_not orga.valid?
     assert_match 'ist nicht gültig', orga.errors[:tags].first
