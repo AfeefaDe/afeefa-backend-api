@@ -70,7 +70,8 @@ class Orga < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(annotations category sub_category creator last_editor projects networks partners).freeze
+      (%i(annotations category sub_category creator last_editor) +
+        %i(projects project_initiators networks network_members partners)).freeze
     end
   end
 

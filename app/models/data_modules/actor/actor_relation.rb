@@ -7,6 +7,7 @@ module DataModules::Actor
     PROJECT = :has_project
     NETWORK = :is_network_of
     PARTNER = :is_partner_of
+    ASSOCIATION_TYPES = [PROJECT, NETWORK, PARTNER].freeze
 
     # ASSOCIATIONS
     belongs_to :associating_actor, class_name: Orga # TODO: change to DataModules::Actor::Actor

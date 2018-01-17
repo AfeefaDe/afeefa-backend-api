@@ -461,7 +461,131 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           assert_equal new_orga_id.to_s, resource.orga_id.to_s
         end
       end
+
+      should 'add project association' do
+        assert_no_difference -> { Orga.count } do
+          assert_difference -> { DataModules::Actor::ActorRelation.project.count } do
+            post :add_project, params: { id: @orga.id, item_id: Orga.last.id }
+            assert_response :created, response.body
+            assert response.body.blank?
+          end
+        end
+        new_relation = DataModules::Actor::ActorRelation.last
+        assert_equal @orga, new_relation.associating_actor
+        assert_equal Orga.last, new_relation.associated_actor
+        assert_equal DataModules::Actor::ActorRelation::PROJECT.to_s, new_relation.type
+      end
+
+      should 'remove project association' do
+        generate_association!(@orga.id, Orga.last.id, DataModules::Actor::ActorRelation::PROJECT)
+
+        assert_no_difference -> { Orga.count } do
+          assert_difference -> { DataModules::Actor::ActorRelation.count }, -1 do
+            delete :remove_project, params: { id: @orga.id, item_id: Orga.last.id }
+            assert_response :ok, response.body
+            assert response.body.blank?
+          end
+        end
+        relation =
+          DataModules::Actor::ActorRelation.where(
+            associating_actor_id: @orga.id,
+            associated_actor_id: Orga.last.id,
+            type: DataModules::Actor::ActorRelation::PROJECT.to_s)
+        assert relation.blank?
+      end
+
+      should 'handle remove of not existing project association' do
+        delete :remove_project, params: { id: @orga.id, item_id: Orga.last.id }
+        assert_response :not_found, response.body
+        assert response.body.blank?
+      end
+
+      should 'add network_member association' do
+        assert_no_difference -> { Orga.count } do
+          assert_difference -> { DataModules::Actor::ActorRelation.count } do
+            post :add_network_member, params: { id: @orga.id, item_id: Orga.last.id }
+            assert_response :created, response.body
+            assert response.body.blank?
+          end
+        end
+        new_relation = DataModules::Actor::ActorRelation.last
+        assert_equal @orga, new_relation.associating_actor
+        assert_equal Orga.last, new_relation.associated_actor
+        assert_equal DataModules::Actor::ActorRelation::NETWORK.to_s, new_relation.type
+      end
+
+      should 'remove network_member association' do
+        generate_association!(@orga.id, Orga.last.id, DataModules::Actor::ActorRelation::NETWORK)
+
+        assert_no_difference -> { Orga.count } do
+          assert_difference -> { DataModules::Actor::ActorRelation.count }, -1 do
+            delete :remove_network_member, params: { id: @orga.id, item_id: Orga.last.id }
+            assert_response :ok, response.body
+            assert response.body.blank?
+          end
+        end
+        relation =
+          DataModules::Actor::ActorRelation.where(
+            associating_actor_id: @orga.id,
+            associated_actor_id: Orga.last.id,
+            type: DataModules::Actor::ActorRelation::NETWORK.to_s)
+        assert relation.blank?
+      end
+
+      should 'handle remove of not existing network_member association' do
+        delete :remove_network_member, params: { id: @orga.id, item_id: Orga.last.id }
+        assert_response :not_found, response.body
+        assert response.body.blank?
+      end
+
+      should 'add partner association' do
+        assert_no_difference -> { Orga.count } do
+          assert_difference -> { DataModules::Actor::ActorRelation.count } do
+            post :add_partner, params: { id: @orga.id, item_id: Orga.last.id }
+            assert_response :created, response.body
+            assert response.body.blank?
+          end
+        end
+        new_relation = DataModules::Actor::ActorRelation.last
+        assert_equal @orga, new_relation.associating_actor
+        assert_equal Orga.last, new_relation.associated_actor
+        assert_equal DataModules::Actor::ActorRelation::PARTNER.to_s, new_relation.type
+      end
+
+      should 'remove partner association' do
+        generate_association!(@orga.id, Orga.last.id, DataModules::Actor::ActorRelation::PARTNER)
+
+        assert_no_difference -> { Orga.count } do
+          assert_difference -> { DataModules::Actor::ActorRelation.count }, -1 do
+            delete :remove_partner, params: { id: @orga.id, item_id: Orga.last.id }
+            assert_response :ok, response.body
+            assert response.body.blank?
+          end
+        end
+        relation =
+          DataModules::Actor::ActorRelation.where(
+            associating_actor_id: @orga.id,
+            associated_actor_id: Orga.last.id,
+            type: DataModules::Actor::ActorRelation::PARTNER.to_s)
+        assert relation.blank?
+      end
+
+      should 'handle remove of not existing partner association' do
+        delete :remove_partner, params: { id: @orga.id, item_id: Orga.last.id }
+        assert_response :not_found, response.body
+        assert response.body.blank?
+      end
     end
+  end
+
+  private
+
+  def generate_association!(left_id, right_id, type)
+    DataModules::Actor::ActorRelation.create(
+      associating_actor_id: left_id,
+      associated_actor_id: right_id,
+      type: type
+    )
   end
 
 end
