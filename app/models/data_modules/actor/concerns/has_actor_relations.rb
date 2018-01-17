@@ -51,13 +51,6 @@ module DataModules::Actor::Concerns::HasActorRelations
       # TODO: Change to Actor
       Orga.where(id: partners_i_have_associated.pluck(:id) + partners_that_associated_me.pluck(:id))
     end
-
-    # CLASS METHODS
-    class << self
-      def relation_whitelist_for_json
-        (super.dup + %i(projects networks partners)).freeze
-      end
-    end
   end
 
 end
