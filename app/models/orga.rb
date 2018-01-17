@@ -152,4 +152,8 @@ class Orga < ApplicationRecord
   def add_root_orga_edit_error
     errors.add(:base, 'ROOT ORGA is not editable!')
   end
+
+  # INCLUDE NEW CODE FROM ACTOR
+  include DataModules::Actor::Concerns::HasActorRelations
+
 end
