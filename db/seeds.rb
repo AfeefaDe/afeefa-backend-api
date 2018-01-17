@@ -44,10 +44,8 @@ module Seeds
     OrgaType.create!(name: 'Root')
     OrgaType.create!(name: 'Organization')
     OrgaType.create!(name: 'Project')
-    OrgaType.create!(name: 'Offer')
     OrgaType.create!(name: 'Location')
     OrgaType.create!(name: 'Network')
-    OrgaType.create!(name: 'Department')
 
     # orgas
     if Orga.root_orga
