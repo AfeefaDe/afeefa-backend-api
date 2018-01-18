@@ -11,8 +11,8 @@ class CreateActorRelations < ActiveRecord::Migration[5.0]
     Orga.all.select { |orga| orga.sub_orgas.present? }.each do |orga|
       orga.sub_orgas.each do |sub_orga|
         DataModules::Actor::ActorRelation.create!(
-          associating_actor: DataModules::Actor::Actor.find(orga.id),
-          associated_actor: DataModules::Actor::Actor.find(sub_orga.id),
+          associating_actor: Orga.find(orga.id),
+          associated_actor: Orga.find(sub_orga.id),
           type: DataModules::Actor::ActorRelation::PROJECT)
       end
     end
