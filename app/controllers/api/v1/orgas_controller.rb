@@ -26,7 +26,20 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
 
   private
 
+  def get_association(left_id, right_id, type)
+    DataModules::Actor::ActorRelation.find_by(
+      associating_actor_id: left_id,
+      associated_actor_id: right_id,
+      type: type
+    )
+  end
+
   def add_association(left_id, right_id, type)
+    if get_association(left_id, right_id, type)
+      head 400
+      return
+    end
+
     result =
       DataModules::Actor::ActorRelation.create(
         associating_actor_id: left_id,
@@ -41,12 +54,7 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
   end
 
   def remove_association(left_id, right_id, type)
-    association =
-      DataModules::Actor::ActorRelation.find_by(
-        associating_actor_id: left_id,
-        associated_actor_id: right_id,
-        type: type
-      )
+    association = get_association(left_id, right_id, type)
     if association
       if association.destroy
         head 200
