@@ -66,7 +66,7 @@ class Orga < ApplicationRecord
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(resource_items locations contact_infos parent_orga sub_orgas) +
+      (default_relations_for_json + %i(resource_items locations contact_infos parent_orga) +
         %i(projects project_initiators networks network_members partners)).freeze
     end
 
