@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180117124100) do
+ActiveRecord::Schema.define(version: 20180124135752) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -21,6 +21,21 @@ ActiveRecord::Schema.define(version: 20180117124100) do
     t.index ["associated_actor_id"], name: "index_actor_relations_on_associated_actor_id", using: :btree
     t.index ["associating_actor_id"], name: "index_actor_relations_on_associating_actor_id", using: :btree
     t.index ["type"], name: "index_actor_relations_on_type", using: :btree
+  end
+
+  create_table "addresses", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "owner_type"
+    t.integer  "owner_id"
+    t.string   "title"
+    t.string   "street"
+    t.string   "zip"
+    t.string   "city"
+    t.string   "lat"
+    t.string   "lon"
+    t.text     "directions", limit: 65535
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+    t.index ["owner_type", "owner_id"], name: "index_addresses_on_owner_type_and_owner_id", using: :btree
   end
 
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -39,7 +54,14 @@ ActiveRecord::Schema.define(version: 20180117124100) do
     t.index ["entry_type", "entry_id"], name: "index_annotations_on_entry_type_and_entry_id", using: :btree
   end
 
-  create_table "categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "area_chapter_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "area"
+    t.integer  "chapter_config_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  create_table "categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.integer  "parent_id"
     t.datetime "created_at",                     null: false
@@ -49,7 +71,16 @@ ActiveRecord::Schema.define(version: 20180117124100) do
     t.index ["parent_id"], name: "index_categories_on_parent_id", using: :btree
   end
 
-  create_table "chapters", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+  create_table "chapter_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "chapter_id"
+    t.integer  "creator_id"
+    t.integer  "last_modifier_id"
+    t.boolean  "active"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  create_table "chapters", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title",                     null: false
     t.text     "content",     limit: 65535
     t.integer  "order"
@@ -76,6 +107,31 @@ ActiveRecord::Schema.define(version: 20180117124100) do
     t.text     "opening_hours",      limit: 65535
     t.string   "fax"
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
+  end
+
+  create_table "contact_persons", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "contact_id"
+    t.string   "name"
+    t.string   "role"
+    t.string   "mail"
+    t.string   "phone"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contact_id"], name: "index_contact_persons_on_contact_id", using: :btree
+  end
+
+  create_table "contacts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "owner_type"
+    t.integer  "owner_id"
+    t.string   "type"
+    t.string   "title"
+    t.text     "web",              limit: 65535
+    t.text     "social_media",     limit: 65535
+    t.string   "spoken_languages"
+    t.string   "fax"
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.index ["owner_type", "owner_id"], name: "index_contacts_on_owner_type_and_owner_id", using: :btree
   end
 
   create_table "entries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

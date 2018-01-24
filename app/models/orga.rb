@@ -66,7 +66,7 @@ class Orga < ApplicationRecord
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(resource_items locations contact_infos parent_orga) +
+      (default_relations_for_json + %i(resource_items contacts locations contact_persons parent_orga) +
         %i(projects project_initiators networks network_members partners)).freeze
     end
 
@@ -156,5 +156,7 @@ class Orga < ApplicationRecord
 
   # INCLUDE NEW CODE FROM ACTOR
   include DataModules::Actor::Concerns::HasActorRelations
+  include DataPlugins::Contact::Concerns::HasContacts
+  include DataPlugins::Location::Concerns::HasLocations
 
 end
