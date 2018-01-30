@@ -62,7 +62,8 @@ class Orga < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(orga_type_id title created_at updated_at state_changed_at active inheritance).freeze
+      %i(orga_type_id title created_at updated_at state_changed_at active inheritance
+        count_events count_resource_items).freeze
     end
 
     def relation_whitelist_for_json
@@ -70,8 +71,12 @@ class Orga < ApplicationRecord
         %i(projects project_initiators networks network_members partners)).freeze
     end
 
+    def count_relation_whitelist_for_json
+      %i(resource_items events).freeze
+    end
+
     def default_relations_for_json
-      (%i(annotations category sub_category creator last_editor)).freeze
+      %i(annotations category sub_category creator last_editor).freeze
     end
   end
 

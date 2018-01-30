@@ -86,6 +86,18 @@ module DataModules::Actor::Concerns::HasActorRelations
       )
     end
 
+    # CLASS METHODS
+
+    @d = self.default_attributes_for_json
+    def self.default_attributes_for_json
+      (@d + %i(count_projects count_network_members)).freeze
+    end
+
+    @c = self.count_relation_whitelist_for_json
+    def self.count_relation_whitelist_for_json
+      (@c + %i(projects network_members)).freeze
+    end
+
   end
 
 end
