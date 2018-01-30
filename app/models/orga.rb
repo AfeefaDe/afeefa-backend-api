@@ -54,6 +54,11 @@ class Orga < ApplicationRecord
       Orga.unscoped.find_by_title(ROOT_ORGA_TITLE)
     end
 
+    def default_attributes_for_json
+      %i(orga_type_id title created_at updated_at state_changed_at active inheritance
+        count_events count_resource_items).freeze
+    end
+
     def attribute_whitelist_for_json
       (default_attributes_for_json +
         %i(description short_description media_url media_type
@@ -61,9 +66,8 @@ class Orga < ApplicationRecord
             tags certified_sfr legacy_entry_id facebook_id)).freeze
     end
 
-    def default_attributes_for_json
-      %i(orga_type_id title created_at updated_at state_changed_at active inheritance
-        count_events count_resource_items).freeze
+    def default_relations_for_json
+      %i(initiator annotations category sub_category creator last_editor).freeze
     end
 
     def relation_whitelist_for_json
@@ -75,9 +79,6 @@ class Orga < ApplicationRecord
       %i(resource_items events).freeze
     end
 
-    def default_relations_for_json
-      %i(annotations category sub_category creator last_editor).freeze
-    end
   end
 
   # INSTANCE METHODS
@@ -112,6 +113,12 @@ class Orga < ApplicationRecord
 
   def root_orga?
     title == ROOT_ORGA_TITLE
+  end
+
+  def initiator_to_hash
+    if (self.project_initiators && self.project_initiators.first)
+      self.project_initiators.first.to_hash(attributes: ['title'], relationships: nil)
+    end
   end
 
   def parent_orga_to_hash

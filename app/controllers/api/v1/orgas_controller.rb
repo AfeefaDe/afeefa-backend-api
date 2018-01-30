@@ -28,6 +28,7 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
     objects = super(objects).
       includes(:events).
       includes(:resource_items).
+      includes(:project_initiators).
       includes(:projects).
       includes(:network_members)
     objects
