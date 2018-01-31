@@ -49,7 +49,7 @@ module DataPlugins::Location
       end
 
       def default_relations_for_json
-        %i(owner contacts).freeze
+        %i(owner).freeze
       end
     end
 

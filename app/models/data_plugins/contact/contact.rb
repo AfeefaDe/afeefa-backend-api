@@ -31,6 +31,10 @@ module DataPlugins::Contact
       contact_persons.map { |cp| cp.to_hash(attributes: cp.class.default_attributes_for_json) }
     end
 
+    def location_to_hash
+      location.to_hash(attributes: location.class.default_attributes_for_json)
+    end
+
     # CLASS METHODS
     class << self
       def attribute_whitelist_for_json
