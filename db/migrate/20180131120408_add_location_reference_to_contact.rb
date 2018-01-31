@@ -4,6 +4,7 @@ class AddLocationReferenceToContact < ActiveRecord::Migration[5.0]
     add_reference :contacts, :location, index: true
     add_column :contacts, :opening_hours, :string
 
+    DataPlugins::Contact::Contact.reset_column_information
     DataPlugins::Contact::Contact.delete_all
     DataPlugins::Location::Location.delete_all
 
