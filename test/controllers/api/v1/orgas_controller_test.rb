@@ -186,36 +186,30 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         resource = orga.reload.resource_items.last
 
         assert_no_difference 'Orga.count' do
-          assert_no_difference 'ContactInfo.count' do
-            assert_no_difference 'Location.count' do
-              assert_no_difference 'Annotation.count' do
-                assert_no_difference 'AnnotationCategory.count' do
-                  assert_no_difference 'ResourceItem.count' do
-                    post :update,
-                      params: {
-                        id: orga.id,
-                      }.merge(
-                        parse_json_file(
-                          file: 'update_orga_with_nested_models.json'
-                        ) do |payload|
-                          payload.gsub!('<id>', orga.id.to_s)
-                          payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-                          payload.gsub!('<resource_id_1>', resource.id.to_s)
-                          payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-                          payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-                        end
-                      )
-                    assert_response :ok, response.body
-                  end
-                end
+          assert_no_difference 'Annotation.count' do
+            assert_no_difference 'AnnotationCategory.count' do
+              assert_no_difference 'ResourceItem.count' do
+                post :update,
+                  params: {
+                    id: orga.id,
+                  }.merge(
+                    parse_json_file(
+                      file: 'update_orga_with_nested_models.json'
+                    ) do |payload|
+                      payload.gsub!('<id>', orga.id.to_s)
+                      payload.gsub!('<annotation_id_1>', annotation.id.to_s)
+                      payload.gsub!('<resource_id_1>', resource.id.to_s)
+                      payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                      payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+                    end
+                  )
+                assert_response :ok, response.body
               end
             end
           end
         end
         assert_equal 'Ein Test 3', Orga.last.title
         assert_equal Orga.root_orga.id, Orga.last.parent_orga_id
-        assert_equal '0123456789', ContactInfo.last.phone
-        assert_equal Orga.last, ContactInfo.last.contactable
         assert_equal 1, Orga.last.annotations.count
         assert_equal annotation, Orga.last.annotations.first
         assert_equal 'foo-bar', annotation.reload.detail
@@ -308,41 +302,37 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         annotation = orga.reload.annotations.last
 
         assert_no_difference 'Orga.count' do
-          assert_no_difference 'ContactInfo.count' do
-            assert_no_difference 'Location.count' do
-              assert_no_difference 'AnnotationCategory.count' do
-                assert_difference 'Annotation.count', -1 do
-                  post :update,
-                    params: {
-                      id: orga.id,
-                    }.merge(
-                      parse_json_file(
-                        file: 'update_orga_remove_annotations.json'
-                      ) do |payload|
-                        payload.gsub!('<id>', orga.id.to_s)
-                        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-                        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-                      end
-                    )
-                  assert_response :ok, response.body
-                end
-              end
+          assert_no_difference 'AnnotationCategory.count' do
+            assert_difference 'Annotation.count', -1 do
+              post :update,
+                params: {
+                  id: orga.id,
+                }.merge(
+                  parse_json_file(
+                    file: 'update_orga_remove_annotations.json'
+                  ) do |payload|
+                    payload.gsub!('<id>', orga.id.to_s)
+                    payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                    payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+                  end
+                )
+              assert_response :ok, response.body
             end
           end
         end
         assert_equal 'Ein Test 3', orga.reload.title
         assert_equal Orga.root_orga.id, orga.parent_orga_id
-        assert_equal '0123456789', ContactInfo.last.phone
-        assert_equal orga, ContactInfo.last.contactable
         assert_equal 0, orga.annotations.count
         assert_nil Annotation.where(id: annotation.id).first
       end
 
       should 'destroy orga' do
+        assert @orga.locations.any?
+        skip 'destroy of locations on orga destroy needs to be implemented'
         assert_difference 'Orga.count', -1 do
           assert_difference 'Orga.undeleted.count', -1 do
             assert_difference 'ContactInfo.count', -1 do
-              assert_difference 'Location.count', -1 do
+              assert_difference -> { DataPlugins::Location::Location.count }, -1 do
                 assert_no_difference 'AnnotationCategory.count' do
                   delete :destroy,
                     params: {
