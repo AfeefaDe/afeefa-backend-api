@@ -8,18 +8,11 @@ FactoryGirl.define do
 
     parent_orga { Orga.root_orga }
 
-    contact_infos { [build(:contact_info)] }
     locations { [build(:location)] }
     association :category, factory: :category
 
     after(:build) do |orga|
       orga.orga_type_id = OrgaType.default_orga_type_id
-      orga.contact_infos.each do |ci|
-        ci.contactable = orga
-      end
-      orga.locations.each do |l|
-        l.locatable = orga
-      end
     end
 
     factory :another_orga do

@@ -177,5 +177,6 @@ class Orga < ApplicationRecord
   # INCLUDE NEW CODE FROM ACTOR
   include DataModules::Actor::Concerns::HasActorRelations
   include DataPlugins::Contact::Concerns::HasContacts
+  include DataPlugins::Location::Concerns::HasLocations
 
 end

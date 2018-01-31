@@ -1,0 +1,22 @@
+{
+  "title": "Titel des Kontaktes",
+  "web": "http://afeefa.de",
+  "social_media": "http://facebook.com",
+  "spoken_languages": "en,ar,de",
+  "fax": "123455",
+  "location_id": "<location_id>",
+  "contact_persons": [
+    {
+      "name": "Hansi",
+      "role": "Ansprechperson für Kontakte",
+      "mail": "hansi@marianna.de",
+      "phone": "1235565"
+    },
+    {
+      "name": "Claudia Schantall",
+      "role": "Anderer Type",
+      "mail": "cs@marianna.de",
+      "phone": "1235566"
+    }
+  ]
+}

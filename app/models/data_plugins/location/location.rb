@@ -7,7 +7,7 @@ module DataPlugins::Location
 
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
-    has_one :contact, class_name: ::DataPlugins::Contact::Contact
+    has_many :contacts, class_name: ::DataPlugins::Contact::Contact
 
     geocoded_by :address_for_geocoding, latitude: :lat, longitude: :lon
     attr_accessor :address
@@ -41,7 +41,7 @@ module DataPlugins::Location
       end
 
       def default_attributes_for_json
-        %i(lat lon street placename zip city directions displayed).freeze
+        %i(title lat lon street zip city directions).freeze
       end
 
       def relation_whitelist_for_json
@@ -49,7 +49,7 @@ module DataPlugins::Location
       end
 
       def default_relations_for_json
-        %i(locatable).freeze
+        %i(owner contacts).freeze
       end
     end
 

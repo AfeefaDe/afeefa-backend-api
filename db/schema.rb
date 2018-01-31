@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180124135752) do
+ActiveRecord::Schema.define(version: 20180131120408) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -131,6 +131,9 @@ ActiveRecord::Schema.define(version: 20180124135752) do
     t.string   "fax"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.integer  "location_id"
+    t.string   "opening_hours"
+    t.index ["location_id"], name: "index_contacts_on_location_id", using: :btree
     t.index ["owner_type", "owner_id"], name: "index_contacts_on_owner_type_and_owner_id", using: :btree
   end
 

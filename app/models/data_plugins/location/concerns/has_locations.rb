@@ -4,7 +4,13 @@ module DataPlugins::Location::Concerns::HasLocations
 
   included do
     # ASSOCIATIONS
-    has_many :locations, class_name: ::DataPlugins::Location::Location, foreign_key: :owner_id
+    has_many :locations, class_name: ::DataPlugins::Location::Location, as: :owner
+  end
+
+  module ClassMethods
+    def location_params
+      [:title, :street, :zip, :city, :lat, :lon, :directions]
+    end
   end
 
 end

@@ -17,7 +17,7 @@ module DataPlugins::Contact
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
     has_many :contact_persons, class_name: ::DataPlugins::Contact::ContactPerson
-    has_many :locations, class_name: ::DataPlugins::Location::Location
+    belongs_to :location, class_name: ::DataPlugins::Location::Location
 
     # VALIDATIONS
     validates :title, length: { maximum: 1000 }
@@ -25,6 +25,7 @@ module DataPlugins::Contact
     validates :social_media, length: { maximum: 1000 }
     validates :spoken_languages, length: { maximum: 255 }
     validates :fax, length: { maximum: 255 }
+    validates :opening_hours, length: { maximum: 255 }
 
     def contact_persons_to_hash
       contact_persons.map { |cp| cp.to_hash(attributes: cp.class.default_attributes_for_json) }

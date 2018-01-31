@@ -54,7 +54,7 @@ Rails.application.routes.draw do
         delete 'orgas/:id/partners/:item_id', to: 'orgas#remove_partner'
 
         # handle contacts and nested contact_persons and locations
-        # post '/orgas/:id/contacts/', to 'contacts#create'
+        post '/orgas/:id/contacts/', to: 'contacts#create'
         # patch '/orgas/:id/contacts/:contact_id', to 'contacts#update'
 
         # search for locations
