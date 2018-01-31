@@ -53,12 +53,8 @@ Rails.application.routes.draw do
         post 'orgas/:id/partners/:item_id', to: 'orgas#add_partner'
         delete 'orgas/:id/partners/:item_id', to: 'orgas#remove_partner'
 
-        # handle contacts and nested contact_persons and locations
-        post '/orgas/:id/contacts/', to: 'contacts#create'
-        # patch '/orgas/:id/contacts/:contact_id', to 'contacts#update'
-
-        # search for locations
-        # get :locations, to: 'locations#index'
+        post ':owner_type/:id/contacts/', to: 'contacts#create'
+        patch ':owner_type/:id/contacts/:contact_id', to: 'contacts#update'
 
         jsonapi_resources :events
 
