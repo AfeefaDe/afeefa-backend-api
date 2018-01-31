@@ -14,26 +14,47 @@ module Jsonable
       attributes: self.class.default_attributes_for_json,
       relationships: self.class.default_relations_for_json,
       type: nil)
-    default_hash(type: type).tap do |hash|
+
+      default_hash(type: type).tap do |hash|
+
+      # attributes
       if attributes.present?
         json_attributes = {}
         [attributes].flatten.each do |attribute|
           attribute = attribute.to_sym
           next unless attribute.in?(self.class.attribute_whitelist_for_json)
-          json_attributes[attribute.to_sym] =
-            if respond_to?("#{attribute}_to_hash")
-              send("#{attribute}_to_hash")
-            else
-              send(attribute)
+
+          # count relation attribute
+          is_count_relation_attribute = false
+          match_count_relation = /^count_(.+)/.match(attribute.to_s)
+          if match_count_relation
+            relation = match_count_relation[1].to_sym
+            if relation.in?(self.class.count_relation_whitelist_for_json)
+              json_attributes[attribute.to_sym] = send(relation).length
+              is_count_relation_attribute = true
             end
+          end
+
+          # proper attribute
+          unless is_count_relation_attribute
+            json_attributes[attribute.to_sym] =
+              if respond_to?("#{attribute}_to_hash")
+                send("#{attribute}_to_hash")
+              else
+                send(attribute)
+              end
+          end
         end
         hash.merge!(attributes: json_attributes)
       end
+
+      # relations
       if relationships.present?
         json_relations = {}
         [relationships].flatten.each do |relation|
           relation = relation.to_sym
           next unless relation.in?(self.class.relation_whitelist_for_json)
+
           association =
             if respond_to?("#{relation}_to_hash")
               skip_to_hash = true
@@ -42,6 +63,7 @@ module Jsonable
               skip_to_hash = false
               send(relation)
             end
+
           unless skip_to_hash
             association =
               if association.respond_to?(:map)
@@ -50,9 +72,11 @@ module Jsonable
                 association.try(:to_hash, attributes: nil, relationships: nil)
               end
           end
+
           json_relations[relation.to_sym] = { data: association }
         end
         hash.merge!(relationships: json_relations)
+
       end
     end
   end
@@ -71,6 +95,11 @@ module Jsonable
 
     def relation_whitelist_for_json
       # raise NotImplementedError, "relation_whitelist_for_json must be defined for class #{self}"
+      []
+    end
+
+    def count_relation_whitelist_for_json
+      # raise NotImplementedError, "count_relation_whitelist_for_json must be defined for class #{self}"
       []
     end
 

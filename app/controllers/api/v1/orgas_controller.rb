@@ -24,6 +24,16 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
     remove_association(params[:id], params[:item_id], DataModules::Actor::ActorRelation::PARTNER)
   end
 
+  def do_includes!(objects)
+    objects = super(objects).
+      includes(:events).
+      includes(:resource_items).
+      includes(:project_initiators).
+      includes(:projects).
+      includes(:network_members)
+    objects
+  end
+
   private
 
   def get_association(left_id, right_id, type)

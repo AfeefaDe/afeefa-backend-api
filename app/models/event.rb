@@ -22,7 +22,7 @@ class Event < ApplicationRecord
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
 
   scope :upcoming, -> {
-    now = Time.now.beginning_of_day
+    now = Time.now.in_time_zone(Time.zone).beginning_of_day
     # date_start > today 00:00
     # date_end > today 00:00
     where.not(date_start: [nil, '']).
@@ -32,7 +32,7 @@ class Event < ApplicationRecord
   }
 
   scope :past, -> {
-    now = Time.now.beginning_of_day
+    now = Time.now.in_time_zone(Time.zone).beginning_of_day
     # kein date_end und date_start < today 00:00
     # hat date_end und date_end < today 00:00
     where(date_end: [nil, '']).
@@ -73,7 +73,7 @@ class Event < ApplicationRecord
     if persisted?
       id.in?(Event.upcoming.pluck(:id))
     else
-      now = Time.now.beginning_of_day
+      now = Time.now.in_time_zone(Time.zone).beginning_of_day
       # date_start > today 00:00
       # date_end > today 00:00
       date_start.present? && date_start >= now ||
@@ -87,7 +87,7 @@ class Event < ApplicationRecord
     if persisted?
       id.in?(Event.past.pluck(:id))
     else
-      now = Time.now.beginning_of_day
+      now = Time.now.in_time_zone(Time.zone).beginning_of_day
       # kein date_end und date_start < today 00:00
       # hat date_end und date_end < today 00:00
       date_end.blank? && date_start.present? && date_start < now ||

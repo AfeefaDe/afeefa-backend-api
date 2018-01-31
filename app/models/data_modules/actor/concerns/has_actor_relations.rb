@@ -64,20 +64,15 @@ module DataModules::Actor::Concerns::HasActorRelations
     has_many :partners_i_have_associated, through: :partner_relations_i_have_associated, source: :associated_actor
     has_many :partners_that_associated_me, through: :partner_relations_that_associated_me, source: :associating_actor
 
+    def partners
+      Orga.where(id: partners_i_have_associated.pluck(:id) + partners_that_associated_me.pluck(:id))
+    end
+
     def partners_to_hash
       partners.map(&method(:actor_to_hash))
     end
 
-    # ASSOCIATION METHODS
-    def actors
-      # TODO: Change to Actor
-      Orga.where(id: actors_i_have_associated.pluck(:id) + actors_that_associated_me.pluck(:id))
-    end
-
-    def partners
-      # TODO: Change to Actor
-      Orga.where(id: partners_i_have_associated.pluck(:id) + partners_that_associated_me.pluck(:id))
-    end
+    # render self to json
 
     def actor_to_hash(actor)
       actor.to_hash(
@@ -85,6 +80,27 @@ module DataModules::Actor::Concerns::HasActorRelations
         relationships: self.class.default_relations_for_json
       )
     end
+
+    # CLASS METHODS
+
+    @d = self.default_attributes_for_json
+    def self.default_attributes_for_json
+      (@d + %i(count_projects count_network_members)).freeze
+    end
+
+    @c = self.count_relation_whitelist_for_json
+    def self.count_relation_whitelist_for_json
+      (@c + %i(projects network_members)).freeze
+    end
+
+    # # TODO for steve: migrate methods to something like this and build concern for including this ConcernHelpers into included class
+    # def self.has_actor_relations_default_attributes
+    #   %i(count_projects count_network_members).freeze
+    # end
+    #
+    # def self.has_actor_relations_count_relation_whitelist_for_json
+    #   %i(count_projects count_network_members).freeze
+    # end
 
   end
 
