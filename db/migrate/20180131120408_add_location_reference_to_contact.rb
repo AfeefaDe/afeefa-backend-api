@@ -11,7 +11,7 @@ class AddLocationReferenceToContact < ActiveRecord::Migration[5.0]
       contact = DataPlugins::Contact::Contact.create!(
         owner_id: contact_info.contactable_id,
         owner_type: contact_info.contactable_type,
-        location_id: contact_info.contactable.locations.first.try(:id),
+        location_id: contact_info.contactable.try(:locations).try(:first).try(:id),
         type: DataPlugins::Contact::Contact::MAIN,
         fax: contact_info.fax,
         social_media: contact_info.social_media,
