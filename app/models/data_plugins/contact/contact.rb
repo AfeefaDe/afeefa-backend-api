@@ -26,6 +26,10 @@ module DataPlugins::Contact
     validates :spoken_languages, length: { maximum: 255 }
     validates :fax, length: { maximum: 255 }
 
+    def contact_persons_to_hash
+      contact_persons.map { |cp| cp.to_hash(attributes: cp.class.default_attributes_for_json) }
+    end
+
     # CLASS METHODS
     class << self
       def attribute_whitelist_for_json
@@ -33,7 +37,7 @@ module DataPlugins::Contact
       end
 
       def default_attributes_for_json
-        %i(fax opening_hours social_media spoken_languages web).freeze
+        %i(fax social_media spoken_languages web).freeze
       end
 
       def relation_whitelist_for_json
@@ -41,7 +45,7 @@ module DataPlugins::Contact
       end
 
       def default_relations_for_json
-        %i(owner contact_persons).freeze
+        %i(contact_persons).freeze
       end
     end
 

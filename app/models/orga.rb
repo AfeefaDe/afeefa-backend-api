@@ -125,6 +125,10 @@ class Orga < ApplicationRecord
     end
   end
 
+  def contacts_to_hash
+    contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
+  end
+
   def parent_orga_to_hash
     if parent_orga && !parent_orga.root_orga?
       parent_orga.to_hash
