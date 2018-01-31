@@ -115,6 +115,12 @@ class Orga < ApplicationRecord
     title == ROOT_ORGA_TITLE
   end
 
+  def initiator_to_hash
+    if (self.project_initiators && self.project_initiators.first)
+      self.project_initiators.first.to_hash(attributes: ['title'], relationships: nil)
+    end
+  end
+
   def parent_orga_to_hash
     if parent_orga && !parent_orga.root_orga?
       parent_orga.to_hash
@@ -162,5 +168,6 @@ class Orga < ApplicationRecord
 
   # INCLUDE NEW CODE FROM ACTOR
   include DataModules::Actor::Concerns::HasActorRelations
+  include DataPlugins::Contact::Concerns::HasContacts
 
 end
