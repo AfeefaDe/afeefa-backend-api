@@ -29,18 +29,6 @@
           "id": "<sub_category_id>"
         }
       },
-      "contact_infos": {
-        "data": [
-          {
-            "attributes": {
-              "mail": "test@example.com",
-              "phone": "01234567",
-              "contact_person": "Friedrich Weise"
-            },
-            "type": "contact_infos"
-          }
-        ]
-      },
       "annotations": {
         "data": [
           {
@@ -56,18 +44,6 @@
               "detail": "foo-bar",
               "annotation_category_id": "<annotation_category_id_2>"
             }
-          }
-        ]
-      },
-      "locations": {
-        "data": [
-          {
-            "attributes": {
-              "street": "Ernst Nier Straße 8",
-              "city": "Beierfeld",
-              "placename": ""
-            },
-            "type": "locations"
           }
         ]
       },

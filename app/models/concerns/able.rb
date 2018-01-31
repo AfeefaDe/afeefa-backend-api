@@ -18,7 +18,7 @@ module Able
     auto_strip_attributes :title, :description, :short_description
 
     # ATTRIBUTES AND ASSOCIATIONS
-    has_many :locations_old, as: :locatable, dependent: :destroy
+    has_many :locations, as: :locatable, dependent: :destroy # attention: overridden in orga
     has_many :contact_infos, as: :contactable, dependent: :destroy
 
     has_many :annotations, as: :entry, dependent: :destroy

@@ -15,7 +15,7 @@ class AnnotationTest < ActiveSupport::TestCase
 
   should 'render todos json' do
     object_keys = [:id, :type, :relationships]
-    relationships = [:annotation, :annotation_category, :entry]
+    relationships = [:entry]
     todo = Annotation.new(entry: create(:orga), annotation_category: AnnotationCategory.first, detail: 'FooBar')
     assert todo.save, todo.errors.messages
     json = JSON.parse(todo.to_todos_hash.to_json).deep_symbolize_keys

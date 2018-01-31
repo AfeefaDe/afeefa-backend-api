@@ -115,9 +115,13 @@ class Orga < ApplicationRecord
     title == ROOT_ORGA_TITLE
   end
 
+  def initiator
+    self.project_initiators.try(:first)
+  end
+
   def initiator_to_hash
-    if (self.project_initiators && self.project_initiators.first)
-      self.project_initiators.first.to_hash(attributes: ['title'], relationships: nil)
+    if initiator
+      initiator.to_hash(attributes: ['title'], relationships: nil)
     end
   end
 

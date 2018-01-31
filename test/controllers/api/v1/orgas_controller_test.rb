@@ -103,16 +103,11 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal StateMachine::ACTIVE.to_s, Orga.last.state
       assert_equal true, json['data']['attributes']['active']
 
-      # ensure parent orga handling, do not render root_orga into relations
-      assert_equal Orga.root_orga.id, Orga.last.parent_id
-      parent_orga_json = json['data']['relationships']['parent_orga']['data']
-      assert(parent_orga_json.blank?, 'Root Orga should not be present in json relations.')
-
       # Then we could deliver the mapping there
-      %w(annotations locations contact_infos).each do |relation|
-        assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
+      %w(annotations contacts).each do |relation|
+        assert json['data']['relationships'][relation].key?('data'), "No element for relation #{relation} found."
         to_check = json['data']['relationships'][relation]['data'].first
-        assert_equal relation, to_check['type']
+        assert_equal relation, to_check['type'] if to_check
       end
 
       user = @controller.current_api_v1_user
