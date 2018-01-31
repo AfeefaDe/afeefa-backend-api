@@ -46,7 +46,7 @@ module DataPlugins::Contact
       end
 
       def default_relations_for_json
-        %i(contact_persons).freeze
+        %i(location contact_persons).freeze
       end
     end
 

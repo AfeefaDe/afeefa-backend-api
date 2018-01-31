@@ -40,7 +40,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
     end
 
     ::ContactInfo.all.each do |contact_info|
-      contact = DataPlugins::Contact::Contact.create!(
+      contact = DataPlugins::Contact::Contact.new(
         owner_id: contact_info.contactable_id,
         owner_type: contact_info.contactable_type,
         type: DataPlugins::Contact::Contact::MAIN,
@@ -48,6 +48,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
         social_media: contact_info.social_media,
         spoken_languages: contact_info.spoken_languages,
         web: contact_info.web)
+      contact.save(validate: false)
       DataPlugins::Contact::ContactPerson.create!(
         contact_id: contact.id,
         mail: contact_info.mail,
