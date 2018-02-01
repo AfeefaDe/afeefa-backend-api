@@ -35,7 +35,7 @@ module DataPlugins::Contact::Concerns::HasContacts
 
       # create or update contact
       if params[:action] == 'create'
-        contact_params.merge!(owner: self)
+        contact_params = contact_params.merge(owner: self)
         contact = DataPlugins::Contact::Contact.create(contact_params)
         success = contact.persisted?
       elsif params[:action] == 'update'
@@ -65,14 +65,14 @@ module DataPlugins::Contact::Concerns::HasContacts
           if params.key?(:location)
             # We assume that our own class knows about location_params, it has to include HasLocations
             location_params = params.fetch(:location, {}).permit(*self.class.location_params)
-            location_params.merge!(owner: self)
+            location_params = location_params.merge(owner: self)
 
             if contact.location
               success = contact.location.update(location_params)
             else
               location = DataPlugins::Location::Location.create(location_params)
               success = location.persisted?
-              params.merge!(location_id: location.id)
+              params = params.merge(location_id: location.id)
             end
           end
         end
