@@ -5,6 +5,13 @@ module DataPlugins::Location
 
     include Jsonable
 
+    # SCOPES
+    scope :selectable_in_area, -> (area) {
+      includes(:owner).
+      joins("INNER JOIN orgas on owner_type = 'Orga' and owner_id = orgas.id").
+      where(owner_type: 'Orga', 'orgas.area': area)
+    }
+
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
     has_many :contacts, class_name: ::DataPlugins::Contact::Contact
@@ -32,6 +39,12 @@ module DataPlugins::Location
         end
       end
       address.gsub(/\A, /, '')
+    end
+
+    def owner_to_hash
+      if owner
+        owner.to_hash(attributes: ['title'], relationships: nil)
+      end
     end
 
     # CLASS METHODS
