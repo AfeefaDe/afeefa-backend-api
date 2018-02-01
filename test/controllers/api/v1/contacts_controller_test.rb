@@ -16,7 +16,7 @@ class Api::V1::ContactsControllerTest < ActionController::TestCase
           assert_no_difference -> { DataPlugins::Location::Location.count } do
             post :create,
               params:
-                { id: orga.id, owner_type: 'orgas' }.merge(
+                { owner_id: orga.id, owner_type: 'orgas' }.merge(
                   parse_json_file(file: 'create_contract_with_location_id.json') do |payload|
                     payload.gsub!('<location_id>', location.id.to_s)
                   end
@@ -40,7 +40,7 @@ class Api::V1::ContactsControllerTest < ActionController::TestCase
         assert_difference -> { DataPlugins::Contact::ContactPerson.count }, 2 do
           assert_difference -> { DataPlugins::Location::Location.count } do
             post :create,
-              params: { id: orga.id, owner_type: 'orgas' }.merge(parse_json_file(file: 'create_contract_with_new_location.json'))
+              params: { owner_id: orga.id, owner_type: 'orgas' }.merge(parse_json_file(file: 'create_contract_with_new_location.json'))
             assert_response :created
           end
         end
@@ -64,7 +64,7 @@ class Api::V1::ContactsControllerTest < ActionController::TestCase
           assert_no_difference -> { DataPlugins::Location::Location.count } do
             patch :update,
               params:
-                { id: orga.id, owner_type: 'orgas', contact_id: contact.id }.merge(
+                { owner_id: orga.id, owner_type: 'orgas', id: contact.id }.merge(
                   parse_json_file(file: 'create_contract_with_location_id.json') do |payload|
                     payload.gsub!('<location_id>', location.id.to_s)
                   end
@@ -92,7 +92,7 @@ class Api::V1::ContactsControllerTest < ActionController::TestCase
           assert_difference -> { DataPlugins::Location::Location.count } do
             patch :update,
               params:
-                { id: orga.id, owner_type: 'orgas', contact_id: contact.id }.merge(
+                { owner_id: orga.id, owner_type: 'orgas', id: contact.id }.merge(
                   parse_json_file(file: 'create_contract_with_new_location.json'))
             assert_response :ok
           end
