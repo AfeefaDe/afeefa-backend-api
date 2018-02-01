@@ -48,13 +48,16 @@ Rails.application.routes.draw do
         jsonapi_resources :orgas
         post 'orgas/:id/projects/:item_id', to: 'orgas#add_project'
         delete 'orgas/:id/projects/:item_id', to: 'orgas#remove_project'
+
         post 'orgas/:id/network_members/:item_id', to: 'orgas#add_network_member'
         delete 'orgas/:id/network_members/:item_id', to: 'orgas#remove_network_member'
+
         post 'orgas/:id/partners/:item_id', to: 'orgas#add_partner'
         delete 'orgas/:id/partners/:item_id', to: 'orgas#remove_partner'
 
-        post ':owner_type/:id/contacts/', to: 'contacts#create'
-        patch ':owner_type/:id/contacts/:contact_id', to: 'contacts#update'
+        post ':owner_type/:owner_id/contacts/', to: 'contacts#create'
+        patch ':owner_type/:owner_id/contacts/:id', to: 'contacts#update'
+        delete ':owner_type/:owner_id/contacts/:id', to: 'contacts#delete'
 
         jsonapi_resources :events
 

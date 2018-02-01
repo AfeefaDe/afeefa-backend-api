@@ -16,6 +16,16 @@ module DataPlugins::Contact::Concerns::HasContacts
 
   end
 
+  def delete_contact(params)
+    ActiveRecord::Base.transaction do
+      contact = DataPlugins::Contact::Contact.find(params[:id])
+      if contact
+        contact.contact_persons.destroy_all
+        return contact.destroy
+      end
+    end
+  end
+
   def save_contact(params)
     success = true
     contact = nil
@@ -29,7 +39,7 @@ module DataPlugins::Contact::Concerns::HasContacts
         contact = DataPlugins::Contact::Contact.create(contact_params)
         success = contact.persisted?
       elsif params[:action] == 'update'
-        contact = DataPlugins::Contact::Contact.find(params[:contact_id])
+        contact = DataPlugins::Contact::Contact.find(params[:id])
         success = success && contact.update(contact_params)
       end
 

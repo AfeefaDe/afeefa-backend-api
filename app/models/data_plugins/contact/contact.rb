@@ -42,7 +42,7 @@ module DataPlugins::Contact
       end
 
       def default_attributes_for_json
-        %i(fax social_media spoken_languages web opening_hours).freeze
+        %i(title fax social_media spoken_languages web opening_hours).freeze
       end
 
       def relation_whitelist_for_json
