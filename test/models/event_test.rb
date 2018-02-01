@@ -10,8 +10,6 @@ class EventTest < ActiveSupport::TestCase
       attributes: event.class.attribute_whitelist_for_json,
       relationships: event.class.relation_whitelist_for_json)
     assert_jsonable_hash(event, relationships: event.class.relation_whitelist_for_json)
-    assert_includes event.to_json, '"upcoming":true'
-    assert_not_includes event.to_json, '"past":'
   end
 
   should 'validate attributes' do

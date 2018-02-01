@@ -56,7 +56,7 @@ class Event < ApplicationRecord
 
     def default_attributes_for_json
       %i(title created_at updated_at state_changed_at
-          date_start date_end upcoming
+          date_start date_end
           has_time_start has_time_end active inheritance).freeze
     end
 
@@ -68,34 +68,6 @@ class Event < ApplicationRecord
       %i(annotations category sub_category creator last_editor).freeze
     end
   end
-
-  def upcoming?
-    if persisted?
-      id.in?(Event.upcoming.pluck(:id))
-    else
-      now = Time.now.in_time_zone(Time.zone).beginning_of_day
-      # date_start > today 00:00
-      # date_end > today 00:00
-      date_start.present? && date_start >= now ||
-        date_start == now ||
-        date_end >= now
-    end
-  end
-  alias_method :upcoming, :upcoming?
-
-  def past?
-    if persisted?
-      id.in?(Event.past.pluck(:id))
-    else
-      now = Time.now.in_time_zone(Time.zone).beginning_of_day
-      # kein date_end und date_start < today 00:00
-      # hat date_end und date_end < today 00:00
-      date_end.blank? && date_start.present? && date_start < now ||
-        date_end.present? == date_end < now ||
-        date_start.blank?
-    end
-  end
-  alias_method :past, :past?
 
   def orga_to_hash
     if orga && !orga.root_orga?

@@ -2,7 +2,7 @@ class Api::V1::EventResource < Api::V1::EntriesBaseResource
 
   model_name 'Event'
 
-  attributes *(ATTRIBUTES + [:date_start, :date_end, :upcoming])
+  attributes *(ATTRIBUTES + [:date_start, :date_end])
   attribute :has_time_start, delegate: :time_start
   attribute :has_time_end, delegate: :time_end
   # not for now:
