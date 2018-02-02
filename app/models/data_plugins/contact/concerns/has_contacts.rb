@@ -65,7 +65,7 @@ module DataPlugins::Contact::Concerns::HasContacts
           if params.key?(:location)
             # We assume that our own class knows about location_params, it has to include HasLocations
             location_params = params.fetch(:location, {}).permit(*self.class.location_params)
-            location_params = location_params.merge(owner: self)
+            location_params = location_params.merge(owner: self, contact: contact)
 
             if contact.location
               success = contact.location.update(location_params)

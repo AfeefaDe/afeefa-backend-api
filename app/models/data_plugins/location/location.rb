@@ -14,6 +14,7 @@ module DataPlugins::Location
 
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
+    belongs_to :contact, class_name: ::DataPlugins::Contact::Contact
     has_many :contacts, class_name: ::DataPlugins::Contact::Contact
 
     geocoded_by :address_for_geocoding, latitude: :lat, longitude: :lon
@@ -62,7 +63,7 @@ module DataPlugins::Location
       end
 
       def default_relations_for_json
-        %i(owner).freeze
+        %i(contact owner).freeze
       end
     end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180131120409) do
+ActiveRecord::Schema.define(version: 20180124135752) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -26,6 +26,7 @@ ActiveRecord::Schema.define(version: 20180131120409) do
   create_table "addresses", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "owner_type"
     t.integer  "owner_id"
+    t.integer  "contact_id"
     t.string   "title"
     t.string   "street"
     t.string   "zip"
@@ -35,6 +36,7 @@ ActiveRecord::Schema.define(version: 20180131120409) do
     t.text     "directions", limit: 65535
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
+    t.index ["contact_id"], name: "index_addresses_on_contact_id", using: :btree
     t.index ["owner_type", "owner_id"], name: "index_addresses_on_owner_type_and_owner_id", using: :btree
   end
 
@@ -123,16 +125,16 @@ ActiveRecord::Schema.define(version: 20180131120409) do
   create_table "contacts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "owner_type"
     t.integer  "owner_id"
+    t.integer  "location_id"
     t.string   "type"
     t.string   "title"
-    t.text     "web",              limit: 65535
-    t.text     "social_media",     limit: 65535
+    t.string   "web",              limit: 1000
+    t.string   "social_media",     limit: 1000
     t.string   "spoken_languages"
     t.string   "fax"
+    t.text     "opening_hours",    limit: 65535
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
-    t.integer  "location_id"
-    t.string   "opening_hours"
     t.index ["location_id"], name: "index_contacts_on_location_id", using: :btree
     t.index ["owner_type", "owner_id"], name: "index_contacts_on_owner_type_and_owner_id", using: :btree
   end

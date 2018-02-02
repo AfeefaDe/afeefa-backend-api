@@ -25,7 +25,7 @@ module DataPlugins::Contact
     validates :social_media, length: { maximum: 1000 }
     validates :spoken_languages, length: { maximum: 255 }
     validates :fax, length: { maximum: 255 }
-    validates :opening_hours, length: { maximum: 255 }
+    validates :opening_hours, length: { maximum: 65000 }
 
     def contact_persons_to_hash
       contact_persons.map { |cp| cp.to_hash(attributes: cp.class.default_attributes_for_json) }

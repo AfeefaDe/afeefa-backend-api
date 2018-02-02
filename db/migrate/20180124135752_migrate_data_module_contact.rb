@@ -3,13 +3,15 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
   def do_up_stuff
     create_table :contacts do |t|
       t.references :owner, polymorphic: true, index: true
+      t.references :location, index: true
 
       t.string :type
       t.string :title
-      t.text :web
-      t.text :social_media
+      t.string :web, limit: 1000
+      t.string :social_media, limit: 1000
       t.string :spoken_languages
       t.string :fax
+      t.text :opening_hours
 
       t.timestamps
     end
@@ -27,6 +29,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
 
     create_table :addresses do |t|
       t.references :owner, polymorphic: true, index: true
+      t.references :contact, index: true
 
       t.string :title
       t.string :street
@@ -39,34 +42,58 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    ::ContactInfo.all.each do |contact_info|
-      contact = DataPlugins::Contact::Contact.new(
-        owner_id: contact_info.contactable_id,
-        owner_type: contact_info.contactable_type,
-        type: DataPlugins::Contact::Contact::MAIN,
-        fax: contact_info.fax,
-        social_media: contact_info.social_media,
-        spoken_languages: contact_info.spoken_languages,
-        web: contact_info.web)
-      contact.save(validate: false)
-      DataPlugins::Contact::ContactPerson.create!(
-        contact_id: contact.id,
-        mail: contact_info.mail,
-        name: contact_info.contact_person,
-        phone: contact_info.phone)
-    end
-
     ::Location.all.each do |location|
-      DataPlugins::Location::Location.create!(
-        owner_id: location.locatable_id,
-        owner_type: location.locatable_type,
+      next if location.locatable.blank?
+
+      contact = DataPlugins::Contact::Contact.create!(
+        owner: location.locatable,
+        type: DataPlugins::Contact::Contact::MAIN
+      )
+
+      location = DataPlugins::Location::Location.create!(
+        owner: location.locatable,
+        contact: contact,
         title: location.placename,
         street: location.street,
         zip: location.zip,
         city: location.city,
         lat: location.lat,
         lon: location.lon,
-        directions: location.directions)
+        directions: location.directions
+      )
+
+      contact.update(location: location)
+    end
+
+    ::ContactInfo.all.each do |contact_info|
+      next if contact_info.contactable.blank?
+
+      contact = DataPlugins::Contact::Contact.where(owner: contact_info.contactable).try(:first)
+
+      unless contact
+        contact = DataPlugins::Contact::Contact.create!(
+          owner: contact_info.contactable,
+          type: DataPlugins::Contact::Contact::MAIN
+        )
+      end
+
+      contact.update(
+        fax: contact_info.fax,
+        social_media: contact_info.social_media,
+        spoken_languages: contact_info.spoken_languages,
+        web: contact_info.web,
+        opening_hours: contact_info.opening_hours
+      )
+
+      if contact_info.mail.present? || contact_info.contact_person.present? || contact_info.phone.present?
+        DataPlugins::Contact::ContactPerson.create!(
+          contact: contact,
+          mail: contact_info.mail,
+          name: contact_info.contact_person,
+          phone: contact_info.phone
+        )
+      end
+
     end
   end
 
@@ -75,9 +102,9 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
   end
 
   def down
-    drop_table :contacts
-    drop_table :contact_persons
     drop_table :addresses
+    drop_table :contact_persons
+    drop_table :contacts
   end
 
 end
