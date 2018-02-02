@@ -32,7 +32,9 @@ module DataPlugins::Contact
     end
 
     def location_to_hash
-      location.to_hash(attributes: location.class.default_attributes_for_json)
+      if location
+        location.to_hash(attributes: location.class.default_attributes_for_json)
+      end
     end
 
     # CLASS METHODS
