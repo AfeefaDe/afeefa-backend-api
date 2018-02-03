@@ -13,6 +13,7 @@ module DataPlugins::Contact
     validates :name, length: { maximum: 255 }
     validates :phone, length: { maximum: 255 }
     validates :role, length: { maximum: 255 }
+    validate :ensure_mail_or_phone
 
     # CLASS METHODS
     class << self
@@ -35,8 +36,7 @@ module DataPlugins::Contact
 
     def ensure_mail_or_phone
       if mail.blank? && phone.blank?
-        errors.add(:mail, 'Mail-Adresse oder Telefonnummer muss angegeben werden.')
-        errors.add(:phone, 'Mail-Adresse oder Telefonnummer muss angegeben werden.')
+        errors.add('Kontakt', 'Email oder Telefonnummer muss angegeben werden.')
       end
     end
   end

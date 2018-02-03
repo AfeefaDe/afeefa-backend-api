@@ -19,15 +19,20 @@ module DataPlugins::Contact::Concerns::HasContacts
   def delete_contact(params)
     ActiveRecord::Base.transaction do
       contact = DataPlugins::Contact::Contact.find(params[:id])
-      if contact
-        contact.contact_persons.destroy_all
-        return contact.destroy
+      raise ActiveRecord::RecordNotFound if contact.nil?
+
+      # delete contact persons
+      contact.contact_persons.delete_all
+      # delete location if it's own location
+      if contact.location && contact.location.contact == contact
+        contact.location.delete
       end
+      # delete contact
+      return contact.delete
     end
   end
 
   def save_contact(params)
-    success = true
     contact = nil
 
     ActiveRecord::Base.transaction do
@@ -36,72 +41,60 @@ module DataPlugins::Contact::Concerns::HasContacts
       # create or update contact
       if params[:action] == 'create'
         contact_params = contact_params.merge(owner: self)
-        contact = DataPlugins::Contact::Contact.create(contact_params)
-        success = contact.persisted?
+        contact = DataPlugins::Contact::Contact.create!(contact_params)
       elsif params[:action] == 'update'
         contact = DataPlugins::Contact::Contact.find(params[:id])
-        success = success && contact.update(contact_params)
+        raise ActiveRecord::RecordNotFound if contact.nil?
+        contact.update!(contact_params)
       end
 
       # remove existing contact persons
-      if success
-        contact.contact_persons.destroy_all
-        success = contact.contact_persons.blank?
-      end
+      contact.contact_persons.delete_all
 
       # save contact persons
-      if success
-        params[:contact_persons].each do |cp_params|
-          contact_person_params =
-            cp_params.permit(*self.class.contact_person_params).merge(contact_id: contact.id)
-          contact_person = DataPlugins::Contact::ContactPerson.create(contact_person_params)
-          success = success && contact_person.persisted?
-        end
+      params[:contact_persons].each do |cp_params|
+        contact_person_params =
+          cp_params.permit(*self.class.contact_person_params).merge(contact_id: contact.id)
+        DataPlugins::Contact::ContactPerson.create!(contact_person_params)
       end
 
       # create or update location
-      if success
-        unless params.key?(:location_id) # :location_id gets precedence over :location
-          if params.key?(:location)
-            # We assume that our own class knows about location_params, it has to include HasLocations
-            location_params = params.fetch(:location, {}).permit(*self.class.location_params)
-            location_params = location_params.merge(owner: self, contact: contact)
+      if !params.has_key?(:location_id) && params.has_key?(:location) # :location_id gets precedence over :location
+        # We assume that our own class knows about location_params, it has to include HasLocations
+        location_params = params.fetch(:location, {}).permit(*self.class.location_params)
+        location_params = location_params.merge(owner: self, contact: contact)
 
-            if contact.location
-              success = contact.location.update(location_params)
-            else
-              location = DataPlugins::Location::Location.create(location_params)
-              success = location.persisted?
-              params = params.merge(location_id: location.id)
-            end
+        if contact.location
+          if contact.location.contact == contact
+            contact.location.update!(location_params)
           end
+        else
+          location = DataPlugins::Location::Location.create!(location_params)
+          params = params.merge(location_id: location.id)
         end
       end
 
       # set location reference
-      if success
-        if params.key?(:location_id)
-          if params[:location_id]
-            success = success && contact.update({location_id: params[:location_id]})
-          else
-            # TODO: Needs to be tested!
-            # if we set location_id to null, we want to remove the contact's own location
-            if contact && contact.location && contact.owner == contact.location.owner
-              success = success && contact.location.delete
+      if params.has_key?(:location_id)
+        # if location_id changes, delete old location, if own location
+        if contact.location
+          if contact.location.id != params[:location_id]
+            if contact.location.contact == contact
+              contact.location.delete
             end
           end
         end
+        # set new location
+        contact.update!({location_id: params[:location_id]})
       end
     end
 
-    if success
-      contact.reload
-    end
+    contact.reload
   end
 
   module ClassMethods
     def contact_params
-      [:id, :title, :web, :social_media, :opening_hours, :spoken_languages, :fax, :location_id]
+      [:id, :title, :web, :social_media, :opening_hours, :spoken_languages, :fax]
     end
 
     def contact_person_params

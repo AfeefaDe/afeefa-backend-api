@@ -4,19 +4,13 @@ class Api::V1::ContactsController < Api::V1::BaseController
   before_action :find_owner
 
   def create
-    if contact = @owner.save_contact(params)
-      render status: :created, json: contact
-    else
-      render status: :unprocessable_entity
-    end
+    contact = @owner.save_contact(params)
+    render status: :created, json: contact
   end
 
   def update
-    if contact = @owner.save_contact(params)
-      render status: :ok, json: contact
-    else
-      render status: :unprocessable_entity
-    end
+    contact = @owner.save_contact(params)
+    render status: :ok, json: contact
   end
 
   def delete
