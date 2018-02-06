@@ -3,13 +3,10 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
   def get_actor_relations
     orga = Orga.find(params[:id])
     json = {}
-    render status: :ok, json: {
-      projects: orga.projects_to_hash,
-      project_initiators: orga.project_initiators_to_hash,
-      networks: orga.networks_to_hash,
-      network_members: orga.network_members_to_hash,
-      partners: orga.partners_to_hash
-    }
+    %i(projects project_initiators networks network_members partners).each do |relation|
+      json[relation] = orga.send("#{relation}_to_hash")
+    end
+    render status: :ok, json: json
   end
 
   def add_project
