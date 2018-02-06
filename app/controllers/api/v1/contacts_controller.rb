@@ -1,7 +1,11 @@
 class Api::V1::ContactsController < Api::V1::BaseController
 
-  skip_before_action :find_objects, only: %i(update delete)
+  skip_before_action :find_objects
   before_action :find_owner
+
+  def index
+    render status: :ok, json: @owner.contacts
+  end
 
   def create
     contact = @owner.save_contact(params)

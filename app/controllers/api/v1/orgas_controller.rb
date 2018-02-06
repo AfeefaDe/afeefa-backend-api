@@ -1,5 +1,17 @@
 class Api::V1::OrgasController < Api::V1::EntriesBaseController
 
+  def get_actor_relations
+    orga = Orga.find(params[:id])
+    json = {}
+    render status: :ok, json: {
+      projects: orga.projects_to_hash,
+      project_initiators: orga.project_initiators_to_hash,
+      networks: orga.networks_to_hash,
+      network_members: orga.network_members_to_hash,
+      partners: orga.partners_to_hash
+    }
+  end
+
   def add_project
     add_association(params[:id], params[:item_id], DataModules::Actor::ActorRelation::PROJECT)
   end

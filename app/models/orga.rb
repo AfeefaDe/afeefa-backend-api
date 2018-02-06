@@ -55,7 +55,7 @@ class Orga < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(orga_type_id title created_at updated_at state_changed_at active inheritance
+      %i(orga_type_id title created_at updated_at state_changed_at active
         count_events count_resource_items).freeze
     end
 
@@ -63,7 +63,7 @@ class Orga < ApplicationRecord
       (default_attributes_for_json +
         %i(description short_description media_url media_type
             support_wanted support_wanted_detail
-            tags certified_sfr legacy_entry_id facebook_id)).freeze
+            tags certified_sfr inheritance facebook_id)).freeze
     end
 
     def default_relations_for_json
