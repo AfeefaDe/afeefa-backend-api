@@ -1,11 +1,7 @@
 class DataPlugins::Facet::V1::FacetsController < Api::V1::BaseController
 
-  skip_before_action :find_objects, except: :show
+  skip_before_action :find_objects, except: [:index, :show]
   before_action :find_facet, only: [:update, :destroy]
-
-  def index
-    render status: :ok, json: DataPlugins::Facet::Facet.all
-  end
 
   def create
     facet = DataPlugins::Facet::Facet.save_facet(params)

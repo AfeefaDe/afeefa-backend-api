@@ -16,8 +16,9 @@ class DataPlugins::Facet::V1::FacetsControllerTest < ActionController::TestCase
       get :index
       assert_response :ok
       json = JSON.parse(response.body)
-      assert_kind_of Array, json
-      assert_equal 10, json.count
+      assert_kind_of Hash, json
+      assert_kind_of Array, json['data']
+      assert_equal 10, json['data'].count
     end
 
     should 'get single facet' do
