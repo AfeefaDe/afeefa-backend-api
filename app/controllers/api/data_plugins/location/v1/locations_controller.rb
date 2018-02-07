@@ -1,4 +1,4 @@
-class Api::V1::LocationsController < Api::V1::BaseController
+class Api::DataPlugins::Location::V1::LocationsController < Api::V1::BaseController
 
   private
 

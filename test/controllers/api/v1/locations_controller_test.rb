@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Api::V1::LocationsControllerTest < ActionController::TestCase
+class Api::DataPlugins::Location::V1::LocationsControllerTest < ActionController::TestCase
 
   context 'as authorized user' do
     setup do

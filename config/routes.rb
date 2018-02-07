@@ -31,6 +31,7 @@ Rails.application.routes.draw do
         patch ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#update'
         delete ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#delete'
 
+        resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
         resources :facets, controller: 'data_plugins/facet/v1/facets'
       end
 
@@ -74,7 +75,6 @@ Rails.application.routes.draw do
         resources :resource_items, only: %i(index show)
         resources :categories, only: %i(index show)
         resources :contact_infos, only: %i(index show)
-        resources :locations, only: %i(index show)
 
         resources :entries, only: %i(index show)
         resources :todos, only: %i(index show)
