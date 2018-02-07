@@ -112,6 +112,10 @@ module Able
       @skip_short_description_validation || false
     end
 
+    def annotations_to_hash
+      annotations.map { |a| a.to_hash(attributes: a.class.default_attributes_for_json) }
+    end
+
     def last_editor_to_hash
       last_editor.try(&:to_hash)
     end

@@ -44,6 +44,7 @@ Rails.application.routes.draw do
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
         get ':related_type/:id/resource_items', to: 'resource_items#get_related_resources'
+        get ':owner_type/:owner_id/annotations', to: 'annotations#get_owner_annotations'
 
         jsonapi_resources :orgas
 
