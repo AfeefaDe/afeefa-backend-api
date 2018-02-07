@@ -24,6 +24,16 @@ Rails.application.routes.draw do
 
   scope format: false, defaults: {format: :json} do
     namespace :api do
+
+      scope :v1 do
+        get ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#index'
+        post ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#create'
+        patch ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#update'
+        delete ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#delete'
+
+        resources :facets, controller: 'data_plugins/facet/v1/facets'
+      end
+
       namespace :v1 do
         # TODO: Should we move them to frontend api?
         get 'facebook_events', to: 'facebook_events#index'
@@ -56,11 +66,6 @@ Rails.application.routes.draw do
 
         post 'orgas/:id/partners/:item_id', to: 'orgas#add_partner'
         delete 'orgas/:id/partners/:item_id', to: 'orgas#remove_partner'
-
-        get ':owner_type/:owner_id/contacts', to: 'contacts#index'
-        post ':owner_type/:owner_id/contacts', to: 'contacts#create'
-        patch ':owner_type/:owner_id/contacts/:id', to: 'contacts#update'
-        delete ':owner_type/:owner_id/contacts/:id', to: 'contacts#delete'
 
         jsonapi_resources :events
 

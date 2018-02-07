@@ -29,6 +29,17 @@ module DataPlugins::Facet
       def default_relations_for_json
         %i(facet_items).freeze
       end
+
+      def facet_params(params)
+        params.permit(:title)
+      end
+
+      def save_facet(params)
+        facet = find_or_initialize_by(id: params[:id])
+        facet.assign_attributes(facet_params(params))
+        facet.save!
+        facet
+      end
     end
 
   end
