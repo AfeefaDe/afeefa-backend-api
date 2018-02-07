@@ -178,5 +178,6 @@ class Orga < ApplicationRecord
   include DataModules::Actor::Concerns::HasActorRelations
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
+  include DataPlugins::Facet::Concerns::HasFacetItems
 
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180124135752) do
+ActiveRecord::Schema.define(version: 20180207125727) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -185,6 +185,23 @@ ActiveRecord::Schema.define(version: 20180124135752) do
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
   end
 
+  create_table "facet_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "title"
+    t.string   "color"
+    t.integer  "facet_id"
+    t.integer  "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["facet_id"], name: "index_facet_items_on_facet_id", using: :btree
+    t.index ["parent_id"], name: "index_facet_items_on_parent_id", using: :btree
+  end
+
+  create_table "facets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "locations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "lat"
     t.string   "lon"
@@ -254,6 +271,16 @@ ActiveRecord::Schema.define(version: 20180124135752) do
     t.index ["last_editor_id"], name: "index_orgas_on_last_editor_id", using: :btree
     t.index ["orga_type_id"], name: "index_orgas_on_orga_type_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
+  end
+
+  create_table "owner_facet_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "owner_type"
+    t.integer  "owner_id"
+    t.integer  "facet_item_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["facet_item_id"], name: "index_owner_facet_items_on_facet_item_id", using: :btree
+    t.index ["owner_type", "owner_id"], name: "index_owner_facet_items_on_owner_type_and_owner_id", using: :btree
   end
 
   create_table "owner_thing_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
