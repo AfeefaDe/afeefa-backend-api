@@ -32,6 +32,7 @@ Rails.application.routes.draw do
 
         resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
         resources :facets, controller: 'data_plugins/facet/v1/facets'
+        resources :facet_items, controller: 'data_plugins/facet/v1/facet_items'
       end
     end
 
