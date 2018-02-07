@@ -1,4 +1,4 @@
-class Api::DataPlugins::Contact::V1::ContactsController < Api::V1::BaseController
+class DataPlugins::Contact::V1::ContactsController < Api::V1::BaseController
 
   skip_before_action :find_objects
   before_action :find_owner

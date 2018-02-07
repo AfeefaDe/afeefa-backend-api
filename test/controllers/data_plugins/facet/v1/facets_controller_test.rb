@@ -1,10 +1,32 @@
 require 'test_helper'
 
-class Api::DataPlugins::Facet::V1::FacetsControllerTest < ActionController::TestCase
+class DataPlugins::Facet::V1::FacetsControllerTest < ActionController::TestCase
 
   context 'as authorized user' do
     setup do
       stub_current_user
+    end
+
+    should 'get facets' do
+      DataPlugins::Facet::Facet.delete_all
+      10.times do
+        create(:facet)
+      end
+
+      get :index
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json
+      assert_equal 10, json.count
+    end
+
+    should 'get single facet' do
+      facet = create(:facet)
+
+      get :show, params: { id: facet.id }
+      assert_response :ok
+      json = JSON.parse(response.body)
+      assert_equal JSON.parse(facet.to_json), json['data']
     end
 
     should 'create facet' do
@@ -30,7 +52,7 @@ class Api::DataPlugins::Facet::V1::FacetsControllerTest < ActionController::Test
     end
 
     should 'remove facet' do
-      pp facet = create(:facet)
+      facet = create(:facet)
 
       assert_difference -> { DataPlugins::Facet::Facet.count }, -1 do
         delete :destroy, params: { id: facet.id }

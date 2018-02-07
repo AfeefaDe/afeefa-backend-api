@@ -23,8 +23,7 @@ Rails.application.routes.draw do
   # }
 
   scope format: false, defaults: {format: :json} do
-    namespace :api do
-
+    scope :api do
       scope :v1 do
         get ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#index'
         post ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#create'
@@ -34,7 +33,9 @@ Rails.application.routes.draw do
         resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
         resources :facets, controller: 'data_plugins/facet/v1/facets'
       end
+    end
 
+    namespace :api do
       namespace :v1 do
         # TODO: Should we move them to frontend api?
         get 'facebook_events', to: 'facebook_events#index'
