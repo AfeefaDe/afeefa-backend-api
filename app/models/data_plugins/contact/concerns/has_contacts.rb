@@ -4,16 +4,16 @@ module DataPlugins::Contact::Concerns::HasContacts
 
   included do
     # ASSOCIATIONS
-    has_many :contacts, class_name: DataPlugins::Contact::Contact, as: :owner
+    has_many :contacts, class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :destroy
 
     has_one :main_contact, -> { DataPlugins::Contact::Contact.main.limit(1) },
-      class_name: DataPlugins::Contact::Contact, as: :owner
+      class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :destroy
 
     has_many :sub_contacts, -> { DataPlugins::Contact::Contact.sub },
-      class_name: DataPlugins::Contact::Contact, as: :owner
+      class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :destroy
 
-    has_many :contact_persons, class_name: DataPlugins::Contact::ContactPerson, through: :contacts
-
+    has_many :contact_persons, class_name: DataPlugins::Contact::ContactPerson, through: :contacts,
+      dependent: :destroy
   end
 
   def delete_contact(params)
@@ -22,7 +22,8 @@ module DataPlugins::Contact::Concerns::HasContacts
       raise ActiveRecord::RecordNotFound if contact.nil?
 
       # delete contact persons
-      contact.contact_persons.delete_all
+      # :delete_all is needed to prevent from nullify association
+      contact.contact_persons.delete_all(:delete_all)
       # delete location if it's own location
       if contact.location && contact.location.contact == contact
         contact.location.delete
@@ -49,7 +50,8 @@ module DataPlugins::Contact::Concerns::HasContacts
       end
 
       # remove existing contact persons
-      contact.contact_persons.delete_all
+      # :delete_all is needed to prevent from nullify association
+      contact.contact_persons.delete_all(:delete_all)
 
       # save contact persons
       params[:contact_persons].each do |cp_params|
@@ -67,6 +69,9 @@ module DataPlugins::Contact::Concerns::HasContacts
         if contact.location
           if contact.location.contact == contact
             contact.location.update!(location_params)
+          else
+            self.errors.add('Kontakt', 'Sie dürfen diesen Ort nicht bearbeiten.')
+            raise ActiveRecord::RecordInvalid, self
           end
         else
           location = DataPlugins::Location::Location.create!(location_params)
@@ -85,7 +90,7 @@ module DataPlugins::Contact::Concerns::HasContacts
           end
         end
         # set new location
-        contact.update!({location_id: params[:location_id]})
+        contact.update!({ location_id: params[:location_id] })
       end
     end
 

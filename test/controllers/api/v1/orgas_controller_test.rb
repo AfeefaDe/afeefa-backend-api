@@ -23,7 +23,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal Orga.last.active, json['data'].last['attributes']['active']
 
       assert_not json['data'].last['attributes'].key?('support_wanted_detail')
-      assert json['data'].last['attributes'].key?('inheritance')
       assert_not json['data'].last['relationships'].key?('resources')
     end
 
