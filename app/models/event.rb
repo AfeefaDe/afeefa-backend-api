@@ -61,11 +61,11 @@ class Event < ApplicationRecord
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(locations contact_infos orga parent_event sub_events)).freeze
+      (default_relations_for_json + %i(locations contact_infos parent_event sub_events)).freeze
     end
 
     def default_relations_for_json
-      %i(annotations category sub_category creator last_editor).freeze
+      %i(orga annotations category sub_category creator last_editor).freeze
     end
   end
 
@@ -96,5 +96,9 @@ class Event < ApplicationRecord
   def has_time_end
     time_end?
   end
+
+  # INCLUDE NEW CODE FROM ACTOR
+  include DataPlugins::Contact::Concerns::HasContacts
+  include DataPlugins::Location::Concerns::HasLocations
 
 end

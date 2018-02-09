@@ -32,6 +32,8 @@ class Api::V1::ContactsController < Api::V1::BaseController
       case params[:owner_type]
       when 'orgas'
         Orga.find(params[:owner_id])
+      when 'events'
+        Event.find(params[:owner_id])
       end
     unless @owner
       raise ActiveRecord::RecordNotFound,
