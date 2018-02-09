@@ -66,13 +66,8 @@ module DataPlugins::Contact::Concerns::HasContacts
         location_params = params.fetch(:location, {}).permit(*self.class.location_params)
         location_params = location_params.merge(owner: self, contact: contact)
 
-        if contact.location
-          if contact.location.contact == contact
-            contact.location.update!(location_params)
-          else
-            self.errors.add('Kontakt', 'Sie dürfen diesen Ort nicht bearbeiten.')
-            raise ActiveRecord::RecordInvalid, self
-          end
+        if contact.location && contact.location.contact == contact
+          contact.location.update!(location_params)
         else
           location = DataPlugins::Location::Location.create!(location_params)
           params = params.merge(location_id: location.id)
