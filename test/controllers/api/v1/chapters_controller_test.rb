@@ -18,13 +18,16 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
     end
 
     should 'get area filtered list of chapters' do
-      # TODO: how to filter for ids?
-      WebMock.stub_request(:get, "#{@controller.base_path}").to_return(body: '[]')
+      api_reponse = '[{"id":1,"title":"new chapter","content":"<p>test</p>","order":1,"createdAt":"2018-01-10T10:17:04.000Z","updatedAt":"2018-01-10T16:17:42.000Z"}]'
+      WebMock.stub_request(:get, "#{@controller.base_path}?ids=1,2,3").to_return(body: api_reponse)
+
+      create_dummy_chapter_configuration
 
       get :index
       assert_response :ok, response.body
-      json = JSON.parse(response.body)
-      assert_equal [], json
+      assert_equal api_reponse, response.body
+
+      WebMock.assert_requested(:get, "#{@controller.base_path}?ids=1,2,3")
     end
 
     should 'create chapter' do
@@ -97,6 +100,15 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
       content: '<html></html>',
       order: 1
     }
+  end
+
+  def create_dummy_chapter_configuration
+    c1 = ChapterConfig.create!(chapter_id: 1)
+    c2 = ChapterConfig.create!(chapter_id: 2)
+    c3 = ChapterConfig.create!(chapter_id: 3)
+    AreaChapterConfig.create!(chapter_config_id: c1.id, area: @user.area)
+    AreaChapterConfig.create!(chapter_config_id: c2.id, area: @user.area)
+    AreaChapterConfig.create!(chapter_config_id: c3.id, area: @user.area)
   end
 
 end

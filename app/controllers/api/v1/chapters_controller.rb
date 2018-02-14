@@ -23,7 +23,9 @@ class Api::V1::ChaptersController < ApplicationController
   end
 
   def index
-    response = HTTP.get(base_path)
+    chapter_ids =
+      AreaChapterConfig.includes(:chapter_config).where(area: current_api_v1_user.area).pluck(:chapter_id)
+    response = HTTP.get("#{base_path}?ids=#{chapter_ids.join(',')}")
     render status: response.status, json: response.body.to_s
   end
 
