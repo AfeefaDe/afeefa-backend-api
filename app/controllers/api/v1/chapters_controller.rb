@@ -24,7 +24,7 @@ class Api::V1::ChaptersController < ApplicationController
 
   def index
     chapter_ids =
-      AreaChapterConfig.includes(:chapter_config).where(area: current_api_v1_user.area).pluck(:chapter_id)
+      AreaChapterConfig.active.by_area(current_api_v1_user.area).pluck(:chapter_id)
     if chapter_ids.present?
       response = HTTP.get("#{base_path}?ids=#{chapter_ids.join(',')}")
       render status: response.status, json: response.body.to_s
@@ -82,7 +82,17 @@ class Api::V1::ChaptersController < ApplicationController
 
   def destroy
     response = HTTP.delete("#{base_path}/#{params[:id]}")
-    render status: response.status, json: response.body.to_s
+    if 200 == response.status
+      config = ChapterConfig.find_by(chapter_id: params[:id])
+      area_config = AreaChapterConfig.find_by(chapter_config_id: config.id)
+      if config.destroy && area_config.destroy
+        render status: response.status, json: response.body.to_s
+        return
+      end
+      # TODO: Handle errors!
+    end
+    # TODO: Handle errors!
+    render status: :unprocessable_entity
   end
 
 end

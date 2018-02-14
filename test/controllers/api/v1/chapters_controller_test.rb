@@ -68,8 +68,8 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
     end
 
     should 'update chapter' do
-      assert chapter_config = ChapterConfig.create(chapter_id: chapter[:id])
-      assert area_chapter_config = AreaChapterConfig.create(area: @user.area, chapter_config_id: chapter_config.id)
+      chapter_config = ChapterConfig.create!(chapter_id: chapter[:id])
+      area_chapter_config = AreaChapterConfig.create!(area: @user.area, chapter_config_id: chapter_config.id)
       WebMock.stub_request(:patch, "#{@controller.base_path}/#{chapter[:id]}").
         to_return(status: 200, body: chapter.to_json)
 
@@ -83,21 +83,56 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
 
       WebMock.assert_requested(:patch, "#{@controller.base_path}/#{chapter[:id]}")
     end
-  end
 
-  should 'handle error response on chapter update' do
-    WebMock.stub_request(:patch, "#{@controller.base_path}/#{chapter[:id]}").
-      to_return(status: 500, body: 'error')
+    should 'handle error response on chapter update' do
+      WebMock.stub_request(:patch, "#{@controller.base_path}/#{chapter[:id]}").
+        to_return(status: 500, body: 'error')
 
-    assert_no_difference -> { ChapterConfig.count } do
-      assert_no_difference -> { AreaChapterConfig.count } do
-        patch :update, params: chapter
-        assert_response :unprocessable_entity, response.body
-        assert response.body.blank?
+      assert_no_difference -> { ChapterConfig.count } do
+        assert_no_difference -> { AreaChapterConfig.count } do
+          patch :update, params: chapter
+          assert_response :unprocessable_entity, response.body
+          assert response.body.blank?
+        end
       end
+
+      WebMock.assert_requested(:patch, "#{@controller.base_path}/#{chapter[:id]}")
     end
 
-    WebMock.assert_requested(:patch, "#{@controller.base_path}/#{chapter[:id]}")
+    should 'destroy chapter' do
+      WebMock.stub_request(:delete, "#{@controller.base_path}/#{chapter[:id]}").to_return(status: 200, :body => '')
+
+      chapter_config = ChapterConfig.create!(chapter_id: chapter[:id], active: true)
+      area_chapter_config = AreaChapterConfig.create!(area: @user.area, chapter_config_id: chapter_config.id)
+
+      assert_difference -> { ChapterConfig.count }, -1 do
+        assert_difference -> { AreaChapterConfig.count }, -1 do
+          delete :destroy, params: chapter.slice(:id)
+          assert_response :ok, response.body
+          assert response.body.blank?
+        end
+      end
+
+      WebMock.assert_requested(:delete, "#{@controller.base_path}/#{chapter[:id]}")
+    end
+
+    should 'handle error response on chapter destroy' do
+      WebMock.stub_request(:delete, "#{@controller.base_path}/#{chapter[:id]}").
+        to_return(status: 500, body: 'error')
+
+      chapter_config = ChapterConfig.create!(chapter_id: chapter[:id], active: true)
+      area_chapter_config = AreaChapterConfig.create!(area: @user.area, chapter_config_id: chapter_config.id)
+
+      assert_no_difference -> { ChapterConfig.count } do
+        assert_no_difference -> { AreaChapterConfig.count } do
+          delete :destroy, params: chapter.slice(:id)
+          assert_response :unprocessable_entity, response.body
+          assert response.body.blank?
+        end
+      end
+
+      WebMock.assert_requested(:delete, "#{@controller.base_path}/#{chapter[:id]}")
+    end
   end
 
   private
@@ -112,9 +147,9 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
   end
 
   def create_dummy_chapter_configuration
-    c1 = ChapterConfig.create!(chapter_id: 1)
-    c2 = ChapterConfig.create!(chapter_id: 2)
-    c3 = ChapterConfig.create!(chapter_id: 3)
+    c1 = ChapterConfig.create!(chapter_id: 1, active: true)
+    c2 = ChapterConfig.create!(chapter_id: 2, active: true)
+    c3 = ChapterConfig.create!(chapter_id: 3, active: true)
     AreaChapterConfig.create!(chapter_config_id: c1.id, area: @user.area)
     AreaChapterConfig.create!(chapter_config_id: c2.id, area: @user.area)
     AreaChapterConfig.create!(chapter_config_id: c3.id, area: @user.area)

@@ -31,7 +31,7 @@ class Api::V1::MetasController < ApplicationController
   private
 
   def amount_of_chapters(area)
-    AreaChapterConfig.where(area: area).count
+    AreaChapterConfig.active.by_area(area).count
   end
 
 end

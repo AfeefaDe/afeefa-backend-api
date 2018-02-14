@@ -75,7 +75,10 @@ class Api::V1::MetasControllerTest < ActionController::TestCase
       assert_equal 0, json['meta']['chapters']
 
       # care for area_chapter_configs
-      assert AreaChapterConfig.create(area: @user.area, chapter_config_id: 1)
+      assert ChapterConfig.create(chapter_id: 1, active: true)
+      assert AreaChapterConfig.create(area: @user.area, chapter_config_id: ChapterConfig.last.id)
+      assert ChapterConfig.create(chapter_id: 2, active: false)
+      assert AreaChapterConfig.create(area: @user.area, chapter_config_id: ChapterConfig.last.id)
 
       get :index
       assert_response :ok, response.body
