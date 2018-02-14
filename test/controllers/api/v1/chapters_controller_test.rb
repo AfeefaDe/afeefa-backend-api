@@ -100,7 +100,7 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
     end
 
     should 'destroy chapter' do
-      WebMock.stub_request(:delete, "#{@controller.base_path}/#{chapter[:id]}").to_return(status: 200, :body => '')
+      WebMock.stub_request(:delete, "#{@controller.base_path}/#{chapter[:id]}").to_return(status: 204, body: '')
 
       chapter_config = ChapterConfig.create!(chapter_id: chapter[:id], active: true)
       area_chapter_config = AreaChapterConfig.create!(area: @user.area, chapter_config_id: chapter_config.id)
@@ -108,7 +108,7 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
       assert_difference -> { ChapterConfig.count }, -1 do
         assert_difference -> { AreaChapterConfig.count }, -1 do
           delete :destroy, params: chapter.slice(:id)
-          assert_response :ok, response.body
+          assert_response 204, response.body
           assert response.body.blank?
         end
       end

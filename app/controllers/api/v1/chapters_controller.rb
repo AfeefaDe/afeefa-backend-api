@@ -82,7 +82,7 @@ class Api::V1::ChaptersController < ApplicationController
 
   def destroy
     response = HTTP.delete("#{base_path}/#{params[:id]}")
-    if 200 == response.status
+    if 204 == response.status
       config = ChapterConfig.find_by(chapter_id: params[:id])
       area_config = AreaChapterConfig.find_by(chapter_config_id: config.id)
       if config.destroy && area_config.destroy
