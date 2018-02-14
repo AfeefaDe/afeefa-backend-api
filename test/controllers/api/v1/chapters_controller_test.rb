@@ -17,6 +17,15 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
       assert_equal [], json
     end
 
+    should 'get empty list of chapters without wisdom api request for missing config' do
+      AreaChapterConfig.delete_all
+
+      get :index
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_equal [], json
+    end
+
     should 'get area filtered list of chapters' do
       api_reponse = '[{"id":1,"title":"new chapter","content":"<p>test</p>","order":1,"createdAt":"2018-01-10T10:17:04.000Z","updatedAt":"2018-01-10T16:17:42.000Z"}]'
       WebMock.stub_request(:get, "#{@controller.base_path}?ids=1,2,3").to_return(body: api_reponse)
