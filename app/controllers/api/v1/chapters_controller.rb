@@ -1,10 +1,12 @@
 require 'http'
 
-class Api::V1::ChaptersController < ApplicationController
+class Api::V1::ChaptersController < Api::V1::BaseController
 
   include DeviseTokenAuth::Concerns::SetUserByToken
   include NoCaching
   include ChaptersApi
+
+  skip_before_action :authenticate_api_v1_user!, only: :show
 
   respond_to :json
 
@@ -93,6 +95,12 @@ class Api::V1::ChaptersController < ApplicationController
     end
     # TODO: Handle errors!
     render status: :unprocessable_entity
+  end
+
+  private
+
+  def base_for_find_objects
+    []
   end
 
 end
