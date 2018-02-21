@@ -7,6 +7,17 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
       stub_current_user
     end
 
+    should 'get show without login' do
+      WebMock.stub_request(:get, "#{@controller.base_path}/1").to_return(body: chapter.to_json)
+      unstub_current_user
+
+      get :show, params: { id: 1 }
+      assert_response :ok, response.body
+      assert_equal chapter.to_json, response.body
+
+      WebMock.assert_requested(:get, "#{@controller.base_path}/1")
+    end
+
     should 'get empty list of chapters' do
       WebMock.stub_request(:get, "#{@controller.base_path}").to_return(body: '[]')
 
