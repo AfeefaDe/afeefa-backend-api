@@ -35,7 +35,7 @@ module DataPlugins::Facet
       end
 
       def default_relations_for_json
-        %i(facet parent sub_items).freeze
+        %i(parent sub_items).freeze
       end
 
       def facet_item_params(params)
