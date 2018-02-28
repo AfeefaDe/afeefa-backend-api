@@ -42,5 +42,9 @@ module DataPlugins::Facet
       end
     end
 
+    def facet_items_to_hash
+      facet_items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
+    end
+
   end
 end
