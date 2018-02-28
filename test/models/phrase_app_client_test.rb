@@ -4,11 +4,11 @@ class PhraseAppClientTest < ActiveSupport::TestCase
 
   setup do
     @client ||= PhraseAppClient.new
-    # WebMock.allow_net_connect!(allow_localhost: false)
+    WebMock.allow_net_connect!(allow_localhost: false)
   end
 
   teardown do
-    # WebMock.disable_net_connect!(allow_localhost: false)
+    WebMock.disable_net_connect!(allow_localhost: false)
   end
 
   should 'delete all keys' do
