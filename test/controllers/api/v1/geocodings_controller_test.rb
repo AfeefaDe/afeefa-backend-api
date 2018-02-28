@@ -2,6 +2,14 @@ require 'test_helper'
 
 class Api::V1::GeocodingsControllerTest < ActionController::TestCase
 
+  setup do
+    WebMock.allow_net_connect!(allow_localhost: false)
+  end
+
+  teardown do
+    WebMock.disable_net_connect!(allow_localhost: false)
+  end
+
   should 'get geocoding unauthorized' do
     # TODO: stub geocoding api
     VCR.use_cassette('geocoding_controller_test_get_geocoding_unauthorized') do
