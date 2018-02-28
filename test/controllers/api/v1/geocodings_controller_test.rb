@@ -18,7 +18,7 @@ class Api::V1::GeocodingsControllerTest < ActionController::TestCase
       assert_response :unprocessable_entity
       assert_equal 'geocoding failed', response.body
 
-      address_string = build(:location_dresden).address_for_geocoding
+      address_string = build(:location_old_dresden).address_for_geocoding
       get :index, params: { token: Settings.geocoding.api_token, address: address_string }
       assert_response :ok
       json = JSON.parse(response.body)

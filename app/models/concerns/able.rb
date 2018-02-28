@@ -18,7 +18,7 @@ module Able
     auto_strip_attributes :title, :description, :short_description
 
     # ATTRIBUTES AND ASSOCIATIONS
-    has_many :locations, as: :locatable, dependent: :destroy
+    has_many :locations, as: :locatable, dependent: :destroy # attention: overridden in orga
     has_many :contact_infos, as: :contactable, dependent: :destroy
 
     has_many :annotations, as: :entry, dependent: :destroy
@@ -110,6 +110,10 @@ module Able
 
     def skip_short_description_validation?
       @skip_short_description_validation || false
+    end
+
+    def annotations_to_hash
+      annotations.map { |a| a.to_hash(attributes: a.class.default_attributes_for_json) }
     end
 
     def last_editor_to_hash

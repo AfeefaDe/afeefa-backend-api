@@ -24,7 +24,7 @@ class LocationTest < ActiveSupport::TestCase
 
   should 'build address' do
     VCR.use_cassette('location_test_build_address') do
-      location = build(:location_dresden)
+      location = build(:location_old_dresden)
       assert_equal 'Reißigerstr. 6, 01307, Dresden, Deutschland', location.address_for_geocoding
       coords = location.geocode
       assert coords.present?

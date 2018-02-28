@@ -66,6 +66,10 @@ class OrgaTest < ActiveSupport::TestCase
     # FIXME: validate category
     # assert_match 'fehlt', orga.errors[:category].first
 
+    orga.orga_type_id = 100000000
+    assert_not orga.valid?
+    assert_match 'ist nicht gültig', orga.errors[:orga_type_id].first
+
     orga.tags = 'foo bar'
     assert_not orga.valid?
     assert_match 'ist nicht gültig', orga.errors[:tags].first
@@ -118,7 +122,7 @@ class OrgaTest < ActiveSupport::TestCase
     orga2.save
 
     assert_equal Orga.root_orga.id, orga2.reload.parent_orga_id
-    assert_equal nil, orga2.inheritance
+    assert_nil orga2.inheritance
   end
 
   should 'set root orga as parent if no parent given' do

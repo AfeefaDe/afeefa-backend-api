@@ -52,8 +52,6 @@ class Annotation < ApplicationRecord
   def to_todos_hash
     default_hash(type: 'todos').
       merge(relationships: {
-        annotation: { data: annotation_to_hash },
-        annotation_category: { data: annotation_category.try(&:to_hash) },
         entry: { data: entry.try(&:to_hash) },
       })
   end

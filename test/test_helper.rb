@@ -92,9 +92,17 @@ class ActiveSupport::TestCase
           assert_equal object.send(relation).map{ |x| x.to_hash(attributes: nil, relationships: nil) }, data[:data]
         else
           if object.respond_to?("#{relation}_to_hash")
-            assert_equal object.try("#{relation}_to_hash"), data[:data]
+            if data[:data].nil?
+              assert_nil object.try("#{relation}_to_hash")
+            else
+              assert_equal object.try("#{relation}_to_hash"), data[:data]
+            end
           else
-            assert_equal object.send(relation).try(:to_hash, attributes: nil, relationships: nil), data[:data]
+            if data[:data].nil?
+              assert_nil object.send(relation).try(:to_hash, attributes: nil, relationships: nil)
+            else
+              assert_equal object.send(relation).try(:to_hash, attributes: nil, relationships: nil), data[:data]
+            end
           end
         end
       end

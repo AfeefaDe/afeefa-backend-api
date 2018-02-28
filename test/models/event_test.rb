@@ -10,8 +10,6 @@ class EventTest < ActiveSupport::TestCase
       attributes: event.class.attribute_whitelist_for_json,
       relationships: event.class.relation_whitelist_for_json)
     assert_jsonable_hash(event, relationships: event.class.relation_whitelist_for_json)
-    assert_includes event.to_json, '"upcoming":true'
-    assert_not_includes event.to_json, '"past":'
   end
 
   should 'validate attributes' do
@@ -115,7 +113,7 @@ class EventTest < ActiveSupport::TestCase
       event.save
 
       assert_equal Orga.root_orga.id, event.reload.orga_id
-      assert_equal nil, event.inheritance
+      assert_nil event.inheritance
     end
 
     should 'have contact_informations' do

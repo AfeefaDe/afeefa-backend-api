@@ -10,7 +10,7 @@ FactoryGirl.define do
       association :orga, factory: :orga
       association :category, factory: :category
       contact_infos { [build(:contact_info)] }
-      locations { [build(:location)] }
+      locations { [build(:location_old)] }
 
       after(:build) do |event|
         event.contact_infos.each do |ci|

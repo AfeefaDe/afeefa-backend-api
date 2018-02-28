@@ -43,9 +43,26 @@ Rails.application.routes.draw do
 
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
-        get ':related_type/:id/resource_items', to: 'resource_items#get_related_resources'
+        get ':owner_type/:owner_id/annotations', to: 'annotations#get_owner_annotations'
+        get ':owner_type/:owner_id/resource_items', to: 'resource_items#get_owner_resources'
 
         jsonapi_resources :orgas
+
+        get 'orgas/:id/actor_relations', to: 'orgas#get_actor_relations'
+        post 'orgas/:id/projects/:item_id', to: 'orgas#add_project'
+        delete 'orgas/:id/projects/:item_id', to: 'orgas#remove_project'
+
+        post 'orgas/:id/network_members/:item_id', to: 'orgas#add_network_member'
+        delete 'orgas/:id/network_members/:item_id', to: 'orgas#remove_network_member'
+
+        post 'orgas/:id/partners/:item_id', to: 'orgas#add_partner'
+        delete 'orgas/:id/partners/:item_id', to: 'orgas#remove_partner'
+
+        get ':owner_type/:owner_id/contacts', to: 'contacts#index'
+        post ':owner_type/:owner_id/contacts', to: 'contacts#create'
+        patch ':owner_type/:owner_id/contacts/:id', to: 'contacts#update'
+        delete ':owner_type/:owner_id/contacts/:id', to: 'contacts#delete'
+
         jsonapi_resources :events
 
         resources :annotation_categories, only: %i(index show)

@@ -14,8 +14,14 @@ class Api::V1::BaseController < ApplicationController
     head :not_found
   end
 
-  rescue_from ActiveRecord::RecordInvalid do
-    head :unprocessable_entity
+  rescue_from ActiveRecord::RecordInvalid do |error|
+    messages = error.record.errors.messages.map do |key, value|
+      key.to_s + ' - ' + value.first
+    end
+
+    render status: :unprocessable_entity, json: {
+      errors: messages
+    }
   end
 
   # on_server_error do |error|

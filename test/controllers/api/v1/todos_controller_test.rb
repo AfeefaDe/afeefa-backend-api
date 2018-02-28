@@ -105,15 +105,13 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
           {
             type: 'todos', id: todo1.id.to_s,
             relationships: {
-              annotation: { data: todo1.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todo1.entry.to_hash }
+              entry: { data: todo1.entry.to_hash }
             }
           },
           {
             type: 'todos', id: todo2.id.to_s,
             relationships: {
-              annotation: { data: todo2.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todo2.entry.to_hash }
+              entry: { data: todo2.entry.to_hash }
             }
           }
         ]
@@ -140,15 +138,13 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
           {
             type: 'todos', id: todo1.id.to_s,
             relationships: {
-              annotation: { data: todo1.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todo1.entry.to_hash }
+              entry: { data: todo1.entry.to_hash }
             }
           },
           {
             type: 'todos', id: todo2.id.to_s,
             relationships: {
-              annotation: { data: todo2.to_hash(relationships: nil) },
-              annotation_category: { data: @annotation_category.to_hash }, entry: { data: todo2.entry.to_hash }
+              entry: { data: todo2.entry.to_hash }
             }
           }
         ]

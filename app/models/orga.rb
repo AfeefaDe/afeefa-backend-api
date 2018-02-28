@@ -25,6 +25,8 @@ class Orga < ApplicationRecord
   # has_and_belongs_to_many :categories, join_table: 'orga_category_relations'
 
   # VALIDATIONS
+  validate :validate_orga_type_id
+
   validates_uniqueness_of :title
 
   validate :add_root_orga_edit_error, if: -> { root_orga? }
@@ -39,30 +41,44 @@ class Orga < ApplicationRecord
   scope :without_root, -> { where(title: nil).or(where.not(title: ROOT_ORGA_TITLE)) }
   default_scope { without_root }
 
+  # DEFAULTS FOR NEW
+  after_initialize do |orga|
+    if orga.orga_type_id.blank?
+      orga.orga_type_id = OrgaType.default_orga_type_id
+    end
+  end
+
   # CLASS METHODS
   class << self
     def root_orga
       Orga.unscoped.find_by_title(ROOT_ORGA_TITLE)
     end
 
+    def default_attributes_for_json
+      %i(orga_type_id title created_at updated_at state_changed_at active
+        count_events count_resource_items).freeze
+    end
+
     def attribute_whitelist_for_json
       (default_attributes_for_json +
         %i(description short_description media_url media_type
             support_wanted support_wanted_detail
-            tags certified_sfr legacy_entry_id facebook_id)).freeze
-    end
-
-    def default_attributes_for_json
-      %i(title created_at updated_at state_changed_at active inheritance).freeze
-    end
-
-    def relation_whitelist_for_json
-      (default_relations_for_json + %i(resource_items locations contact_infos parent_orga sub_orgas)).freeze
+            tags certified_sfr inheritance facebook_id)).freeze
     end
 
     def default_relations_for_json
-      %i(annotations category sub_category creator last_editor).freeze
+      %i(initiator annotations category sub_category creator last_editor).freeze
     end
+
+    def relation_whitelist_for_json
+      (default_relations_for_json + %i(resource_items contacts) +
+        %i(projects project_initiators networks network_members partners)).freeze
+    end
+
+    def count_relation_whitelist_for_json
+      %i(resource_items events).freeze
+    end
+
   end
 
   # INSTANCE METHODS
@@ -99,6 +115,24 @@ class Orga < ApplicationRecord
     title == ROOT_ORGA_TITLE
   end
 
+  def initiator
+    self.project_initiators.try(:first)
+  end
+
+  def initiator_to_hash
+    if initiator
+      initiator.to_hash(attributes: ['title'], relationships: nil)
+    end
+  end
+
+  def contacts_to_hash
+    contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
+  end
+
+  def resource_items_to_hash
+    resource_items.map { |r| r.to_hash(attributes: r.class.default_attributes_for_json) }
+  end
+
   def parent_orga_to_hash
     if parent_orga && !parent_orga.root_orga?
       parent_orga.to_hash
@@ -106,6 +140,11 @@ class Orga < ApplicationRecord
   end
 
   private
+
+  def validate_orga_type_id
+    orga_type = OrgaType.where(id: orga_type_id).first
+    errors.add(:orga_type_id, 'Orga Type ist nicht gültig') if !orga_type
+  end
 
   def set_parent_orga_as_default
     self.parent_orga = Orga.root_orga
@@ -138,4 +177,10 @@ class Orga < ApplicationRecord
   def add_root_orga_edit_error
     errors.add(:base, 'ROOT ORGA is not editable!')
   end
+
+  # INCLUDE NEW CODE FROM ACTOR
+  include DataModules::Actor::Concerns::HasActorRelations
+  include DataPlugins::Contact::Concerns::HasContacts
+  include DataPlugins::Location::Concerns::HasLocations
+
 end
