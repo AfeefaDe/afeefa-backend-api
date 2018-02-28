@@ -6,11 +6,11 @@ Rails.application.config.active_job.queue_adapter = :test
 class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
   setup do
-    # WebMock.allow_net_connect!(allow_localhost: false)
+    WebMock.allow_net_connect!(allow_localhost: false)
   end
 
   teardown do
-    # WebMock.disable_net_connect!(allow_localhost: false)
+    WebMock.disable_net_connect!(allow_localhost: false)
   end
 
   context 'as authorized user' do
