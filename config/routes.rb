@@ -31,8 +31,9 @@ Rails.application.routes.draw do
         delete ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#delete'
 
         resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
-        resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit]
-        resources :facet_items, controller: 'data_plugins/facet/v1/facet_items', except: [:new, :edit]
+        resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit] do
+          resources :facet_items, controller: 'data_plugins/facet/v1/facet_items', except: [:new, :edit]
+        end
       end
     end
 

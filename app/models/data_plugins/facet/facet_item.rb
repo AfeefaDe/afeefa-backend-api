@@ -18,6 +18,8 @@ module DataPlugins::Facet
     validates :title, length: { maximum: 255 }
     validates :color, length: { maximum: 255 }
 
+    validates :facet_id, presence: true
+
     # CLASS METHODS
     class << self
       def attribute_whitelist_for_json
@@ -41,10 +43,10 @@ module DataPlugins::Facet
       end
 
       def save_facet_item(params)
-        facet = find_or_initialize_by(id: params[:id])
-        facet.assign_attributes(facet_item_params(params))
-        facet.save!
-        facet
+        facet_item = find_or_initialize_by(id: params[:id])
+        facet_item.assign_attributes(facet_item_params(params))
+        facet_item.save!
+        facet_item
       end
     end
 
