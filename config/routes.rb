@@ -23,6 +23,20 @@ Rails.application.routes.draw do
   # }
 
   scope format: false, defaults: {format: :json} do
+    scope :api do
+      scope :v1 do
+        get ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#index'
+        post ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#create'
+        patch ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#update'
+        delete ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#delete'
+
+        resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
+        resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit] do
+          resources :facet_items, controller: 'data_plugins/facet/v1/facet_items', except: [:new, :edit]
+        end
+      end
+    end
+
     namespace :api do
       namespace :v1 do
         # TODO: Should we move them to frontend api?
@@ -58,11 +72,6 @@ Rails.application.routes.draw do
         post 'orgas/:id/partners/:item_id', to: 'orgas#add_partner'
         delete 'orgas/:id/partners/:item_id', to: 'orgas#remove_partner'
 
-        get ':owner_type/:owner_id/contacts', to: 'contacts#index'
-        post ':owner_type/:owner_id/contacts', to: 'contacts#create'
-        patch ':owner_type/:owner_id/contacts/:id', to: 'contacts#update'
-        delete ':owner_type/:owner_id/contacts/:id', to: 'contacts#delete'
-
         jsonapi_resources :events
 
         resources :annotation_categories, only: %i(index show)
@@ -70,7 +79,6 @@ Rails.application.routes.draw do
         resources :resource_items, only: %i(index show)
         resources :categories, only: %i(index show)
         resources :contact_infos, only: %i(index show)
-        resources :locations, only: %i(index show)
 
         resources :entries, only: %i(index show)
         resources :todos, only: %i(index show)

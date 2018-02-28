@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Api::V1::ContactsControllerTest < ActionController::TestCase
+class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestCase
 
   context 'as authorized user' do
     setup do
