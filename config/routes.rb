@@ -34,6 +34,10 @@ Rails.application.routes.draw do
         resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit] do
           resources :facet_items, controller: 'data_plugins/facet/v1/facet_items', except: [:new, :edit]
         end
+
+        get ':owner_type/:owner_id/facet_items', to: 'data_plugins/facet/v1/facet_items#get_linked_facet_items'
+        post ':owner_type/:owner_id/facet_items/:facet_item_id', to: 'data_plugins/facet/v1/facet_items#link_facet_item'
+        delete ':owner_type/:owner_id/facet_items/:facet_item_id', to: 'data_plugins/facet/v1/facet_items#unlink_facet_item'
       end
     end
 
