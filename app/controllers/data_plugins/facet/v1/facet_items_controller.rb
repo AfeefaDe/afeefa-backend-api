@@ -70,27 +70,16 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     )
   end
 
-  def apply_custom_filter!(filter, filter_criterion, objects)
-    objects =
-      case filter.to_sym
-      when :facet_id
-        objects.where(facet_id: filter_criterion)
-      else
-        objects
-      end
-    objects
-  end
-
-  def custom_filter_whitelist
-    %w(facet_id).freeze
-  end
-
   def get_model_class_for_controller
     DataPlugins::Facet::FacetItem
   end
 
   def find_facet_item
     @facet_item = DataPlugins::Facet::FacetItem.find(params[:id])
+    unless @facet_item
+      raise ActiveRecord::RecordNotFound,
+        "Facette mit ID #{params[:id]} konnte nicht gefunden werden."
+    end
   end
 
   def find_owner
