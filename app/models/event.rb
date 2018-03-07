@@ -61,7 +61,7 @@ class Event < ApplicationRecord
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(locations contact_infos parent_event sub_events)).freeze
+      (default_relations_for_json + %i(contacts parent_event sub_events)).freeze
     end
 
     def default_relations_for_json
@@ -73,6 +73,10 @@ class Event < ApplicationRecord
     if orga && !orga.root_orga?
       orga.to_hash
     end
+  end
+
+  def contacts_to_hash
+    contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
   end
 
   private

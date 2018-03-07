@@ -72,7 +72,7 @@ class Orga < ApplicationRecord
 
     def relation_whitelist_for_json
       (default_relations_for_json + %i(resource_items contacts) +
-        %i(projects project_initiators networks network_members partners)).freeze
+        %i(projects project_initiators networks network_members partners facet_items)).freeze
     end
 
     def count_relation_whitelist_for_json
@@ -129,6 +129,10 @@ class Orga < ApplicationRecord
     contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
   end
 
+  def facet_items_to_hash
+    facet_items.map { |fi| fi.to_hash(attributes: fi.class.default_attributes_for_json) }
+  end
+
   def resource_items_to_hash
     resource_items.map { |r| r.to_hash(attributes: r.class.default_attributes_for_json) }
   end
@@ -182,5 +186,6 @@ class Orga < ApplicationRecord
   include DataModules::Actor::Concerns::HasActorRelations
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
+  include DataPlugins::Facet::Concerns::HasFacetItems
 
 end

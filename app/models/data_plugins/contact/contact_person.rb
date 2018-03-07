@@ -24,7 +24,6 @@ module DataPlugins::Contact
       def default_attributes_for_json
         %i(role mail name phone).freeze
       end
-
     end
 
     # override pluralization of contact_person
