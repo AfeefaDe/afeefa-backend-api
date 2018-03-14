@@ -63,12 +63,7 @@ module Seeds
     end
 
     # annotations
-    AnnotationCategory.create!(title: 'Titel ist zu lang', generated_by_system: true)
-    AnnotationCategory.create!(title: 'Titel ist bereits vergeben', generated_by_system: true)
-    AnnotationCategory.create!(title: 'Kurzbeschreibung ist zu lang', generated_by_system: true)
     AnnotationCategory.create!(title: 'Kurzbeschreibung fehlt', generated_by_system: true)
-    AnnotationCategory.create!(title: 'Hauptkategorie fehlt', generated_by_system: true)
-    AnnotationCategory.create!(title: 'Start-Datum fehlt', generated_by_system: true)
 
     AnnotationCategory.create!(title: 'Kontaktdaten', generated_by_system: false)
     AnnotationCategory.create!(title: 'Ort', generated_by_system: false)
@@ -79,14 +74,14 @@ module Seeds
 
     AnnotationCategory.create!(title: 'Sonstiges', generated_by_system: false)
 
-    AnnotationCategory.create!(title: 'Externe Eintragung', generated_by_system: true)
-
     AnnotationCategory.create!(title: 'ENTWURF', generated_by_system: false)
     AnnotationCategory.create!(title: 'DRINGEND', generated_by_system: false)
+    AnnotationCategory.create!(title: 'EXTERNE EINTRAGUNG', generated_by_system: true)
+    AnnotationCategory.create!(title: 'EXTERNE ANMERKUNG', generated_by_system: true)
 
     # TODO: Validierung einbauen und Migration handlen!
-    AnnotationCategory.create!(title: 'Unterkategorie passt nicht zur Hauptkategorie',
-      generated_by_system: true)
+    # AnnotationCategory.create!(title: 'Unterkategorie passt nicht zur Hauptkategorie',
+    #   generated_by_system: true)
 
     # nice to have (for maintenance views):
     # accessible media_url and correct media_type for entry
