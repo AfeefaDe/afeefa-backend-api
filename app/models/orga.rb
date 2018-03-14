@@ -129,10 +129,6 @@ class Orga < ApplicationRecord
     contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
   end
 
-  def facet_items_to_hash
-    facet_items.map { |fi| fi.to_hash(attributes: fi.class.default_attributes_for_json) }
-  end
-
   def resource_items_to_hash
     resource_items.map { |r| r.to_hash(attributes: r.class.default_attributes_for_json) }
   end
