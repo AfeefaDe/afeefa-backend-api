@@ -141,29 +141,6 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
       assert_equal contact_persons.sort, contact.contact_persons.sort
     end
 
-    should 'not update contact with update of existing but foreign location' do
-      orga = create(:orga)
-      assert location = DataPlugins::Location::Location.last
-      contact = DataPlugins::Contact::Contact.create!(owner: orga, location: location, title: 'old title')
-      assert_not_equal contact, location.contact
-
-      assert_no_difference -> { DataPlugins::Contact::Contact.count } do
-        assert_no_difference -> { DataPlugins::Contact::ContactPerson.count } do
-          assert_no_difference -> { DataPlugins::Location::Location.count } do
-            patch :update,
-              params:
-                { owner_id: orga.id, owner_type: 'orgas', id: contact.id }.merge(
-                  parse_json_file(file: 'contact_with_location.json'))
-            assert_response 422
-          end
-        end
-      end
-      assert_match 'Kontakt - Sie dürfen diesen Ort nicht bearbeiten.', response.body
-      json = JSON.parse(response.body)
-      expected = { 'errors' => ['Kontakt - Sie dürfen diesen Ort nicht bearbeiten.'] }
-      assert_equal expected, json
-    end
-
     should 'remove contact and including contact persons but not foreign location' do
       orga = create(:orga)
       assert location = DataPlugins::Location::Location.last

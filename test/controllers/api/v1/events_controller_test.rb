@@ -287,7 +287,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_includes AnnotationCategory.second.events, Event.last
 
       # Then we could deliver the mapping there
-      %w(annotations locations contact_infos).each do |relation|
+      %w(annotations).each do |relation|
         assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
         assert_equal relation, json['data']['relationships'][relation]['data'].first['type']
         assert_equal(
@@ -432,22 +432,18 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_equal creator.id.to_s, json['data']['relationships']['creator']['data']['id']
       assert_equal user.id.to_s, json['data']['relationships']['last_editor']['data']['id']
-  end
+    end
 
     should 'destroy event' do
       assert @event = create(:event)
       assert_difference 'Event.count', -1 do
         assert_difference 'Event.undeleted.count', -1 do
-          assert_difference 'ContactInfo.count', -1 do
-            assert_difference 'Location.count', -1 do
-              assert_no_difference 'AnnotationCategory.count' do
-                delete :destroy,
-                  params: {
-                    id: @event.id,
-                  }
-                assert_response :no_content, response.body
-              end
-            end
+          assert_no_difference 'AnnotationCategory.count' do
+            delete :destroy,
+              params: {
+                id: @event.id,
+              }
+            assert_response :no_content, response.body
           end
         end
       end

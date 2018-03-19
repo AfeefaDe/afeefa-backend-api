@@ -54,7 +54,8 @@ module DataPlugins::Contact::Concerns::HasContacts
       contact.contact_persons.delete_all(:delete_all)
 
       # save contact persons
-      params[:contact_persons].each do |cp_params|
+      contact_persons = params[:contact_persons] || []
+      contact_persons.each do |cp_params|
         contact_person_params =
           cp_params.permit(*self.class.contact_person_params).merge(contact_id: contact.id)
         DataPlugins::Contact::ContactPerson.create!(contact_person_params)
