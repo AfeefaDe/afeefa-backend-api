@@ -19,7 +19,7 @@ module DataPlugins::Facet
       end
 
       def default_attributes_for_json
-        %i(title).freeze
+        %i(title color color_sub_items).freeze
       end
 
       def relation_whitelist_for_json
@@ -31,7 +31,7 @@ module DataPlugins::Facet
       end
 
       def facet_params(params)
-        params.permit(:title)
+        params.permit(:title, :color, :color_sub_items)
       end
 
       def save_facet(params)
