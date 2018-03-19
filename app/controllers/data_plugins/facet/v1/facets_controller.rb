@@ -23,6 +23,12 @@ class DataPlugins::Facet::V1::FacetsController < Api::V1::BaseController
 
   private
 
+  def do_includes!(objects)
+    objects =
+      objects.includes(:facet_items, facet_items: :sub_items)
+    objects
+  end
+
   def get_model_class_for_controller
     DataPlugins::Facet::Facet
   end

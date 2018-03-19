@@ -10,6 +10,12 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
   end
 
   def update
+    # need to introduce new_facet_id since facet_id is already bound to the route
+    if params.has_key?(:new_facet_id)
+      params[:facet_id] = params[:new_facet_id]
+      params.delete :new_facet_id
+    end
+
     facet = DataPlugins::Facet::FacetItem.save_facet_item(params)
     render status: :ok, json: facet
   end
@@ -28,11 +34,10 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
       return
     end
 
-    result =
-    DataPlugins::Facet::OwnerFacetItem.create(
-        owner: @owner,
-        facet_item_id: params[:facet_item_id]
-      )
+    result = DataPlugins::Facet::OwnerFacetItem.create(
+      owner: @owner,
+      facet_item_id: params[:facet_item_id]
+    )
     if result
       head 201
     else
@@ -59,8 +64,14 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
 
   private
 
+  def do_includes!(objects)
+    objects =
+      objects.includes(:sub_items)
+    objects
+  end
+
   def base_for_find_objects
-    DataPlugins::Facet::FacetItem.where(facet_id: params[:facet_id])
+    DataPlugins::Facet::FacetItem.where(facet_id: params[:facet_id], parent_id: nil)
   end
 
   def get_facet_item_relation(facet_item_id)
