@@ -10,6 +10,7 @@ module DataPlugins::Facet
     has_many :sub_items, class_name: FacetItem, foreign_key: :parent_id, dependent: :destroy
 
     has_many :owner_facet_items, class_name: DataPlugins::Facet::OwnerFacetItem, dependent: :destroy
+
     def owners
       owner_facet_items.map(&:owner)
     end
@@ -32,7 +33,7 @@ module DataPlugins::Facet
       end
 
       def default_attributes_for_json
-        %i(title color facet_id parent_id).freeze
+        %i(title color facet_id parent_id count_owners).freeze
       end
 
       def relation_whitelist_for_json
@@ -41,6 +42,10 @@ module DataPlugins::Facet
 
       def default_relations_for_json
         %i(sub_items).freeze
+      end
+
+      def count_relation_whitelist_for_json
+        %i(owners).freeze
       end
 
       def facet_item_params(params)
@@ -96,6 +101,10 @@ module DataPlugins::Facet
 
     def sub_items_to_hash
       sub_items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json, relationships: nil) }
+    end
+
+    def owners_to_hash
+      owners.map { |owner| owner.to_hash(attributes: 'title', relationships: nil) }
     end
 
   end

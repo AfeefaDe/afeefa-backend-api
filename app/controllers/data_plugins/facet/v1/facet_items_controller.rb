@@ -1,7 +1,7 @@
 class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
 
   skip_before_action :find_objects, except: [:index, :show]
-  before_action :find_facet_item, only: [:update, :destroy]
+  before_action :find_facet_item, only: [:update, :destroy, :get_linked_owners]
   before_action :find_owner, only: %i(get_linked_facet_items link_facet_item unlink_facet_item)
 
   def create
@@ -43,6 +43,10 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     else
       head 500
     end
+  end
+
+  def get_linked_owners
+    render status: :ok, json: @facet_item.owners_to_hash
   end
 
   def get_linked_facet_items
