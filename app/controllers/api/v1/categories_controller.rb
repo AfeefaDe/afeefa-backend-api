@@ -18,7 +18,7 @@ class Api::V1::CategoriesController < Api::V1::BaseController
   end
 
   def default_filter
-    { area: current_api_v1_user.area }
+    { area: params[:area] || current_api_v1_user.area }
   end
 
   def do_includes!(objects)
