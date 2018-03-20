@@ -45,12 +45,12 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
     ::Location.all.each do |location|
       next if location.locatable.blank?
 
-      contact = DataPlugins::Contact::Contact.create!(
+      contact = DataPlugins::Contact::Contact.create(
         owner: location.locatable,
         type: DataPlugins::Contact::Contact::MAIN
       )
 
-      location = DataPlugins::Location::Location.create!(
+      location = DataPlugins::Location::Location.create(
         owner: location.locatable,
         contact: contact,
         title: location.placename,
@@ -71,7 +71,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       contact = DataPlugins::Contact::Contact.where(owner: contact_info.contactable).try(:first)
 
       unless contact
-        contact = DataPlugins::Contact::Contact.create!(
+        contact = DataPlugins::Contact::Contact.create(
           owner: contact_info.contactable,
           type: DataPlugins::Contact::Contact::MAIN
         )
@@ -86,7 +86,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       )
 
       if contact_info.mail.present? || contact_info.contact_person.present? || contact_info.phone.present?
-        DataPlugins::Contact::ContactPerson.create!(
+        DataPlugins::Contact::ContactPerson.create(
           contact: contact,
           mail: contact_info.mail,
           name: contact_info.contact_person,
