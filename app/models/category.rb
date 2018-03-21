@@ -10,6 +10,15 @@ class Category < ApplicationRecord
   alias_method :parent_category=, :parent=
   alias_attribute :parent_category_id, :parent_id
 
+  has_many :events
+  has_many :orgas
+  has_many :events_as_subcategory, class_name: 'Event', foreign_key: 'sub_category_id'
+  has_many :orgas_as_subcategory, class_name: 'Orga', foreign_key: 'sub_category_id'
+
+  def owners
+    events + events_as_subcategory + orgas + orgas_as_subcategory
+  end
+
   scope :main_categories, -> { where(parent_id: nil) }
   scope :sub_categories, -> { where.not(parent_id: nil) }
   scope :by_area, ->(area) { where(area: area) }
@@ -21,7 +30,7 @@ class Category < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(title).freeze
+      %i(title count_owners).freeze
     end
 
     def relation_whitelist_for_json
@@ -31,6 +40,10 @@ class Category < ApplicationRecord
     def default_relations_for_json
       %i(parent_category).freeze
     end
-  end
+
+    def count_relation_whitelist_for_json
+      %i(owners).freeze
+    end
+end
 
 end

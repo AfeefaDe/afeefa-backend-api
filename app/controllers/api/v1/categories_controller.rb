@@ -23,7 +23,7 @@ class Api::V1::CategoriesController < Api::V1::BaseController
 
   def do_includes!(objects)
     objects =
-      objects.includes(:parent)
+      objects.includes(:parent, :events, :events_as_subcategory, :orgas, :orgas_as_subcategory)
     objects
   end
 
