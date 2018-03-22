@@ -15,7 +15,9 @@ class Api::V1::TodosController < Api::V1::EntriesController
   end
 
   def do_includes!(objects)
-    objects.grouped_by_entries.includes(:entry)
+    object = objects.grouped_by_entries.
+      includes({orga: Orga.default_includes}).
+      includes({event: Event.default_includes})
   end
 
 end

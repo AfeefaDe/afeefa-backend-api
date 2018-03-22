@@ -3,7 +3,8 @@ class Annotation < ApplicationRecord
   include Jsonable
 
   belongs_to :annotation_category
-  belongs_to :entry, polymorphic: true
+  belongs_to :orga, foreign_key: 'entry_id', foreign_type: 'Orga'
+  belongs_to :event, foreign_key: 'entry_id', foreign_type: 'Event'
 
   #scope :with_annotation_category, -> {joins(:annotation_category)}
 
@@ -41,18 +42,22 @@ class Annotation < ApplicationRecord
     end
   end
 
-  # def entry_to_hash
-  #   entry.try(&:to_hash)
-  # end
-
   def annotation_to_hash
     self.to_hash(relationships: nil)
   end
 
   def to_todos_hash
+    data = nil
+    if event
+      data = event.to_hash
+    end
+    if orga
+      data = orga.to_hash
+    end
+
     default_hash(type: 'todos').
       merge(relationships: {
-        entry: { data: entry.try(&:to_hash) },
+        entry: { data: data },
       })
   end
 
