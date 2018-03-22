@@ -6,9 +6,11 @@ module DataPlugins::Facet
     # ASSOCIATIONS
     has_many :facet_items, dependent: :destroy
     has_many :owner_facet_items, class_name: DataPlugins::Facet::OwnerFacetItem, through: :facet_items
+
     def owners
       owner_facet_items.map(&:owner)
     end
+
     # VALIDATIONS
     validates :title, length: { maximum: 255 }
 

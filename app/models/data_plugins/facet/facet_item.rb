@@ -11,8 +11,11 @@ module DataPlugins::Facet
 
     has_many :owner_facet_items, class_name: DataPlugins::Facet::OwnerFacetItem, dependent: :destroy
 
+    has_many :events, -> { by_area(Current.user.area) }, through: :owner_facet_items, source: :owner, source_type: 'Event'
+    has_many :orgas, -> { by_area(Current.user.area) }, through: :owner_facet_items, source: :owner, source_type: 'Orga'
+
     def owners
-      owner_facet_items.map(&:owner)
+      events + orgas
     end
 
     # VALIDATIONS

@@ -25,7 +25,13 @@ class DataPlugins::Facet::V1::FacetsController < Api::V1::BaseController
 
   def do_includes!(objects)
     objects =
-      objects.includes(:facet_items, facet_items: :sub_items)
+      objects.includes(:facet_items, {
+        facet_items: [
+          {sub_items: [:events, :orgas]},
+          :events,
+          :orgas
+        ]
+      })
     objects
   end
 
