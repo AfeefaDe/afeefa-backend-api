@@ -67,6 +67,17 @@ class Event < ApplicationRecord
     def default_relations_for_json
       %i(orga annotations category sub_category creator last_editor).freeze
     end
+
+    def default_includes
+      [
+        :category,
+        :sub_category,
+        :creator,
+        :last_editor,
+        :annotations,
+        {orga: Orga.default_includes}
+      ]
+    end
   end
 
   def orga_to_hash

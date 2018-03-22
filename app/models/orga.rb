@@ -79,6 +79,21 @@ class Orga < ApplicationRecord
       %i(resource_items events).freeze
     end
 
+    def default_includes
+      [
+        :category,
+        :sub_category,
+        :facet_items,
+        :creator,
+        :last_editor,
+        :annotations,
+        :resource_items,
+        :events,
+        :project_initiators,
+        :projects,
+        :network_members
+      ]
+    end
   end
 
   # INSTANCE METHODS

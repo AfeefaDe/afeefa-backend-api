@@ -25,11 +25,4 @@ class Api::V1::EntriesBaseController < Api::V1::BaseController
     { area: current_api_v1_user.area }
   end
 
-  def do_includes!(objects)
-    objects =
-      objects.includes(:annotations).includes(:category).
-        includes(:sub_category).includes(:parent).includes(:children)
-    objects
-  end
-
 end
