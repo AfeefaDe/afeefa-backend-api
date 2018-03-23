@@ -34,6 +34,8 @@ Rails.application.routes.draw do
         resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit] do
           resources :facet_items, controller: 'data_plugins/facet/v1/facet_items', except: [:new, :edit]
           get 'facet_items/:id/owners', to: 'data_plugins/facet/v1/facet_items#get_linked_owners'
+          post 'facet_items/:id/owners', to: 'data_plugins/facet/v1/facet_items#link_owners'
+          post 'facet_items/:id/owners', to: 'data_plugins/facet/v1/facet_items#unlink_owners'
         end
 
         get ':owner_type/:owner_id/facet_items', to: 'data_plugins/facet/v1/facet_items#get_linked_facet_items'

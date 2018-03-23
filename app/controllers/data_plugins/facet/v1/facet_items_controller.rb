@@ -30,7 +30,7 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
 
   def link_facet_item
     if get_facet_item_relation(params[:facet_item_id])
-      head 400
+      head :unprocessable_entity
       return
     end
 
@@ -41,7 +41,7 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     if result
       head 201
     else
-      head 500
+      head :unprocessable_entity
     end
   end
 
@@ -63,6 +63,58 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
       end
     else
       head 404
+    end
+  end
+
+  # facets/:facet_id/facet_items/:id/owners
+  def link_owners
+    begin
+      ActiveRecord::Base.transaction do # fail if one fails
+        owner_ids = params[:owners]
+        owner_ids.each do |owner_config|
+          params[:owner_id] = owner_config[:owner_id]
+          params[:owner_type] = owner_config[:owner_type]
+
+          find_owner
+
+          # do not link multiple times ... but not fail
+          if !get_facet_item_relation(params[:id]) # id is our facet_item_id
+            DataPlugins::Facet::OwnerFacetItem.create(
+              owner: @owner,
+              facet_item_id: params[:id] # id is our facet_item_id
+            )
+          end
+
+        end
+        head 201
+      end
+    rescue
+      head :unprocessable_entity
+    end
+  end
+
+  # facets/:facet_id/facet_items/:id/owners
+  def unlink_owners
+    begin
+      ActiveRecord::Base.transaction do # fail if one fails
+        owner_ids = params[:owners]
+        owner_ids.each do |owner_config|
+          params[:owner_id] = owner_config[:owner_id]
+          params[:owner_type] = owner_config[:owner_type]
+
+          find_owner
+
+          # do not fail if assocation does not exist
+          association = get_facet_item_relation(params[:id]) # id is our facet_item_id
+          if association
+            association.destroy
+          end
+
+        end
+        head 200
+      end
+    rescue
+      head :unprocessable_entity
     end
   end
 
