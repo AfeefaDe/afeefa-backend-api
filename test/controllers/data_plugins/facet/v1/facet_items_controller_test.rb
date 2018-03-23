@@ -113,6 +113,20 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       assert response.body.blank?
     end
 
+    should 'link event with facet item' do
+      facet = create(:facet)
+      facet_item = create(:facet_item, facet: facet)
+      event = create(:event)
+
+      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+        post :link_facet_item, params: { owner_type: 'events', owner_id: event.id, facet_item_id: facet_item.id }
+        assert_response :created
+
+        assert_equal facet_item, event.facet_items.first
+      end
+      assert response.body.blank?
+    end
+
     should 'throw error on link facet item again' do
       facet = create(:facet)
       facet_item = create(:facet_item, facet: facet)

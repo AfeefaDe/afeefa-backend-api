@@ -65,13 +65,14 @@ class Event < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(orga annotations category sub_category creator last_editor).freeze
+      %i(orga annotations category sub_category facet_items creator last_editor).freeze
     end
 
     def default_includes
       [
         :category,
         :sub_category,
+        :facet_items,
         :creator,
         :last_editor,
         :annotations,
@@ -115,5 +116,6 @@ class Event < ApplicationRecord
   # INCLUDE NEW CODE FROM ACTOR
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
+  include DataPlugins::Facet::Concerns::HasFacetItems
 
 end

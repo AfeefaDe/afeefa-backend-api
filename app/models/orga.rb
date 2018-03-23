@@ -67,7 +67,7 @@ class Orga < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(initiator annotations category sub_category creator last_editor facet_items).freeze
+      %i(initiator annotations category sub_category facet_items creator last_editor).freeze
     end
 
     def relation_whitelist_for_json
