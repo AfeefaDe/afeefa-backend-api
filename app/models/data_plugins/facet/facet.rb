@@ -6,6 +6,7 @@ module DataPlugins::Facet
     # ASSOCIATIONS
     has_many :facet_items, dependent: :destroy
     has_many :owner_facet_items, class_name: DataPlugins::Facet::OwnerFacetItem, through: :facet_items
+    has_many :owner_types, class_name: DataPlugins::Facet::FacetOwnerType, dependent: :destroy
 
     def owners
       owner_facet_items.map(&:owner)
@@ -29,7 +30,7 @@ module DataPlugins::Facet
       end
 
       def default_relations_for_json
-        %i(facet_items).freeze
+        %i(owner_types facet_items).freeze
       end
 
       def facet_params(params)
@@ -47,6 +48,10 @@ module DataPlugins::Facet
     def facet_items_to_hash
       items = facet_items.select { |item| item.parent_id == nil }
       items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
+    end
+
+    def owner_types_to_hash
+      owner_types.map { |owner_type| owner_type.owner_type }
     end
 
   end
