@@ -3,6 +3,7 @@ class Annotation < ApplicationRecord
   include Jsonable
 
   belongs_to :annotation_category
+  belongs_to :entry, polymorphic: true
   belongs_to :orga, foreign_key: 'entry_id', foreign_type: 'Orga'
   belongs_to :event, foreign_key: 'entry_id', foreign_type: 'Event'
 

@@ -51,6 +51,10 @@ end
 
 class ActiveSupport::TestCase
 
+  setup do
+    Current.stubs(:user).returns(valid_user)
+  end
+
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   # fixtures :all
 
