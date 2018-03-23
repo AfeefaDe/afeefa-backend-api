@@ -34,7 +34,7 @@ module DataModules::Offer
       end
 
       def default_relations_for_json
-        %i(actors).freeze
+        %i(actors facet_items).freeze
       end
 
       def offer_params(params)
