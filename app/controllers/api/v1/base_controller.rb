@@ -20,7 +20,6 @@ class Api::V1::BaseController < ApplicationController
     Current.user = nil
   end
 
-
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
   end
