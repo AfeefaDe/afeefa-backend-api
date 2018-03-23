@@ -64,7 +64,7 @@ class ActiveSupport::TestCase
 
   def valid_user
     User.create!(
-      email: "foo#{rand(0..1000)}@afeefa.de",
+      email: "foo#{rand(0..10000000)}@afeefa.de",
       forename: 'Max',
       surname: 'Mustermann',
       # TODO: remove required password from device
