@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180319170519) do
+ActiveRecord::Schema.define(version: 20180323094730) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -196,6 +196,12 @@ ActiveRecord::Schema.define(version: 20180319170519) do
     t.index ["parent_id"], name: "index_facet_items_on_parent_id", using: :btree
   end
 
+  create_table "facet_owner_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "facet_id"
+    t.string  "owner_type"
+    t.index ["facet_id"], name: "index_facet_owner_types_on_facet_id", using: :btree
+  end
+
   create_table "facets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.string   "color"
@@ -223,6 +229,13 @@ ActiveRecord::Schema.define(version: 20180319170519) do
     t.boolean  "migrated_from_neos",               default: false
     t.text     "directions",         limit: 65535
     t.index ["locatable_type", "locatable_id"], name: "index_locations_on_locatable_type_and_locatable_id", using: :btree
+  end
+
+  create_table "offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "title"
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
   end
 
   create_table "orga_category_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -283,6 +296,15 @@ ActiveRecord::Schema.define(version: 20180319170519) do
     t.datetime "updated_at",    null: false
     t.index ["facet_item_id"], name: "index_owner_facet_items_on_facet_item_id", using: :btree
     t.index ["owner_type", "owner_id"], name: "index_owner_facet_items_on_owner_type_and_owner_id", using: :btree
+  end
+
+  create_table "owner_offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "actor_id"
+    t.integer  "offer_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_owner_offers_on_actor_id", using: :btree
+    t.index ["offer_id"], name: "index_owner_offers_on_offer_id", using: :btree
   end
 
   create_table "owner_thing_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

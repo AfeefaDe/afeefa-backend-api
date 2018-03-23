@@ -141,6 +141,34 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       assert response.body.blank?
     end
 
+    should 'link owners of multiple types with facet item' do
+      facet = create(:facet, owner_types: ['Orga', 'Event', 'Offer'])
+      facet_item = create(:facet_item, facet: facet)
+      orga = create(:orga)
+      orga2 = create(:orga, title: 'another orga')
+      event = create(:event, orga: orga2)
+      offer = create(:offer, actor_id: orga.id)
+
+      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, 4 do
+        post :link_owners, params: {
+          facet_id: facet.id, id: facet_item.id,
+          owners: [
+            { owner_type: 'orgas', owner_id: orga.id },
+            { owner_type: 'orgas', owner_id: orga2.id },
+            { owner_type: 'events', owner_id: event.id },
+            { owner_type: 'offers', owner_id: offer.id }
+          ]
+        }
+        assert_response :created
+
+        assert_equal facet_item, orga.facet_items.first
+        assert_equal facet_item, orga2.facet_items.first
+        assert_equal facet_item, event.facet_items.first
+        assert_equal facet_item, offer.facet_items.first
+      end
+      assert response.body.blank?
+    end
+
     should 'not fail if linking multiple owners fails for one owner with already existing association' do
       facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)

@@ -30,6 +30,8 @@ Rails.application.routes.draw do
         patch ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#update'
         delete ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#delete'
 
+        resources :offers, controller: 'data_modules/offer/v1/offers'
+
         resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
         resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit] do
           resources :facet_items, controller: 'data_plugins/facet/v1/facet_items', except: [:new, :edit]

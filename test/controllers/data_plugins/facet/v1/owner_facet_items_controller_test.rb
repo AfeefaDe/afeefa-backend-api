@@ -35,6 +35,21 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
       assert response.body.blank?
     end
 
+    should 'link offer with facet item' do
+      facet = create(:facet, owner_types: ['Orga', 'Offer'])
+      facet_item = create(:facet_item, facet: facet)
+      orga = create(:orga)
+      offer = create(:offer, actor_id: orga.id)
+
+      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+        post :link_facet_item, params: { owner_type: 'offers', owner_id: offer.id, facet_item_id: facet_item.id }
+        assert_response :created
+
+        assert_equal facet_item, offer.facet_items.first
+      end
+      assert response.body.blank?
+    end
+
     should 'throw error if linking owner which is not supported by facet' do
       facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)

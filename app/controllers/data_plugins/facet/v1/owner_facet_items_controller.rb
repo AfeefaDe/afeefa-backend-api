@@ -70,6 +70,8 @@ class DataPlugins::Facet::V1::OwnerFacetItemsController < Api::V1::BaseControlle
         Orga.find(params[:owner_id])
       when 'events'
         Event.find(params[:owner_id])
+      when 'offers'
+        DataModules::Offer::Offer.find(params[:owner_id])
       end
   end
 

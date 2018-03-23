@@ -21,6 +21,7 @@ class Api::V1::MetasController < ApplicationController
           past: Event.by_area(area).past.count,
           upcoming: Event.by_area(area).upcoming.count
         },
+        offers: amount_of_offers(area),
         todos: Annotation.grouped_by_entries.with_entries.by_area(area).count.count,
         chapters: amount_of_chapters(area)
       }
@@ -32,6 +33,10 @@ class Api::V1::MetasController < ApplicationController
 
   def amount_of_chapters(area)
     AreaChapterConfig.active.by_area(area).count
+  end
+
+  def amount_of_offers(area)
+    DataModules::Offer::Offer.by_area(area).count
   end
 
 end

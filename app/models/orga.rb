@@ -71,7 +71,7 @@ class Orga < ApplicationRecord
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(resource_items contacts) +
+      (default_relations_for_json + %i(resource_items contacts offers) +
         %i(projects project_initiators networks network_members partners)).freeze
     end
 
@@ -198,5 +198,6 @@ class Orga < ApplicationRecord
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
   include DataPlugins::Facet::Concerns::HasFacetItems
+  include DataModules::Offer::Concerns::HasOffers
 
 end
