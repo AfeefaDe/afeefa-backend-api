@@ -46,7 +46,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
 
     should 'throw error on create with wrong params' do
       post :create, params: { facet_id: 1, title: 'new facet item' }
-      assert_response :unprocessable_entity
+      assert_response :not_found
     end
 
     should 'update facet item' do
@@ -57,6 +57,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
         patch :update, params: { facet_id: facet.id, id: facet_item.id, title: 'changed facet item' }
         assert_response :ok
       end
+
       json = JSON.parse(response.body)
       facet_item.reload
       assert_equal JSON.parse(facet_item.to_json), json
@@ -99,105 +100,14 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       assert response.body.blank?
     end
 
-    should 'link owner with facet item' do
-      facet = create(:facet)
-      facet_item = create(:facet_item, facet: facet)
-      orga = create(:orga)
-
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
-        post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-        assert_response :created
-
-        assert_equal facet_item, orga.facet_items.first
-      end
-      assert response.body.blank?
-    end
-
-    should 'link event with facet item' do
-      facet = create(:facet)
-      facet_item = create(:facet_item, facet: facet)
-      event = create(:event)
-
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
-        post :link_facet_item, params: { owner_type: 'events', owner_id: event.id, facet_item_id: facet_item.id }
-        assert_response :created
-
-        assert_equal facet_item, event.facet_items.first
-      end
-      assert response.body.blank?
-    end
-
-    should 'throw error on link facet item again' do
-      facet = create(:facet)
-      facet_item = create(:facet_item, facet: facet)
-      orga = create(:orga)
-
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
-        post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-        assert_response :unprocessable_entity
-      end
-      assert response.body.blank?
-    end
-
-    should 'unlink facet item' do
-      facet = create(:facet)
-      facet_item = create(:facet_item, facet: facet)
-      orga = create(:orga)
-
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -1 do
-        delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-        assert_response :ok
-
-        assert_nil orga.facet_items.first
-      end
-      assert response.body.blank?
-    end
-
-    should 'throw error on unlink facet item again' do
-      facet = create(:facet)
-      facet_item = create(:facet_item, facet: facet)
-      orga = create(:orga)
-
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-      delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
-        delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-        assert_response :not_found
-      end
-      assert response.body.blank?
-    end
-
-    should 'get linked facet items' do
-      facet = create(:facet)
-      facet_item = create(:facet_item, facet: facet)
-      facet_item2 = create(:facet_item, facet: facet)
-      orga = create(:orga)
-
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item2.id }
-
-      get :get_linked_facet_items, params: { owner_type: 'orgas', owner_id: orga.id }
-      assert_response :ok
-
-      json = JSON.parse(response.body)
-      assert_equal 2, json.count
-      assert_equal JSON.parse(facet_item.to_json), json.first
-      assert_equal JSON.parse(facet_item2.to_json), json[1]
-    end
-
     should 'get linked owners' do
       facet = create(:facet)
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
       orga2 = create(:orga, title: 'another orga')
 
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga2.id, facet_item_id: facet_item.id }
+      link_facet_item(orga, facet_item)
+      link_facet_item(orga2, facet_item)
 
       get :get_linked_owners, params: { facet_id: facet.id, id: facet_item.id }
       assert_response :ok
@@ -210,7 +120,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
     end
 
     should 'link multiple owners with facet item' do
-      facet = create(:facet)
+      facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
       orga2 = create(:orga, title: 'another orga')
@@ -232,12 +142,12 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
     end
 
     should 'not fail if linking multiple owners fails for one owner with already existing association' do
-      facet = create(:facet)
+      facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
       orga2 = create(:orga, title: 'another orga')
 
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
+      link_facet_item(orga, facet_item)
 
       assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, 1 do
         post :link_owners, params: {
@@ -256,10 +166,9 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
     end
 
     should 'throw error if linking multiple owners fails for one owner which does not exist' do
-      facet = create(:facet)
+      facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
-      orga2 = create(:orga, title: 'another orga')
 
       assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
         post :link_owners, params: {
@@ -276,14 +185,33 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       assert response.body.blank?
     end
 
+    should 'throw error if linking owners which type is not supported by facet' do
+      facet = create(:facet, owner_types: ['Event'])
+      facet_item = create(:facet_item, facet: facet)
+      orga = create(:orga)
+
+      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+        post :link_owners, params: {
+          facet_id: facet.id, id: facet_item.id,
+          owners: [
+            { owner_type: 'orgas', owner_id: orga.id }
+          ]
+        }
+        assert_response :unprocessable_entity
+
+        assert_nil orga.facet_items.first
+      end
+      assert response.body.blank?
+    end
+
     should 'unlink multiple owners from facet item' do
-      facet = create(:facet)
+      facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
       orga2 = create(:orga, title: 'another orga')
 
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga2.id, facet_item_id: facet_item.id }
+      link_facet_item(orga, facet_item)
+      link_facet_item(orga2, facet_item)
 
       assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -2 do
         post :unlink_owners, params: {
@@ -302,12 +230,12 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
     end
 
     should 'not fail if unlinking multiple owners fails for one owner without existing association' do
-      facet = create(:facet)
+      facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
       orga2 = create(:orga, title: 'another orga')
 
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
+      link_facet_item(orga, facet_item)
 
       assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -1 do
         post :unlink_owners, params: {
@@ -326,11 +254,11 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
     end
 
     should 'throw error if unlinking multiple owners fails for one nonexisting owner' do
-      facet = create(:facet)
+      facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
 
-      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
+      link_facet_item(orga, facet_item)
 
       assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
         post :unlink_owners, params: {
@@ -344,6 +272,15 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       end
       assert response.body.blank?
     end
-
   end
+
+  private
+
+  def link_facet_item(owner, facet_item)
+    DataPlugins::Facet::OwnerFacetItem.create(
+      owner: owner,
+      facet_item: facet_item
+    )
+  end
+
 end

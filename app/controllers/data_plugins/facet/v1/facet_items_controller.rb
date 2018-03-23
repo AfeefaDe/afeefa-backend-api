@@ -1,14 +1,16 @@
 class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
 
   skip_before_action :find_objects, except: [:index, :show]
-  before_action :find_facet_item, only: [:update, :destroy, :get_linked_owners]
-  before_action :find_owner, only: %i(get_linked_facet_items link_facet_item unlink_facet_item)
+  before_action :find_facet, only: [:index, :create]
+  before_action :find_facet_item, except: [:index, :create]
 
+  # facets/:facet_id/facet_items
   def create
-    facet = DataPlugins::Facet::FacetItem.save_facet_item(params)
-    render status: :created, json: facet
+    facet_item = DataPlugins::Facet::FacetItem.save_facet_item(params)
+    render status: :created, json: facet_item
   end
 
+  # facets/:facet_id/facet_items/:id
   def update
     # need to introduce new_facet_id since facet_id is already bound to the route
     if params.has_key?(:new_facet_id)
@@ -16,10 +18,11 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
       params.delete :new_facet_id
     end
 
-    facet = DataPlugins::Facet::FacetItem.save_facet_item(params)
-    render status: :ok, json: facet
+    facet_item = DataPlugins::Facet::FacetItem.save_facet_item(params)
+    render status: :ok, json: facet_item
   end
 
+  # facets/:facet_id/facet_items/:id
   def destroy
     if @facet_item.destroy
       render status: :ok
@@ -28,42 +31,9 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     end
   end
 
-  def link_facet_item
-    if get_facet_item_relation(params[:facet_item_id])
-      head :unprocessable_entity
-      return
-    end
-
-    result = DataPlugins::Facet::OwnerFacetItem.create(
-      owner: @owner,
-      facet_item_id: params[:facet_item_id]
-    )
-    if result
-      head 201
-    else
-      head :unprocessable_entity
-    end
-  end
-
+  # facets/:facet_id/facet_items/:id/owners
   def get_linked_owners
     render status: :ok, json: @facet_item.owners_to_hash
-  end
-
-  def get_linked_facet_items
-    render status: :ok, json: @owner.facet_items
-  end
-
-  def unlink_facet_item
-    association = get_facet_item_relation(params[:facet_item_id])
-    if association
-      if association.destroy
-        head 200
-      else
-        head 500
-      end
-    else
-      head 404
-    end
   end
 
   # facets/:facet_id/facet_items/:id/owners
@@ -76,6 +46,12 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
           params[:owner_type] = owner_config[:owner_type]
 
           find_owner
+
+          if !facet_supports_type_of_owner
+            raise ActiveRecord::RecordInvalid,
+              "Typ des Owners ist nicht supported"
+            return
+          end
 
           # do not link multiple times ... but not fail
           if !get_facet_item_relation(params[:id]) # id is our facet_item_id
@@ -141,12 +117,13 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     DataPlugins::Facet::FacetItem
   end
 
+  def find_facet
+    @facet = DataPlugins::Facet::Facet.find(params[:facet_id])
+  end
+
   def find_facet_item
+    find_facet
     @facet_item = DataPlugins::Facet::FacetItem.find(params[:id])
-    unless @facet_item
-      raise ActiveRecord::RecordNotFound,
-        "Facette mit ID #{params[:id]} konnte nicht gefunden werden."
-    end
   end
 
   def find_owner
@@ -161,6 +138,11 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
       raise ActiveRecord::RecordNotFound,
         "Element mit ID #{params[:owner_id]} konnte für Typ #{params[:owner_type]} nicht gefunden werden."
     end
+  end
+
+  def facet_supports_type_of_owner()
+    type = @owner.class.to_s.split('::').last
+    @facet.owner_types.where(owner_type: type).exists?
   end
 
 end
