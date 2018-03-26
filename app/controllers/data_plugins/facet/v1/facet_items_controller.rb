@@ -125,9 +125,4 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     end
   end
 
-  def facet_supports_type_of_owner()
-    type = @owner.class.to_s.split('::').last
-    @facet.owner_types.where(owner_type: type).exists?
-  end
-
 end

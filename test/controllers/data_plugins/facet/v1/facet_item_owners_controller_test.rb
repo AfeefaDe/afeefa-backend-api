@@ -15,10 +15,10 @@ class DataPlugins::Facet::V1::FacetItemOwnersControllerTest < ActionController::
       assert_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
         assert_response :created
+        assert response.body.blank?
 
         assert_equal facet_item, orga.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'link event with facet item' do
@@ -29,10 +29,10 @@ class DataPlugins::Facet::V1::FacetItemOwnersControllerTest < ActionController::
       assert_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'events', owner_id: event.id, facet_item_id: facet_item.id }
         assert_response :created
+        assert response.body.blank?
 
         assert_equal facet_item, event.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'link offer with facet item' do
@@ -44,10 +44,10 @@ class DataPlugins::Facet::V1::FacetItemOwnersControllerTest < ActionController::
       assert_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'offers', owner_id: offer.id, facet_item_id: facet_item.id }
         assert_response :created
+        assert response.body.blank?
 
         assert_equal facet_item, offer.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'call facet_item.link_owner on link facet item' do
@@ -69,8 +69,8 @@ class DataPlugins::Facet::V1::FacetItemOwnersControllerTest < ActionController::
       assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'events', owner_id: event.id, facet_item_id: facet_item.id }
         assert_response :unprocessable_entity
+        assert response.body.blank?
       end
-      assert response.body.blank?
     end
 
     should 'throw error on link facet item again' do
@@ -83,8 +83,8 @@ class DataPlugins::Facet::V1::FacetItemOwnersControllerTest < ActionController::
       assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
         assert_response :unprocessable_entity
+        assert response.body.blank?
       end
-      assert response.body.blank?
     end
 
     should 'unlink facet item' do
@@ -97,10 +97,10 @@ class DataPlugins::Facet::V1::FacetItemOwnersControllerTest < ActionController::
       assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -1 do
         delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
         assert_response :ok
+        assert response.body.blank?
 
         assert_nil orga.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'call facet_item.unlink_owner on link facet item' do
@@ -127,8 +127,8 @@ class DataPlugins::Facet::V1::FacetItemOwnersControllerTest < ActionController::
       assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
         assert_response :not_found
+        assert response.body.blank?
       end
-      assert response.body.blank?
     end
 
     should 'get linked facet items' do

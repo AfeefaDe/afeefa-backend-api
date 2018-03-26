@@ -44,7 +44,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       assert_equal JSON.parse(facet_item.to_json), json
     end
 
-    should 'throw error on create with wrong params' do
+    should 'throw 404 error on create with wrong params' do
       post :create, params: { facet_id: 1, title: 'new facet item' }
       assert_response :not_found
     end
@@ -96,8 +96,8 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       assert_difference -> { DataPlugins::Facet::FacetItem.count }, -1 do
         delete :destroy, params: { facet_id: facet.id, id: facet_item.id }
         assert_response 200
+        assert response.body.blank?
       end
-      assert response.body.blank?
     end
 
     should 'get linked owners' do
@@ -154,11 +154,11 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :created
+        assert response.body.blank?
 
         assert_equal facet_item, orga.facet_items.first
         assert_equal facet_item, orga2.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'call facet_item.link_owner on link multiple owners' do
@@ -199,13 +199,13 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :created
+        assert response.body.blank?
 
         assert_equal facet_item, orga.facet_items.first
         assert_equal facet_item, orga2.facet_items.first
         assert_equal facet_item, event.facet_items.first
         assert_equal facet_item, offer.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'not fail if linking multiple owners fails for one owner with already existing association' do
@@ -225,11 +225,11 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :created
+        assert response.body.blank?
 
         assert_equal facet_item, orga.facet_items.first
         assert_equal facet_item, orga2.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'throw error if linking multiple owners fails for one owner which does not exist' do
@@ -246,10 +246,10 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :unprocessable_entity
+        assert response.body.blank?
 
         assert_nil orga.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'throw error if linking multiple owners fails for all owners' do
@@ -265,10 +265,10 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :unprocessable_entity
+        assert response.body.blank?
 
         assert_nil orga.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'not fail if linking multiple owners fails for one owner which type is not supported by facet' do
@@ -286,11 +286,11 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :created
+        assert response.body.blank?
 
         assert_nil orga.facet_items.first
         assert_equal facet_item, event.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'unlink multiple owners from facet item' do
@@ -311,11 +311,11 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :ok
+        assert response.body.blank?
 
         assert_nil orga.facet_items.first
         assert_nil orga2.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'call facet_item.unlink_owner on link multiple owners' do
@@ -357,11 +357,11 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :ok
+        assert response.body.blank?
 
         assert_nil orga.facet_items.first
         assert_nil orga2.facet_items.first
       end
-      assert response.body.blank?
     end
 
     should 'throw error if unlinking multiple owners fails for one nonexisting owner' do
@@ -380,8 +380,8 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :unprocessable_entity
+        assert response.body.blank?
       end
-      assert response.body.blank?
     end
 
     should 'throw error if unlinking multiple owners fails for all owners' do
@@ -398,8 +398,8 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
           ]
         }
         assert_response :unprocessable_entity
+        assert response.body.blank?
       end
-      assert response.body.blank?
     end
   end
 

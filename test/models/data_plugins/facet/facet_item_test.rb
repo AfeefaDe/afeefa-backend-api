@@ -63,6 +63,9 @@ module DataPlugins::Facet
       facet_item = save_facet_item(facet_id: facet2.id, id: facet_item.id, parent_id: parent2.id, title: 'changed facet item')
       assert_equal facet_item.facet_id, facet2.id
       assert_equal facet_item.parent_id, parent2.id
+
+      parent2.reload
+      assert_equal [facet_item], parent2.sub_items
     end
 
     should 'throw error on update facet item with wrong facet_id' do

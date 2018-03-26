@@ -150,7 +150,12 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def find_objects
-    @objects = base_for_find_objects
+    @objects = base_for_find_objects ||
+      get_model_class_for_controller.all
+  end
+
+  def get_model_class_for_controller
+    self.class.name.to_s.split('::').last.gsub('Controller', '').singularize.constantize
   end
 
   def filter_objects

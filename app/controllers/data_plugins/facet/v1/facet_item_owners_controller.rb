@@ -30,10 +30,8 @@ class DataPlugins::Facet::V1::FacetItemOwnersController < Api::V1::BaseControlle
 
     if result == true
       head 200
-    elsif result == false
+    else
       head :unprocessable_entity
-    else # returns :not_found :-)
-      head result
     end
   end
 
