@@ -7,7 +7,7 @@ FactoryGirl.define do
       area 'dresden'
       date_start { I18n.l(Date.tomorrow) }
       creator { User.first }
-      association :orga, factory: :orga
+      association :orga, factory: :orga_with_random_title
       association :category, factory: :category
 
       locations { [build(:location)] }
