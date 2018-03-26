@@ -100,6 +100,11 @@ module DataPlugins::Facet
         facet_item = save_facet_item(facet_id: facet.id, id: facet_item.id, parent_id: parent2.id, title: 'changed facet item')
       }
       assert_match 'Ein übergeordnetes Attribut muss zur selben Kategorie gehören.', exception.message
+
+      exception = assert_raises(ActiveRecord::RecordInvalid) {
+        facet_item = save_facet_item(facet_id: facet.id, id: facet_item.id, parent_id: facet_item.id, title: 'changed facet item')
+      }
+      assert_match 'Ein Attribut kann nicht sein Unterattribut sein.', exception.message
     end
 
     should 'throw error on setting parent for items with sub items' do
