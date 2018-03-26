@@ -31,7 +31,7 @@ module DataPlugins::Facet
 
       assert_equal [parent, sub_item], orga.facet_items
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -2 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -2 do
         facet.destroy
 
         orga.reload

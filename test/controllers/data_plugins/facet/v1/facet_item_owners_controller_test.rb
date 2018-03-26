@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::TestCase
+class DataPlugins::Facet::V1::FacetItemOwnersControllerTest < ActionController::TestCase
 
   context 'as authorized user' do
     setup do
@@ -12,7 +12,7 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
         assert_response :created
 
@@ -26,7 +26,7 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
       facet_item = create(:facet_item, facet: facet)
       event = create(:event)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'events', owner_id: event.id, facet_item_id: facet_item.id }
         assert_response :created
 
@@ -41,7 +41,7 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
       orga = create(:orga)
       offer = create(:offer, actor_id: orga.id)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'offers', owner_id: offer.id, facet_item_id: facet_item.id }
         assert_response :created
 
@@ -66,7 +66,7 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
       facet_item = create(:facet_item, facet: facet)
       event = create(:event)
 
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'events', owner_id: event.id, facet_item_id: facet_item.id }
         assert_response :unprocessable_entity
       end
@@ -80,7 +80,7 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
 
       post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
 
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
         assert_response :unprocessable_entity
       end
@@ -94,7 +94,7 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
 
       post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -1 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -1 do
         delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
         assert_response :ok
 
@@ -124,7 +124,7 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
       post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
       delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
 
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
         assert_response :not_found
       end

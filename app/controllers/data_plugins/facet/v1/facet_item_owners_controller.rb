@@ -1,4 +1,4 @@
-class DataPlugins::Facet::V1::OwnerFacetItemsController < Api::V1::BaseController
+class DataPlugins::Facet::V1::FacetItemOwnersController < Api::V1::BaseController
 
   before_action :find_facet_item, only: [:link_facet_item, :unlink_facet_item]
   before_action :find_owner
@@ -21,7 +21,7 @@ class DataPlugins::Facet::V1::OwnerFacetItemsController < Api::V1::BaseControlle
 
   # :owner_type/:owner_id/facet_items/:facet_item_id
   def unlink_facet_item
-    unless @facet_item.owner_facet_items.where(owner: @owner).exists?
+    unless @facet_item.facet_item_owners.where(owner: @owner).exists?
       head :not_found
       return
     end

@@ -145,7 +145,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       orga = create(:orga)
       orga2 = create(:orga, title: 'another orga')
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, 2 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, 2 do
         post :link_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -188,7 +188,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       event = create(:event, orga: orga2)
       offer = create(:offer, actor_id: orga.id)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, 4 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, 4 do
         post :link_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -216,7 +216,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
 
       facet_item.link_owner(orga)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, 1 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, 1 do
         post :link_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -237,7 +237,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
 
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -257,7 +257,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       facet_item = create(:facet_item, facet: facet)
       orga = create(:orga)
 
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -277,7 +277,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       orga = create(:orga)
       event = create(:event)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :link_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -302,7 +302,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       facet_item.link_owner(orga)
       facet_item.link_owner(orga2)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -2 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -2 do
         post :unlink_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -348,7 +348,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       orga2 = create(:orga, title: 'another orga')
       facet_item.link_owner(orga)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -1 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -1 do
         post :unlink_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -371,7 +371,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       orga = create(:orga)
       facet_item.link_owner(orga)
 
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :unlink_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [
@@ -390,7 +390,7 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
 
       orga = create(:orga)
 
-      assert_no_difference -> { DataPlugins::Facet::OwnerFacetItem.count } do
+      assert_no_difference -> { DataPlugins::Facet::FacetItemOwner.count } do
         post :unlink_owners, params: {
           facet_id: facet.id, id: facet_item.id,
           owners: [

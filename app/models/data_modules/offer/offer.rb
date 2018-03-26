@@ -3,8 +3,8 @@ module DataModules::Offer
     include Jsonable
 
     # ASSOCIATIONS
-    has_many :owner_offers, class_name: DataModules::Offer::OwnerOffer, dependent: :destroy
-    has_many :actors, through: :owner_offers
+    has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, dependent: :destroy
+    has_many :actors, through: :offer_owners
 
     scope :by_area, -> (area) {
       includes(:actors).
@@ -59,7 +59,7 @@ module DataModules::Offer
     end
 
     def associate_actor_on_create
-      DataModules::Offer::OwnerOffer.create(
+      DataModules::Offer::OfferOwner.create(
         actor_id: actor_id,
         offer: self
       )

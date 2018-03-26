@@ -25,7 +25,7 @@ class OfferTest < ActiveSupport::TestCase
   should 'associate new offer with given actor' do
     actor = create(:orga)
 
-    assert_difference -> { DataModules::Offer::OwnerOffer.count } do
+    assert_difference -> { DataModules::Offer::OfferOwner.count } do
       offer = DataModules::Offer::Offer.create(actor_id: actor.id)
 
       assert_equal actor, offer.actors.first
@@ -37,7 +37,7 @@ class OfferTest < ActiveSupport::TestCase
     actor = create(:orga)
     offer = DataModules::Offer::Offer.create(actor_id: actor.id)
 
-    assert_difference -> { DataModules::Offer::OwnerOffer.count }, -1 do
+    assert_difference -> { DataModules::Offer::OfferOwner.count }, -1 do
       offer.destroy
 
       assert_nil offer.actors.first

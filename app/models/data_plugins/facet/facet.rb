@@ -5,11 +5,11 @@ module DataPlugins::Facet
 
     # ASSOCIATIONS
     has_many :facet_items, dependent: :destroy
-    has_many :owner_facet_items, class_name: DataPlugins::Facet::OwnerFacetItem, through: :facet_items
+    has_many :facet_item_owners, class_name: DataPlugins::Facet::FacetItemOwner, through: :facet_items
     has_many :owner_types, class_name: DataPlugins::Facet::FacetOwnerType, dependent: :destroy
 
     def owners
-      owner_facet_items.map(&:owner)
+      facet_item_owners.map(&:owner)
     end
 
     # VALIDATIONS

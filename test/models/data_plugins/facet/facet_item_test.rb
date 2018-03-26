@@ -191,7 +191,7 @@ module DataPlugins::Facet
 
       orga = create(:orga)
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, 2 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, 2 do
         sub_item.link_owner(orga)
         assert_equal [parent, sub_item], orga.facet_items
       end
@@ -223,7 +223,7 @@ module DataPlugins::Facet
 
       assert_equal [parent, sub_item], orga.facet_items
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -2 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -2 do
         parent.unlink_owner(orga)
 
         assert_equal [], orga.facet_items
@@ -242,7 +242,7 @@ module DataPlugins::Facet
 
       assert_equal [parent, sub_item], orga.facet_items
 
-      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -2 do
+      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -2 do
         parent.destroy
 
         orga.reload

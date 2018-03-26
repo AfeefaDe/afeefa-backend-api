@@ -9,11 +9,11 @@ module DataPlugins::Facet
     # TODO: Should the children be destroyed?
     has_many :sub_items, class_name: FacetItem, foreign_key: :parent_id, dependent: :destroy
 
-    has_many :owner_facet_items, class_name: DataPlugins::Facet::OwnerFacetItem, dependent: :destroy
+    has_many :facet_item_owners, class_name: DataPlugins::Facet::FacetItemOwner, dependent: :destroy
 
-    has_many :events, -> { by_area(Current.user.area) }, through: :owner_facet_items, source: :owner, source_type: 'Event'
-    has_many :orgas, -> { by_area(Current.user.area) }, through: :owner_facet_items, source: :owner, source_type: 'Orga'
-    has_many :offers, -> { by_area(Current.user.area) }, through: :owner_facet_items, source: :owner, source_type: 'Offer'
+    has_many :events, -> { by_area(Current.user.area) }, through: :facet_item_owners, source: :owner, source_type: 'Event'
+    has_many :orgas, -> { by_area(Current.user.area) }, through: :facet_item_owners, source: :owner, source_type: 'Orga'
+    has_many :offers, -> { by_area(Current.user.area) }, through: :facet_item_owners, source: :owner, source_type: 'Offer'
 
     def owners
       events + orgas
@@ -101,7 +101,7 @@ module DataPlugins::Facet
     end
 
     def link_owner(owner)
-      if owner_facet_items.where(owner: owner).exists?
+      if facet_item_owners.where(owner: owner).exists?
         return false
       end
 
@@ -109,14 +109,14 @@ module DataPlugins::Facet
         return false
       end
 
-      DataPlugins::Facet::OwnerFacetItem.create(
+      DataPlugins::Facet::FacetItemOwner.create(
         owner: owner,
         facet_item_id: id
       )
 
       # link parent too
       if parent
-        DataPlugins::Facet::OwnerFacetItem.find_or_create_by(
+        DataPlugins::Facet::FacetItemOwner.find_or_create_by(
           owner: owner,
           facet_item_id: parent.id
         )
@@ -126,7 +126,7 @@ module DataPlugins::Facet
     end
 
     def unlink_owner(owner)
-      unless owner_facet_items.where(owner: owner).exists?
+      unless facet_item_owners.where(owner: owner).exists?
         return false
       end
 
@@ -161,7 +161,7 @@ module DataPlugins::Facet
         old_parent_id = changes['parent_id'][0]
         if old_parent_id
           old_parent = DataPlugins::Facet::FacetItem.find(old_parent_id)
-          owner_facet_items.each do |owner_facet_item|
+          facet_item_owners.each do |owner_facet_item|
             owner_facet_item.owner.facet_items.delete(old_parent)
           end
         end
@@ -169,7 +169,7 @@ module DataPlugins::Facet
         new_parent_id = changes['parent_id'][1]
         if new_parent_id
           new_parent = DataPlugins::Facet::FacetItem.find(new_parent_id)
-          owner_facet_items.each do |owner_facet_item|
+          facet_item_owners.each do |owner_facet_item|
             owner_facet_item.owner.facet_items << new_parent
           end
         end

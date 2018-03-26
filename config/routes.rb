@@ -40,9 +40,9 @@ Rails.application.routes.draw do
           post 'facet_items/:id/owners', to: 'data_plugins/facet/v1/facet_items#unlink_owners'
         end
 
-        get ':owner_type/:owner_id/facet_items', to: 'data_plugins/facet/v1/owner_facet_items#get_linked_facet_items'
-        post ':owner_type/:owner_id/facet_items/:facet_item_id', to: 'data_plugins/facet/v1/owner_facet_items#link_facet_item'
-        delete ':owner_type/:owner_id/facet_items/:facet_item_id', to: 'data_plugins/facet/v1/owner_facet_items#unlink_facet_item'
+        get ':owner_type/:owner_id/facet_items', to: 'data_plugins/facet/v1/facet_item_owners#get_linked_facet_items'
+        post ':owner_type/:owner_id/facet_items/:facet_item_id', to: 'data_plugins/facet/v1/facet_item_owners#link_facet_item'
+        delete ':owner_type/:owner_id/facet_items/:facet_item_id', to: 'data_plugins/facet/v1/facet_item_owners#unlink_facet_item'
       end
     end
 

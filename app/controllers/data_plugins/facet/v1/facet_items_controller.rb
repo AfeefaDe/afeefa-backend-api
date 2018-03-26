@@ -100,13 +100,6 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     DataPlugins::Facet::FacetItem.where(facet_id: params[:facet_id], parent_id: nil)
   end
 
-  def get_facet_item_relation(facet_item_id)
-    DataPlugins::Facet::OwnerFacetItem.find_by(
-      owner: @owner,
-      facet_item_id: facet_item_id
-    )
-  end
-
   def get_model_class_for_controller
     DataPlugins::Facet::FacetItem
   end

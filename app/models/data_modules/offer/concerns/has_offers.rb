@@ -3,8 +3,8 @@ module DataModules::Offer::Concerns::HasOffers
   extend ActiveSupport::Concern
 
   included do
-    has_many :owner_offers, class_name: DataModules::Offer::OwnerOffer, foreign_key: 'actor_id'
-    has_many :offers, class_name: DataModules::Offer::Offer, through: :owner_offers
+    has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, foreign_key: 'actor_id'
+    has_many :offers, class_name: DataModules::Offer::Offer, through: :offer_owners
 
     def offers_to_hash
       offers.map { |o| o.to_hash(attributes: o.class.default_attributes_for_json, relationships: nil) }

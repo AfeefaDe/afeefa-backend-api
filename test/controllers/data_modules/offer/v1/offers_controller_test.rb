@@ -10,7 +10,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     should 'create offer with actor' do
       actor = create(:orga)
 
-      assert_difference -> { DataModules::Offer::OwnerOffer.count } do
+      assert_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_difference -> { DataModules::Offer::Offer.count } do
           post :create, params: { title: 'Neues Angebot', actor_id: actor.id }
           assert_response :created
@@ -23,7 +23,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     end
 
     should 'raise exception if create offer with wrong actor' do
-      assert_no_difference -> { DataModules::Offer::OwnerOffer.count } do
+      assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_no_difference -> { DataModules::Offer::Offer.count } do
           post :create, params: { title: 'Neues Angebot', actor_id: 134 }
           assert_response :unprocessable_entity
@@ -52,7 +52,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       actor = create(:orga)
       offer = create(:offer, actor_id: actor.id)
 
-      assert_difference -> { DataModules::Offer::OwnerOffer.count }, -1 do
+      assert_difference -> { DataModules::Offer::OfferOwner.count }, -1 do
         assert_difference -> { DataModules::Offer::Offer.count }, -1 do
           delete :destroy, params: { id: offer.id }
           assert_response :ok

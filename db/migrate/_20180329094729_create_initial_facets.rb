@@ -311,7 +311,7 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
         if categories
           orgas = Orga.where(category_id: categories).or(Orga.where(sub_category_id: categories))
           orgas.each do |orga|
-            DataPlugins::Facet::OwnerFacetItem.create(
+            DataPlugins::Facet::FacetItemOwner.create(
               owner: orga,
               facet_item: facet_item
             )
@@ -338,7 +338,7 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
             if categories
               orgas = Orga.where(category_id: categories).or(Orga.where(sub_category_id: categories))
               orgas.each do |orga|
-                DataPlugins::Facet::OwnerFacetItem.create(
+                DataPlugins::Facet::FacetItemOwner.create(
                   owner: orga,
                   facet_item: sub_facet_item
                 )

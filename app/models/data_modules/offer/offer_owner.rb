@@ -1,5 +1,5 @@
 module DataModules::Offer
-  class OwnerOffer < ApplicationRecord
+  class OfferOwner < ApplicationRecord
     belongs_to :offer
     belongs_to :actor, class_name: Orga # TODO: change to DataModules::Actor::Actor
   end
