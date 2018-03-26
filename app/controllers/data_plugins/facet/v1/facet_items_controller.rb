@@ -100,10 +100,6 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     DataPlugins::Facet::FacetItem.where(facet_id: params[:facet_id], parent_id: nil)
   end
 
-  def get_model_class_for_controller
-    DataPlugins::Facet::FacetItem
-  end
-
   def find_facet
     @facet = DataPlugins::Facet::Facet.find(params[:facet_id])
   end

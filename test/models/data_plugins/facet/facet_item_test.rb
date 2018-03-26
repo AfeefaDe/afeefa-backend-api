@@ -171,9 +171,11 @@ module DataPlugins::Facet
       event = create(:event)
       offer = create(:offer)
 
-      facet_item.link_owner(orga)
-      facet_item.link_owner(event)
-      facet_item.link_owner(offer)
+      assert_difference -> { FacetItemOwner.count }, 3 do
+        facet_item.link_owner(orga)
+        facet_item.link_owner(event)
+        facet_item.link_owner(offer)
+      end
 
       assert_same_elements [orga, event, offer], facet_item.owners
     end
@@ -214,6 +216,7 @@ module DataPlugins::Facet
 
       assert_difference -> { FacetItemOwner.count }, 2 do
         sub_item.link_owner(orga)
+
         assert_equal [parent, sub_item], orga.facet_items
       end
     end
@@ -246,6 +249,8 @@ module DataPlugins::Facet
 
       assert_difference -> { FacetItemOwner.count }, -2 do
         parent.unlink_owner(orga)
+
+        orga.reload
 
         assert_equal [], orga.facet_items
       end

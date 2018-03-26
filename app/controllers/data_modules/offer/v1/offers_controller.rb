@@ -22,10 +22,6 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
 
   private
 
-  def get_model_class_for_controller
-    DataModules::Offer::Offer
-  end
-
   def base_for_find_objects
     DataModules::Offer::Offer.by_area(current_api_v1_user.area)
   end

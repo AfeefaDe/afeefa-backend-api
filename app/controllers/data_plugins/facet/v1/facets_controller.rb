@@ -27,16 +27,17 @@ class DataPlugins::Facet::V1::FacetsController < Api::V1::BaseController
     objects =
       objects.includes(:owner_types, :facet_items, {
         facet_items: [
-          {sub_items: [:events, :orgas]},
+          {sub_items: [:events, :orgas, :offers]},
           :events,
-          :orgas
+          :orgas,
+          :offers
         ]
       })
     objects
   end
 
-  def get_model_class_for_controller
-    DataPlugins::Facet::Facet
+  def base_for_find_objects
+    DataPlugins::Facet::Facet.all
   end
 
   def find_facet

@@ -13,7 +13,7 @@ module DataPlugins::Facet
     has_many :orgas, -> { by_area(Current.user.area) }, through: :facet_item_owners,
       source: :owner, source_type: 'Orga'
     has_many :offers, -> { by_area(Current.user.area) }, through: :facet_item_owners,
-      source: :owner, source_type: 'Offer', class_name: DataModules::Offer::Offer
+      source: :owner, source_type: 'DataModules::Offer::Offer', class_name: DataModules::Offer::Offer
 
     def owners
       events + orgas + offers
@@ -108,8 +108,7 @@ module DataPlugins::Facet
       end
 
       FacetItemOwner.create(
-        owner_type: owner.class.to_s.split('::').last,
-        owner_id: owner.id,
+        owner: owner,
         facet_item_id: id
       )
 
@@ -125,16 +124,19 @@ module DataPlugins::Facet
     end
 
     def unlink_owner(owner)
-      unless facet_item_owners.where(owner: owner).exists?
-        return false
-      end
+      facet_item_owner = facet_item_owners.where(owner: owner).first
 
-      owner.facet_items.delete(self)
+      return false unless facet_item_owner
+
+      facet_item_owners.delete(facet_item_owner)
 
       # unlink subitems too
       if (sub_items.count)
         sub_items.each do |sub_item|
-          owner.facet_items.delete(sub_item)
+          facet_item_owner = sub_item.facet_item_owners.where(owner: owner).first
+          if facet_item_owner
+            sub_item.facet_item_owners.delete(facet_item_owner)
+          end
         end
       end
 
