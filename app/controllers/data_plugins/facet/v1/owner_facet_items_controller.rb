@@ -5,20 +5,8 @@ class DataPlugins::Facet::V1::OwnerFacetItemsController < Api::V1::BaseControlle
 
   # :owner_type/:owner_id/facet_items/:facet_item_id
   def link_facet_item
-    if get_facet_item_relation(params[:facet_item_id])
-      head :unprocessable_entity
-      return
-    end
+    result = @facet_item.link_owner(@owner)
 
-    if !facet_supports_type_of_owner
-      head :unprocessable_entity
-      return
-    end
-
-    result = DataPlugins::Facet::OwnerFacetItem.create(
-      owner: @owner,
-      facet_item_id: params[:facet_item_id]
-    )
     if result
       head 201
     else
@@ -33,31 +21,23 @@ class DataPlugins::Facet::V1::OwnerFacetItemsController < Api::V1::BaseControlle
 
   # :owner_type/:owner_id/facet_items/:facet_item_id
   def unlink_facet_item
-    association = get_facet_item_relation(params[:facet_item_id])
-    if association
-      if association.destroy
-        head 200
-      else
-        head 500
-      end
-    else
-      head 404
+    unless @facet_item.owner_facet_items.where(owner: @owner).exists?
+      head :not_found
+      return
+    end
+
+    result = @facet_item.unlink_owner(@owner)
+
+    if result == true
+      head 200
+    elsif result == false
+      head :unprocessable_entity
+    else # returns :not_found :-)
+      head result
     end
   end
 
   private
-
-  def facet_supports_type_of_owner()
-    type = @owner.class.to_s.split('::').last
-    @facet_item.facet.owner_types.where(owner_type: type).exists?
-  end
-
-  def get_facet_item_relation(facet_item_id)
-    DataPlugins::Facet::OwnerFacetItem.find_by(
-      owner: @owner,
-      facet_item_id: facet_item_id
-    )
-  end
 
   def find_facet_item
     @facet_item = DataPlugins::Facet::FacetItem.find(params[:facet_item_id])

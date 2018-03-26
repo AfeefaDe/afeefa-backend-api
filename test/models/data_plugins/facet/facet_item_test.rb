@@ -102,28 +102,28 @@ module DataPlugins::Facet
       assert_match 'Ein übergeordnetes Attribut muss zur selben Kategorie gehören.', exception.message
     end
 
-    should 'throw error on update facet item with parent_id if sub_items are present' do
-      facet = create(:facet)
-      parent = create(:facet_item, facet: facet)
-      sub_item = create(:facet_item, facet: facet)
-      facet_item = create(:facet_item, facet: facet)
-      facet_item.sub_items << sub_item
+    should 'throw error on setting parent for items with sub items' do
+      facet = create(:facet_with_items_and_sub_items)
+      facet2 = create(:facet_with_items_and_sub_items)
+
+      item_with_sub_items = facet.facet_items.select { |item| item.sub_items.count > 0 }.first
+      new_parent = facet2.facet_items.first
 
       exception = assert_raises(ActiveRecord::RecordInvalid) {
-        facet_item = save_facet_item(facet_id: facet.id, id: facet_item.id, parent_id: parent.id, title: 'changed facet item')
+        facet_item = save_facet_item(id: item_with_sub_items.id, parent_id: new_parent.id, title: 'changed facet item')
       }
       assert_match 'Ein Attribut mit Unterattributen kann nicht verschachtelt werden.', exception.message
     end
 
-    should 'throw error on update facet item with parent_id if parent is sub_item' do
-      facet = create(:facet)
-      parent = create(:facet_item, facet: facet)
-      sub_item = create(:facet_item, facet: facet)
-      parent.sub_items << sub_item
-      facet_item = create(:facet_item, facet: facet)
+    should 'throw error on setting parent to a sub item' do
+      facet = create(:facet_with_items)
+      facet2 = create(:facet_with_items_and_sub_items)
+
+      item = facet.facet_items.first
+      sub_item = facet2.facet_items.select { |item| item.parent != nil }.first
 
       exception = assert_raises(ActiveRecord::RecordInvalid) {
-        facet_item = save_facet_item(facet_id: facet.id, id: facet_item.id, parent_id: sub_item.id, title: 'changed facet item')
+        facet_item = save_facet_item(facet_id: facet2.id, id: item.id, parent_id: sub_item.id, title: 'changed facet item')
       }
       assert_match 'Ein Attribut kann nicht Unterattribut eines Unterattributs sein.', exception.message
     end
@@ -155,6 +155,109 @@ module DataPlugins::Facet
 
       assert DataPlugins::Facet::FacetItem.where(id: facet_item.id).blank?
       assert DataPlugins::Facet::FacetItem.where(id: sub_item.id).blank?
+    end
+
+    should 'relink owners with new/old parent when setting a new parent' do
+      facet = create(:facet_with_items_and_sub_items)
+
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+      parent2 = facet.facet_items.select { |item| item.parent == nil }.last
+
+      sub_item = parent.sub_items.first
+
+      orgas = create_list(:orga_with_random_title, 3)
+      parent.orgas = orgas
+      sub_item.orgas = orgas
+
+      assert_equal orgas, parent.orgas
+      assert_equal [], parent2.orgas
+
+      save_facet_item(id: sub_item.id, parent_id: parent2.id)
+
+      parent.reload
+      parent2.reload
+      sub_item.reload
+
+      assert_equal [], parent.orgas
+      assert_equal orgas, parent2.orgas
+      assert_equal orgas, sub_item.orgas
+    end
+
+    should 'should also link parent facet item if linking a sub item' do
+      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
+
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+      sub_item = parent.sub_items.first
+
+      orga = create(:orga)
+
+      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, 2 do
+        sub_item.link_owner(orga)
+        assert_equal [parent, sub_item], orga.facet_items
+      end
+    end
+
+    should 'not link parent twice when linking a sub item' do
+      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
+
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+      sub_item = parent.sub_items.first
+
+      orga = create(:orga)
+      parent.link_owner(orga)
+
+      sub_item.link_owner(orga)
+
+      assert_equal [parent, sub_item], orga.facet_items
+    end
+
+    should 'should also unlink sub items if unlinking parent item' do
+      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
+
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+      sub_item = parent.sub_items.first
+
+      orga = create(:orga)
+      parent.link_owner(orga)
+      sub_item.link_owner(orga)
+
+      assert_equal [parent, sub_item], orga.facet_items
+
+      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -2 do
+        parent.unlink_owner(orga)
+
+        assert_equal [], orga.facet_items
+      end
+    end
+
+    should 'remove owners when removing facet item' do
+      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
+
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+      sub_item = parent.sub_items.first
+
+      orga = create(:orga)
+      parent.link_owner(orga)
+      sub_item.link_owner(orga)
+
+      assert_equal [parent, sub_item], orga.facet_items
+
+      assert_difference -> { DataPlugins::Facet::OwnerFacetItem.count }, -2 do
+        parent.destroy
+
+        orga.reload
+
+        assert_equal [], orga.facet_items
+      end
+    end
+
+    should 'remove sub items when removing facet item' do
+      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+
+      assert_difference -> { DataPlugins::Facet::FacetItem.count }, -3 do # parent + 2 subs
+        parent.destroy
+      end
     end
 
     private

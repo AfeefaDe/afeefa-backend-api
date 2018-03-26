@@ -61,6 +61,7 @@ class DataPlugins::Facet::V1::FacetsControllerTest < ActionController::TestCase
       end
       assert response.body.blank?
     end
+
   end
 
 end

@@ -41,28 +41,21 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     begin
       ActiveRecord::Base.transaction do # fail if one fails
         owner_ids = params[:owners]
+        one_created = false
         owner_ids.each do |owner_config|
           params[:owner_id] = owner_config[:owner_id]
           params[:owner_type] = owner_config[:owner_type]
 
           find_owner
 
-          if !facet_supports_type_of_owner
-            raise ActiveRecord::RecordInvalid,
-              "Typ des Owners ist nicht supported"
-            return
-          end
-
-          # do not link multiple times ... but not fail
-          if !get_facet_item_relation(params[:id]) # id is our facet_item_id
-            DataPlugins::Facet::OwnerFacetItem.create(
-              owner: @owner,
-              facet_item_id: params[:id] # id is our facet_item_id
-            )
-          end
-
+          created = @facet_item.link_owner(@owner)
+          one_created = one_created || created
         end
-        head 201
+        if one_created
+          head 201
+        else
+          head :unprocessable_entity
+        end
       end
     rescue
       head :unprocessable_entity
@@ -74,20 +67,21 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
     begin
       ActiveRecord::Base.transaction do # fail if one fails
         owner_ids = params[:owners]
+        one_removed = false
         owner_ids.each do |owner_config|
           params[:owner_id] = owner_config[:owner_id]
           params[:owner_type] = owner_config[:owner_type]
 
           find_owner
 
-          # do not fail if assocation does not exist
-          association = get_facet_item_relation(params[:id]) # id is our facet_item_id
-          if association
-            association.destroy
-          end
-
+          removed = @facet_item.unlink_owner(@owner)
+          one_removed = one_removed || removed
         end
-        head 200
+        if one_removed
+          head 200
+        else
+          head :unprocessable_entity
+        end
       end
     rescue
       head :unprocessable_entity

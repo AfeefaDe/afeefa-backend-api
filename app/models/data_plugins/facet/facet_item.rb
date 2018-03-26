@@ -13,6 +13,7 @@ module DataPlugins::Facet
 
     has_many :events, -> { by_area(Current.user.area) }, through: :owner_facet_items, source: :owner, source_type: 'Event'
     has_many :orgas, -> { by_area(Current.user.area) }, through: :owner_facet_items, source: :owner, source_type: 'Orga'
+    has_many :offers, -> { by_area(Current.user.area) }, through: :owner_facet_items, source: :owner, source_type: 'Offer'
 
     def owners
       events + orgas
@@ -28,6 +29,7 @@ module DataPlugins::Facet
 
     # SAVE HOOKS
     after_save :move_sub_items_to_new_facet
+    after_save :move_owners_to_new_parent
 
     # CLASS METHODS
     class << self
@@ -98,8 +100,46 @@ module DataPlugins::Facet
       end
     end
 
-    def move_sub_items_to_new_facet
-      sub_items.update(facet_id: self.facet_id)
+    def link_owner(owner)
+      if owner_facet_items.where(owner: owner).exists?
+        return false
+      end
+
+      if !facet_supports_type_of_owner?(owner)
+        return false
+      end
+
+      DataPlugins::Facet::OwnerFacetItem.create(
+        owner: owner,
+        facet_item_id: id
+      )
+
+      # link parent too
+      if parent
+        DataPlugins::Facet::OwnerFacetItem.find_or_create_by(
+          owner: owner,
+          facet_item_id: parent.id
+        )
+      end
+
+      true
+    end
+
+    def unlink_owner(owner)
+      unless owner_facet_items.where(owner: owner).exists?
+        return false
+      end
+
+      owner.facet_items.delete(self)
+
+      # unlink subitems too
+      if (sub_items.count)
+        sub_items.each do |sub_item|
+          owner.facet_items.delete(sub_item)
+        end
+      end
+
+      true
     end
 
     def sub_items_to_hash
@@ -108,6 +148,37 @@ module DataPlugins::Facet
 
     def owners_to_hash
       owners.map { |owner| owner.to_hash(attributes: 'title', relationships: nil) }
+    end
+
+    private
+
+    def move_sub_items_to_new_facet
+      sub_items.update(facet_id: self.facet_id)
+    end
+
+    def move_owners_to_new_parent
+      if changes.key?('parent_id')
+        old_parent_id = changes['parent_id'][0]
+        if old_parent_id
+          old_parent = DataPlugins::Facet::FacetItem.find(old_parent_id)
+          owner_facet_items.each do |owner_facet_item|
+            owner_facet_item.owner.facet_items.delete(old_parent)
+          end
+        end
+
+        new_parent_id = changes['parent_id'][1]
+        if new_parent_id
+          new_parent = DataPlugins::Facet::FacetItem.find(new_parent_id)
+          owner_facet_items.each do |owner_facet_item|
+            owner_facet_item.owner.facet_items << new_parent
+          end
+        end
+      end
+    end
+
+    def facet_supports_type_of_owner?(owner)
+      type = owner.class.to_s.split('::').last
+      facet.owner_types.where(owner_type: type).exists?
     end
 
   end

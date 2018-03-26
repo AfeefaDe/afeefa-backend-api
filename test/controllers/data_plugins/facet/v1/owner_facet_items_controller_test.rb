@@ -50,6 +50,17 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
       assert response.body.blank?
     end
 
+    should 'call facet_item.link_owner on link facet item' do
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+
+      orga = create(:orga)
+
+      DataPlugins::Facet::FacetItem.any_instance.expects(:link_owner).with(orga)
+
+      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
+    end
+
     should 'throw error if linking owner which is not supported by facet' do
       facet = create(:facet, owner_types: ['Orga'])
       facet_item = create(:facet_item, facet: facet)
@@ -90,6 +101,19 @@ class DataPlugins::Facet::V1::OwnerFacetItemsControllerTest < ActionController::
         assert_nil orga.facet_items.first
       end
       assert response.body.blank?
+    end
+
+    should 'call facet_item.unlink_owner on link facet item' do
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+
+      orga = create(:orga)
+
+      post :link_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
+
+      DataPlugins::Facet::FacetItem.any_instance.expects(:unlink_owner).with(orga)
+
+      delete :unlink_facet_item, params: { owner_type: 'orgas', owner_id: orga.id, facet_item_id: facet_item.id }
     end
 
     should 'throw error on unlink facet item again' do
