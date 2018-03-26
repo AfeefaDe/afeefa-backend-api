@@ -199,5 +199,6 @@ class Orga < ApplicationRecord
   include DataPlugins::Location::Concerns::HasLocations
   include DataPlugins::Facet::Concerns::HasFacetItems
   include DataModules::Offer::Concerns::HasOffers
+  include DataModules::FENavigation::Concerns::HasFENavigationItems
 
 end

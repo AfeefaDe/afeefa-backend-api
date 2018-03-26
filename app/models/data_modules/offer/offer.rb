@@ -70,5 +70,6 @@ module DataModules::Offer
     end
 
     include DataPlugins::Facet::Concerns::HasFacetItems
+    include DataModules::FENavigation::Concerns::HasFENavigationItems
   end
 end
