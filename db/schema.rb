@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180323094730) do
+ActiveRecord::Schema.define(version: 20180326081617) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -18,7 +18,9 @@ ActiveRecord::Schema.define(version: 20180323094730) do
     t.string   "type"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
+    t.index ["associated_actor_id", "type"], name: "index_actor_relations_on_associated_actor_id_and_type", using: :btree
     t.index ["associated_actor_id"], name: "index_actor_relations_on_associated_actor_id", using: :btree
+    t.index ["associating_actor_id", "type"], name: "index_actor_relations_on_associating_actor_id_and_type", using: :btree
     t.index ["associating_actor_id"], name: "index_actor_relations_on_associating_actor_id", using: :btree
     t.index ["type"], name: "index_actor_relations_on_type", using: :btree
   end
@@ -295,6 +297,7 @@ ActiveRecord::Schema.define(version: 20180323094730) do
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
     t.index ["facet_item_id"], name: "index_owner_facet_items_on_facet_item_id", using: :btree
+    t.index ["owner_type", "owner_id", "facet_item_id"], name: "facet_item_owner", unique: true, using: :btree
     t.index ["owner_type", "owner_id"], name: "index_owner_facet_items_on_owner_type_and_owner_id", using: :btree
   end
 
