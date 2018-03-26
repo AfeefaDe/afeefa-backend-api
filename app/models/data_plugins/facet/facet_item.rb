@@ -162,16 +162,25 @@ module DataPlugins::Facet
         old_parent_id = changes['parent_id'][0]
         if old_parent_id
           old_parent = FacetItem.find(old_parent_id)
-          facet_item_owners.each do |owner_facet_item|
-            owner_facet_item.owner.facet_items.delete(old_parent)
+          facet_item_owners.each do |facet_item_owner|
+            # remove only from parent if no other sub association to that parent exists
+            sub_facet_items_with_parent = 0
+            facet_item_owner.owner.facet_items.each do |facet_item|
+              if facet_item.parent_id == old_parent_id
+                sub_facet_items_with_parent += 1
+              end
+            end
+            if sub_facet_items_with_parent == 0
+              facet_item_owner.owner.facet_items.delete(old_parent)
+            end
           end
         end
 
         new_parent_id = changes['parent_id'][1]
         if new_parent_id
           new_parent = FacetItem.find(new_parent_id)
-          facet_item_owners.each do |owner_facet_item|
-            owner_facet_item.owner.facet_items << new_parent
+          facet_item_owners.each do |facet_item_owner|
+            facet_item_owner.owner.facet_items << new_parent
           end
         end
       end

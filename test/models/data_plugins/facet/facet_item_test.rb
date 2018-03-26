@@ -209,6 +209,38 @@ module DataPlugins::Facet
       assert_equal orgas, sub_item.orgas
     end
 
+    should 'keep other owners when relinking on setting a new parent' do
+      facet = create(:facet_with_items_and_sub_items)
+
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+      parent2 = facet.facet_items.select { |item| item.parent == nil }.last
+
+      sub_item = parent.sub_items.first
+      sub_item2 = parent.sub_items.last
+
+      orgas = create_list(:orga_with_random_title, 1)
+      parent.orgas = orgas
+      sub_item.orgas = orgas
+      sub_item2.orgas = orgas
+
+      assert_equal orgas, parent.orgas
+      assert_equal orgas, sub_item.orgas
+      assert_equal orgas, sub_item2.orgas
+      assert_equal [], parent2.orgas
+
+      save_facet_item(id: sub_item.id, parent_id: parent2.id)
+
+      parent.reload
+      parent2.reload
+      sub_item.reload
+      sub_item2.reload
+
+      assert_equal orgas, parent.orgas
+      assert_equal orgas, sub_item.orgas
+      assert_equal orgas, sub_item2.orgas
+      assert_equal orgas, parent2.orgas
+    end
+
     should 'should also link parent facet item if linking a sub item' do
       facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
 
@@ -259,7 +291,7 @@ module DataPlugins::Facet
       end
     end
 
-    should 'remove owners when removing facet item' do
+    should 'remove owners when removing parent facet item' do
       facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
 
       parent = facet.facet_items.select { |item| item.parent == nil }.first
@@ -277,6 +309,27 @@ module DataPlugins::Facet
         orga.reload
 
         assert_equal [], orga.facet_items
+      end
+    end
+
+    should 'remove owners when removing sub facet item' do
+      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
+
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+      sub_item = parent.sub_items.first
+
+      orga = create(:orga)
+      parent.link_owner(orga)
+      sub_item.link_owner(orga)
+
+      assert_equal [parent, sub_item], orga.facet_items
+
+      assert_difference -> { FacetItemOwner.count }, -1 do
+        sub_item.destroy
+
+        orga.reload
+
+        assert_equal [parent], orga.facet_items
       end
     end
 
