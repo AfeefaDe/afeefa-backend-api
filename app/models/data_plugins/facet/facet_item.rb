@@ -1,15 +1,13 @@
 module DataPlugins::Facet
   class FacetItem < ApplicationRecord
-
     include Jsonable
 
     # ASSOCIATIONS
     belongs_to :facet
     belongs_to :parent, class_name: FacetItem
-    # TODO: Should the children be destroyed?
     has_many :sub_items, class_name: FacetItem, foreign_key: :parent_id, dependent: :destroy
 
-    has_many :facet_item_owners, class_name: DataPlugins::Facet::FacetItemOwner, dependent: :destroy
+    has_many :facet_item_owners, class_name: FacetItemOwner, dependent: :destroy
 
     has_many :events, -> { by_area(Current.user.area) }, through: :facet_item_owners, source: :owner, source_type: 'Event'
     has_many :orgas, -> { by_area(Current.user.area) }, through: :facet_item_owners, source: :owner, source_type: 'Orga'
@@ -67,12 +65,10 @@ module DataPlugins::Facet
     end
 
     def validate_facet_and_parent
-      if facet_id
-        return errors.add(:facet_id, 'Kategorie existiert nicht.') unless DataPlugins::Facet::Facet.exists?(facet_id)
-      end
+      return errors.add(:facet_id, 'Kategorie existiert nicht.') unless Facet.exists?(facet_id)
 
       if parent_id
-        return errors.add(:parent_id, 'Übergeordnetes Attribut existiert nicht.') unless DataPlugins::Facet::FacetItem.exists?(parent_id)
+        return errors.add(:parent_id, 'Übergeordnetes Attribut existiert nicht.') unless FacetItem.exists?(parent_id)
       end
 
       if parent_id
@@ -86,7 +82,7 @@ module DataPlugins::Facet
           return errors.add(:parent_id, 'Ein Attribut mit Unterattributen kann nicht verschachtelt werden.')
         end
 
-        parent = DataPlugins::Facet::FacetItem.find_by_id(parent_id)
+        parent = FacetItem.find_by_id(parent_id)
 
         # cannot set parent to sub_item
         if parent.parent_id
@@ -109,14 +105,14 @@ module DataPlugins::Facet
         return false
       end
 
-      DataPlugins::Facet::FacetItemOwner.create(
+      FacetItemOwner.create(
         owner: owner,
         facet_item_id: id
       )
 
       # link parent too
       if parent
-        DataPlugins::Facet::FacetItemOwner.find_or_create_by(
+        FacetItemOwner.find_or_create_by(
           owner: owner,
           facet_item_id: parent.id
         )
@@ -160,7 +156,7 @@ module DataPlugins::Facet
       if changes.key?('parent_id')
         old_parent_id = changes['parent_id'][0]
         if old_parent_id
-          old_parent = DataPlugins::Facet::FacetItem.find(old_parent_id)
+          old_parent = FacetItem.find(old_parent_id)
           facet_item_owners.each do |owner_facet_item|
             owner_facet_item.owner.facet_items.delete(old_parent)
           end
@@ -168,7 +164,7 @@ module DataPlugins::Facet
 
         new_parent_id = changes['parent_id'][1]
         if new_parent_id
-          new_parent = DataPlugins::Facet::FacetItem.find(new_parent_id)
+          new_parent = FacetItem.find(new_parent_id)
           facet_item_owners.each do |owner_facet_item|
             owner_facet_item.owner.facet_items << new_parent
           end
