@@ -133,7 +133,7 @@ module DataPlugins::Facet
       assert_match 'Ein Attribut kann nicht Unterattribut eines Unterattributs sein.', exception.message
     end
 
-    should 'updates sub_items facet on update facet item facet ' do
+    should 'update sub_items facet on update facet item facet ' do
       facet = create(:facet)
       facet2 = create(:facet)
       sub_item = create(:facet_item, facet: facet)
@@ -150,16 +150,32 @@ module DataPlugins::Facet
 
     end
 
-    should 'remove all sub items on remove facet item' do
-      facet = create(:facet)
-      sub_item = create(:facet_item, facet: facet)
-      facet_item = create(:facet_item, facet: facet)
-      facet_item.sub_items << sub_item
+    should 'remove sub items when removing facet item' do
+      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
+      parent = facet.facet_items.select { |item| item.parent == nil }.first
+      sub_item = parent.sub_items.first
 
-      facet_item.destroy()
+      assert_difference -> { FacetItem.count }, -3 do # parent + 2 subs
+        parent.destroy
+      end
 
-      assert DataPlugins::Facet::FacetItem.where(id: facet_item.id).blank?
-      assert DataPlugins::Facet::FacetItem.where(id: sub_item.id).blank?
+      assert FacetItem.where(id: parent.id).blank?
+      assert FacetItem.where(id: sub_item.id).blank?
+    end
+
+    should 'link and get owners of mixed types' do
+      facet = create(:facet_with_items, owner_types: ['Orga', 'Event', 'Offer'])
+      facet_item = facet.facet_items.first
+
+      orga = create(:orga)
+      event = create(:event)
+      offer = create(:offer)
+
+      facet_item.link_owner(orga)
+      facet_item.link_owner(event)
+      facet_item.link_owner(offer)
+
+      assert_same_elements [orga, event, offer], facet_item.owners
     end
 
     should 'relink owners with new/old parent when setting a new parent' do
@@ -196,7 +212,7 @@ module DataPlugins::Facet
 
       orga = create(:orga)
 
-      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, 2 do
+      assert_difference -> { FacetItemOwner.count }, 2 do
         sub_item.link_owner(orga)
         assert_equal [parent, sub_item], orga.facet_items
       end
@@ -228,7 +244,7 @@ module DataPlugins::Facet
 
       assert_equal [parent, sub_item], orga.facet_items
 
-      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -2 do
+      assert_difference -> { FacetItemOwner.count }, -2 do
         parent.unlink_owner(orga)
 
         assert_equal [], orga.facet_items
@@ -247,7 +263,7 @@ module DataPlugins::Facet
 
       assert_equal [parent, sub_item], orga.facet_items
 
-      assert_difference -> { DataPlugins::Facet::FacetItemOwner.count }, -2 do
+      assert_difference -> { FacetItemOwner.count }, -2 do
         parent.destroy
 
         orga.reload
@@ -256,19 +272,10 @@ module DataPlugins::Facet
       end
     end
 
-    should 'remove sub items when removing facet item' do
-      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
-      parent = facet.facet_items.select { |item| item.parent == nil }.first
-
-      assert_difference -> { DataPlugins::Facet::FacetItem.count }, -3 do # parent + 2 subs
-        parent.destroy
-      end
-    end
-
     private
 
     def save_facet_item(hash)
-      DataPlugins::Facet::FacetItem.save_facet_item(ActionController::Parameters.new(hash))
+      FacetItem.save_facet_item(ActionController::Parameters.new(hash))
     end
 
   end

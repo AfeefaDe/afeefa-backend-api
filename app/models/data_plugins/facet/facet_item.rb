@@ -8,13 +8,15 @@ module DataPlugins::Facet
     has_many :sub_items, class_name: FacetItem, foreign_key: :parent_id, dependent: :destroy
 
     has_many :facet_item_owners, class_name: FacetItemOwner, dependent: :destroy
-
-    has_many :events, -> { by_area(Current.user.area) }, through: :facet_item_owners, source: :owner, source_type: 'Event'
-    has_many :orgas, -> { by_area(Current.user.area) }, through: :facet_item_owners, source: :owner, source_type: 'Orga'
-    has_many :offers, -> { by_area(Current.user.area) }, through: :facet_item_owners, source: :owner, source_type: 'Offer'
+    has_many :events, -> { by_area(Current.user.area) }, through: :facet_item_owners,
+      source: :owner, source_type: 'Event'
+    has_many :orgas, -> { by_area(Current.user.area) }, through: :facet_item_owners,
+      source: :owner, source_type: 'Orga'
+    has_many :offers, -> { by_area(Current.user.area) }, through: :facet_item_owners,
+      source: :owner, source_type: 'Offer', class_name: DataModules::Offer::Offer
 
     def owners
-      events + orgas
+      events + orgas + offers
     end
 
     # VALIDATIONS
@@ -106,7 +108,8 @@ module DataPlugins::Facet
       end
 
       FacetItemOwner.create(
-        owner: owner,
+        owner_type: owner.class.to_s.split('::').last,
+        owner_id: owner.id,
         facet_item_id: id
       )
 
