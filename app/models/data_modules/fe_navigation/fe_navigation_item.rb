@@ -11,15 +11,13 @@ module DataModules::FENavigation
     has_many :navigation_item_owners,
       class_name: FENavigationItemOwner, foreign_key: 'navigation_item_id', dependent: :destroy
 
-    has_many :events, -> { by_area(Current.user.area) }, through: :navigation_item_owners,
-      source: :owner, source_type: 'Event'
-    has_many :orgas, -> { by_area(Current.user.area) }, through: :navigation_item_owners,
-      source: :owner, source_type: 'Orga'
-    has_many :offers, -> { by_area(Current.user.area) }, through: :navigation_item_owners,
-      source: :owner, source_type: 'DataModules::Offer::Offer', class_name: DataModules::Offer::Offer
+    has_many :events, through: :navigation_item_owners, source: :owner, source_type: 'Event'
+    has_many :orgas, through: :navigation_item_owners, source: :owner, source_type: 'Orga'
+    has_many :offers, through: :navigation_item_owners, source: :owner, source_type: 'DataModules::Offer::Offer'
+    has_many :facet_items, through: :navigation_item_owners, source: :owner, source_type: 'DataPlugins::Facet::FacetItem'
 
     def owners
-      events + orgas + offers
+      (events + orgas + offers + facet_items.map { |fi| fi.owners }.flatten).uniq
     end
 
     # VALIDATIONS
@@ -66,6 +64,10 @@ module DataModules::FENavigation
 
     def link_owner(owner)
       if navigation_item_owners.where(owner: owner).exists?
+        return false
+      end
+
+      if !supports_type_of_owner?(owner)
         return false
       end
 
@@ -124,6 +126,12 @@ module DataModules::FENavigation
       if parent && parent.navigation_id != navigation_id
         return errors.add(:parent_id, 'Ein übergeordneter Menüpunkt muss zur selben Navigation gehören.')
       end
+    end
+
+    def supports_type_of_owner?(owner)
+      allowed_owners = ['Orga', 'Event', 'Offer', 'FacetItem']
+      type = owner.class.to_s.split('::').last
+      allowed_owners.include?(type)
     end
 
     # ActsAsFacetItem

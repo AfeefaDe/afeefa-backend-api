@@ -93,5 +93,65 @@ module DataModules::FENavigation
       assert_equal navigation.id, navigation_item.navigation_id
     end
 
+    should 'disallow linking facet' do
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+
+      facet = create(:facet_with_items)
+
+      assert !navigation_item.link_owner(facet)
+      assert_equal [], navigation_item.owners
+    end
+
+    should 'link facet item' do
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      orga = create(:orga)
+      facet_item.link_owner(orga)
+
+      assert navigation_item.link_owner(facet_item)
+      assert_equal [orga], navigation_item.owners
+      assert_equal [facet_item], navigation_item.facet_items
+    end
+
+    should 'unlink facet item' do
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      orga = create(:orga)
+      facet_item.link_owner(orga)
+
+      assert navigation_item.link_owner(facet_item)
+      assert_equal [orga], navigation_item.owners
+      assert_equal [facet_item], navigation_item.facet_items
+
+      assert navigation_item.unlink_owner(facet_item)
+      navigation_item.reload
+
+      assert_equal [], navigation_item.owners
+      assert_equal [], navigation_item.facet_items
+    end
+
+    should 'not duplicate owners when linked directly and linked through facet_item' do
+      orga = create(:orga)
+
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+      navigation_item.link_owner(orga)
+
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      facet_item.link_owner(orga)
+
+      assert navigation_item.link_owner(facet_item)
+      assert_equal [orga], navigation_item.owners
+      assert_equal [facet_item], navigation_item.facet_items
+    end
+
   end
 end

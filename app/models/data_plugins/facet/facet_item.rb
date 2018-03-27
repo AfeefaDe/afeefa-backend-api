@@ -15,7 +15,7 @@ module DataPlugins::Facet
     has_many :orgas, -> { by_area(Current.user.area) }, through: :facet_item_owners,
       source: :owner, source_type: 'Orga'
     has_many :offers, -> { by_area(Current.user.area) }, through: :facet_item_owners,
-      source: :owner, source_type: 'DataModules::Offer::Offer', class_name: DataModules::Offer::Offer
+      source: :owner, source_type: 'DataModules::Offer::Offer'
 
     def owners
       events + orgas + offers
