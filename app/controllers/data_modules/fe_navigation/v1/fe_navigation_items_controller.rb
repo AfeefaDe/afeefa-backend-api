@@ -62,6 +62,8 @@ class DataModules::FENavigation::V1::FENavigationItemsController < Api::V1::Base
         Event.find(params[:owner_id])
       when 'offers'
         DataModules::Offer::Offer.find(params[:owner_id])
+      when 'facet_items'
+        DataPlugins::Facet::FacetItem.find(params[:owner_id])
       end
     unless @owner
       raise ActiveRecord::RecordNotFound,
