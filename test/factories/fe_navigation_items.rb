@@ -2,6 +2,7 @@ FactoryGirl.define do
 
   factory :fe_navigation_item, class: DataModules::FENavigation::FENavigationItem do
     title {"title#{rand(0..1000)}"}
+    association :navigation, factory: :fe_navigation
 
     factory :fe_navigation_item_with_sub_items do
       transient do

@@ -1,6 +1,7 @@
 module DataModules::FENavigation
   class FENavigationItem < ApplicationRecord
     include Jsonable
+    include DataPlugins::Facet::Concerns::ActsAsFacetItem
 
     # ASSOCIATIONS
     belongs_to :navigation, class_name: DataModules::FENavigation::FENavigation
@@ -9,6 +10,7 @@ module DataModules::FENavigation
 
     has_many :navigation_item_owners,
       class_name: FENavigationItemOwner, foreign_key: 'navigation_item_id', dependent: :destroy
+
     has_many :events, -> { by_area(Current.user.area) }, through: :navigation_item_owners,
       source: :owner, source_type: 'Event'
     has_many :orgas, -> { by_area(Current.user.area) }, through: :navigation_item_owners,
@@ -91,14 +93,7 @@ module DataModules::FENavigation
       navigation_item_owners.delete(navigation_item_owner)
 
       # unlink subitems too
-      if (sub_items.count)
-        sub_items.each do |sub_item|
-          navigation_item_owner = sub_item.navigation_item_owners.where(owner: owner).first
-          if navigation_item_owner
-            sub_item.navigation_item_owners.delete(navigation_item_owner)
-          end
-        end
-      end
+      unlink_sub_items(owner)
 
       true
     end
@@ -113,35 +108,6 @@ module DataModules::FENavigation
 
     private
 
-    def move_owners_to_new_parent
-      if changes.key?('parent_id')
-        old_parent_id = changes['parent_id'][0]
-        if old_parent_id
-          old_parent = FENavigationItem.find(old_parent_id)
-          navigation_item_owners.each do |navigation_item_owner|
-            # remove only from parent if no other sub association to that parent exists
-            sub_navigation_items_with_parent = 0
-            navigation_item_owner.owner.navigation_items.each do |navigation_item|
-              if navigation_item.parent_id == old_parent_id
-                sub_navigation_items_with_parent += 1
-              end
-            end
-            if sub_navigation_items_with_parent == 0
-              navigation_item_owner.owner.navigation_items.delete(old_parent)
-            end
-          end
-        end
-
-        new_parent_id = changes['parent_id'][1]
-        if new_parent_id
-          new_parent = FENavigationItem.find(new_parent_id)
-          navigation_item_owners.each do |navigation_item_owner|
-            navigation_item_owner.owner.navigation_items << new_parent
-          end
-        end
-      end
-    end
-
     def validate_navigation_and_parent
       if persisted? && changes.key?('navigation_id')
         return errors.add(:navigation_id, 'Navigation kann nicht geändert werden.')
@@ -151,33 +117,40 @@ module DataModules::FENavigation
         return errors.add(:navigation_id, 'Navigation existiert nicht.')
       end
 
-      if parent_id
-        unless FENavigationItem.exists?(parent_id)
-          return errors.add(:parent_id, 'Übergeordneter Menüpunkt existiert nicht.')
-        end
+      validate_parent_relation
 
-        # cannot set parent to self
-        if parent_id == id
-          return errors.add(:parent_id, 'Ein Menüpunkt kann nicht sein Unterpunkt sein.')
-        end
-
-        # cannot set parent if sub_items present
-        if sub_items.any?
-          return errors.add(:parent_id, 'Ein Menüpunkt mit Unterpunkten kann nicht verschachtelt werden.')
-        end
-
-        parent = FENavigationItem.find_by_id(parent_id)
-
-        # cannot set parent to sub_item
-        if parent.parent_id
-          return errors.add(:parent_id, 'Ein Menüpunkt kann nicht Unterpunkt eines Unterpunktes sein.')
-        end
-
-        # cannot set parent with different navigation_id
-        if parent.navigation_id != navigation_id
-          return errors.add(:parent_id, 'Ein übergeordneter Menüpunkt muss zur selben Navigation gehören.')
-        end
+      # cannot set parent with different navigation_id
+      parent = self.class.find_by_id(parent_id)
+      if parent && parent.navigation_id != navigation_id
+        return errors.add(:parent_id, 'Ein übergeordneter Menüpunkt muss zur selben Navigation gehören.')
       end
+    end
+
+    # ActsAsFacetItem
+
+    def item_owners(item = nil)
+      item = item || self
+      item.navigation_item_owners
+    end
+
+    def items_of_owners(owner)
+      owner.navigation_items
+    end
+
+    def message_parent_nonexisting
+      'Übergeordneter Menüpunkt existiert nicht.'
+    end
+
+    def message_item_sub_of_sub
+      'Ein Menüpunkt kann nicht Unterpunkt eines Unterpunktes sein.'
+    end
+
+    def message_sub_of_itself
+      'Ein Menüpunkt kann nicht sein Unterpunkt sein.'
+    end
+
+    def message_sub_cannot_be_nested
+      'Ein Menüpunkt mit Unterpunkten kann nicht verschachtelt werden.'
     end
 
   end

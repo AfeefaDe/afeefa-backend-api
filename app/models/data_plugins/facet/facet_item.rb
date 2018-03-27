@@ -1,6 +1,7 @@
 module DataPlugins::Facet
   class FacetItem < ApplicationRecord
     include Jsonable
+    include DataPlugins::Facet::Concerns::ActsAsFacetItem
 
     # ASSOCIATIONS
     belongs_to :facet
@@ -8,6 +9,7 @@ module DataPlugins::Facet
     has_many :sub_items, class_name: FacetItem, foreign_key: :parent_id, dependent: :destroy
 
     has_many :facet_item_owners, class_name: FacetItemOwner, dependent: :destroy
+
     has_many :events, -> { by_area(Current.user.area) }, through: :facet_item_owners,
       source: :owner, source_type: 'Event'
     has_many :orgas, -> { by_area(Current.user.area) }, through: :facet_item_owners,
@@ -66,38 +68,6 @@ module DataPlugins::Facet
       end
     end
 
-    def validate_facet_and_parent
-      return errors.add(:facet_id, 'Kategorie existiert nicht.') unless Facet.exists?(facet_id)
-
-      if parent_id
-        return errors.add(:parent_id, 'Übergeordnetes Attribut existiert nicht.') unless FacetItem.exists?(parent_id)
-      end
-
-      if parent_id
-        # cannot set parent to self
-        if parent_id == id
-          return errors.add(:parent_id, 'Ein Attribut kann nicht sein Unterattribut sein.')
-        end
-
-        # cannot set parent if sub_items present
-        if sub_items.any?
-          return errors.add(:parent_id, 'Ein Attribut mit Unterattributen kann nicht verschachtelt werden.')
-        end
-
-        parent = FacetItem.find_by_id(parent_id)
-
-        # cannot set parent to sub_item
-        if parent.parent_id
-          return errors.add(:parent_id, 'Ein Attribut kann nicht Unterattribut eines Unterattributs sein.')
-        end
-
-        # cannot set parent with different facet_id
-        if parent.facet_id != facet_id
-          return errors.add(:parent_id, 'Ein übergeordnetes Attribut muss zur selben Kategorie gehören.')
-        end
-      end
-    end
-
     def link_owner(owner)
       if facet_item_owners.where(owner: owner).exists?
         return false
@@ -131,14 +101,7 @@ module DataPlugins::Facet
       facet_item_owners.delete(facet_item_owner)
 
       # unlink subitems too
-      if (sub_items.count)
-        sub_items.each do |sub_item|
-          facet_item_owner = sub_item.facet_item_owners.where(owner: owner).first
-          if facet_item_owner
-            sub_item.facet_item_owners.delete(facet_item_owner)
-          end
-        end
-      end
+      unlink_sub_items(owner)
 
       true
     end
@@ -153,42 +116,54 @@ module DataPlugins::Facet
 
     private
 
-    def move_sub_items_to_new_facet
-      sub_items.update(facet_id: self.facet_id)
+    def validate_facet_and_parent
+      unless Facet.exists?(facet_id)
+        return errors.add(:facet_id, 'Kategorie existiert nicht.')
+      end
+
+      validate_parent_relation
+
+      # cannot set parent with different facet_id
+      parent = self.class.find_by_id(parent_id)
+      if parent && parent.facet_id != facet_id
+        return errors.add(:parent_id, 'Ein übergeordnetes Attribut muss zur selben Kategorie gehören.')
+      end
     end
 
-    def move_owners_to_new_parent
-      if changes.key?('parent_id')
-        old_parent_id = changes['parent_id'][0]
-        if old_parent_id
-          old_parent = FacetItem.find(old_parent_id)
-          facet_item_owners.each do |facet_item_owner|
-            # remove only from parent if no other sub association to that parent exists
-            sub_facet_items_with_parent = 0
-            facet_item_owner.owner.facet_items.each do |facet_item|
-              if facet_item.parent_id == old_parent_id
-                sub_facet_items_with_parent += 1
-              end
-            end
-            if sub_facet_items_with_parent == 0
-              facet_item_owner.owner.facet_items.delete(old_parent)
-            end
-          end
-        end
-
-        new_parent_id = changes['parent_id'][1]
-        if new_parent_id
-          new_parent = FacetItem.find(new_parent_id)
-          facet_item_owners.each do |facet_item_owner|
-            facet_item_owner.owner.facet_items << new_parent
-          end
-        end
-      end
+    def move_sub_items_to_new_facet
+      sub_items.update(facet_id: self.facet_id)
     end
 
     def facet_supports_type_of_owner?(owner)
       type = owner.class.to_s.split('::').last
       facet.owner_types.where(owner_type: type).exists?
+    end
+
+    # ActsAsFacetItem
+
+    def item_owners(item = nil)
+      item = item || self
+      item.facet_item_owners
+    end
+
+    def items_of_owners(owner)
+      owner.facet_items
+    end
+
+    def message_parent_nonexisting
+      'Übergeordnetes Attribut existiert nicht.'
+    end
+
+    def message_item_sub_of_sub
+      'Ein Attribut kann nicht Unterattribut eines Unterattributs sein.'
+    end
+
+    def message_sub_of_itself
+      'Ein Attribut kann nicht sein Unterattribut sein.'
+    end
+
+    def message_sub_cannot_be_nested
+      'Ein Attribut mit Unterattributen kann nicht verschachtelt werden.'
     end
 
   end

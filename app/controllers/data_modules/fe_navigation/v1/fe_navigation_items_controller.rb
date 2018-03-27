@@ -1,9 +1,10 @@
 class DataModules::FENavigation::V1::FENavigationItemsController < Api::V1::BaseController
 
+  include HasLinkedOwners
+
   skip_before_action :find_objects, except: [:index, :show]
   before_action :find_navigation, only: [:index, :create]
   before_action :find_navigation_item, except: [:index, :create]
-  before_action :find_owner, only: [:link_owner, :unlink_owner]
 
   # fe_navigation_items
   def create
@@ -21,43 +22,11 @@ class DataModules::FENavigation::V1::FENavigationItemsController < Api::V1::Base
 
   # fe_navigation_items/:id
   def destroy
-    if @navigation_item.destroy
+    if @item.destroy
       render status: :ok
     else
       render status: :unprocessable_entity
     end
-  end
-
-  # fe_navigation_items/:id/owners
-  def link_owner
-    result = @navigation_item.link_owner(@owner)
-
-    if result
-      head 201
-    else
-      head :unprocessable_entity
-    end
-  end
-
-  # :owner_type/:owner_id/facet_items/:facet_item_id
-  def unlink_owner
-    unless @navigation_item.navigation_item_owners.where(owner: @owner).exists?
-      head :not_found
-      return
-    end
-
-    result = @navigation_item.unlink_owner(@owner)
-
-    if result == true
-      head 200
-    else
-      head :unprocessable_entity
-    end
-  end
-
-  # fe_navigation_items/:id/owners
-  def get_linked_owners
-    render status: :ok, json: @navigation_item.owners_to_hash
   end
 
   private
@@ -80,7 +49,8 @@ class DataModules::FENavigation::V1::FENavigationItemsController < Api::V1::Base
 
   def find_navigation_item
     find_navigation
-    @navigation_item = DataModules::FENavigation::FENavigationItem.find(params[:id])
+    @item = DataModules::FENavigation::FENavigationItem.find(params[:id])
+    @item_owners = @item.navigation_item_owners
   end
 
   def find_owner

@@ -48,6 +48,15 @@ def parse_json_file(file: 'create_orga_with_nested_models.json')
   JSON.parse(content)
 end
 
+# include shared test modules
+# by convention stored in 'concerns' and named
+# starting with 'acts_as'
+Dir[Rails.root.join("test/**/*.rb")].each do |f|
+  file_name = File.absolute_path f
+  if file_name.include?('concerns/acts_as')
+    require f
+  end
+end
 
 class ActiveSupport::TestCase
 
