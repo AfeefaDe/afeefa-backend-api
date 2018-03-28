@@ -4,9 +4,16 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
 
   skip_before_action :find_objects, except: [:index, :show]
   before_action :find_facet, only: [:index, :create]
-  before_action :find_facet_item, except: [:index, :create]
+  before_action :find_facet_item, except: [:index, :create, :get_linked_facet_items]
 
-  # facets/:facet_id/facet_items
+  # :owner_type/:owner_id/facet_items
+  def get_linked_facet_items
+    find_owner
+
+    render status: :ok, json: @owner.facet_items
+  end
+
+ # facets/:facet_id/facet_items
   def create
     facet_item = DataPlugins::Facet::FacetItem.save_facet_item(params)
     render status: :created, json: facet_item

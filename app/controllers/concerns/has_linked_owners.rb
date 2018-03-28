@@ -2,11 +2,11 @@ module HasLinkedOwners
   extend ActiveSupport::Concern
 
   # POST @item./:id/owners
-  def unlink_owners
+  def link_owners
     if params[:owners].present?
-      return unlink_multiple_owners
+      return link_multiple_owners
     else
-      return unlink_single_owner
+      return link_single_owner
     end
   end
 
@@ -16,11 +16,11 @@ module HasLinkedOwners
   end
 
   # DELETE @item./:id/owners
-  def link_owners
+  def unlink_owners
     if params[:owners].present?
-      return link_multiple_owners
+      return unlink_multiple_owners
     else
-      return link_single_owner
+      return unlink_single_owner
     end
   end
 

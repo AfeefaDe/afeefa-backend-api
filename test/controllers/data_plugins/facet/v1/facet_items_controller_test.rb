@@ -103,6 +103,24 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       end
     end
 
+    should 'get linked facet items' do
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      facet_item2 = facet.facet_items.last
+      orga = create(:orga)
+
+      facet_item.link_owner(orga)
+      facet_item2.link_owner(orga)
+
+      get :get_linked_facet_items, params: { owner_type: 'orgas', owner_id: orga.id }
+      assert_response :ok
+
+      json = JSON.parse(response.body)
+      assert_equal 2, json.count
+      assert_equal JSON.parse(facet_item.to_json), json.first
+      assert_equal JSON.parse(facet_item2.to_json), json[1]
+    end
+
   end
 
 end
