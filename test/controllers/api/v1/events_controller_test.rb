@@ -94,7 +94,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # starts today morning 00:00
       event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
-        creator: user, orga: orga, date_start: Time.now.beginning_of_day)
+        creator: user, orga: orga, date_start: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # starts in 10 minutes
       event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
@@ -114,7 +114,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # started yesterday, ends today morning 00:00
       event5 = create(:event, title: 'Gestern bis heute früh', description: 'Absaufen und Durchhängen',
-        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.beginning_of_day)
+        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # started yesterday, ends tomorrow
       event6 = create(:event, title: 'Gestern bis morgen', description: 'Absaufen und Durchhängen voll durchmachen',
@@ -146,7 +146,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # starts today morning 00:00
       event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
-        creator: user, orga: orga, date_start: Time.now.beginning_of_day)
+        creator: user, orga: orga, date_start: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # starts in 10 minutes
       event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
@@ -166,7 +166,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # started yesterday, ends today morning 00:00
       event5 = create(:event, title: 'Gestern bis heute früh', description: 'Absaufen und Durchhängen',
-        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.beginning_of_day)
+        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # started yesterday, ends tomorrow
       event6 = create(:event, title: 'Gestern bis morgen', description: 'Absaufen und Durchhängen voll durchmachen',
