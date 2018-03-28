@@ -3,8 +3,11 @@ class AnnotationCategory < ApplicationRecord
   include Jsonable
 
   has_many :annotations
-  has_many :events, through: :annotations, source: :entry, source_type: 'Event'
-  has_many :orgas, through: :annotations, source: :entry, source_type: 'Orga'
+
+  def entries
+    Annotation.by_area(Current.user.area).group_by_entry.
+      where(annotation_category_id: id)
+  end
 
   # CLASS METHODS
   class << self
@@ -13,7 +16,11 @@ class AnnotationCategory < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(title generated_by_system).freeze
+      %i(title generated_by_system count_entries).freeze
+    end
+
+    def count_relation_whitelist_for_json
+      %i(entries).freeze
     end
   end
 

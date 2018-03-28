@@ -283,8 +283,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_equal StateMachine::ACTIVE.to_s, Event.last.state
       assert_equal true, json['data']['attributes']['active']
-      assert_includes AnnotationCategory.first.events, Event.last
-      assert_includes AnnotationCategory.second.events, Event.last
+      assert_includes AnnotationCategory.first.entries.pluck(:entry_id), Event.last.id
+      assert_includes AnnotationCategory.second.entries.pluck(:entry_id), Event.last.id
 
       # Then we could deliver the mapping there
       %w(annotations).each do |relation|
