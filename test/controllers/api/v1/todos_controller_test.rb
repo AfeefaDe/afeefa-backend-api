@@ -32,34 +32,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal Orga.by_area(user.area).count, json['data'].size
       orga_from_db = Orga.by_area(user.area).last
-      assert_equal orga_from_db.annotations.first.to_todos_hash.deep_stringify_keys, json['data'].last
-    end
-
-    should 'get filtered for title and description' do
-      assert orga = create(:orga, title: 'Gartenschmutz', description: 'hallihallo')
-      assert event = create(:event, title: 'GartenFOObar')
-
-      get :index, params: { filter: { title: 'Garten', description: 'hallo' } }
-      json = JSON.parse(response.body)
-      assert_response :ok
-      assert_kind_of Array, json['data']
-      assert_equal 0, json['data'].size
-
-      Annotation.create!(detail: 'ganz wichtig', entry: orga, annotation_category: @annotation_category)
-      Annotation.create!(detail: 'ganz wichtig 2', entry: orga, annotation_category: @annotation_category)
-      Annotation.create!(detail: 'ganz wichtig', entry: event, annotation_category: @annotation_category)
-
-      get :index, params: { filter: { title: 'Garten' } }
-      json = JSON.parse(response.body)
-      assert_response :ok
-      assert_kind_of Array, json['data']
-      assert_equal 2, json['data'].size
-
-      get :index, params: { filter: { title: 'Garten', description: 'hallo' } }
-      json = JSON.parse(response.body)
-      assert_response :ok
-      assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].size
+      assert_equal orga.to_hash.deep_stringify_keys, json['data'].last
     end
 
     should 'get filtered for annotation category' do
@@ -84,6 +57,7 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_response :ok
       assert_kind_of Array, json['data']
       assert_equal 1, json['data'].size
+      assert_equal orga.to_hash.deep_stringify_keys, json['data'].first
     end
 
     should 'get todos default filter and sort' do
@@ -95,25 +69,16 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       get :index, params: { include: 'annotations', filter: { todo: '' } }
       json = JSON.parse(response.body)
       assert_response :ok
+
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      todo1 = Annotation.find(json['data'].first['id'])
-      todo2 = Annotation.find(json['data'].last['id'])
+      todo1 = Orga.find(json['data'].first['id'])
+      todo2 = Event.find(json['data'].last['id'])
       expected = {
         data: [
-          {
-            type: 'todos', id: todo1.id.to_s,
-            relationships: {
-              entry: { data: todo1.entry.to_hash }
-            }
-          },
-          {
-            type: 'todos', id: todo2.id.to_s,
-            relationships: {
-              entry: { data: todo2.entry.to_hash }
-            }
-          }
+          todo1.to_hash,
+          todo2.to_hash
         ]
       }
       assert_equal expected.deep_stringify_keys, json
@@ -131,22 +96,12 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      todo1 = Annotation.find(json['data'].first['id'])
-      todo2 = Annotation.find(json['data'].last['id'])
+      todo1 = Orga.find(json['data'].first['id'])
+      todo2 = Event.find(json['data'].last['id'])
       expected = {
         data: [
-          {
-            type: 'todos', id: todo1.id.to_s,
-            relationships: {
-              entry: { data: todo1.entry.to_hash }
-            }
-          },
-          {
-            type: 'todos', id: todo2.id.to_s,
-            relationships: {
-              entry: { data: todo2.entry.to_hash }
-            }
-          }
+          todo1.to_hash,
+          todo2.to_hash
         ]
       }
       assert_equal expected.deep_stringify_keys, json

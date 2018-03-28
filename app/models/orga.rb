@@ -18,6 +18,7 @@ class Orga < ApplicationRecord
 
   has_many :events
   has_many :resource_items
+  has_many :offers
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
   # has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user
@@ -40,6 +41,11 @@ class Orga < ApplicationRecord
   # SCOPES
   scope :without_root, -> { where(title: nil).or(where.not(title: ROOT_ORGA_TITLE)) }
   default_scope { without_root }
+
+  scope :all_for_ids, -> (ids) {
+    includes(Orga.default_includes).
+    where(id: ids)
+  }
 
   # DEFAULTS FOR NEW
   after_initialize do |orga|
@@ -89,6 +95,7 @@ class Orga < ApplicationRecord
         :annotations,
         :resource_items,
         :events,
+        :offers,
         :project_initiators,
         :projects,
         :network_members

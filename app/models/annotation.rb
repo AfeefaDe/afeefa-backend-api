@@ -1,31 +1,35 @@
 class Annotation < ApplicationRecord
-
   include Jsonable
 
   belongs_to :annotation_category
   belongs_to :entry, polymorphic: true
-  belongs_to :orga, foreign_key: 'entry_id', foreign_type: 'Orga'
-  belongs_to :event, foreign_key: 'entry_id', foreign_type: 'Event'
 
-  #scope :with_annotation_category, -> {joins(:annotation_category)}
+  scope :group_by_entry, -> { group(:entry_id, :entry_type) }
 
-  scope :with_entries,
-    -> {
-      joins("LEFT JOIN orgas ON orgas.id = #{table_name}.entry_id AND entry_type = 'Orga'").
-        joins("LEFT JOIN events ON events.id = #{table_name}.entry_id AND entry_type = 'Event'")
-    }
-
-  scope :grouped_by_entries, -> { group(:entry_id, :entry_type) }
-
-  scope :by_area,
-    ->(area) {
-      where(
-        'orgas.area = ? AND events.area IS NULL OR orgas.area IS NULL AND events.area = ?',
-        area, area)
-    }
+  scope :by_area, -> (area) {
+    joins("LEFT JOIN events ON events.id = entry_id AND entry_type = 'Event'").
+    joins("LEFT JOIN orgas ON orgas.id = entry_id AND entry_type = 'Orga'").
+    where('events.area = ? or orgas.area = ?', area, area)
+  }
 
   # CLASS METHODS
   class << self
+    def entries(annotations)
+      event_ids = annotations.select { |a| a.entry_type == 'Event' }.pluck(:entry_id)
+      events = Event.all_for_ids(event_ids)
+
+      actor_ids = annotations.select { |a| a.entry_type == 'Orga' }.pluck(:entry_id)
+      orgas = Orga.all_for_ids(actor_ids)
+
+      annotations.map do |a|
+        if a.entry_type == 'Event'
+          events.select { |e| e.id == a.entry_id }.first
+        elsif a.entry_type == 'Orga'
+          orgas.select { |o| o.id == a.entry_id }.first
+        end
+      end
+    end
+
     def attribute_whitelist_for_json
       default_attributes_for_json
     end
@@ -45,21 +49,6 @@ class Annotation < ApplicationRecord
 
   def annotation_to_hash
     self.to_hash(relationships: nil)
-  end
-
-  def to_todos_hash
-    data = nil
-    if event
-      data = event.to_hash
-    end
-    if orga
-      data = orga.to_hash
-    end
-
-    default_hash(type: 'todos').
-      merge(relationships: {
-        entry: { data: data },
-      })
   end
 
 end

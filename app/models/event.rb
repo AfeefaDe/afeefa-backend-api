@@ -21,6 +21,11 @@ class Event < ApplicationRecord
   # HOOKS
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
 
+  scope :all_for_ids, -> (ids) {
+    includes(Event.default_includes).
+    where(id: ids)
+  }
+
   scope :upcoming, -> {
     now = Time.now.in_time_zone(Time.zone).beginning_of_day
     # date_start > today 00:00
@@ -61,7 +66,7 @@ class Event < ApplicationRecord
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(contacts parent_event sub_events)).freeze
+      (default_relations_for_json + %i(contacts)).freeze
     end
 
     def default_relations_for_json

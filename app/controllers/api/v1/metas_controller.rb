@@ -22,7 +22,7 @@ class Api::V1::MetasController < ApplicationController
           upcoming: Event.by_area(area).upcoming.count
         },
         offers: amount_of_offers(area),
-        todos: Annotation.grouped_by_entries.with_entries.by_area(area).count.count,
+        todos: Annotation.by_area(area).group_by_entry.count.count,
         chapters: amount_of_chapters(area)
       }
     }
