@@ -1,9 +1,9 @@
 FactoryGirl.define do
 
-  factory :fe_navigation, class: DataModules::FENavigation::FENavigation do
+  factory :fe_navigation, class: DataModules::FeNavigation::FeNavigation do
     area 'dresden'
 
-    factory :fe_navigation_with_items, class: DataModules::FENavigation::FENavigation do
+    factory :fe_navigation_with_items, class: DataModules::FeNavigation::FeNavigation do
       transient do
         entry_count 2
       end

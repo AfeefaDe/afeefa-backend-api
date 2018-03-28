@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class DataModules::FENavigation::V1::FENavigationItemsControllerTest < ActionController::TestCase
+class DataModules::FeNavigation::V1::FeNavigationItemsControllerTest < ActionController::TestCase
 
   include ActsAsFacetItemControllerTest
 
@@ -29,11 +29,11 @@ class DataModules::FENavigation::V1::FENavigationItemsControllerTest < ActionCon
   end
 
   def ownerClass
-    DataModules::FENavigation::FENavigationItemOwner
+    DataModules::FeNavigation::FeNavigationItemOwner
   end
 
   def itemClass
-    DataModules::FENavigation::FENavigationItem
+    DataModules::FeNavigation::FeNavigationItem
   end
 
   def params(root, params)

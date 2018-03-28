@@ -1,7 +1,7 @@
 require 'test_helper'
 
-module DataModules::FENavigation
-  class FENavigationItemTest < ActiveSupport::TestCase
+module DataModules::FeNavigation
+  class FeNavigationItemTest < ActiveSupport::TestCase
 
     include ActsAsFacetItemTest
 
@@ -36,15 +36,15 @@ module DataModules::FENavigation
     end
 
     def ownerClass
-      DataModules::FENavigation::FENavigationItemOwner
+      DataModules::FeNavigation::FeNavigationItemOwner
     end
 
     def itemClass
-      DataModules::FENavigation::FENavigationItem
+      DataModules::FeNavigation::FeNavigationItem
     end
 
     def save_item(hash)
-      FENavigationItem.save_navigation_item(ActionController::Parameters.new(hash))
+      FeNavigationItem.save_navigation_item(ActionController::Parameters.new(hash))
     end
 
     def message_root_missing
@@ -75,7 +75,7 @@ module DataModules::FENavigation
       'Ein Menüpunkt mit Unterpunkten kann nicht verschachtelt werden.'
     end
 
-    # FENavigationItemTest
+    # FeNavigationItemTest
 
     should 'throw error on trying to update navigation' do
       navigation = create(:fe_navigation_with_items)

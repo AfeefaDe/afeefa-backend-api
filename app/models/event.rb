@@ -122,6 +122,6 @@ class Event < ApplicationRecord
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
   include DataPlugins::Facet::Concerns::HasFacetItems
-  include DataModules::FENavigation::Concerns::HasFENavigationItems
+  include DataModules::FeNavigation::Concerns::HasFeNavigationItems
 
 end

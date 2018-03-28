@@ -1,15 +1,15 @@
-module DataModules::FENavigation
-  class FENavigationItem < ApplicationRecord
+module DataModules::FeNavigation
+  class FeNavigationItem < ApplicationRecord
     include Jsonable
     include DataPlugins::Facet::Concerns::ActsAsFacetItem
 
     # ASSOCIATIONS
-    belongs_to :navigation, class_name: DataModules::FENavigation::FENavigation
-    belongs_to :parent, class_name: FENavigationItem
-    has_many :sub_items, class_name: FENavigationItem, foreign_key: :parent_id, dependent: :destroy
+    belongs_to :navigation, class_name: DataModules::FeNavigation::FeNavigation
+    belongs_to :parent, class_name: FeNavigationItem
+    has_many :sub_items, class_name: FeNavigationItem, foreign_key: :parent_id, dependent: :destroy
 
     has_many :navigation_item_owners,
-      class_name: FENavigationItemOwner, foreign_key: 'navigation_item_id', dependent: :destroy
+      class_name: FeNavigationItemOwner, foreign_key: 'navigation_item_id', dependent: :destroy
 
     has_many :events, through: :navigation_item_owners, source: :owner, source_type: 'Event'
     has_many :orgas, through: :navigation_item_owners, source: :owner, source_type: 'Orga'
@@ -71,14 +71,14 @@ module DataModules::FENavigation
         return false
       end
 
-      FENavigationItemOwner.create(
+      FeNavigationItemOwner.create(
         owner: owner,
         navigation_item_id: id
       )
 
       # link parent too
       if parent
-        FENavigationItemOwner.find_or_create_by(
+        FeNavigationItemOwner.find_or_create_by(
           owner: owner,
           navigation_item_id: parent.id
         )
@@ -115,7 +115,7 @@ module DataModules::FENavigation
         return errors.add(:navigation_id, 'Navigation kann nicht geändert werden.')
       end
 
-      unless FENavigation.exists?(navigation_id)
+      unless FeNavigation.exists?(navigation_id)
         return errors.add(:navigation_id, 'Navigation existiert nicht.')
       end
 

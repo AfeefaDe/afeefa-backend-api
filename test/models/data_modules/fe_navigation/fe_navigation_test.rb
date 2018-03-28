@@ -1,10 +1,10 @@
 require 'test_helper'
 
-module DataModules::FENavigation
-  class FENavigationTest < ActiveSupport::TestCase
+module DataModules::FeNavigation
+  class FeNavigationTest < ActiveSupport::TestCase
 
     should 'validate navigation' do
-      navigation = DataModules::FENavigation::FENavigation.new
+      navigation = DataModules::FeNavigation::FeNavigation.new
       assert navigation.valid?
     end
 
@@ -29,17 +29,17 @@ module DataModules::FENavigation
 
     should 'remove all navigation items on delete' do
       navigation = create(:fe_navigation)
-      assert_no_difference -> { FENavigationItem.count } do
+      assert_no_difference -> { FeNavigationItem.count } do
         navigation.destroy
       end
 
       navigation2 = create(:fe_navigation_with_items)
-      assert_difference -> { FENavigationItem.count }, -2 do
+      assert_difference -> { FeNavigationItem.count }, -2 do
         navigation2.destroy
       end
 
       navigation3 = create(:fe_navigation_with_items_and_sub_items)
-      assert_difference -> { FENavigationItem.count }, -6 do
+      assert_difference -> { FeNavigationItem.count }, -6 do
         navigation3.destroy
       end
     end

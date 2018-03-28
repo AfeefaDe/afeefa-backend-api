@@ -1,4 +1,4 @@
-class DataModules::FENavigation::V1::FENavigationItemsController < Api::V1::BaseController
+class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::BaseController
 
   include HasLinkedOwners
 
@@ -9,14 +9,14 @@ class DataModules::FENavigation::V1::FENavigationItemsController < Api::V1::Base
   # fe_navigation_items
   def create
     params[:navigation_id] = @navigation.id
-    navigation_item = DataModules::FENavigation::FENavigationItem.save_navigation_item(params)
+    navigation_item = DataModules::FeNavigation::FeNavigationItem.save_navigation_item(params)
     render status: :created, json: navigation_item
   end
 
   # fe_navigation_items/:id
   def update
     params[:navigation_id] = @navigation.id
-    navigation_item = DataModules::FENavigation::FENavigationItem.save_navigation_item(params)
+    navigation_item = DataModules::FeNavigation::FeNavigationItem.save_navigation_item(params)
     render status: :ok, json: navigation_item
   end
 
@@ -38,18 +38,18 @@ class DataModules::FENavigation::V1::FENavigationItemsController < Api::V1::Base
   end
 
   def base_for_find_objects
-    DataModules::FENavigation::FENavigationItem.
+    DataModules::FeNavigation::FeNavigationItem.
       includes(:navigation).
       where(fe_navigations: {area: current_api_v1_user.area}, parent_id: nil)
   end
 
   def find_navigation
-    @navigation = DataModules::FENavigation::FENavigation.by_area(current_api_v1_user.area).first
+    @navigation = DataModules::FeNavigation::FeNavigation.by_area(current_api_v1_user.area).first
   end
 
   def find_navigation_item
     find_navigation
-    @item = DataModules::FENavigation::FENavigationItem.find(params[:id])
+    @item = DataModules::FeNavigation::FeNavigationItem.find(params[:id])
     @item_owners = @item.navigation_item_owners
   end
 

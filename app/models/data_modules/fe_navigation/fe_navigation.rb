@@ -1,10 +1,10 @@
-module DataModules::FENavigation
-  class FENavigation < ApplicationRecord
+module DataModules::FeNavigation
+  class FeNavigation < ApplicationRecord
     include Jsonable
 
     # ASSOCIATIONS
     has_many :navigation_items,
-      class_name: DataModules::FENavigation::FENavigationItem, foreign_key: 'navigation_id', dependent: :destroy
+      class_name: DataModules::FeNavigation::FeNavigationItem, foreign_key: 'navigation_id', dependent: :destroy
 
     scope :by_area, -> (area) { where(area: area) }
 
