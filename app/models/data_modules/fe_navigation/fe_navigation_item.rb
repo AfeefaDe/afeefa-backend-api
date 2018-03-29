@@ -20,6 +20,28 @@ module DataModules::FeNavigation
       (events + orgas + offers + facet_items.map { |fi| fi.owners }.flatten).uniq
     end
 
+    def count_owners
+      sql = <<-eos
+        select count(*)
+        from fe_navigation_item_owners
+        where navigation_item_id = #{id}
+        and owner_type != 'DataPlugins::Facet::FacetItem'
+      eos
+      count_owners = ActiveRecord::Base.connection.select_value(sql)
+
+      sql = <<-eos
+        select count(*)
+        from facet_item_owners fo
+        inner join fe_navigation_item_owners no
+        on fo.facet_item_id = no.owner_id
+        where no.navigation_item_id = #{id}
+        and no.owner_type = 'DataPlugins::Facet::FacetItem'
+      eos
+      count_facet_owners = ActiveRecord::Base.connection.select_value(sql)
+
+      count_owners + count_facet_owners
+    end
+
     # VALIDATIONS
     validates :title, length: { maximum: 255 }
     validates :color, length: { maximum: 255 }
@@ -38,7 +60,7 @@ module DataModules::FeNavigation
       end
 
       def default_attributes_for_json
-        %i(title color).freeze
+        %i(title color count_owners).freeze
       end
 
       def relation_whitelist_for_json
