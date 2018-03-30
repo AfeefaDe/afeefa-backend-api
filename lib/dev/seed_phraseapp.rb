@@ -1,6 +1,9 @@
 module Dev
   module SeedPhraseapp
 
+    # use this task via 'rails c' to reset the phraseapp test account to a fresh state
+    # jes 30.03.2018
+
     class << self
       def seed_now
         client = PhraseAppClient.new

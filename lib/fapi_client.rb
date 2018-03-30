@@ -2,7 +2,7 @@ class FapiClient
 
   def entry_translated(model, locale)
     request({
-      type: model.class.name.underscore,
+      type: model.class.translation_key_type,
       id: model.id,
       locale: locale
     })
@@ -10,15 +10,16 @@ class FapiClient
 
   def entry_updated(model)
     request({
-      type: model.class.name.underscore,
+      type: model.class.translation_key_type,
       id: model.id
     })
   end
 
   def entry_deleted(model)
+    area = model.respond_to?(:area) ? model.area : nil
     request({
-      area: model.area,
-      type: model.class.name.underscore,
+      area: area,
+      type: model.class.translation_key_type,
       id: model.id,
       deleted: true
     })

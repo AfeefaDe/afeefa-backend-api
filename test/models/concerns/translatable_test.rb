@@ -374,6 +374,58 @@ class TranslatableTest < ActiveSupport::TestCase
     orga2.update(parent_orga_id: orga4.id)
   end
 
+  should 'trigger fapi if facet item is created' do
+    facet_item = build(:facet_item, title: 'New Category')
+    facet_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |facet_item_to_create|
+      facet_item_id = DataPlugins::Facet::FacetItem.last.id
+      assert_equal 'facet_item', facet_item_to_create[:type]
+      assert_equal facet_item_id, facet_item_to_create[:id]
+    end
+
+    facet_item.save
+  end
+
+  should 'trigger fapi if navigation item is created' do
+    navigation_item = build(:fe_navigation_item, title: 'New Entry')
+    navigation_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |navigation_item_to_create|
+      navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id
+      assert_equal 'navigation_item', navigation_item_to_create[:type]
+      assert_equal navigation_item_id, navigation_item_to_create[:id]
+    end
+
+    navigation_item.save
+  end
+
+  should 'trigger fapi if facet item is updated' do
+    facet_item = create(:facet_item, title: 'New Category')
+    facet_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |facet_item_to_update|
+      facet_item_id = DataPlugins::Facet::FacetItem.last.id
+      assert_equal 'facet_item', facet_item_to_update[:type]
+      assert_equal facet_item_id, facet_item_to_update[:id]
+    end
+
+    facet_item.update(title: 'new title')
+  end
+
+  should 'trigger fapi if navigation item is updated' do
+    navigation_item = create(:fe_navigation_item, title: 'New Entry')
+    navigation_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |navigation_item_to_update|
+      navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id
+      assert_equal 'navigation_item', navigation_item_to_update[:type]
+      assert_equal navigation_item_id, navigation_item_to_update[:id]
+    end
+
+    navigation_item.update(title: 'new title')
+  end
+
   should 'trigger fapi for suborgas and events' do
     orga = create(:orga)
     orga2 = create(:orga, title: 'orga2', parent_orga_id: orga.id, inheritance: 'locations')
@@ -419,6 +471,34 @@ class TranslatableTest < ActiveSupport::TestCase
     FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, deleted: true))
 
     event.destroy
+  end
+
+  should 'trigger fapi if facet item is deleted' do
+    facet_item = create(:facet_item, title: 'New Category')
+    facet_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |facet_item_to_delete|
+      assert_nil facet_item_to_delete[:area]
+      assert_equal 'facet_item', facet_item_to_delete[:type]
+      assert_equal facet_item.id, facet_item_to_delete[:id]
+      assert facet_item_to_delete[:deleted]
+    end
+
+    facet_item.destroy
+  end
+
+  should 'trigger fapi if navigation item is deleted' do
+    navigation_item = create(:fe_navigation_item, title: 'New Entry')
+    navigation_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |navigation_item_to_delete|
+      assert_equal 'dresden', navigation_item_to_delete[:area]
+      assert_equal 'navigation_item', navigation_item_to_delete[:type]
+      assert_equal navigation_item.id, navigation_item_to_delete[:id]
+      assert navigation_item_to_delete[:deleted]
+    end
+
+    navigation_item.destroy
   end
 
 end
