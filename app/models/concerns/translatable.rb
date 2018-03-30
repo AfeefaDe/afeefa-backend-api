@@ -32,11 +32,15 @@ module Translatable
       if: -> { (Settings.afeefa.fapi_sync_active || force_sync_fapi_after_save) }
 
     def build_translation_key(attribute)
-      "#{self.class.name.underscore}.#{id}.#{attribute}"
+      "#{self.class.translation_key_type}.#{id}.#{attribute}"
     end
 
     def self.build_translation_key(id, attribute)
-      "#{name.underscore}.#{id}.#{attribute}"
+      "#{translation_key_type}.#{id}.#{attribute}"
+    end
+
+    def translation_key_type
+      self.class.translation_key_type
     end
 
     def force_translatable_attribute_update!
@@ -56,6 +60,10 @@ module Translatable
     def translatable_attributes
       raise NotImplementedError "translatable_attributes must be defined for class #{self.class}"
     end
+
+    def translation_key_type
+      name.to_s.split('::').last.downcase.underscore
+    end
   end
 
   def client
@@ -71,9 +79,13 @@ module Translatable
       if translatable_attribute_changed? || force_translatable_attribute_update?
         json = create_json_for_translation_file(only_changes: !force_translatable_attribute_update?)
         if json
-          translation_file_name = "#{self.class.name.to_s.downcase}-#{id.to_s}-translation-#{DEFAULT_LOCALE}-"
+          translation_file_name = "#{translation_key_type}-#{id.to_s}-translation-#{DEFAULT_LOCALE}-"
           file = client.write_translation_upload_json(translation_file_name, json)
-          client.upload_translation_file_for_locale(file, DEFAULT_LOCALE, tags: area)
+          if respond_to?(:area)
+            client.upload_translation_file_for_locale(file, DEFAULT_LOCALE, tags: area)
+          else
+            client.upload_translation_file_for_locale(file, DEFAULT_LOCALE)
+          end
         else
           Rails.logger.debug(
             'skip phraseapp save hook because no nonempty translatable attributes present')
@@ -122,7 +134,7 @@ module Translatable
 
     if !attribute_translations.empty?
       return {
-        self.class.name.to_s.underscore => {
+        translation_key_type => {
           id.to_s => attribute_translations
         }
       }

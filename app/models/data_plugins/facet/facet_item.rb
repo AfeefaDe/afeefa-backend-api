@@ -2,6 +2,7 @@ module DataPlugins::Facet
   class FacetItem < ApplicationRecord
     include Jsonable
     include DataPlugins::Facet::Concerns::ActsAsFacetItem
+    include Translatable
 
     # ASSOCIATIONS
     belongs_to :facet
@@ -35,6 +36,14 @@ module DataPlugins::Facet
 
     # CLASS METHODS
     class << self
+      def translatable_attributes
+        %i(title)
+      end
+
+      def translation_key_type
+        'facet_item'
+      end
+
       def attribute_whitelist_for_json
         default_attributes_for_json.freeze
       end

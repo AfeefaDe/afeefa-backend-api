@@ -2,6 +2,7 @@ module DataModules::FeNavigation
   class FeNavigationItem < ApplicationRecord
     include Jsonable
     include DataPlugins::Facet::Concerns::ActsAsFacetItem
+    include Translatable
 
     # ASSOCIATIONS
     belongs_to :navigation, class_name: DataModules::FeNavigation::FeNavigation
@@ -18,6 +19,10 @@ module DataModules::FeNavigation
 
     def owners
       (events + orgas + offers + facet_items.map { |fi| fi.owners }.flatten).uniq
+    end
+
+    def area
+      navigation.area
     end
 
     def count_owners
@@ -55,6 +60,14 @@ module DataModules::FeNavigation
 
     # CLASS METHODS
     class << self
+      def translatable_attributes
+        %i(title)
+      end
+
+      def translation_key_type
+        'navigation_item'
+      end
+
       def attribute_whitelist_for_json
         default_attributes_for_json.freeze
       end
