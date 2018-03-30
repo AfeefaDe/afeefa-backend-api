@@ -2,49 +2,56 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
   def up
     facets = [
       {
-        title: 'Organisationstyp (für Akteure)',
+        title: 'Organisationstyp',
         owners: ['Orga'],
         color: '#99FF99',
         items: [
-          'Verein',
-          'Initiative',
           {
-            title: 'Behörde',
-            categories: [133]
-          },
-          {
-            title: 'Netzwerk, Bündnis',
-            categories: [172]
-          },
-          'Projekt',
-          'Organisation',
-          'Religiöse Einrichtung',
-          'Gemeinschaft',
-          'Wohnprojekt',
-          'Bibliothek',
-          'Krankenhaus',
-          'Polizei',
-          'Amt, Behörde',
-          'Parks und Gärten',
-          'Museum',
-          {
-            title: 'Geschäft',
+            title: 'NGO',
             items: [
-              { title: 'Kneipe' },
+              { title: 'Netzwerk, Bündnis' },
+              { title: 'Organisation' },
+              { title: 'Projekt' },
+              { title: 'Verein' },
+              { title: 'Initiative' }
+            ]
+          },
+          {
+            title: 'Öffentliche Einrichtung',
+            items: [
+              { title: 'Krankenhaus' },
+              { title: 'Polizei' },
+              {
+                title: 'Amt / Behörde',
+                categories: [133]
+              }
+            ]
+          },
+          {
+            title: 'Gemeinschaft',
+            items: [
+              { title: 'Wohnprojekt' },
+              { title: 'Treffpunkt' }
+            ]
+          },
+          {
+            title: 'Kommerziell',
+            items: [
+              { title: 'Café & Restaurant' },
               { title: 'Restaurant' },
-              { title: 'Café' },
               { title: 'Restaurant' }
             ]
           },
           {
-            title: 'Kultureinrichtungen',
+            title: 'Kultureinrichtung',
             items: [
+              { title: 'Bibliothek' },
               { title: 'Theater' },
               { title: 'Kino' },
-              { title: 'Museum, Ausstellung' }
+              { title: 'Museum' },
+              { title: 'Park, Garten' }
             ]
           },
-          'Treffpunkt',
           'Werkstatt',
           {
             title: 'Religiöse Einrichtung',
@@ -63,8 +70,70 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
             ]
           }
         ]
-      },      {
-        title: 'Themen (für Akteure, Angebote und Events)',
+      },
+      {
+        title: 'Angebotstypen',
+        owners: ['Offer'],
+        color: '#9999ff',
+        items: [
+          {
+            title: 'Beratung',
+            categories: [333],
+            items: [
+              { title: 'Migrationsberatung' },
+              { title: 'Rechtsberatung' },
+              { title: 'Berufsberatung' },
+              {
+                title: 'Sozialberatung',
+                categories: [290]
+              },
+              { title: 'Suchtberatung' },
+              { title: 'Familienberatung' }
+            ]
+          },
+          'Information',
+          {
+            title: 'Bildung',
+            categories: [325],
+            items: [
+              { title: 'Kurs' },
+              {
+                title: 'Staatlicher Kurs',
+                categories: [139]
+              },
+              {
+                title: 'Freier Kurs',
+                categories: [138]
+              },
+              {
+                title: 'Sprachtreff',
+                categories: [140]
+              },
+              { title: 'Lerntreff' },
+              { title: 'Nachhilfe' }
+            ]
+          },
+          'Begegnung',
+          {
+            title: 'Begleitung & Unterstützung',
+            items: [
+              { title: 'Patenschaften' }
+            ]
+          },
+          'Betreuung',
+          {
+            title: 'Spenden',
+            items: [
+              { title: 'Lebensmittel' },
+              { title: 'Bekleidung' },
+              { title: 'Möbel' }
+            ]
+          },
+          'Übersetzungen'
+        ]
+      },
+      {
+        title: 'Themen',
         owners: ['Orga', 'Offer', 'Event'],
         color: '#e4b100',
         items: [
@@ -73,7 +142,7 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
             categories: [276]
           },
           {
-            title: 'DIY, Aktivitäten, Handwerk, Basten, Betätigen',
+            title: 'Hobby',
             items: [
               { title: 'Kochen' },
               { title: 'Gärtnern' },
@@ -82,16 +151,20 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
               { title: 'Reparieren' }
             ]
           },
-          'Mobilität',
           {
             title: 'Alltag',
             items: [
               { title: 'Einkaufen' },
+              { title: 'Mobilität' }
             ]
           },
-          'LGBT*I*',
-          'Inklusion',
-          'Sexualität',
+          {
+            title: 'Diversität',
+            items: [
+              { title: 'LGBT*I*' },
+              { title: 'Inklusion' }
+            ]
+          },
           {
             title: 'Familie',
             categories: [284],
@@ -161,7 +234,7 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
         ]
       },
       {
-        title: 'Teilnahmebedingungen (für Events und Angebote)',
+        title: 'Teilnahmebedingungen',
         owners: ['Offer', 'Event'],
         color: '#99ccFF',
         items: [
@@ -179,68 +252,22 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
         ]
       },
       {
-        title: 'Angebotstypen (für Angebote)',
-        owners: ['Offer'],
-        color: '#9999ff',
+        title: 'Zielgruppen',
+        owners: ['Offer', 'Event'],
+        color: '#318b86',
         items: [
-          {
-            title: 'Beratung',
-            categories: [333],
-            items: [
-              { title: 'Migrationsberatung' },
-              { title: 'Rechtsberatung' },
-              { title: 'Berufsberatung' },
-              {
-                title: 'Sozialberatung',
-                categories: [290]
-              },
-              { title: 'Suchtberatung' },
-              { title: 'Familienberatung' }
-            ]
-          },
-          'Information allgemein',
-          {
-            title: 'Weiterbildung',
-            categories: [325],
-            items: [
-              { title: 'Kurs' },
-              {
-                title: 'Staatlicher Kurs',
-                categories: [139]
-              },
-              {
-                title: 'Freier Kurs',
-                categories: [138]
-              },
-              {
-                title: 'Sprachtreff',
-                categories: [140]
-              },
-              { title: 'Lerntreff' },
-              { title: 'Nachhilfe' }
-            ]
-          },
-          'Begegnung',
-          {
-            title: 'Begleitung & Unterstützung',
-            items: [
-              { title: 'Patenschaften' }
-            ]
-          },
-          'Betreuung',
-          {
-            title: 'Spenden',
-            items: [
-              { title: 'Lebensmittel' },
-              { title: 'Bekleidung' },
-              { title: 'Möbel' }
-            ]
-          },
-          'Übersetzungen'
+          'Kinder',
+          'Frauen',
+          'Jugendliche',
+          'Männer',
+          'Geflüchtete',
+          'Ehrenamtliche',
+          'Familien',
+          'LGBT*I*'
         ]
       },
       {
-        title: 'Veranstaltungsformate (für Events und Angebote)',
+        title: 'Veranstaltungsformate',
         owners: ['Offer', 'Event'],
         color: '#ff9999',
         items: [
@@ -261,21 +288,6 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
               { title: 'Performance' }
             ]
           }
-        ]
-      },
-      {
-        title: 'Zielgruppen (für Events und Angebote)',
-        owners: ['Offer', 'Event'],
-        color: '#318b86',
-        items: [
-          'Kinder',
-          'Frauen',
-          'Jugendliche',
-          'Männer',
-          'Geflüchtete',
-          'Ehrenamtliche',
-          'Familien',
-          'LGBT*I*'
         ]
       }
     ]
