@@ -68,7 +68,7 @@ module DataModules::FeNavigation
       end
 
       def default_relations_for_json
-        %i(sub_items).freeze
+        %i(sub_items facet_items).freeze
       end
 
       def navigation_item_params(params)
@@ -184,5 +184,4 @@ module DataModules::FeNavigation
     end
 
   end
-
 end
