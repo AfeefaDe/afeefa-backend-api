@@ -43,10 +43,13 @@ Rails.application.routes.draw do
         end
         get ':owner_type/:owner_id/facet_items', to: 'data_plugins/facet/v1/facet_items#get_linked_facet_items'
 
-        resources :fe_navigation_items, controller: 'data_modules/fe_navigation/v1/fe_navigation_items'
-        post 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_owners'
-        get 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#get_linked_owners'
-        delete 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#unlink_owners'
+        scope :fe_navigation do
+          get '', to: 'data_modules/fe_navigation/v1/fe_navigation#show'
+          resources :fe_navigation_items, controller: 'data_modules/fe_navigation/v1/fe_navigation_items'
+          post 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_owners'
+          get 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#get_linked_owners'
+          delete 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#unlink_owners'
+        end
       end
     end
 

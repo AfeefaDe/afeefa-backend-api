@@ -105,6 +105,10 @@ module HasLinkedOwners
     end
   end
 
+  def custom_find_owner
+    # hook in
+  end
+
   def find_owner
     @owner =
       case params[:owner_type]
@@ -114,6 +118,8 @@ module HasLinkedOwners
         Event.find(params[:owner_id])
       when 'offers'
         DataModules::Offer::Offer.find(params[:owner_id])
+      else
+        custom_find_owner
       end
     unless @owner
       raise ActiveRecord::RecordNotFound,

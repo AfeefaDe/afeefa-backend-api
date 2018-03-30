@@ -60,7 +60,7 @@ module DataModules::FeNavigation
       end
 
       def default_attributes_for_json
-        %i(title color count_owners).freeze
+        %i(title color parent_id count_owners).freeze
       end
 
       def relation_whitelist_for_json

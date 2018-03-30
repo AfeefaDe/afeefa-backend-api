@@ -46,6 +46,25 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       stub_current_user
     end
 
+    should 'get items' do
+      facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
+
+      get :index, params: { facet_id: facet.id }
+
+      assert_response :ok
+
+      json = JSON.parse(response.body)
+      assert_kind_of Hash, json
+
+      json_items = json['data']
+      assert_kind_of Array, json_items
+      assert_equal 2, json_items.count
+
+      json_sub_items = json_items[0]['relationships']['sub_items']['data']
+      assert_kind_of Array, json_sub_items
+      assert_equal 2, json_sub_items.count
+    end
+
     should 'throw 404 error on create with wrong params' do
       post :create, params: { facet_id: 1, title: 'new facet item' }
       assert_response :not_found

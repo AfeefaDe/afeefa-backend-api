@@ -2,9 +2,8 @@ class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::Base
 
   include HasLinkedOwners
 
-  skip_before_action :find_objects, except: [:index, :show]
-  before_action :find_navigation, only: [:index, :create]
-  before_action :find_navigation_item, except: [:index, :create]
+  before_action :find_navigation, only: [:create]
+  before_action :find_navigation_item, except: [:create]
 
   # fe_navigation_items
   def create
@@ -15,7 +14,6 @@ class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::Base
 
   # fe_navigation_items/:id
   def update
-    params[:navigation_id] = @navigation.id
     navigation_item = DataModules::FeNavigation::FeNavigationItem.save_navigation_item(params)
     render status: :ok, json: navigation_item
   end
@@ -53,22 +51,12 @@ class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::Base
     @item_owners = @item.navigation_item_owners
   end
 
-  def find_owner
+  def custom_find_owner
     @owner =
       case params[:owner_type]
-      when 'orgas'
-        Orga.find(params[:owner_id])
-      when 'events'
-        Event.find(params[:owner_id])
-      when 'offers'
-        DataModules::Offer::Offer.find(params[:owner_id])
       when 'facet_items'
         DataPlugins::Facet::FacetItem.find(params[:owner_id])
       end
-    unless @owner
-      raise ActiveRecord::RecordNotFound,
-        "Element mit ID #{params[:owner_id]} konnte für Typ #{params[:owner_type]} nicht gefunden werden."
-    end
   end
 
 end

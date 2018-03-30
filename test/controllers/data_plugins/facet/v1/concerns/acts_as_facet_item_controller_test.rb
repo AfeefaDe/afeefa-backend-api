@@ -8,25 +8,6 @@ module ActsAsFacetItemControllerTest
         stub_current_user
       end
 
-      should 'get items' do
-        root = create_root_with_items_and_sub_items
-
-        get :index, params: params(root, {})
-
-        assert_response :ok
-
-        json = JSON.parse(response.body)
-        assert_kind_of Hash, json
-
-        json_items = json['data']
-        assert_kind_of Array, json_items
-        assert_equal 2, json_items.count
-
-        json_sub_items = json_items[0]['relationships']['sub_items']['data']
-        assert_kind_of Array, json_sub_items
-        assert_equal 2, json_sub_items.count
-      end
-
       should 'get single item' do
         root = create_root_with_items_and_sub_items
         item = get_root_items(root).first
@@ -37,6 +18,26 @@ module ActsAsFacetItemControllerTest
 
         json = JSON.parse(response.body)
         assert_equal JSON.parse(item.to_json), json['data']
+      end
+
+      should 'set the right parent_id' do
+        root = create_root_with_items_and_sub_items
+        parent = get_root_items(root).select { |item| item.sub_items.count > 0 }.first
+        sub_item = parent.sub_items.first
+        sub_item2 = parent.sub_items.last
+
+        get :show, params: params(root, { id: parent.id })
+
+        json = JSON.parse(response.body)['data']
+
+        assert_nil json['attributes']['parent_id']
+
+        json_sub_items = json['relationships']['sub_items']['data']
+        assert_kind_of Array, json_sub_items
+        assert_equal 2, json_sub_items.count
+
+        assert_equal parent.id, json_sub_items[0]['attributes']['parent_id']
+        assert_equal parent.id, json_sub_items[1]['attributes']['parent_id']
       end
 
       should 'get linked owners' do
