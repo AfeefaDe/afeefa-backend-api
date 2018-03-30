@@ -166,5 +166,7 @@ module DataPlugins::Facet
       'Ein Attribut mit Unterattributen kann nicht verschachtelt werden.'
     end
 
+    include DataModules::FeNavigation::Concerns::HasFeNavigationItems
+
   end
 end

@@ -156,12 +156,14 @@ module ActsAsFacetItemTest
 
       sub_item = parent.sub_items.first
 
+      orga1 = create(:orga_with_random_title)
       orgas = create_list(:orga_with_random_title, 3)
-      parent.orgas = orgas
+      parent.orgas = orgas + [orga1]
       sub_item.orgas = orgas
 
-      assert_equal orgas, parent.orgas
-      assert_equal [], parent2.orgas
+      assert_equal orgas + [orga1], parent.owners
+      assert_equal orgas, sub_item.owners
+      assert_equal [], parent2.owners
 
       save_item(id: sub_item.id, parent_id: parent2.id)
 
@@ -169,9 +171,9 @@ module ActsAsFacetItemTest
       parent2.reload
       sub_item.reload
 
-      assert_equal [], parent.orgas
-      assert_equal orgas, parent2.orgas
-      assert_equal orgas, sub_item.orgas
+      assert_equal [orga1], parent.owners
+      assert_equal orgas, parent2.owners
+      assert_equal orgas, sub_item.owners
     end
 
     should 'keep other owners when relinking on setting a new parent' do
