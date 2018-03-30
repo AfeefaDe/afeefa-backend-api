@@ -16,11 +16,17 @@ module Dev
         events = Event.all
         entries = orgas + events
 
+        facet_items = DataPlugins::Facet::FacetItem.all
+        navigation_items = DataModules::FeNavigation::FeNavigationItem.all
+        facet_and_navigation_items = facet_items + navigation_items
+
         locales = [Translatable::DEFAULT_LOCALE] + Translatable::TRANSLATABLE_LOCALES
         locales.each do |locale|
           translation_hash = {
             event: {},
-            orga: {}
+            orga: {},
+            facet_item: {},
+            navigation_item: {}
           }
 
           entries.each do |entry|
@@ -41,6 +47,16 @@ module Dev
             end
           end
 
+          facet_and_navigation_items.each do |item|
+            type = item.is_a?(DataPlugins::Facet::FacetItem) ? :facet_item : :navigation_item
+
+            if !item.title.blank?
+              translation_hash[type][item.id] = {}
+              title = locale == Translatable::DEFAULT_LOCALE ? item.title : "#{type}.#{item.id}.title.#{locale}"
+              translation_hash[type][item.id][:title] = title
+            end
+          end
+
           translation_file_name = "translation-new-#{locale}-"
           file = Tempfile.new([translation_file_name, '.json'], encoding: 'UTF-8')
           file.write(JSON.pretty_generate(translation_hash))
@@ -53,7 +69,9 @@ module Dev
           puts "pushed file #{file.path}"
         end
 
-
+        puts "tag all areas"
+        client.tag_all_areas
+        puts "all areas tagged"
       end
 
     end
