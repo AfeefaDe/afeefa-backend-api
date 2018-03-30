@@ -16,7 +16,17 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
     content = json['translation']['content']
     language = json['translation']['locale']['code']
 
-    entry = type == 'event' ? Event.find_by(id: id) : Orga.find_by(id: id)
+    entry = nil
+    case type
+    when 'orga'
+      entry = Orga.find_by(id: id)
+    when 'event'
+      entry = Event.find_by(id: id)
+    when 'facet_item'
+      entry = DataPlugins::Facet::FacetItem.find_by(id: id)
+    when 'navigation_item'
+      entry = DataModules::FeNavigation::FeNavigationItem.find_by(id: id)
+    end
 
     if entry
       if json['event'] == 'translations:create'

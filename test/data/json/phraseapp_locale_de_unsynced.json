@@ -10,5 +10,10 @@
     "<orga_whithout_short_description_id>": {
         "title": "orga.<orga_whithout_short_description_id>.title"
     }
+  },
+  "facet_item": {
+    "<existing_facet_item_id>": {
+      "title": "existing_facet_item title"
+    }
   }
 }

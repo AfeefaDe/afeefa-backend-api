@@ -116,11 +116,11 @@ class PhraseAppClient
   def tag_all_areas
     num_tagged = 0
     Translatable::AREAS.each do |area|
-      models = []
-      [Orga, Event].each do |model_class|
-        models = models + model_class.where(area: area)
-      end
-      num_tagged += tag_models(area, models)
+      models_in_area =
+        Orga.where(area: area) +
+        Event.where(area: area) +
+        DataModules::FeNavigation::FeNavigationItem.joins(:navigation).where(fe_navigations: {area: area})
+      num_tagged += tag_models(area, models_in_area)
     end
     num_tagged
   end
@@ -154,7 +154,9 @@ class PhraseAppClient
       keys = []
       models_to_process.each do |model|
         keys << model.build_translation_key('title')
-        keys << model.build_translation_key('short_description')
+        if model.respond_to?('short_description')
+          keys << model.build_translation_key('short_description')
+        end
       end
       q = 'name:' + keys.join(',')
       params = PhraseApp::RequestParams::KeysTagParams.new(tags: tags, q: q)
@@ -180,8 +182,15 @@ class PhraseAppClient
     begin
       event_ids = json['event'].try(:keys) || []
       orga_ids = json['orga'].try(:keys) || []
+      facet_item_ids = json['facet_item'].try(:keys) || []
+      navigation_items_ids = json['navigation_item'].try(:keys) || []
 
-      keys_to_destroy = get_keys_to_destroy(Orga, orga_ids) + get_keys_to_destroy(Event, event_ids)
+      keys_to_destroy =
+        get_keys_to_destroy(Orga, orga_ids) +
+        get_keys_to_destroy(Event, event_ids) +
+        get_keys_to_destroy(DataPlugins::Facet::FacetItem, facet_item_ids) +
+        get_keys_to_destroy(DataModules::FeNavigation::FeNavigationItem, navigation_items_ids)
+
       deleted = delete_keys_by_name(keys_to_destroy)
 
       Rails.logger.debug "deleted #{deleted} keys."
@@ -197,13 +206,21 @@ class PhraseAppClient
   def add_missing_or_invalid_keys(json)
     updates_json = {}
     added = 0
-    [Orga, Event].each do |model_class|
+    model_classes = [
+      Orga,
+      Event,
+      DataPlugins::Facet::FacetItem,
+      DataModules::FeNavigation::FeNavigationItem
+    ]
+    model_classes.each do |model_class|
       model_class.all.each do |model|
-        type = model.class.name.underscore
+        type = model.class.translation_key_type
         id = model.id.to_s
-        if (!json[type][id] ||
+        if (!json[type] || !json[type][id] ||
           json[type][id]['title'] != model.title ||
-          json[type][id]['short_description'] != model.short_description)
+          model.respond_to?('short_description') &&
+            json[type][id]['short_description'] != model.short_description)
+
           update_json = model.create_json_for_translation_file(only_changes: false)
           updates_json = updates_json.deep_merge(update_json)
           added += 1
