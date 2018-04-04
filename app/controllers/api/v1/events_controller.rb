@@ -23,4 +23,8 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
     objects
   end
 
+  def do_includes!(objects)
+    objects.includes(Event.default_includes)
+  end
+
 end

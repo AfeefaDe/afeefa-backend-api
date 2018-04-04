@@ -7,19 +7,11 @@ FactoryGirl.define do
       area 'dresden'
       date_start { I18n.l(Date.tomorrow) }
       creator { User.first }
-      association :orga, factory: :orga
+      association :orga, factory: :orga_with_random_title
       association :category, factory: :category
-      contact_infos { [build(:contact_info)] }
-      locations { [build(:location_old)] }
 
-      after(:build) do |event|
-        event.contact_infos.each do |ci|
-          ci.contactable = event
-        end
-        event.locations.each do |l|
-          l.locatable = event
-        end
-      end
+      locations { [build(:location)] }
+
 
       factory :another_event do
         title 'another event'

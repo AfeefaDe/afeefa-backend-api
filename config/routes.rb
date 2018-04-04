@@ -30,14 +30,26 @@ Rails.application.routes.draw do
         patch ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#update'
         delete ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#delete'
 
+        resources :offers, controller: 'data_modules/offer/v1/offers'
+
         resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
+
         resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit] do
           resources :facet_items, controller: 'data_plugins/facet/v1/facet_items', except: [:new, :edit]
-        end
 
+          post 'facet_items/:id/owners', to: 'data_plugins/facet/v1/facet_items#link_owners'
+          get 'facet_items/:id/owners', to: 'data_plugins/facet/v1/facet_items#get_linked_owners'
+          delete 'facet_items/:id/owners', to: 'data_plugins/facet/v1/facet_items#unlink_owners'
+        end
         get ':owner_type/:owner_id/facet_items', to: 'data_plugins/facet/v1/facet_items#get_linked_facet_items'
-        post ':owner_type/:owner_id/facet_items/:facet_item_id', to: 'data_plugins/facet/v1/facet_items#link_facet_item'
-        delete ':owner_type/:owner_id/facet_items/:facet_item_id', to: 'data_plugins/facet/v1/facet_items#unlink_facet_item'
+
+        scope :fe_navigation do
+          get '', to: 'data_modules/fe_navigation/v1/fe_navigation#show'
+          resources :fe_navigation_items, controller: 'data_modules/fe_navigation/v1/fe_navigation_items'
+          post 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_owners'
+          get 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#get_linked_owners'
+          delete 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#unlink_owners'
+        end
       end
     end
 

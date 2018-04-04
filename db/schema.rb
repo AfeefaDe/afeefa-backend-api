@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180214164337) do
+ActiveRecord::Schema.define(version: 20180331094730) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -18,7 +18,9 @@ ActiveRecord::Schema.define(version: 20180214164337) do
     t.string   "type"
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
+    t.index ["associated_actor_id", "type"], name: "index_actor_relations_on_associated_actor_id_and_type", using: :btree
     t.index ["associated_actor_id"], name: "index_actor_relations_on_associated_actor_id", using: :btree
+    t.index ["associating_actor_id", "type"], name: "index_actor_relations_on_associating_actor_id_and_type", using: :btree
     t.index ["associating_actor_id"], name: "index_actor_relations_on_associating_actor_id", using: :btree
     t.index ["type"], name: "index_actor_relations_on_type", using: :btree
   end
@@ -185,6 +187,17 @@ ActiveRecord::Schema.define(version: 20180214164337) do
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
   end
 
+  create_table "facet_item_owners", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "owner_type"
+    t.integer  "owner_id"
+    t.integer  "facet_item_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["facet_item_id"], name: "index_facet_item_owners_on_facet_item_id", using: :btree
+    t.index ["owner_type", "owner_id", "facet_item_id"], name: "facet_item_owner", unique: true, using: :btree
+    t.index ["owner_type", "owner_id"], name: "index_facet_item_owners_on_owner_type_and_owner_id", using: :btree
+  end
+
   create_table "facet_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.string   "color"
@@ -196,8 +209,52 @@ ActiveRecord::Schema.define(version: 20180214164337) do
     t.index ["parent_id"], name: "index_facet_items_on_parent_id", using: :btree
   end
 
+  create_table "facet_owner_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "facet_id"
+    t.string  "owner_type"
+    t.index ["facet_id"], name: "index_facet_owner_types_on_facet_id", using: :btree
+  end
+
   create_table "facets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
+    t.string   "color"
+    t.boolean  "color_sub_items", default: true, null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+  end
+
+  create_table "fe_navigation_item_facet_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "facet_item_id"
+    t.integer  "navigation_item_id"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.index ["facet_item_id"], name: "index_fe_navigation_item_facet_items_on_facet_item_id", using: :btree
+    t.index ["navigation_item_id"], name: "index_fe_navigation_item_facet_items_on_navigation_item_id", using: :btree
+  end
+
+  create_table "fe_navigation_item_owners", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "owner_type"
+    t.integer  "owner_id"
+    t.integer  "navigation_item_id"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.index ["navigation_item_id"], name: "index_fe_navigation_item_owners_on_navigation_item_id", using: :btree
+    t.index ["owner_type", "owner_id"], name: "index_fe_navigation_item_owners_on_owner_type_and_owner_id", using: :btree
+  end
+
+  create_table "fe_navigation_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "title"
+    t.string   "color"
+    t.integer  "navigation_id"
+    t.integer  "parent_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["navigation_id"], name: "index_fe_navigation_items_on_navigation_id", using: :btree
+    t.index ["parent_id"], name: "index_fe_navigation_items_on_parent_id", using: :btree
+  end
+
+  create_table "fe_navigations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "area"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -221,6 +278,22 @@ ActiveRecord::Schema.define(version: 20180214164337) do
     t.boolean  "migrated_from_neos",               default: false
     t.text     "directions",         limit: 65535
     t.index ["locatable_type", "locatable_id"], name: "index_locations_on_locatable_type_and_locatable_id", using: :btree
+  end
+
+  create_table "offer_owners", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "actor_id"
+    t.integer  "offer_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_offer_owners_on_actor_id", using: :btree
+    t.index ["offer_id"], name: "index_offer_owners_on_offer_id", using: :btree
+  end
+
+  create_table "offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "title"
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
   end
 
   create_table "orga_category_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -271,16 +344,6 @@ ActiveRecord::Schema.define(version: 20180214164337) do
     t.index ["last_editor_id"], name: "index_orgas_on_last_editor_id", using: :btree
     t.index ["orga_type_id"], name: "index_orgas_on_orga_type_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
-  end
-
-  create_table "owner_facet_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "owner_type"
-    t.integer  "owner_id"
-    t.integer  "facet_item_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["facet_item_id"], name: "index_owner_facet_items_on_facet_item_id", using: :btree
-    t.index ["owner_type", "owner_id"], name: "index_owner_facet_items_on_owner_type_and_owner_id", using: :btree
   end
 
   create_table "owner_thing_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

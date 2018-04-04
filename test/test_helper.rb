@@ -26,7 +26,7 @@ require 'vcr'
 VCR.configure do |config|
   config.allow_http_connections_when_no_cassette = true
   config.cassette_library_dir = 'test/data/vcr_cassettes'
-  # config.hook_into :webmock # or :fakeweb
+  config.hook_into :webmock # or :fakeweb
 
   config.default_cassette_options = {
     record: :once,
@@ -48,8 +48,21 @@ def parse_json_file(file: 'create_orga_with_nested_models.json')
   JSON.parse(content)
 end
 
+# include shared test modules
+# by convention stored in 'concerns' and named
+# starting with 'acts_as'
+Dir[Rails.root.join("test/**/*.rb")].each do |f|
+  file_name = File.absolute_path f
+  if file_name.include?('concerns/acts_as')
+    require f
+  end
+end
 
 class ActiveSupport::TestCase
+
+  setup do
+    Current.stubs(:user).returns(valid_user)
+  end
 
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   # fixtures :all
@@ -60,7 +73,7 @@ class ActiveSupport::TestCase
 
   def valid_user
     User.create!(
-      email: "foo#{rand(0..1000)}@afeefa.de",
+      email: "foo#{rand(0..10000000)}@afeefa.de",
       forename: 'Max',
       surname: 'Mustermann',
       # TODO: remove required password from device

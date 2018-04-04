@@ -1,21 +1,17 @@
 class Api::V1::TodosController < Api::V1::EntriesController
 
-  def custom_filter_whitelist
-    (super.deep_dup + %w(annotation_category_id)).freeze
-  end
+  def index
+    objects = Annotation.by_area(current_api_v1_user.area).group_by_entry.order(:id)
 
-  private
+    if filter_params[:annotation_category_id].present?
+      objects = objects.where(annotation_category_id: filter_params[:annotation_category_id])
+    end
 
-  def to_hash_method
-    :to_todos_hash
-  end
-
-  def base_for_find_objects
-    Annotation.with_entries
-  end
-
-  def do_includes!(objects)
-    objects.grouped_by_entries.includes(:entry)
+    annotations = objects.all
+    entries = Annotation.entries(annotations)
+    render json: {
+      data: entries.map { |item| item.to_hash }
+    }
   end
 
 end

@@ -94,7 +94,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # starts today morning 00:00
       event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
-        creator: user, orga: orga, date_start: Time.now.beginning_of_day)
+        creator: user, orga: orga, date_start: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # starts in 10 minutes
       event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
@@ -114,7 +114,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # started yesterday, ends today morning 00:00
       event5 = create(:event, title: 'Gestern bis heute früh', description: 'Absaufen und Durchhängen',
-        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.beginning_of_day)
+        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # started yesterday, ends tomorrow
       event6 = create(:event, title: 'Gestern bis morgen', description: 'Absaufen und Durchhängen voll durchmachen',
@@ -146,7 +146,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # starts today morning 00:00
       event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
-        creator: user, orga: orga, date_start: Time.now.beginning_of_day)
+        creator: user, orga: orga, date_start: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # starts in 10 minutes
       event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
@@ -166,7 +166,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # started yesterday, ends today morning 00:00
       event5 = create(:event, title: 'Gestern bis heute früh', description: 'Absaufen und Durchhängen',
-        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.beginning_of_day)
+        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # started yesterday, ends tomorrow
       event6 = create(:event, title: 'Gestern bis morgen', description: 'Absaufen und Durchhängen voll durchmachen',
@@ -283,11 +283,11 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_equal StateMachine::ACTIVE.to_s, Event.last.state
       assert_equal true, json['data']['attributes']['active']
-      assert_includes AnnotationCategory.first.events, Event.last
-      assert_includes AnnotationCategory.second.events, Event.last
+      assert_includes AnnotationCategory.first.entries.pluck(:entry_id), Event.last.id
+      assert_includes AnnotationCategory.second.entries.pluck(:entry_id), Event.last.id
 
       # Then we could deliver the mapping there
-      %w(annotations locations contact_infos).each do |relation|
+      %w(annotations).each do |relation|
         assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
         assert_equal relation, json['data']['relationships'][relation]['data'].first['type']
         assert_equal(
@@ -432,22 +432,18 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_equal creator.id.to_s, json['data']['relationships']['creator']['data']['id']
       assert_equal user.id.to_s, json['data']['relationships']['last_editor']['data']['id']
-  end
+    end
 
     should 'destroy event' do
       assert @event = create(:event)
       assert_difference 'Event.count', -1 do
         assert_difference 'Event.undeleted.count', -1 do
-          assert_difference 'ContactInfo.count', -1 do
-            assert_difference 'Location.count', -1 do
-              assert_no_difference 'AnnotationCategory.count' do
-                delete :destroy,
-                  params: {
-                    id: @event.id,
-                  }
-                assert_response :no_content, response.body
-              end
-            end
+          assert_no_difference 'AnnotationCategory.count' do
+            delete :destroy,
+              params: {
+                id: @event.id,
+              }
+            assert_response :no_content, response.body
           end
         end
       end

@@ -15,6 +15,10 @@ FactoryGirl.define do
       orga.orga_type_id = OrgaType.default_orga_type_id
     end
 
+    factory :orga_with_random_title do
+      title {"title#{rand(0..1000)}"}
+    end
+
     factory :another_orga do
       title 'another orga'
     end

@@ -19,6 +19,28 @@
     "<orga_whithout_attributes_id>": {
       "short_description": "orga.<orga_whithout_attributes_id>.title",
       "title": "orga.<orga_whithout_attributes_id>.short_description"
+    },
+    "<nonexisting_facet_item_id>": {
+      "title": "facet_item.<nonexisting_facet_item_id>.title"
+    },
+    "<nonexisting_navigation_item_id>": {
+      "title": "navigation_item.<nonexisting_navigation_item_id>.title"
+    }
+  },
+  "facet_item": {
+    "<existing_facet_item_id>": {
+      "title": "facet_item.<existing_facet_item_id>.title"
+    },
+    "<nonexisting_facet_item_id>": {
+      "title": "facet_item.<nonexisting_facet_item_id>.title"
+    }
+  },
+  "navigation_item": {
+    "<existing_navigation_item_id>": {
+      "title": "navigation_item.<existing_navigation_item_id>.title"
+    },
+    "<nonexisting_navigation_item_id>": {
+      "title": "navigation_item.<nonexisting_navigation_item_id>.title"
     }
   }
 }

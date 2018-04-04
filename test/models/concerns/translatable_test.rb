@@ -89,6 +89,48 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save
   end
 
+  should 'create translation on facet_item create' do
+    facet_item = build(:facet_item, title: 'New Category')
+    facet_item.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
+      facet_item_id = DataPlugins::Facet::FacetItem.last.id.to_s
+
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['facet_item']
+      assert_not_nil json['facet_item'][facet_item_id]
+      assert_equal 'New Category', json['facet_item'][facet_item_id]['title']
+
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
+      assert_nil tags_hash
+    end
+
+    assert facet_item.save
+  end
+
+  should 'create translation on navigation_item create' do
+    navigation_item = build(:fe_navigation_item, title: 'New Navigation Item')
+    navigation_item.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
+      navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id.to_s
+
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['navigation_item']
+      assert_not_nil json['navigation_item'][navigation_item_id]
+      assert_equal 'New Navigation Item', json['navigation_item'][navigation_item_id]['title']
+
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
+    assert navigation_item.save
+  end
+
   should 'not create translation on entry create if related attributes are empty' do
     orga = build(:orga)
     orga.force_translation_after_save = true
@@ -154,6 +196,46 @@ class TranslatableTest < ActiveSupport::TestCase
     end
 
     assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
+  end
+
+  should 'update translation on facet_item update' do
+    facet_item = create(:facet_item, title: 'New Category')
+    facet_item_id = facet_item.id.to_s
+    facet_item.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['facet_item']
+      assert_not_nil json['facet_item'][facet_item_id]
+      assert_equal 'Super Category', json['facet_item'][facet_item_id]['title']
+
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
+      assert_nil tags_hash
+    end
+
+    assert facet_item.update(title: 'Super Category')
+  end
+
+  should 'update translation on navigation_item update' do
+    navigation_item = create(:fe_navigation_item, title: 'New Navigation Entry')
+    navigation_item_id = navigation_item.id.to_s
+    navigation_item.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
+      file = File.read(file)
+      json = JSON.parse(file)
+
+      assert_not_nil json['navigation_item']
+      assert_not_nil json['navigation_item'][navigation_item_id]
+      assert_equal 'Homepage', json['navigation_item'][navigation_item_id]['title']
+
+      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
+      assert_equal 'dresden', tags_hash[:tags]
+    end
+
+    assert navigation_item.update(title: 'Homepage')
   end
 
   should 'set area tag on update translation' do
@@ -224,6 +306,28 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.destroy
   end
 
+  should 'remove translations of all attributes on facet_item delete' do
+    facet_item = create(:facet_item, title: 'New Category')
+    facet_item.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:delete_translation).with do |facet_item_to_delete|
+      assert_equal facet_item, facet_item_to_delete
+    end
+
+    assert facet_item.destroy
+  end
+
+  should 'remove translations of all attributes on navigation_item delete' do
+    navigation_item = create(:fe_navigation_item, title: 'Best Page')
+    navigation_item.force_translation_after_save = true
+
+    PhraseAppClient.any_instance.expects(:delete_translation).with do |navigation_item_to_delete|
+      assert_equal navigation_item, navigation_item_to_delete
+    end
+
+    assert navigation_item.destroy
+  end
+
   should 'not trigger fapi if force_sync_fapi_after_save is not set' do
     orga = build(:orga)
 
@@ -268,6 +372,58 @@ class TranslatableTest < ActiveSupport::TestCase
     FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga3.id))
 
     orga2.update(parent_orga_id: orga4.id)
+  end
+
+  should 'trigger fapi if facet item is created' do
+    facet_item = build(:facet_item, title: 'New Category')
+    facet_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |facet_item_to_create|
+      facet_item_id = DataPlugins::Facet::FacetItem.last.id
+      assert_equal 'facet_item', facet_item_to_create[:type]
+      assert_equal facet_item_id, facet_item_to_create[:id]
+    end
+
+    facet_item.save
+  end
+
+  should 'trigger fapi if navigation item is created' do
+    navigation_item = build(:fe_navigation_item, title: 'New Entry')
+    navigation_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |navigation_item_to_create|
+      navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id
+      assert_equal 'navigation_item', navigation_item_to_create[:type]
+      assert_equal navigation_item_id, navigation_item_to_create[:id]
+    end
+
+    navigation_item.save
+  end
+
+  should 'trigger fapi if facet item is updated' do
+    facet_item = create(:facet_item, title: 'New Category')
+    facet_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |facet_item_to_update|
+      facet_item_id = DataPlugins::Facet::FacetItem.last.id
+      assert_equal 'facet_item', facet_item_to_update[:type]
+      assert_equal facet_item_id, facet_item_to_update[:id]
+    end
+
+    facet_item.update(title: 'new title')
+  end
+
+  should 'trigger fapi if navigation item is updated' do
+    navigation_item = create(:fe_navigation_item, title: 'New Entry')
+    navigation_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |navigation_item_to_update|
+      navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id
+      assert_equal 'navigation_item', navigation_item_to_update[:type]
+      assert_equal navigation_item_id, navigation_item_to_update[:id]
+    end
+
+    navigation_item.update(title: 'new title')
   end
 
   should 'trigger fapi for suborgas and events' do
@@ -315,6 +471,34 @@ class TranslatableTest < ActiveSupport::TestCase
     FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, deleted: true))
 
     event.destroy
+  end
+
+  should 'trigger fapi if facet item is deleted' do
+    facet_item = create(:facet_item, title: 'New Category')
+    facet_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |facet_item_to_delete|
+      assert_nil facet_item_to_delete[:area]
+      assert_equal 'facet_item', facet_item_to_delete[:type]
+      assert_equal facet_item.id, facet_item_to_delete[:id]
+      assert facet_item_to_delete[:deleted]
+    end
+
+    facet_item.destroy
+  end
+
+  should 'trigger fapi if navigation item is deleted' do
+    navigation_item = create(:fe_navigation_item, title: 'New Entry')
+    navigation_item.force_sync_fapi_after_save = true
+
+    FapiClient.any_instance.expects(:request).with do |navigation_item_to_delete|
+      assert_equal 'dresden', navigation_item_to_delete[:area]
+      assert_equal 'navigation_item', navigation_item_to_delete[:type]
+      assert_equal navigation_item.id, navigation_item_to_delete[:id]
+      assert navigation_item_to_delete[:deleted]
+    end
+
+    navigation_item.destroy
   end
 
 end

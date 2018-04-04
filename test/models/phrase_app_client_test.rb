@@ -134,6 +134,11 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     orga4.area = 'bautzen'
     orga4.save(validate: false)
 
+    navigation_item_dd = create(:fe_navigation_item)
+    navigation_le = create(:fe_navigation_with_items, area: 'leipzig')
+    navigation_item_le = navigation_le.navigation_items.first
+    navigation_item_le2 = navigation_le.navigation_items.second
+
     result = mock()
     result.stubs(:records_affected).returns(2)
     PhraseApp::Client.any_instance.expects(:keys_tag).with do |project_id, params|
@@ -142,7 +147,9 @@ class PhraseAppClientTest < ActiveSupport::TestCase
         "orga.#{orga.id}.title",
         "orga.#{orga.id}.short_description",
         "orga.#{orga2.id}.title",
-        "orga.#{orga2.id}.short_description"
+        "orga.#{orga2.id}.short_description",
+        "navigation_item.#{navigation_item_le.id}.title",
+        "navigation_item.#{navigation_item_le2.id}.title"
       ]
       assert_equal 'name:' + keys.join(','), params.q
     end
@@ -154,7 +161,8 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       next if params.tags != 'dresden'
       keys = [
         "orga.#{orga3.id}.title",
-        "orga.#{orga3.id}.short_description"
+        "orga.#{orga3.id}.short_description",
+        "navigation_item.#{navigation_item_dd.id}.title"
       ]
       assert_equal params.q, 'name:' + keys.join(',')
     end
@@ -216,12 +224,19 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     orga_whithout_attributes.short_description = ''
     orga_whithout_attributes.save(validate: false)
 
+    facet_item = create(:facet_item)
+    navigation_item = create(:fe_navigation_item)
+
     json = parse_json_file file: 'phraseapp_locale_de.json' do |payload|
       payload.gsub!('<existing_orga_id>', existing_orga.id.to_s)
       payload.gsub!('<nonexisting_orga_id>', 100000000000000.to_s)
       payload.gsub!('<orga_whithout_title_id>', orga_whithout_title.id.to_s)
       payload.gsub!('<orga_whithout_short_description_id>', orga_whithout_short_description.id.to_s)
       payload.gsub!('<orga_whithout_attributes_id>', orga_whithout_attributes.id.to_s)
+      payload.gsub!('<existing_facet_item_id>', facet_item.id.to_s)
+      payload.gsub!('<nonexisting_facet_item_id>', 100000000000000.to_s)
+      payload.gsub!('<existing_navigation_item_id>', navigation_item.id.to_s)
+      payload.gsub!('<nonexisting_navigation_item_id>', 100000000000000.to_s)
     end
 
     expected_keys = [
@@ -230,7 +245,11 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       "orga.#{orga_whithout_title.id}.title",
       "orga.#{orga_whithout_short_description.id}.short_description",
       "orga.#{orga_whithout_attributes.id}.title",
-      "orga.#{orga_whithout_attributes.id}.short_description"
+      "orga.#{orga_whithout_attributes.id}.short_description",
+      "facet_item.100000000000000.title",
+      "facet_item.100000000000000.short_description",
+      "navigation_item.100000000000000.title",
+      "navigation_item.100000000000000.short_description"
     ]
 
     result = mock()
@@ -263,10 +282,15 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     new_orga.title = 'new_orga'
     new_orga.save(validate: false)
 
+    facet_item = create(:facet_item)
+    existing_facet_item = create(:facet_item, title: 'existing_facet_item title')
+    navigation_item = create(:fe_navigation_item)
+
     json = parse_json_file file: 'phraseapp_locale_de_unsynced.json' do |payload|
       payload.gsub!('<existing_orga_id>', existing_orga.id.to_s)
       payload.gsub!('<orga_whithout_title_id>', orga_whithout_title.id.to_s)
       payload.gsub!('<orga_whithout_short_description_id>', orga_whithout_short_description.id.to_s)
+      payload.gsub!('<existing_facet_item_id>', existing_facet_item.id.to_s)
     end
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
@@ -274,11 +298,13 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       json = JSON.parse(file)
 
       assert_equal 4, json['orga'].length
+      assert_equal 1, json['facet_item'].length
+      assert_equal 1, json['navigation_item'].length
     end
 
     num_added = @client.add_missing_or_invalid_keys(json)
 
-    assert_equal 4, num_added
+    assert_equal 6, num_added
   end
 
   should 'download locale file' do

@@ -122,6 +122,68 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
     end
 
+    should 'start cache job upon updated translation with facet_item' do
+      facet_item = create(:facet_item)
+
+      TranslationCache.create!(
+        cacheable_type: 'facet_item',
+        cacheable_id: facet_item.id,
+        title: facet_item.title,
+        language: 'ar'
+      )
+
+      json = parse_json_file file: 'translation_webhook.json' do |payload|
+        payload.gsub!('<translation_operation>', 'update')
+        payload.gsub!('<translation_content>', 'رفضت هيئة الإشراف على البث التلفزيوني')
+        payload.gsub!('<translation_key>', "facet_item.#{facet_item.id}.title")
+        payload.gsub!('<translation_locale>', 'ar')
+      end
+
+      request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
+      request.env['RAW_POST_DATA'] = json.to_json
+
+      FapiClient.any_instance.expects(:request).with(has_entries(type: 'facet_item', id: facet_item.id, locale: 'ar'))
+
+      post :phraseapp_webhook
+
+      assert_response :ok, response.body
+
+      cache = TranslationCache.where(cacheable_type: 'facet_item', cacheable_id: facet_item.id, language: 'ar').first
+
+      assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
+    end
+
+    should 'start cache job upon updated translation with navigation_item' do
+      navigation_item = create(:fe_navigation_item)
+
+      TranslationCache.create!(
+        cacheable_type: 'navigation_item',
+        cacheable_id: navigation_item.id,
+        title: navigation_item.title,
+        language: 'ar'
+      )
+
+      json = parse_json_file file: 'translation_webhook.json' do |payload|
+        payload.gsub!('<translation_operation>', 'update')
+        payload.gsub!('<translation_content>', 'رفضت هيئة الإشراف على البث التلفزيوني')
+        payload.gsub!('<translation_key>', "navigation_item.#{navigation_item.id}.title")
+        payload.gsub!('<translation_locale>', 'ar')
+      end
+
+      request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
+      request.env['RAW_POST_DATA'] = json.to_json
+
+      FapiClient.any_instance.expects(:request).with(has_entries(type: 'navigation_item', id: navigation_item.id, locale: 'ar'))
+
+      post :phraseapp_webhook
+
+      assert_response :ok, response.body
+
+      cache = TranslationCache.where(cacheable_type: 'navigation_item', cacheable_id: navigation_item.id, language: 'ar').first
+
+      assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
+    end
+
     should 'get last updated timestamp' do
       get :index
 

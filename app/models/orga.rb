@@ -18,6 +18,7 @@ class Orga < ApplicationRecord
 
   has_many :events
   has_many :resource_items
+  has_many :offers
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
   # has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user
@@ -40,6 +41,11 @@ class Orga < ApplicationRecord
   # SCOPES
   scope :without_root, -> { where(title: nil).or(where.not(title: ROOT_ORGA_TITLE)) }
   default_scope { without_root }
+
+  scope :all_for_ids, -> (ids) {
+    includes(Orga.default_includes).
+    where(id: ids)
+  }
 
   # DEFAULTS FOR NEW
   after_initialize do |orga|
@@ -67,18 +73,34 @@ class Orga < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(initiator annotations category sub_category creator last_editor).freeze
+      %i(initiator annotations category sub_category facet_items creator last_editor).freeze
     end
 
     def relation_whitelist_for_json
-      (default_relations_for_json + %i(resource_items contacts) +
-        %i(projects project_initiators networks network_members partners facet_items)).freeze
+      (default_relations_for_json + %i(resource_items contacts offers) +
+        %i(projects project_initiators networks network_members partners)).freeze
     end
 
     def count_relation_whitelist_for_json
       %i(resource_items events).freeze
     end
 
+    def default_includes
+      [
+        :category,
+        :sub_category,
+        :facet_items,
+        :creator,
+        :last_editor,
+        :annotations,
+        :resource_items,
+        :events,
+        :offers,
+        :project_initiators,
+        :projects,
+        :network_members
+      ]
+    end
   end
 
   # INSTANCE METHODS
@@ -127,10 +149,6 @@ class Orga < ApplicationRecord
 
   def contacts_to_hash
     contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
-  end
-
-  def facet_items_to_hash
-    facet_items.map { |fi| fi.to_hash(attributes: fi.class.default_attributes_for_json) }
   end
 
   def resource_items_to_hash
@@ -187,5 +205,7 @@ class Orga < ApplicationRecord
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
   include DataPlugins::Facet::Concerns::HasFacetItems
+  include DataModules::Offer::Concerns::HasOffers
+  include DataModules::FeNavigation::Concerns::HasFeNavigationItems
 
 end

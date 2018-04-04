@@ -47,7 +47,7 @@ class Api::V1::MetasControllerTest < ActionController::TestCase
       assert_equal 1, json['meta']['events']['past']
       assert_equal 1, json['meta']['events']['upcoming']
 
-      assert_equal Annotation.grouped_by_entries.count.count, json['meta']['todos']
+      assert_equal Annotation.group_by_entry.count.count, json['meta']['todos']
 
       # now try it as user from leipzig
       area = 'leipzig'

@@ -19,17 +19,15 @@ class TranslationCacheTest < ActiveSupport::TestCase
       translations = client.get_all_translations(Translatable::TRANSLATABLE_LOCALES)
     end
 
-    VCR.use_cassette('rebuild_translation_cache') do
-      assert translations.any?
-      changes = TranslationCache.rebuild_db_cache!(translations)
+    assert translations.any?
+    changes = TranslationCache.rebuild_db_cache!(translations)
 
-      assert_equal translations.count, changes
+    assert_equal translations.count, changes
 
-      countTranslatedDbFields = TranslationCache.where.not(title: nil).count + TranslationCache.where.not(short_description: nil).count
-      assert_equal translations.count, countTranslatedDbFields
+    countTranslatedDbFields = TranslationCache.where.not(title: nil).count + TranslationCache.where.not(short_description: nil).count
+    assert_equal translations.count, countTranslatedDbFields
 
-      assert_equal 0, TranslationCache.where(language: Translatable::DEFAULT_LOCALE).count
-    end
+    assert_equal 0, TranslationCache.where(language: Translatable::DEFAULT_LOCALE).count
   end
 
   private

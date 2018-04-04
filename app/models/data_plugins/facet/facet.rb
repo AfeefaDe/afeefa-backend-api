@@ -5,10 +5,13 @@ module DataPlugins::Facet
 
     # ASSOCIATIONS
     has_many :facet_items, dependent: :destroy
-    has_many :owner_facet_items, class_name: DataPlugins::Facet::OwnerFacetItem, through: :facet_items
+    has_many :facet_item_owners, class_name: DataPlugins::Facet::FacetItemOwner, through: :facet_items
+    has_many :owner_types, class_name: DataPlugins::Facet::FacetOwnerType, dependent: :destroy
+
     def owners
-      owner_facet_items.map(&:owner)
+      facet_item_owners.map(&:owner)
     end
+
     # VALIDATIONS
     validates :title, length: { maximum: 255 }
 
@@ -19,7 +22,7 @@ module DataPlugins::Facet
       end
 
       def default_attributes_for_json
-        %i(title).freeze
+        %i(title color color_sub_items).freeze
       end
 
       def relation_whitelist_for_json
@@ -27,11 +30,11 @@ module DataPlugins::Facet
       end
 
       def default_relations_for_json
-        %i(facet_items).freeze
+        %i(owner_types facet_items).freeze
       end
 
       def facet_params(params)
-        params.permit(:title)
+        params.permit(:title, :color, :color_sub_items)
       end
 
       def save_facet(params)
@@ -43,7 +46,12 @@ module DataPlugins::Facet
     end
 
     def facet_items_to_hash
-      facet_items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
+      items = facet_items.select { |item| item.parent_id == nil }
+      items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
+    end
+
+    def owner_types_to_hash
+      owner_types.map { |owner_type| owner_type.owner_type }
     end
 
   end
