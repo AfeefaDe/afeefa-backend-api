@@ -31,13 +31,21 @@ class FacebookClient
     return 'test'
   end
 
-  def get_events
+  def raw_get_upcoming_events(page:, page_id:)
+    logger.debug "getting events for #{page}, page id #{page_id}"
+    client.get_connections(
+      page_id,
+      # skip events in past, get owner
+      'events?time_filter=upcoming&fields=id,name,description,place,start_time,end_time,owner')
+  end
+
+  def get_events(area:, sort_by_date_desc: false)
     processed_event_ids = []
     events = []
 
-    Settings.facebook.pages_for_events.each do |page, page_id|
-      logger.debug "getting events for #{page}, page id #{page_id}"
-      events_for_page = client.get_connections(page_id, 'events')
+    pages = Settings.facebook.pages_for_events[area] || []
+    pages.each do |page, page_id|
+      events_for_page = raw_get_upcoming_events(page: page, page_id: page_id)
       events_for_page.each do |event|
         # skip already processed event ids
         id = event['id']
@@ -46,44 +54,33 @@ class FacebookClient
         else
           processed_event_ids << id
         end
-        # skip events in past
-        end_time = event['end_time']
-        start_time = event['start_time']
-        if (end_time.present? && Time.zone.parse(end_time) < Time.current) ||
-            (end_time.blank? && start_time.present? && Time.zone.parse(start_time) < Time.current)
-          next
-        end
         event['link_to_event'] = "https://www.facebook.com/events/#{event['id']}"
-        event['owner'] = page
-        event['link_to_owner'] = "https://www.facebook.com/#{page_id}"
-        # if event['photos'].any?
-        #   event['link_to_photo'] = get_photo_url_for_photo_id(event['photos']['data'].first['id'])
-        # end
+        owner = event['owner']
+        if owner.present?
+          event['owner'] = owner['name']
+          event['link_to_owner'] = "https://www.facebook.com/#{owner['id']}"
+        end
         events << event
       end
     end
+    events = events.flatten
 
     # sort events desc
-    events.flatten.sort do |event1, event2|
-      event1_end = Time.zone.parse(event1['end_time']).to_i rescue nil
-      event2_end = Time.zone.parse(event2['end_time']).to_i rescue nil
-      event1_start = Time.zone.parse(event1['start_time']).to_i rescue nil
-      event2_start = Time.zone.parse(event2['start_time']).to_i rescue nil
-      if event1_end.present? || event2_end.present?
-        event1_end <=> event2_end || -1
-      else
-        event1_start <=> event2_start || -1
+    if sort_by_date_desc
+      events.sort do |event1, event2|
+        event1_end = Time.zone.parse(event1['end_time']).to_i rescue nil
+        event2_end = Time.zone.parse(event2['end_time']).to_i rescue nil
+        event1_start = Time.zone.parse(event1['start_time']).to_i rescue nil
+        event2_start = Time.zone.parse(event2['start_time']).to_i rescue nil
+        if event1_end.present? || event2_end.present?
+          event1_end <=> event2_end || -1
+        else
+          event1_start <=> event2_start || -1
+        end
       end
     end
-  end
 
-  # def get_photo_url_for_photo_id(photo_id)
-  #   html = open("https://facebook.com/#{photo_id}").read
-  #   doc = Nokogiri::HTML(html)
-  #   img = doc.css('img').first
-  #   binding.pry
-  #   pp img.inspect
-  #   pp img.attributes
-  # end
+    events
+  end
 
 end

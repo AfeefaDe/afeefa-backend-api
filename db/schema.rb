@@ -12,34 +12,6 @@
 
 ActiveRecord::Schema.define(version: 20180314142024) do
 
-  create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "associating_actor_id"
-    t.integer  "associated_actor_id"
-    t.string   "type"
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
-    t.index ["associated_actor_id"], name: "index_actor_relations_on_associated_actor_id", using: :btree
-    t.index ["associating_actor_id"], name: "index_actor_relations_on_associating_actor_id", using: :btree
-    t.index ["type"], name: "index_actor_relations_on_type", using: :btree
-  end
-
-  create_table "addresses", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "owner_type"
-    t.integer  "owner_id"
-    t.integer  "contact_id"
-    t.string   "title"
-    t.string   "street"
-    t.string   "zip"
-    t.string   "city"
-    t.string   "lat"
-    t.string   "lon"
-    t.text     "directions", limit: 65535
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
-    t.index ["contact_id"], name: "index_addresses_on_contact_id", using: :btree
-    t.index ["owner_type", "owner_id"], name: "index_addresses_on_owner_type_and_owner_id", using: :btree
-  end
-
   create_table "annotation_categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.boolean  "generated_by_system", default: false, null: false
@@ -54,13 +26,6 @@ ActiveRecord::Schema.define(version: 20180314142024) do
     t.text    "detail",                 limit: 65535
     t.index ["annotation_category_id"], name: "index_annotations_on_annotation_category_id", using: :btree
     t.index ["entry_type", "entry_id"], name: "index_annotations_on_entry_type_and_entry_id", using: :btree
-  end
-
-  create_table "area_chapter_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "area"
-    t.integer  "chapter_config_id"
-    t.datetime "created_at",        null: false
-    t.datetime "updated_at",        null: false
   end
 
   create_table "categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -111,34 +76,6 @@ ActiveRecord::Schema.define(version: 20180314142024) do
     t.index ["contactable_type", "contactable_id"], name: "index_contact_infos_on_contactable_type_and_contactable_id", using: :btree
   end
 
-  create_table "contact_persons", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "contact_id"
-    t.string   "name"
-    t.string   "role"
-    t.string   "mail"
-    t.string   "phone"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["contact_id"], name: "index_contact_persons_on_contact_id", using: :btree
-  end
-
-  create_table "contacts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "owner_type"
-    t.integer  "owner_id"
-    t.integer  "location_id"
-    t.string   "type"
-    t.string   "title"
-    t.string   "web",              limit: 1000
-    t.string   "social_media",     limit: 1000
-    t.string   "spoken_languages"
-    t.string   "fax"
-    t.text     "opening_hours",    limit: 65535
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.index ["location_id"], name: "index_contacts_on_location_id", using: :btree
-    t.index ["owner_type", "owner_id"], name: "index_contacts_on_owner_type_and_owner_id", using: :btree
-  end
-
   create_table "entries", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string  "entry_type"
     t.integer "entry_id"
@@ -185,23 +122,6 @@ ActiveRecord::Schema.define(version: 20180314142024) do
     t.index ["sub_category_id"], name: "index_events_on_sub_category_id", using: :btree
   end
 
-  create_table "facet_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "title"
-    t.string   "color"
-    t.integer  "facet_id"
-    t.integer  "parent_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["facet_id"], name: "index_facet_items_on_facet_id", using: :btree
-    t.index ["parent_id"], name: "index_facet_items_on_parent_id", using: :btree
-  end
-
-  create_table "facets", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "title"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "locations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "lat"
     t.string   "lon"
@@ -233,14 +153,7 @@ ActiveRecord::Schema.define(version: 20180314142024) do
     t.index ["orga_id"], name: "index_orga_category_relations_on_orga_id", using: :btree
   end
 
-  create_table "orga_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "orgas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer  "orga_type_id"
     t.datetime "created_at",                                          null: false
     t.datetime "updated_at",                                          null: false
     t.string   "title"
@@ -269,18 +182,7 @@ ActiveRecord::Schema.define(version: 20180314142024) do
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
     t.index ["creator_id"], name: "index_orgas_on_creator_id", using: :btree
     t.index ["last_editor_id"], name: "index_orgas_on_last_editor_id", using: :btree
-    t.index ["orga_type_id"], name: "index_orgas_on_orga_type_id", using: :btree
     t.index ["sub_category_id"], name: "index_orgas_on_sub_category_id", using: :btree
-  end
-
-  create_table "owner_facet_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "owner_type"
-    t.integer  "owner_id"
-    t.integer  "facet_item_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
-    t.index ["facet_item_id"], name: "index_owner_facet_items_on_facet_item_id", using: :btree
-    t.index ["owner_type", "owner_id"], name: "index_owner_facet_items_on_owner_type_and_owner_id", using: :btree
   end
 
   create_table "owner_thing_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
