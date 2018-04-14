@@ -136,5 +136,63 @@ class DataModules::FeNavigation::V1::FeNavigationItemsControllerTest < ActionCon
       ], json
     end
 
+    should 'link multiple facet items with navigation item' do
+      facet = create(:facet_with_items)
+      facet_item = facet.facet_items.first
+      facet_item2 = facet.facet_items.last
+
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+
+      post :link_facet_items, params: {
+        id: navigation_item.id,
+        facet_items: [facet_item.id, facet_item2.id]
+      }
+      assert_response :created
+
+      assert_equal facet_item, navigation_item.facet_items.first
+      assert_equal facet_item2, navigation_item.facet_items.second
+    end
+
+    should 'unlink all facet items from navigation item' do
+      facet = create(:facet_with_items)
+      facet_item = facet.facet_items.first
+      facet_item2 = facet.facet_items.last
+
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+
+      navigation_item.link_owner(facet_item)
+      navigation_item.link_owner(facet_item2)
+      assert_equal facet_item, navigation_item.facet_items.first
+      assert_equal facet_item2, navigation_item.facet_items.second
+
+      post :link_facet_items, params: {
+        id: navigation_item.id,
+        facet_items: []
+      }
+      assert_response :created
+
+      assert_nil navigation_item.facet_items.first
+      assert_nil navigation_item.facet_items.second
+    end
+
+    should 'fail if linking multiple facet items with navigation item where one does not exist' do
+      facet = create(:facet_with_items)
+      facet_item = facet.facet_items.first
+
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+
+      post :link_facet_items, params: {
+        id: navigation_item.id,
+        facet_items: [facet_item.id, 85555555]
+      }
+      assert_response :unprocessable_entity
+
+      assert_nil navigation_item.facet_items.first
+      assert_nil navigation_item.facet_items.second
+    end
+
   end
 end

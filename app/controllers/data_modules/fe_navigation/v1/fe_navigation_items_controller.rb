@@ -27,6 +27,28 @@ class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::Base
     end
   end
 
+  # fe_navigation_items/:id/facet_items
+  def get_linked_facet_items
+    render status: :ok, json: @item.facet_items
+  end
+
+  # fe_navigation_items/:id/facet_items
+  def link_facet_items
+    begin
+      ActiveRecord::Base.transaction do # fail if one fails
+        facet_item_ids = params[:facet_items] || [] # https://github.com/rails/rails/issues/26569
+        @item.facet_items.destroy_all
+        facet_item_ids.each do |facet_item_id|
+          facet_item = DataPlugins::Facet::FacetItem::find(facet_item_id)
+          @item.link_owner(facet_item)
+        end
+        head 201
+      end
+    rescue
+      head :unprocessable_entity
+    end
+  end
+
   private
 
   def do_includes!(objects)

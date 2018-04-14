@@ -4,14 +4,7 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
 
   skip_before_action :find_objects, except: [:index, :show]
   before_action :find_facet, only: [:index, :create]
-  before_action :find_facet_item, except: [:index, :create, :get_linked_facet_items]
-
-  # :owner_type/:owner_id/facet_items
-  def get_linked_facet_items
-    find_owner
-
-    render status: :ok, json: @owner.facet_items
-  end
+  before_action :find_facet_item, except: [:index, :create, :get_linked_facet_items, :link_facet_items]
 
  # facets/:facet_id/facet_items
   def create
@@ -37,6 +30,32 @@ class DataPlugins::Facet::V1::FacetItemsController < Api::V1::BaseController
       render status: :ok
     else
       render status: :unprocessable_entity
+    end
+  end
+
+  # :owner_type/:owner_id/facet_items
+  def get_linked_facet_items
+    find_owner
+
+    render status: :ok, json: @owner.facet_items
+  end
+
+  # :owner_type/:owner_id/facet_items
+  def link_facet_items
+    find_owner
+
+    begin
+      ActiveRecord::Base.transaction do # fail if one fails
+        facet_item_ids = params[:facet_items] || [] # https://github.com/rails/rails/issues/26569
+        @owner.facet_items.destroy_all
+        facet_item_ids.each do |facet_item_id|
+          facet_item = DataPlugins::Facet::FacetItem::find(facet_item_id)
+          facet_item.link_owner(@owner)
+        end
+        head 201
+      end
+    rescue
+      head :unprocessable_entity
     end
   end
 

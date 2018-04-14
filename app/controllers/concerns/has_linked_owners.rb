@@ -1,7 +1,7 @@
 module HasLinkedOwners
   extend ActiveSupport::Concern
 
-  # POST @item./:id/owners
+  # POST item/:id/owners
   def link_owners
     if params[:owners].present?
       return link_multiple_owners
@@ -10,12 +10,12 @@ module HasLinkedOwners
     end
   end
 
-  # GET @item./:id/owners
+  # GET item/:id/owners
   def get_linked_owners
     render status: :ok, json: @item.owners_to_hash
   end
 
-  # DELETE @item./:id/owners
+  # DELETE item/:id/owners
   def unlink_owners
     if params[:owners].present?
       return unlink_multiple_owners
