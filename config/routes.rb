@@ -84,12 +84,18 @@ Rails.application.routes.draw do
         jsonapi_resources :orgas
 
         get 'orgas/:id/actor_relations', to: 'orgas#get_actor_relations'
+
+        post 'orgas/:id/projects', to: 'orgas#link_projects'
+        post 'orgas/:id/project_initiators', to: 'orgas#link_project_initiators'
         post 'orgas/:id/projects/:item_id', to: 'orgas#add_project'
         delete 'orgas/:id/projects/:item_id', to: 'orgas#remove_project'
 
+        post 'orgas/:id/networks', to: 'orgas#link_networks'
+        post 'orgas/:id/network_members', to: 'orgas#link_network_members'
         post 'orgas/:id/network_members/:item_id', to: 'orgas#add_network_member'
         delete 'orgas/:id/network_members/:item_id', to: 'orgas#remove_network_member'
 
+        post 'orgas/:id/partners', to: 'orgas#link_partners'
         post 'orgas/:id/partners/:item_id', to: 'orgas#add_partner'
         delete 'orgas/:id/partners/:item_id', to: 'orgas#remove_partner'
 

@@ -120,7 +120,7 @@ module DataPlugins::Facet
     end
 
     def owners_to_hash
-      owners.map { |owner| owner.to_hash(attributes: 'title', relationships: nil) }
+      owners.map { |owner| owner.to_hash }
     end
 
     private
