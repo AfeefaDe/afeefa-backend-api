@@ -28,6 +28,17 @@ ActiveRecord::Schema.define(version: 20180314142024) do
     t.index ["entry_type", "entry_id"], name: "index_annotations_on_entry_type_and_entry_id", using: :btree
   end
 
+  create_table "areas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string   "title"
+    t.string   "lat_min"
+    t.string   "lat_max"
+    t.string   "lon_min"
+    t.string   "lon_max"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["title"], name: "index_areas_on_title", unique: true, using: :btree
+  end
+
   create_table "categories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.integer  "parent_id"

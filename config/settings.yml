@@ -3,7 +3,7 @@ afeefa:
   fapi_webhook_api_token: <%= ENV["FAPI_CHANGES_WEBHOOK_TOKEN"] %>
   fapi_url: https://afeefa.de/api
 facebook:
-  active: false
+  active: true
   app_id: <%= ENV["FB_APP_ID"] %>
   app_secret: <%= ENV["FB_APP_SECRET"] %>
   api_token_for_event_request: <%= ENV["FB_API_TOKEN"] %>

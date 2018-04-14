@@ -16,21 +16,6 @@ class FacebookClient
       end
   end
 
-  def import_events
-    orgas = Orga.where.not(facebook_id: nil).all
-
-    orgas.each do |orga|
-      logger.debug "getting events for #{orga.title}, page id #{orga.facebook_id}"
-      events_for_page = client.get_connections(orga.facebook_id, 'events?time_filter=upcoming&fields=id,name,description,place,start_time,end_time,owner')
-      events_for_page.each do |event|
-        pp event
-        # owner = Orga.where(facebook_id: event['owner']['id']).first
-      end
-    end
-
-    return 'test'
-  end
-
   def raw_get_upcoming_events(page:, page_id:)
     logger.debug "getting events for #{page}, page id #{page_id}"
     client.get_connections(

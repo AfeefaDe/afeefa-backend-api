@@ -4,7 +4,7 @@ module Translatable
 
   DEFAULT_LOCALE = 'de'.freeze
   TRANSLATABLE_LOCALES = ['ar', 'en', 'es', 'fa', 'fr', 'ku', 'pa', 'ps', 'ru', 'sq', 'sr', 'ti', 'tr', 'ur'].freeze
-  AREAS = ['leipzig', 'bautzen', 'dresden'].freeze
+  AREAS = Area.order(:id).pluck(:title).freeze rescue ['dresden', 'leipzig', 'bautzen'].freeze
 
   # test flag, phraseapp generally inactive in testing, can be activated on a per instance basis
   attr_accessor :force_translation_after_save, :force_sync_fapi_after_save

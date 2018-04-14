@@ -14,9 +14,8 @@ module Import
             events_for_page = client_fb.raw_get_upcoming_events(page: page, page_id: page_id)
             events_for_page.each do |event_fb|
               begin
-
                 # TODO: Check fb-event coords for bounding box of area
-                next unless event_in_area?(event_fb: event_fb, area: area)
+                next unless element_in_area?(element: event_fb, area: area)
                 event_fb_id = event_fb['id']
                 events = Event.where(facebook_id: event_fb_id).presence || [Event.new]
                 events.each do |event|
@@ -48,6 +47,12 @@ module Import
                   orga_fb_id = event_fb['owner']['id']
                   orga = Orga.where(facebook_id: orga_fb_id).first
                   event.orga = orga
+
+                  # skip this event if its owner does not belong to the area
+                  if orga.area != area
+                    warnings << "Facebook-ID: #{event_fb_id} – Skip event because its owner does not belong to area #{area}"
+                    next
+                  end
 
                   if orga && category = orga.category
                     event.category = category
@@ -84,9 +89,21 @@ module Import
         imported
       end
 
-      def event_in_area?(event_fb: event_fb, area: area)
-        # TODO: Check fb-event coords for bounding box of area
-        true
+      def element_in_area?(element:, area:)
+        place_fb = element['place']
+        location_fb = place_fb && place_fb['location']
+        lat = location_fb['latitude']
+        lat = lat && lat.to_f
+        lon = location_fb['longitude']
+        lon = lon && lon.to_f
+        area = Area[area]
+        lat_min = area.lat_min.to_f
+        lat_max = area.lat_max.to_f
+        lon_min = area.lon_min.to_f
+        lon_max = area.lon_max.to_f
+
+        lat_min <= lat && lat <= lat_max &&
+          lon_min <= lon && lon <= lon_max
       end
 
       def parse_datetime(datetime)
