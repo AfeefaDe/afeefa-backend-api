@@ -7,3 +7,7 @@ end
 every 1.day, at: '04:07' do
   runner 'PhraseappToBackendSyncJob.perform_now'
 end
+
+every 1.day, at: '05:12' do
+  runner 'FacebookEventImportJob.perform_now'
+end

@@ -2,7 +2,9 @@ module Import
   module FacebookEventsImport
 
     class << self
-      def import
+      def import(limit: nil)
+        limit = limit.to_i if limit
+        processed = 0
         imported = 0
         warnings = []
         errors = []
@@ -14,7 +16,14 @@ module Import
             events_for_page = client_fb.raw_get_upcoming_events(page: page, page_id: page_id)
             events_for_page.each do |event_fb|
               begin
-                # TODO: Check fb-event coords for bounding box of area
+                if limit && processed >= limit
+                  pp "limit of objects to process reached (#{limit})"
+                  break
+                  break
+                end
+
+                processed = processed + 1
+
                 next unless element_in_area?(element: event_fb, area: area)
                 event_fb_id = event_fb['id']
                 events = Event.where(facebook_id: event_fb_id).presence || [Event.new]
