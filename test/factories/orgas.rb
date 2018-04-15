@@ -16,7 +16,7 @@ FactoryGirl.define do
     end
 
     factory :orga_with_random_title do
-      title {"title#{rand(0..1000)}"}
+      title {"title#{rand(0..10000)}"}
     end
 
     factory :another_orga do

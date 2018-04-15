@@ -140,6 +140,79 @@ class DataPlugins::Facet::V1::FacetItemsControllerTest < ActionController::TestC
       assert_equal JSON.parse(facet_item2.to_json), json[1]
     end
 
+    should 'link multiple facet items with owner' do
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      facet_item2 = facet.facet_items.last
+      orga = create(:orga)
+
+      post :link_facet_items, params: {
+        owner_type: 'orgas',
+        owner_id: orga.id,
+        facet_items: [facet_item.id, facet_item2.id]
+      }
+      assert_response :created
+
+      assert_equal facet_item, orga.facet_items.first
+      assert_equal facet_item2, orga.facet_items.second
+    end
+
+    should 'unlink all facet items from owner' do
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      facet_item2 = facet.facet_items.last
+      orga = create(:orga)
+
+      facet_item.link_owner(orga)
+      facet_item2.link_owner(orga)
+      assert_equal facet_item, orga.facet_items.first
+      assert_equal facet_item2, orga.facet_items.second
+
+      post :link_facet_items, params: {
+        owner_type: 'orgas',
+        owner_id: orga.id,
+        facet_items: []
+      }
+      assert_response :created
+
+      assert_nil orga.facet_items.first
+      assert_nil orga.facet_items.second
+    end
+
+    should 'not fail if linking multiple facet items with owner where one is not allowed' do
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      facet2 = create(:facet_with_items, owner_types: ['Event'])
+      facet_item2 = facet2.facet_items.first
+      orga = create(:orga)
+
+      post :link_facet_items, params: {
+        owner_type: 'orgas',
+        owner_id: orga.id,
+        facet_items: [facet_item.id, facet_item2.id]
+      }
+      assert_response :created
+
+      assert_equal facet_item, orga.facet_items.first
+      assert_nil orga.facet_items.second
+    end
+
+    should 'fail if linking multiple facet items with owner where one does not exist' do
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      orga = create(:orga)
+
+      post :link_facet_items, params: {
+        owner_type: 'orgas',
+        owner_id: orga.id,
+        facet_items: [facet_item.id, 85555555]
+      }
+      assert_response :unprocessable_entity
+
+      assert_nil orga.facet_items.first
+      assert_nil orga.facet_items.second
+    end
+
   end
 
 end

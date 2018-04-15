@@ -42,13 +42,18 @@ Rails.application.routes.draw do
           delete 'facet_items/:id/owners', to: 'data_plugins/facet/v1/facet_items#unlink_owners'
         end
         get ':owner_type/:owner_id/facet_items', to: 'data_plugins/facet/v1/facet_items#get_linked_facet_items'
+        post ':owner_type/:owner_id/facet_items', to: 'data_plugins/facet/v1/facet_items#link_facet_items'
 
         scope :fe_navigation do
           get '', to: 'data_modules/fe_navigation/v1/fe_navigation#show'
           resources :fe_navigation_items, controller: 'data_modules/fe_navigation/v1/fe_navigation_items'
+
           post 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_owners'
           get 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#get_linked_owners'
           delete 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#unlink_owners'
+
+          get 'fe_navigation_items/:id/facet_items', to: 'data_modules/fe_navigation/v1/fe_navigation_items#get_linked_facet_items'
+          post 'fe_navigation_items/:id/facet_items', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_facet_items'
         end
       end
     end
@@ -79,12 +84,18 @@ Rails.application.routes.draw do
         jsonapi_resources :orgas
 
         get 'orgas/:id/actor_relations', to: 'orgas#get_actor_relations'
+
+        post 'orgas/:id/projects', to: 'orgas#link_projects'
+        post 'orgas/:id/project_initiators', to: 'orgas#link_project_initiators'
         post 'orgas/:id/projects/:item_id', to: 'orgas#add_project'
         delete 'orgas/:id/projects/:item_id', to: 'orgas#remove_project'
 
+        post 'orgas/:id/networks', to: 'orgas#link_networks'
+        post 'orgas/:id/network_members', to: 'orgas#link_network_members'
         post 'orgas/:id/network_members/:item_id', to: 'orgas#add_network_member'
         delete 'orgas/:id/network_members/:item_id', to: 'orgas#remove_network_member'
 
+        post 'orgas/:id/partners', to: 'orgas#link_partners'
         post 'orgas/:id/partners/:item_id', to: 'orgas#add_partner'
         delete 'orgas/:id/partners/:item_id', to: 'orgas#remove_partner'
 
