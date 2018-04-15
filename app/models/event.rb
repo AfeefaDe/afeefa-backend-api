@@ -2,6 +2,11 @@ require 'errors'
 
 class Event < ApplicationRecord
 
+  # to get rid of invalid encoding on facebook import:
+  # serialize :title
+  # serialize :description
+  # serialize :short_description
+
   include Thing
   include Jsonable
 

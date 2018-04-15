@@ -4,7 +4,7 @@ class Api::V1::FacebookEventsController < ApplicationController
   include Cors
 
   def index
-    render json: ::FacebookClient.new.get_events
+    render json: ::FacebookClient.new.get_events(area: params[:area] || 'dresden', sort_by_date_desc: true)
   end
   alias_method :facebook_events_for_frontend, :index
 
