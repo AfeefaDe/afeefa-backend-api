@@ -56,12 +56,13 @@ module ActsAsFacetItemControllerTest
         assert_response :ok
 
         json = JSON.parse(response.body)
+
         assert_equal 3, json.count
 
         assert_same_elements [
-          orga.to_hash(attributes: [:title], relationships: nil).deep_stringify_keys,
-          event.to_hash(attributes: [:title], relationships: nil).deep_stringify_keys,
-          offer.to_hash(attributes: [:title], relationships: nil).deep_stringify_keys
+          orga.to_hash.as_json,
+          event.to_hash.as_json,
+          offer.to_hash.as_json
         ], json
       end
 
@@ -82,7 +83,7 @@ module ActsAsFacetItemControllerTest
         json = JSON.parse(response.body)
         assert_equal 1, json.count
 
-        assert_equal orga.to_hash(attributes: [:title], relationships: nil).deep_stringify_keys, json.first
+        assert_equal orga.to_hash.as_json, json.first
       end
 
       should 'create item' do
@@ -280,7 +281,7 @@ module ActsAsFacetItemControllerTest
         orga = create(:orga)
         orga2 = create(:orga, title: 'another orga')
         event = create(:event, orga: orga2)
-        offer = create(:offer, actor_id: orga.id)
+        offer = create(:offer, actors: [orga.id])
 
         assert_difference -> { ownerClass.count }, 4 do
           post :link_owners, params: params(root, {

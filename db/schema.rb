@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180331094730) do
+ActiveRecord::Schema.define(version: 20180419144934) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -121,6 +121,15 @@ ActiveRecord::Schema.define(version: 20180331094730) do
     t.string  "entry_type"
     t.integer "entry_id"
     t.index ["entry_type", "entry_id"], name: "index_entries_on_entry_type_and_entry_id", using: :btree
+  end
+
+  create_table "event_hosts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer  "actor_id"
+    t.integer  "event_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_event_hosts_on_actor_id", using: :btree
+    t.index ["event_id"], name: "index_event_hosts_on_event_id", using: :btree
   end
 
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -268,6 +277,7 @@ ActiveRecord::Schema.define(version: 20180331094730) do
   create_table "offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string   "title"
     t.text     "description", limit: 65535
+    t.string   "area"
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
   end

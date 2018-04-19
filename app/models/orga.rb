@@ -9,16 +9,16 @@ class Orga < ApplicationRecord
   include Jsonable
 
   # ATTRIBUTES AND ASSOCIATIONS
-  acts_as_tree(dependent: :restrict_with_exception, foreign_key: :parent_orga_id)
+  acts_as_tree(foreign_key: :parent_orga_id)
   alias_method :sub_orgas, :children
   alias_method :sub_orgas=, :children=
   alias_method :parent_orga, :parent
   alias_method :parent_orga=, :parent=
   alias_attribute :parent_id, :parent_orga_id
 
-  has_many :events
+  has_many :hosted_events, class_name: EventHost, foreign_key: :actor_id, dependent: :destroy
+  has_many :events, through: :hosted_events
   has_many :resource_items
-  has_many :offers
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
   # has_many :admins, -> { where(roles: { title: Role::ORGA_ADMIN }) }, through: :roles, source: :user
@@ -73,12 +73,12 @@ class Orga < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(initiator annotations category sub_category facet_items creator last_editor).freeze
+      %i(project_initiators annotations facet_items creator last_editor).freeze
     end
 
     def relation_whitelist_for_json
       (default_relations_for_json + %i(resource_items contacts offers) +
-        %i(projects project_initiators networks network_members partners)).freeze
+        %i(projects networks network_members partners)).freeze
     end
 
     def count_relation_whitelist_for_json
@@ -87,8 +87,6 @@ class Orga < ApplicationRecord
 
     def default_includes
       [
-        :category,
-        :sub_category,
         :facet_items,
         :creator,
         :last_editor,
@@ -137,28 +135,12 @@ class Orga < ApplicationRecord
     title == ROOT_ORGA_TITLE
   end
 
-  def initiator
-    self.project_initiators.try(:first)
-  end
-
-  def initiator_to_hash
-    if initiator
-      initiator.to_hash(attributes: ['title'], relationships: nil)
-    end
-  end
-
   def contacts_to_hash
-    contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
+    contacts.map { |c| c.to_hash }
   end
 
   def resource_items_to_hash
-    resource_items.map { |r| r.to_hash(attributes: r.class.default_attributes_for_json) }
-  end
-
-  def parent_orga_to_hash
-    if parent_orga && !parent_orga.root_orga?
-      parent_orga.to_hash
-    end
+    resource_items.map { |r| r.to_hash }
   end
 
   private
@@ -173,19 +155,6 @@ class Orga < ApplicationRecord
   end
 
   def deny_destroy_if_associated_objects_present
-    errors.clear
-
-    if sub_orgas.any?
-      errors.add(:sub_orgas, :not_blank)
-    end
-
-    if events.any?
-      errors.add(:events, :not_blank)
-    end
-
-    errors.full_messages.each do |message|
-      raise ::CustomDeleteRestrictionError, message
-    end
   end
 
   def move_sub_orgas_to_parent

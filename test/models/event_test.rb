@@ -75,7 +75,7 @@ class EventTest < ActiveSupport::TestCase
     setup do
       @user = create(:user)
       @orga = create(:orga)
-      @event = build(:event, orga: @orga, creator: @user)
+      @event = build(:event, creator: @user)
     end
 
     should 'create and destroy orga' do

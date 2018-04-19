@@ -4,20 +4,9 @@ module DataModules::Offer
 
     # ASSOCIATIONS
     has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, dependent: :destroy
-    has_many :actors, through: :offer_owners
+    has_many :owners, through: :offer_owners, source: :actor
 
-    scope :by_area, -> (area) {
-      includes(:actors).
-      where(orgas: { area: area}) # orga is the backing table of :actors
-    }
-
-    attr_accessor :actor_id
-
-    # VALIDATIONS
-    validate :actor_is_present_on_create, on: :create
-
-    # HOOKS
-    after_create :associate_actor_on_create
+    scope :by_area, ->(area) { where(area: area) }
 
     # CLASS METHODS
     class << self
@@ -34,39 +23,41 @@ module DataModules::Offer
       end
 
       def default_relations_for_json
-        %i(actors facet_items).freeze
+        %i(owners facet_items).freeze
       end
 
-      def offer_params(params)
-        params.permit(:title, :description, :actor_id)
+      def offer_params(offer, params)
+        permitted = [:title, :description, :actors]
+        unless offer.id
+          permitted << :area
+        end
+        params.permit(permitted)
       end
 
       def save_offer(params)
         offer = find_or_initialize_by(id: params[:id])
-        offer.assign_attributes(offer_params(params))
+        offer.assign_attributes(offer_params(offer, params))
         offer.save!
         offer
       end
     end
 
-    def actor_is_present_on_create
-      if actor_id.blank?
-        errors.add(:actor_id, 'Kein Eigentümer des Angebots angegeben.')
+    def link_owner(actor_id)
+      owner = Orga.find(actor_id)
+      unless owner.area == self.area
+        raise 'Owner is in wrong area'
       end
-      unless Orga.exists?(actor_id)
-        errors.add(:actor_id, 'Kein Eigentümer des Angebots angegeben.')
-      end
-    end
-
-    def associate_actor_on_create
       DataModules::Offer::OfferOwner.create(
-        actor_id: actor_id,
+        actor: owner,
         offer: self
       )
     end
 
-    def actors_to_hash
-      actors.map { |a| a.to_hash(attributes: [:title], relationships: nil) }
+    # TODO owners are part of the list resource as well as the item resource
+    # but we want to include more owner details on the item resource
+    # hence, there is a patch of this method in offer_controller#show
+    def owners_to_hash
+      owners.map { |o| o.to_hash(attributes: [:title], relationships: nil) }
     end
 
     include DataPlugins::Facet::Concerns::HasFacetItems

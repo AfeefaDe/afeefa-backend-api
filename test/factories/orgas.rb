@@ -23,6 +23,12 @@ FactoryGirl.define do
       title 'another orga'
     end
 
+    factory :orga_with_initiator do
+      after(:create) do |orga|
+        orga.project_initiators << create(:orga_with_random_title)
+      end
+    end
+
     factory :active_orga do
       title 'an active orga'
       state StateMachine::ACTIVE

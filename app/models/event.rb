@@ -10,12 +10,15 @@ class Event < ApplicationRecord
   include Thing
   include Jsonable
 
-  acts_as_tree(dependent: :restrict_with_exception, foreign_key: :parent_event_id)
+  acts_as_tree(foreign_key: :parent_event_id)
   alias_method :sub_events, :children
   alias_method :parent_event, :parent
   alias_method :parent_event=, :parent=
   alias_method :sub_events=, :children=
   alias_attribute :parent_id, :parent_event_id
+
+  has_many :event_hosts, class_name: EventHost, dependent: :destroy
+  has_many :hosts, through: :event_hosts, source: :actor
 
   # VALIDATIONS
   validates :date_start, presence: true
@@ -75,20 +78,36 @@ class Event < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(orga annotations category sub_category facet_items creator last_editor).freeze
+      %i(hosts annotations facet_items creator last_editor).freeze
     end
 
     def default_includes
       [
-        :category,
-        :sub_category,
         :facet_items,
+        :hosts,
         :creator,
         :last_editor,
-        :annotations,
-        {orga: Orga.default_includes}
+        :annotations
       ]
     end
+  end
+
+  def link_host(actor_id)
+    host = Orga.find(actor_id)
+    unless host.area == self.area
+      raise 'Host is in wrong area'
+    end
+    EventHost.create(
+      actor_id: actor_id,
+      event: self
+    )
+  end
+
+  # TODO hosts are part of the list resource as well as the item resource
+  # but we want to include more host details on the item resource
+  # hence, there is a patch of this method in events_controller#show
+  def hosts_to_hash
+    hosts.map { |h| h.to_hash(attributes: ['title'], relationships: nil) }
   end
 
   def orga_to_hash

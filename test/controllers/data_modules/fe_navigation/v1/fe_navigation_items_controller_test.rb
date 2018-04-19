@@ -129,10 +129,10 @@ class DataModules::FeNavigation::V1::FeNavigationItemsControllerTest < ActionCon
       assert_equal 4, json.count
 
       assert_same_elements [
-        orga.to_hash(attributes: [:title], relationships: nil).deep_stringify_keys,
-        event.to_hash(attributes: [:title], relationships: nil).deep_stringify_keys,
-        offer.to_hash(attributes: [:title], relationships: nil).deep_stringify_keys,
-        orga2.to_hash(attributes: [:title], relationships: nil).deep_stringify_keys
+        orga.to_hash.as_json,
+        event.to_hash.as_json,
+        offer.to_hash.as_json,
+        orga2.to_hash.as_json
       ], json
     end
 

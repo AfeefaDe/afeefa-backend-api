@@ -224,46 +224,43 @@ class OrgaTest < ActiveSupport::TestCase
       assert @orga.reload.deleted?
     end
 
-    should 'not soft delete orga with associated orga' do
-      @orga.save!
-      assert @orga.id
-      assert sub_orga = create(:orga, parent_id: @orga.id)
-      assert_equal @orga.id, sub_orga.parent_id
-      assert @orga.reload.sub_orgas.any?
-      assert_not @orga.reload.deleted?
-      assert_no_difference 'Orga.count' do
-        assert_no_difference 'Orga.undeleted.count' do
-          exception =
-              assert_raise CustomDeleteRestrictionError do
-                @orga.destroy!
-              end
-          assert_equal 'Unterorganisationen müssen gelöscht werden', exception.message
-        end
-      end
-      assert_not @orga.reload.deleted?
-    end
+  end
 
-    should 'not soft delete orga with associated event' do
-      @orga.save!
-      assert @orga.id
-      assert event = create(:event, orga_id: @orga.id)
-      assert_equal @orga.id, event.orga_id
-      assert @orga.reload.events.any?
-      assert_not @orga.reload.deleted?
+  context 'with orga events, offers' do
+    should 'remove event host links on remove orga' do
+      orga = create(:orga)
+      event = create(:event, host: orga)
+      event2 = create(:event, host: orga)
+
+      assert_equal 2, orga.events.count
+      assert_equal orga, event.hosts.first
+      assert_equal orga, event2.hosts.first
+
       assert_no_difference 'Event.count' do
-        assert_no_difference 'Event.undeleted.count' do
-          assert_no_difference 'Orga.count' do
-            assert_no_difference 'Orga.undeleted.count' do
-              exception =
-                  assert_raise CustomDeleteRestrictionError do
-                    @orga.destroy!
-                  end
-              assert_equal 'Events müssen gelöscht werden', exception.message
-            end
+        assert_difference 'EventHost.count', -2 do
+          assert_difference 'Orga.count', -1 do
+            orga.destroy!
           end
         end
       end
-      assert_not @orga.reload.deleted?
+    end
+
+    should 'remove offer owner links on remove orga' do
+      orga = create(:orga)
+      offer = create(:offer, actors: [orga.id])
+      offer2 = create(:offer, actors: [orga.id])
+
+      assert_equal 2, orga.offers.count
+      assert_equal orga, offer.owners.first
+      assert_equal orga, offer2.owners.first
+
+      assert_no_difference 'DataModules::Offer::Offer.count' do
+        assert_difference 'DataModules::Offer::OfferOwner.count', -2 do
+          assert_difference 'Orga.count', -1 do
+            orga.destroy!
+          end
+        end
+      end
     end
   end
 

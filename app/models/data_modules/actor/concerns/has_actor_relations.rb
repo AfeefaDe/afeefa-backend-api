@@ -5,9 +5,9 @@ module DataModules::Actor::Concerns::HasActorRelations
   included do
     # ASSOCIATIONS
     has_many :actor_relations_i_have_associated,
-      class_name: DataModules::Actor::ActorRelation, foreign_key: 'associating_actor_id'
+      class_name: DataModules::Actor::ActorRelation, foreign_key: 'associating_actor_id', dependent: :destroy
     has_many :actor_relations_that_associated_me,
-      class_name: DataModules::Actor::ActorRelation, foreign_key: 'associated_actor_id'
+      class_name: DataModules::Actor::ActorRelation, foreign_key: 'associated_actor_id', dependent: :destroy
 
     has_many :actors_i_have_associated, through: :actor_relations_i_have_associated, source: :associated_actor
     has_many :actors_that_associated_me, through: :actor_relations_that_associated_me, source: :associating_actor
@@ -25,11 +25,14 @@ module DataModules::Actor::Concerns::HasActorRelations
     has_many :project_initiators, through: :project_initiators_relations, source: :associating_actor
 
     def projects_to_hash
-      projects.map(&method(:actor_to_hash))
+      projects.map(&:to_hash)
     end
 
+    # TODO initiators are part of the list resource as well as the item resource
+    # but we want to include more host details on the item resource
+    # hence, there is a patch of this method in orgas_controller#show
     def project_initiators_to_hash
-      project_initiators.map(&method(:actor_to_hash))
+      project_initiators.map { |i| i.to_hash(attributes: ['title'], relationships: nil) }
     end
 
     # networks
@@ -45,11 +48,11 @@ module DataModules::Actor::Concerns::HasActorRelations
     has_many :network_members, through: :network_member_relations, source: :associated_actor
 
     def networks_to_hash
-      networks.map(&method(:actor_to_hash))
+      networks.map(&:to_hash)
     end
 
     def network_members_to_hash
-      network_members.map(&method(:actor_to_hash))
+      network_members.map(&:to_hash)
     end
 
     # partners
@@ -69,16 +72,7 @@ module DataModules::Actor::Concerns::HasActorRelations
     end
 
     def partners_to_hash
-      partners.map(&method(:actor_to_hash))
-    end
-
-    # render self to json
-
-    def actor_to_hash(actor)
-      actor.to_hash(
-        attributes: self.class.default_attributes_for_json,
-        relationships: self.class.default_relations_for_json
-      )
+      partners.map(&:to_hash)
     end
 
     # CLASS METHODS

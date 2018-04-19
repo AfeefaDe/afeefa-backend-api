@@ -146,31 +146,31 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
       # starts today morning 00:00
       event0 = create(:event, title: 'Hackathon', description: 'Mate fuer alle!',
-        creator: user, orga: orga, date_start: Time.now.in_time_zone(Time.zone).beginning_of_day)
+        creator: user, host: orga, date_start: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # starts in 10 minutes
       event1 = create(:event, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus',
-        creator: user, orga: orga, date_start: 10.minutes.from_now)
+        creator: user, host: orga, date_start: 10.minutes.from_now)
 
       # starts in 1 day
       event2 = create(:event, title: 'Morgen', description: 'Morgen wirds geil',
-        creator: user, orga: orga, date_start: 1.day.from_now)
+        creator: user, host: orga, date_start: 1.day.from_now)
 
       # started yesterday, no end date
       event3 = create(:event, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten',
-        creator: user, orga: orga, date_start: 1.day.ago)
+        creator: user, host: orga, date_start: 1.day.ago)
 
       # started 2 days ago, ends yesterday
       event4 = create(:event, title: 'Joggen im Garten vor einem Tag', description: 'Gemeinsames Laufengehen im Grossen Garten von gestern',
-        creator: user, orga: orga, date_start: 2.days.ago, date_end: 1.day.ago)
+        creator: user, host: orga, date_start: 2.days.ago, date_end: 1.day.ago)
 
       # started yesterday, ends today morning 00:00
       event5 = create(:event, title: 'Gestern bis heute früh', description: 'Absaufen und Durchhängen',
-        creator: user, orga: orga, date_start: 1.day.ago, date_end: Time.now.in_time_zone(Time.zone).beginning_of_day)
+        creator: user, host: orga, date_start: 1.day.ago, date_end: Time.now.in_time_zone(Time.zone).beginning_of_day)
 
       # started yesterday, ends tomorrow
       event6 = create(:event, title: 'Gestern bis morgen', description: 'Absaufen und Durchhängen voll durchmachen',
-        creator: user, orga: orga, date_start: 1.day.ago, date_end: 1.day.from_now)
+        creator: user, host: orga, date_start: 1.day.ago, date_end: 1.day.from_now)
 
       get :get_related_resources, params: { related_type: 'orga', id: orga.id, filter: { date: 'past' } }
       assert_response :ok, response.body
@@ -231,13 +231,15 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     context 'with given event' do
       setup do
-        @event = create(:event)
+        orga = create(:orga)
+        @event = create(:event, host: orga)
       end
 
       should 'get show' do
         get :show, params: { id: @event.id }
         assert_response :ok, response.body
         json = JSON.parse(response.body)
+
         assert_kind_of Hash, json['data']
         assert_not json['data']['attributes']['has_time_start']
         assert_not json['data']['attributes']['has_time_end']
@@ -251,6 +253,74 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_kind_of Hash, json['data']
         assert json['data']['attributes']['has_time_start']
         assert json['data']['attributes']['has_time_end']
+      end
+
+      should 'deliver hosts with different detail granularity' do
+        get :show, params: { id: @event.id }
+        json = JSON.parse(response.body)['data']
+
+        assert_operator 1, :<, json['relationships']['hosts']['data'][0]['attributes'].count
+        assert_equal 1, json['relationships']['hosts']['data'][0]['attributes']['count_events']
+
+        get :index
+        json = JSON.parse(response.body)['data'][0]
+        assert_equal 1, json['relationships']['hosts']['data'][0]['attributes'].count
+        assert_nil json['relationships']['hosts']['data'][0]['attributes']['count_events']
+      end
+
+      should 'deliver different attributes and relations when show or index' do
+        get :show, params: { id: @event.id }
+        json = JSON.parse(response.body)['data']
+
+        attributes = [
+          "title",
+          "created_at",
+          "updated_at",
+          "state_changed_at",
+          "date_start",
+          "date_end",
+          "has_time_start",
+          "has_time_end",
+          "active",
+          "inheritance",
+          "description",
+          "short_description",
+          "media_url",
+          "media_type",
+          "support_wanted",
+          "support_wanted_detail",
+          "tags",
+          "certified_sfr",
+          "public_speaker",
+          "location_type",
+          "legacy_entry_id",
+          "facebook_id"
+        ]
+        relationships = ["hosts", "annotations", "facet_items", "creator", "last_editor", "contacts"]
+
+        assert_same_elements attributes, json['attributes'].keys
+        assert_same_elements relationships, json['relationships'].keys
+
+        get :index
+        json = JSON.parse(response.body)['data'][0]
+
+        attributes = [
+          "title",
+          "created_at",
+          "updated_at",
+          "state_changed_at",
+          "date_start",
+          "date_end",
+          "has_time_start",
+          "has_time_end",
+          "active",
+          "inheritance"
+        ]
+
+        relationships = ["hosts", "annotations", "facet_items", "creator", "last_editor"]
+
+        assert_same_elements attributes, json['attributes'].keys
+        assert_same_elements relationships, json['relationships'].keys
       end
     end
 
@@ -525,6 +595,79 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal inh, response_json['data']['attributes']['inheritance']
       assert_not_nil response_json['data']['attributes']['inheritance']
     end
+
+
+    should 'link hosts' do
+      host = create(:orga)
+      host2 = create(:orga_with_random_title)
+      event = create(:event)
+
+      assert_no_difference -> { Orga.count } do
+        assert_difference -> { EventHost.count }, 2 do
+          post :link_hosts, params: { id: event.id, actors: [host.id, host2.id] }
+          assert_response :created, response.body
+          assert response.body.blank?
+        end
+      end
+
+      assert_equal event, host.events.first
+      assert_equal event, host2.events.first
+      assert_equal [host, host2], event.hosts
+
+      assert_no_difference -> { Orga.count } do
+        assert_difference -> { EventHost.count }, -1 do
+          post :link_hosts, params: { id: event.id, actors: [host2.id] }
+          assert_response :created, response.body
+          assert response.body.blank?
+        end
+      end
+
+      event.reload
+      assert_equal [], host.events
+      assert_equal event, host2.events.first
+      assert_equal [host2], event.hosts
+
+      assert_no_difference -> { Orga.count } do
+        assert_difference -> { EventHost.count }, -1 do
+          post :link_hosts, params: { id: event.id, actors: [] }
+          assert_response :created, response.body
+          assert response.body.blank?
+        end
+      end
+
+      event.reload
+      assert_equal [], host.events
+      assert_equal [], host2.events
+      assert_equal [], event.hosts
+    end
+
+    should 'throw error on linking nonexisting host' do
+      host = create(:orga)
+      event = create(:event)
+
+      assert_no_difference -> { Orga.count } do
+        assert_no_difference -> { EventHost.count } do
+          post :link_hosts, params: { id: event.id, actors: [host.id, 2341] }
+          assert_response :unprocessable_entity, response.body
+          assert response.body.blank?
+        end
+      end
+    end
+
+    should 'throw error on linking host of different area' do
+      host = create(:orga)
+      host2 = create(:orga_with_random_title, area: 'xyzabc')
+      event = create(:event)
+
+      assert_no_difference -> { Orga.count } do
+        assert_no_difference -> { EventHost.count } do
+          post :link_hosts, params: { id: event.id, actors: [host.id, host2.id] }
+          assert_response :unprocessable_entity, response.body
+          assert response.body.blank?
+        end
+      end
+    end
+
   end
 
 end

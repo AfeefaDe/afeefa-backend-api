@@ -101,15 +101,16 @@ class ActiveSupport::TestCase
       relationships.each do |relation|
         data = object_hash[:relationships][relation]
         association = object.send(relation)
-        if association.respond_to?(:map)
-          assert_equal object.send(relation).map{ |x| x.to_hash(attributes: nil, relationships: nil) }, data[:data]
+
+        if object.respond_to?("#{relation}_to_hash")
+          if data[:data].nil?
+            assert_nil object.try("#{relation}_to_hash")
+          else
+            assert_equal object.try("#{relation}_to_hash"), data[:data]
+          end
         else
-          if object.respond_to?("#{relation}_to_hash")
-            if data[:data].nil?
-              assert_nil object.try("#{relation}_to_hash")
-            else
-              assert_equal object.try("#{relation}_to_hash"), data[:data]
-            end
+          if association.respond_to?(:map)
+            assert_equal object.send(relation).map{ |x| x.to_hash(attributes: nil, relationships: nil) }, data[:data]
           else
             if data[:data].nil?
               assert_nil object.send(relation).try(:to_hash, attributes: nil, relationships: nil)
@@ -118,6 +119,7 @@ class ActiveSupport::TestCase
             end
           end
         end
+
       end
     end
   end

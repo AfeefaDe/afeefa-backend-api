@@ -2,6 +2,8 @@ require 'test_helper'
 
 class Api::V1::OrgasControllerTest < ActionController::TestCase
 
+  include ActsAsHasActorRelationsControllerTest
+
   context 'as authorized user' do
     setup do
       stub_current_user
@@ -24,6 +26,100 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       assert_not json['data'].last['attributes'].key?('support_wanted_detail')
       assert_not json['data'].last['relationships'].key?('resources')
+    end
+
+
+    should 'deliver initiators with different detail granularity' do
+      orga = create(:orga_with_initiator)
+
+      get :show, params: { id: orga.id }
+      json = JSON.parse(response.body)['data']
+
+      assert_operator 1, :<, json['relationships']['project_initiators']['data'][0]['attributes'].count
+      assert_equal 1, json['relationships']['project_initiators']['data'][0]['attributes']['count_projects']
+
+      get :index
+      json = JSON.parse(response.body)['data'][0]
+
+      assert_equal 1, json['relationships']['project_initiators']['data'][0]['attributes'].count
+      assert_nil json['relationships']['project_initiators']['data'][0]['attributes']['count_projects']
+    end
+
+    should 'deliver different attributes and relations when show or index' do
+      orga = create(:orga)
+
+      get :show, params: { id: orga.id }
+      json = JSON.parse(response.body)['data']
+
+      attributes = [
+        "orga_type_id",
+        "title",
+        "created_at",
+        "updated_at",
+        "state_changed_at",
+        "active",
+        "count_events",
+        "count_resource_items",
+        "count_projects",
+        "count_network_members",
+        "count_offers",
+        "description",
+        "short_description",
+        "media_url",
+        "media_type",
+        "support_wanted",
+        "support_wanted_detail",
+        "tags",
+        "certified_sfr",
+        "inheritance",
+        "facebook_id"
+      ]
+
+      relationships = [
+        "project_initiators",
+        "annotations",
+        "facet_items",
+        "creator",
+        "last_editor",
+        "resource_items",
+        "contacts",
+        "offers",
+        "projects",
+        "networks",
+        "network_members",
+        "partners"
+      ]
+
+      assert_same_elements attributes, json['attributes'].keys
+      assert_same_elements relationships, json['relationships'].keys
+
+      get :index
+      json = JSON.parse(response.body)['data'][0]
+
+      attributes = [
+        "orga_type_id",
+        "title",
+        "created_at",
+        "updated_at",
+        "state_changed_at",
+        "active",
+        "count_events",
+        "count_resource_items",
+        "count_projects",
+        "count_network_members",
+        "count_offers"
+      ]
+
+      relationships = [
+        "project_initiators",
+        "annotations",
+        "facet_items",
+        "creator",
+        "last_editor"
+      ]
+
+      assert_same_elements attributes, json['attributes'].keys
+      assert_same_elements relationships, json['relationships'].keys
     end
 
     should 'get index only data of area of user' do
@@ -345,58 +441,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         end
       end
 
-      should 'not destroy orga with associated sub_orga' do
-        assert sub_orga = create(:another_orga, parent_id: @orga.id)
-        assert_equal @orga.id, sub_orga.parent_id
-        assert @orga.reload.sub_orgas.any?
-
-        assert_no_difference 'Orga.count' do
-          assert_no_difference 'Orga.undeleted.count' do
-            assert_no_difference 'ContactInfo.count' do
-              assert_no_difference 'Location.count' do
-                assert_no_difference 'AnnotationCategory.count' do
-                  delete :destroy,
-                    params: {
-                      id: @orga.id,
-                    }
-                  assert_response :locked, response.body
-                  json = JSON.parse(response.body)
-                  assert_equal 'Unterorganisationen müssen gelöscht werden', json['errors'].first['detail']
-                end
-              end
-            end
-          end
-        end
-      end
-
-      should 'not destroy orga with associated event' do
-        assert event = create(:event, orga_id: @orga.id)
-        assert_equal @orga.id, event.orga_id
-        assert @orga.reload.events.any?
-
-        assert_no_difference 'Orga.count' do
-          assert_no_difference 'Orga.undeleted.count' do
-            assert_no_difference 'Event.count' do
-              assert_no_difference 'Event.undeleted.count' do
-                assert_no_difference 'ContactInfo.count' do
-                  assert_no_difference 'Location.count' do
-                    assert_no_difference 'AnnotationCategory.count' do
-                      delete :destroy,
-                        params: {
-                          id: @orga.id,
-                        }
-                      assert_response :locked, response.body
-                      json = JSON.parse(response.body)
-                      assert_equal 'Events müssen gelöscht werden', json['errors'].first['detail']
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
       should 'create new orga with parent relation and inheritance' do
         params = parse_json_file file: 'create_orga_with_parent.json' do |payload|
           payload.gsub!('<orga_type_id>', OrgaType.default_orga_type_id.to_s)
@@ -446,130 +490,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         end
       end
 
-      should 'add project association' do
-        assert_no_difference -> { Orga.count } do
-          assert_difference -> { DataModules::Actor::ActorRelation.project.count } do
-            post :add_project, params: { id: @orga.id, item_id: Orga.last.id }
-            assert_response :created, response.body
-            assert response.body.blank?
-          end
-        end
-        new_relation = DataModules::Actor::ActorRelation.last
-        assert_equal @orga, new_relation.associating_actor
-        assert_equal Orga.last, new_relation.associated_actor
-        assert_equal DataModules::Actor::ActorRelation::PROJECT.to_s, new_relation.type
-      end
-
-      should 'remove project association' do
-        generate_association!(@orga.id, Orga.last.id, DataModules::Actor::ActorRelation::PROJECT)
-
-        assert_no_difference -> { Orga.count } do
-          assert_difference -> { DataModules::Actor::ActorRelation.count }, -1 do
-            delete :remove_project, params: { id: @orga.id, item_id: Orga.last.id }
-            assert_response :ok, response.body
-            assert response.body.blank?
-          end
-        end
-        relation =
-          DataModules::Actor::ActorRelation.where(
-            associating_actor_id: @orga.id,
-            associated_actor_id: Orga.last.id,
-            type: DataModules::Actor::ActorRelation::PROJECT.to_s)
-        assert relation.blank?
-      end
-
-      should 'handle remove of not existing project association' do
-        delete :remove_project, params: { id: @orga.id, item_id: Orga.last.id }
-        assert_response :not_found, response.body
-        assert response.body.blank?
-      end
-
-      should 'add network_member association' do
-        assert_no_difference -> { Orga.count } do
-          assert_difference -> { DataModules::Actor::ActorRelation.count } do
-            post :add_network_member, params: { id: @orga.id, item_id: Orga.last.id }
-            assert_response :created, response.body
-            assert response.body.blank?
-          end
-        end
-        new_relation = DataModules::Actor::ActorRelation.last
-        assert_equal @orga, new_relation.associating_actor
-        assert_equal Orga.last, new_relation.associated_actor
-        assert_equal DataModules::Actor::ActorRelation::NETWORK.to_s, new_relation.type
-      end
-
-      should 'remove network_member association' do
-        generate_association!(@orga.id, Orga.last.id, DataModules::Actor::ActorRelation::NETWORK)
-
-        assert_no_difference -> { Orga.count } do
-          assert_difference -> { DataModules::Actor::ActorRelation.count }, -1 do
-            delete :remove_network_member, params: { id: @orga.id, item_id: Orga.last.id }
-            assert_response :ok, response.body
-            assert response.body.blank?
-          end
-        end
-        relation =
-          DataModules::Actor::ActorRelation.where(
-            associating_actor_id: @orga.id,
-            associated_actor_id: Orga.last.id,
-            type: DataModules::Actor::ActorRelation::NETWORK.to_s)
-        assert relation.blank?
-      end
-
-      should 'handle remove of not existing network_member association' do
-        delete :remove_network_member, params: { id: @orga.id, item_id: Orga.last.id }
-        assert_response :not_found, response.body
-        assert response.body.blank?
-      end
-
-      should 'add partner association' do
-        assert_no_difference -> { Orga.count } do
-          assert_difference -> { DataModules::Actor::ActorRelation.count } do
-            post :add_partner, params: { id: @orga.id, item_id: Orga.last.id }
-            assert_response :created, response.body
-            assert response.body.blank?
-          end
-        end
-        new_relation = DataModules::Actor::ActorRelation.last
-        assert_equal @orga, new_relation.associating_actor
-        assert_equal Orga.last, new_relation.associated_actor
-        assert_equal DataModules::Actor::ActorRelation::PARTNER.to_s, new_relation.type
-      end
-
-      should 'remove partner association' do
-        generate_association!(@orga.id, Orga.last.id, DataModules::Actor::ActorRelation::PARTNER)
-
-        assert_no_difference -> { Orga.count } do
-          assert_difference -> { DataModules::Actor::ActorRelation.count }, -1 do
-            delete :remove_partner, params: { id: @orga.id, item_id: Orga.last.id }
-            assert_response :ok, response.body
-            assert response.body.blank?
-          end
-        end
-        relation =
-          DataModules::Actor::ActorRelation.where(
-            associating_actor_id: @orga.id,
-            associated_actor_id: Orga.last.id,
-            type: DataModules::Actor::ActorRelation::PARTNER.to_s)
-        assert relation.blank?
-      end
-
-      should 'handle remove of not existing partner association' do
-        delete :remove_partner, params: { id: @orga.id, item_id: Orga.last.id }
-        assert_response :not_found, response.body
-        assert response.body.blank?
-      end
     end
-  end
-
-  private
-
-  def generate_association!(left_id, right_id, type)
-    DataModules::Actor::ActorRelation.create(
-      associating_actor_id: left_id,
-      associated_actor_id: right_id,
-      type: type
-    )
   end
 
 end
