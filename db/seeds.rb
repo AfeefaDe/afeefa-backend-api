@@ -39,6 +39,12 @@ module Seeds
       end
     end
 
+    # areas
+    Area.delete_all
+    Area.create!(title: 'dresden', lat_min: '50.811596', lat_max: '51.381457', lon_min: '12.983771', lon_max: '14.116620')
+    Area.create!(title: 'leipzig', lat_min: '51.169806', lat_max: '51.455225', lon_min: '12.174588', lon_max: '12.659360')
+    Area.create!(title: 'bautzen', lat_min: '51.001001', lat_max: '51.593835', lon_min: '13.710340', lon_max: '14.650444')
+
     # orga types
     OrgaType.delete_all
     OrgaType.create!(name: 'Root')

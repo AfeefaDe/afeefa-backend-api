@@ -11,6 +11,8 @@ module Import
     end
 
     should 'import complete list' do
+      skip
+
       config = {
         dresden: {
           orga0815: 'fb_id_0815'
