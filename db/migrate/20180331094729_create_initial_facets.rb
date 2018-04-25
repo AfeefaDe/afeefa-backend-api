@@ -320,15 +320,16 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
           facet: facet
         )
 
-        if categories
-          orgas = Orga.where(category_id: categories).or(Orga.where(sub_category_id: categories))
-          orgas.each do |orga|
-            DataPlugins::Facet::FacetItemOwner.create(
-              owner: orga,
-              facet_item: facet_item
-            )
-          end
-        end
+        # We do not want to create any facet owners automatically!
+        # if categories
+        #   orgas = Orga.where(category_id: categories).or(Orga.where(sub_category_id: categories))
+        #   orgas.each do |orga|
+        #     DataPlugins::Facet::FacetItemOwner.create(
+        #       owner: orga,
+        #       facet_item: facet_item
+        #     )
+        #   end
+        # end
 
         if item.is_a?(Hash) && item[:items].present?
           item[:items].each do |sub_item|
@@ -347,15 +348,16 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
               parent: facet_item
             )
 
-            if categories
-              orgas = Orga.where(category_id: categories).or(Orga.where(sub_category_id: categories))
-              orgas.each do |orga|
-                DataPlugins::Facet::FacetItemOwner.create(
-                  owner: orga,
-                  facet_item: sub_facet_item
-                )
-              end
-            end
+            # We do not want to create any facet owners automatically!
+            # if categories
+            #   orgas = Orga.where(category_id: categories).or(Orga.where(sub_category_id: categories))
+            #   orgas.each do |orga|
+            #     DataPlugins::Facet::FacetItemOwner.create(
+            #       owner: orga,
+            #       facet_item: sub_facet_item
+            #     )
+            #   end
+            # end
 
           end
         end
