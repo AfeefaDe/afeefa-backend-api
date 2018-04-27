@@ -23,7 +23,7 @@ module DataModules::Offer
       end
 
       def default_relations_for_json
-        %i(owners facet_items).freeze
+        %i(owners facet_items navigation_items).freeze
       end
 
       def offer_params(offer, params)

@@ -296,7 +296,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           "legacy_entry_id",
           "facebook_id"
         ]
-        relationships = ["hosts", "annotations", "facet_items", "creator", "last_editor", "contacts"]
+        relationships = ["hosts", "annotations", "facet_items", "navigation_items", "creator", "last_editor", "contacts"]
 
         assert_same_elements attributes, json['attributes'].keys
         assert_same_elements relationships, json['relationships'].keys
@@ -317,7 +317,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           "inheritance"
         ]
 
-        relationships = ["hosts", "annotations", "facet_items", "creator", "last_editor"]
+        relationships = ["hosts", "annotations", "facet_items", "navigation_items", "creator", "last_editor"]
 
         assert_same_elements attributes, json['attributes'].keys
         assert_same_elements relationships, json['relationships'].keys

@@ -78,7 +78,7 @@ class Event < ApplicationRecord
     end
 
     def default_relations_for_json
-      %i(hosts annotations facet_items creator last_editor).freeze
+      %i(hosts annotations facet_items navigation_items creator last_editor).freeze
     end
 
     def default_includes
