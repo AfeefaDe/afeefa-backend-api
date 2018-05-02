@@ -8,7 +8,7 @@ server '178.238.229.190', user: 'ruby', roles: %w{app db web}#, my_property: :my
 # server 'db.example.com', user: 'deploy', roles: %w{db}
 
 set :deploy_to, '/home/ruby/afeefa-backend-api'
-set :branch, 'master'
+set :branch, 'new-infrastructure'
 
 # role-based syntax
 # ==================
