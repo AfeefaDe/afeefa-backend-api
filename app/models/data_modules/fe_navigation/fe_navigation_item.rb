@@ -19,32 +19,44 @@ module DataModules::FeNavigation
 
     def owners
       (events + orgas + offers + facet_items.map { |fi| fi.owners }.flatten).uniq
+      # (facet_items.map { |fi| fi.owners }.flatten).uniq
     end
 
     def area
       navigation.area
     end
 
+    def count_direct_owners
+      direct_owners_ids.count
+    end
+
+    def count_owners_via_facet_items
+      owners_via_facet_items_ids.count
+    end
+
     def count_owners
-      sql = <<-eos
-        select count(*)
-        from fe_navigation_item_owners
-        where navigation_item_id = #{id}
-        and owner_type != 'DataPlugins::Facet::FacetItem'
-      eos
-      count_owners = ActiveRecord::Base.connection.select_value(sql)
+      unique_owners = (direct_owners_ids + owners_via_facet_items_ids).uniq
+      return unique_owners.count
 
-      sql = <<-eos
-        select count(*)
-        from facet_item_owners fo
-        inner join fe_navigation_item_owners no
-        on fo.facet_item_id = no.owner_id
-        where no.navigation_item_id = #{id}
-        and no.owner_type = 'DataPlugins::Facet::FacetItem'
-      eos
-      count_facet_owners = ActiveRecord::Base.connection.select_value(sql)
+      # FACET OWNERS BY SINGLE SELECT
 
-      count_owners + count_facet_owners
+      # select id, count(*) from (
+      #   select no.navigation_item_id as id
+      #   from facet_item_owners fo
+
+      #   inner join fe_navigation_item_owners no
+      #   on fo.facet_item_id = no.owner_id and no.owner_type = 'DataPlugins::Facet::FacetItem'
+
+      #   left join orgas o on fo.owner_id = o.id and fo.owner_type = 'Orga'
+      #   left join events e on fo.owner_id = e.id and fo.owner_type = 'Event'
+      #   left join offers of on fo.owner_id = of.id and fo.owner_type = 'DataModules::Offer::Offer'
+
+      #   where (o.area = 'leipzig' or e.area = 'leipzig'	or of.area = 'leipzig')
+
+      #   group by no.navigation_item_id, fo.owner_id, fo.owner_type
+      # ) groups group by id
+
+      # / FACET OWNERS BY SINGLE SELECT:
     end
 
     # VALIDATIONS
@@ -73,7 +85,7 @@ module DataModules::FeNavigation
       end
 
       def default_attributes_for_json
-        %i(title color parent_id count_owners).freeze
+        %i(title color parent_id count_owners count_owners_via_facet_items count_direct_owners).freeze
       end
 
       def relation_whitelist_for_json
@@ -136,7 +148,7 @@ module DataModules::FeNavigation
     end
 
     def sub_items_to_hash
-      sub_items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json, relationships: nil) }
+      sub_items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
     end
 
     def owners_to_hash
@@ -144,6 +156,38 @@ module DataModules::FeNavigation
     end
 
     private
+
+    def owners_via_facet_items_ids
+      sql = <<-eos
+        select fo.owner_id, fo.owner_type
+
+        from facet_item_owners fo
+
+        inner join fe_navigation_item_owners no
+        on fo.facet_item_id = no.owner_id and no.owner_type = 'DataPlugins::Facet::FacetItem'
+
+        left join orgas o on fo.owner_id = o.id and fo.owner_type = 'Orga'
+        left join events e on fo.owner_id = e.id and fo.owner_type = 'Event'
+        left join offers of on fo.owner_id = of.id and fo.owner_type = 'DataModules::Offer::Offer'
+
+        where no.navigation_item_id = #{id}
+
+        and (o.area = '#{area}' or e.area = '#{area}'	or of.area = '#{area}')
+
+        group by fo.owner_id, fo.owner_type
+      eos
+      ActiveRecord::Base.connection.select_rows(sql)
+    end
+
+    def direct_owners_ids
+      sql = <<-eos
+        select owner_id, owner_type
+        from fe_navigation_item_owners
+        where navigation_item_id = #{id}
+        and owner_type != 'DataPlugins::Facet::FacetItem'
+      eos
+      ActiveRecord::Base.connection.select_rows(sql)
+    end
 
     def validate_navigation_and_parent
       if persisted? && changes.key?('navigation_id')

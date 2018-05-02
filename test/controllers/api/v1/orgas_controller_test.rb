@@ -79,6 +79,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         "project_initiators",
         "annotations",
         "facet_items",
+        "navigation_items",
         "creator",
         "last_editor",
         "resource_items",
@@ -114,6 +115,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         "project_initiators",
         "annotations",
         "facet_items",
+        "navigation_items",
         "creator",
         "last_editor"
       ]

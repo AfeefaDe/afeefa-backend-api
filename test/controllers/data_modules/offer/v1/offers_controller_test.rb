@@ -136,7 +136,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
         "title",
         "description"
       ]
-      relationships = ["owners", "facet_items"]
+      relationships = ["owners", "facet_items", "navigation_items"]
 
       get :show, params: { id: offer.id }
       json = JSON.parse(response.body)['data']

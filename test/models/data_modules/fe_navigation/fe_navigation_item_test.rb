@@ -187,5 +187,45 @@ module DataModules::FeNavigation
       assert_equal orgas + [orga2], sub_item.owners
     end
 
+    should 'deliver and count owners only of current area' do
+      orga1 = create(:orga_with_random_title, area: 'dresden')
+      orga1b = create(:orga_with_random_title, area: 'dresden')
+      orga2 = create(:orga_with_random_title, area: 'leipzig')
+      orga2b = create(:orga_with_random_title, area: 'leipzig')
+
+      facet = create(:facet_with_items, owner_types: ['Orga'])
+      facet_item = facet.facet_items.first
+      facet_item.link_owner(orga1)
+      facet_item.link_owner(orga1b)
+      facet_item.link_owner(orga2)
+      facet_item.link_owner(orga2b)
+
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+      navigation_item.link_owner(facet_item)
+
+      orga3 = create(:orga_with_random_title, area: 'dresden')
+      navigation_item.link_owner(orga1)
+      navigation_item.link_owner(orga3)
+
+      navigation2 = create(:fe_navigation_with_items, area: 'leipzig')
+      navigation_item2 = navigation2.navigation_items.first
+      navigation_item2.link_owner(facet_item)
+
+      Current.user.area = 'dresden'
+
+      assert_same_elements [orga1, orga1b, orga3], navigation_item.owners
+      assert_equal 3, navigation_item.count_owners
+
+      assert_equal 2, navigation_item.count_owners_via_facet_items
+      assert_equal 2, navigation_item.count_direct_owners
+
+      Current.user.area = 'leipzig'
+
+      assert_equal [orga2, orga2b], navigation_item2.owners
+      assert_equal 2, navigation_item2.count_owners
+      assert_equal 2, navigation_item.count_owners_via_facet_items
+    end
+
   end
 end
