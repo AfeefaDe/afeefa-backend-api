@@ -51,7 +51,7 @@ class Event < ApplicationRecord
         %i(description short_description media_url media_type
             support_wanted support_wanted_detail
             tags certified_sfr
-            public_speaker location_type legacy_entry_id)).freeze
+            public_speaker location_type legacy_entry_id facebook_id)).freeze
     end
 
     def default_attributes_for_json

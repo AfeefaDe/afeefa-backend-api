@@ -128,15 +128,7 @@ namespace :deploy do
     end
   end
 
-  task :update_crontab do
-    on roles(:web), in: :groups, limit: 3, wait: 10 do
-      within current_path do
-        execute "cd #{current_path} && RAILS_ENV=production ~/.rbenv/bin/rbenv exec bundle exec whenever --update-crontab"
-      end
-    end
-  end
 end
 
-after 'deploy', 'deploy:update_crontab'
 after 'deploy', 'deploy:restart'
 after 'deploy:rollback', 'deploy:restart'

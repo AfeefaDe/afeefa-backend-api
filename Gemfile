@@ -87,6 +87,9 @@ gem 'whenever', '~> 0.9.7', require: false
 # image
 gem 'paperclip', '~> 5.1'
 
+# http requests
+gem 'http'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   # gem 'byebug', platform: :mri

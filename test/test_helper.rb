@@ -26,13 +26,16 @@ require 'vcr'
 VCR.configure do |config|
   config.allow_http_connections_when_no_cassette = true
   config.cassette_library_dir = 'test/data/vcr_cassettes'
-  config.hook_into :webmock # or :fakeweb
+  # config.hook_into :webmock # or :fakeweb
 
   config.default_cassette_options = {
     record: :once,
     erb: true
   }
 end
+
+require 'webmock/minitest'
+WebMock.disable_net_connect!(allow_localhost: false)
 
 # TODO: This is needed because of the strange issues in frontend api... DAMN!
 require File.expand_path('../../db/seeds', __FILE__)

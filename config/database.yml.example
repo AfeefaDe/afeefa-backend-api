@@ -21,6 +21,7 @@ production:
   username: afeefa
   password: ThisIsAStrongPassword123!
   database: afeefa-backend-api-production
+  pool: 2
 
 afeefa:
   <<: *default

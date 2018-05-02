@@ -19,7 +19,7 @@ module Cors
 
       given_origin = request.headers['Origin']
 
-      if given_origin.in?(default_allowed_origins)
+      if given_origin.in?(allowed_origins)
         headers['Access-Control-Allow-Origin'] = given_origin
         headers['Access-Control-Request-Method'] = '*'
       end
