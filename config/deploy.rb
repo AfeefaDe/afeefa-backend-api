@@ -79,7 +79,7 @@ namespace :deploy do
             if fetch(:stage).to_s == 'production'
               'backend-api'
             else
-              'backend-dev-api'
+              'backend-api-dev'
             end
         execute "sudo /bin/systemctl restart #{api}.service" # maybe we can use -h instead of -du
       end
@@ -94,7 +94,7 @@ namespace :deploy do
             if fetch(:stage).to_s == 'production'
               'backend-api'
             else
-              'backend-dev-api'
+              'backend-api-dev'
             end
         execute "sudo /bin/systemctl stop #{api}.service" # maybe we can use -h instead of -du
       end
@@ -109,7 +109,7 @@ namespace :deploy do
             if fetch(:stage).to_s == 'production'
               'backend-api'
             else
-              'backend-dev-api'
+              'backend-api-dev'
             end
         execute "sudo /bin/systemctl start #{api}.service" # maybe we can use -h instead of -du
       end
