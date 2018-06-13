@@ -13,7 +13,7 @@
 
 # Use at least one worker per core if you're on a dedicated server,
 # more will usually help for _short_ waits on databases/caches.
-worker_processes 8
+worker_processes 2
 
 # Since Unicorn is never exposed to outside clients, it does not need to
 # run on the standard HTTP port (80), there is no reason to start Unicorn
@@ -22,7 +22,7 @@ worker_processes 8
 # user, do this to switch euid/egid in the workers (also chowns logs):
 # user "unprivileged_user", "unprivileged_group"
 
-APP_ROOT = '/home/afeefa/rails/afeefa-backend-api/current'
+APP_ROOT = '/home/ruby/afeefa-backend-api/current'
 APP_PORT = 63259
 
 # Help ensure your application will always spawn in the symlinked
