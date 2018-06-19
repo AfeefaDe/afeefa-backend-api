@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180419144934) do
+ActiveRecord::Schema.define(version: 20180510085717) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -232,6 +232,7 @@ ActiveRecord::Schema.define(version: 20180419144934) do
   create_table "facet_owner_types", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "facet_id"
     t.string  "owner_type"
+    t.boolean "main_facet", default: false, null: false
     t.index ["facet_id"], name: "index_facet_owner_types_on_facet_id", using: :btree
   end
 

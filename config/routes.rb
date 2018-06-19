@@ -57,6 +57,8 @@ Rails.application.routes.draw do
           get 'fe_navigation_items/:id/facet_items', to: 'data_modules/fe_navigation/v1/fe_navigation_items#get_linked_facet_items'
           post 'fe_navigation_items/:id/facet_items', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_facet_items'
         end
+        get ':owner_type/:owner_id/fe_navigation_items', to: 'data_modules/fe_navigation/v1/fe_navigation_items#get_linked_navigation_items'
+        post ':owner_type/:owner_id/fe_navigation_items', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_navigation_items'
       end
     end
 

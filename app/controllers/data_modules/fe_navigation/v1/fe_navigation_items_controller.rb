@@ -3,7 +3,7 @@ class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::Base
   include HasLinkedOwners
 
   before_action :find_navigation, only: [:create]
-  before_action :find_navigation_item, except: [:create]
+  before_action :find_navigation_item, except: [:create, :get_linked_navigation_items, :link_navigation_items]
 
   # fe_navigation_items
   def create
@@ -41,6 +41,32 @@ class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::Base
         facet_item_ids.each do |facet_item_id|
           facet_item = DataPlugins::Facet::FacetItem::find(facet_item_id)
           @item.link_owner(facet_item)
+        end
+        head 201
+      end
+    rescue
+      head :unprocessable_entity
+    end
+  end
+
+  # :owner_type/:owner_id/fe_navigation_items
+  def get_linked_navigation_items
+    find_owner
+
+    render status: :ok, json: @owner.navigation_items
+  end
+
+  # :owner_type/:owner_id/fe_navigation_items
+  def link_navigation_items
+    find_owner
+
+    begin
+      ActiveRecord::Base.transaction do # fail if one fails
+        navigation_item_ids = params[:navigation_items] || [] # https://github.com/rails/rails/issues/26569
+        @owner.navigation_items.destroy_all
+        navigation_item_ids.each do |navigation_item_id|
+          navigation_item = DataModules::FeNavigation::FeNavigationItem::find(navigation_item_id)
+          navigation_item.link_owner(@owner)
         end
         head 201
       end

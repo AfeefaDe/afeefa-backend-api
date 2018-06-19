@@ -194,5 +194,80 @@ class DataModules::FeNavigation::V1::FeNavigationItemsControllerTest < ActionCon
       assert_nil navigation_item.facet_items.second
     end
 
+    # linking owners with navigation items
+
+    should 'get linked navigation items' do
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+      navigation_item2 = navigation.navigation_items.last
+      orga = create(:orga)
+
+      navigation_item.link_owner(orga)
+      navigation_item2.link_owner(orga)
+
+      get :get_linked_navigation_items, params: { owner_type: 'orgas', owner_id: orga.id }
+      assert_response :ok
+
+      json = JSON.parse(response.body)
+      assert_equal 2, json.count
+      assert_equal JSON.parse(navigation_item.to_json), json.first
+      assert_equal JSON.parse(navigation_item2.to_json), json[1]
+    end
+
+    should 'link multiple navigation items with owner' do
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+      navigation_item2 = navigation.navigation_items.last
+      orga = create(:orga)
+
+      post :link_navigation_items, params: {
+        owner_type: 'orgas',
+        owner_id: orga.id,
+        navigation_items: [navigation_item.id, navigation_item2.id]
+      }
+      assert_response :created
+
+      assert_equal navigation_item, orga.navigation_items.first
+      assert_equal navigation_item2, orga.navigation_items.second
+    end
+
+    should 'unlink all navigation items from owner' do
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+      navigation_item2 = navigation.navigation_items.last
+      orga = create(:orga)
+
+      navigation_item.link_owner(orga)
+      navigation_item2.link_owner(orga)
+      assert_equal navigation_item, orga.navigation_items.first
+      assert_equal navigation_item2, orga.navigation_items.second
+
+      post :link_navigation_items, params: {
+        owner_type: 'orgas',
+        owner_id: orga.id,
+        navigation_items: []
+      }
+      assert_response :created
+
+      assert_nil orga.navigation_items.first
+      assert_nil orga.navigation_items.second
+    end
+
+    should 'fail if linking multiple navigation items with owner where one does not exist' do
+      navigation = create(:fe_navigation_with_items)
+      navigation_item = navigation.navigation_items.first
+      orga = create(:orga)
+
+      post :link_navigation_items, params: {
+        owner_type: 'orgas',
+        owner_id: orga.id,
+        navigation_items: [navigation_item.id, 85555555]
+      }
+      assert_response :unprocessable_entity
+
+      assert_nil orga.navigation_items.first
+      assert_nil orga.navigation_items.second
+    end
+
   end
 end
