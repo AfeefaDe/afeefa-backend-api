@@ -16,7 +16,7 @@ module DataPlugins::Contact
 
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
-    has_many :contact_persons, class_name: ::DataPlugins::Contact::ContactPerson
+    has_many :contact_persons, class_name: ::DataPlugins::Contact::ContactPerson, dependent: :destroy
     belongs_to :location, class_name: ::DataPlugins::Location::Location
 
     # VALIDATIONS
@@ -26,6 +26,16 @@ module DataPlugins::Contact
     validates :spoken_languages, length: { maximum: 255 }
     validates :fax, length: { maximum: 255 }
     validates :opening_hours, length: { maximum: 65000 }
+
+    # HOOKS
+    after_destroy :remove_links
+
+    def remove_links
+      # delete location if it's own location
+      if location && location.contact_id == id
+        location.destroy
+      end
+    end
 
     def contact_persons_to_hash
       contact_persons.map { |cp| cp.to_hash(attributes: cp.class.default_attributes_for_json) }

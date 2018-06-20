@@ -130,6 +130,7 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
           end
         end
       end
+
       json = JSON.parse(response.body)
       contact.reload
       assert_equal JSON.parse(contact.to_json), json
@@ -151,9 +152,7 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
         assert_difference -> { DataPlugins::Contact::ContactPerson.count }, -1 do
           assert_no_difference -> { DataPlugins::Location::Location.count } do
             delete :delete,
-              params:
-                { owner_id: orga.id, owner_type: 'orgas', id: contact.id }.merge(
-                  parse_json_file(file: 'contact_with_location.json'))
+              params: { owner_id: orga.id, owner_type: 'orgas', id: contact.id }
             assert_response 200
           end
         end
@@ -172,14 +171,37 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
         assert_difference -> { DataPlugins::Contact::ContactPerson.count }, -1 do
           assert_difference -> { DataPlugins::Location::Location.count }, -1 do
             delete :delete,
-              params:
-                { owner_id: orga.id, owner_type: 'orgas', id: contact.id }.merge(
-                  parse_json_file(file: 'contact_with_location.json'))
+              params: { owner_id: orga.id, owner_type: 'orgas', id: contact.id }
             assert_response 200
           end
         end
       end
       assert response.body.blank?
+    end
+
+    should 'remove linked location when removing contact with that location' do
+      orga = create(:orga)
+      assert location = DataPlugins::Location::Location.last
+      contact = DataPlugins::Contact::Contact.create!(owner: orga, location: location, title: 'contact1')
+      location.update!(contact: contact)
+
+      contact2 = DataPlugins::Contact::Contact.create!(owner: orga, location: location, title: 'contact2')
+
+      assert_equal contact.location, contact2.location
+      assert_equal location.id, contact2.location_id
+
+      assert_difference -> { DataPlugins::Contact::Contact.count }, -1 do
+        assert_difference -> { DataPlugins::Location::Location.count }, -1 do
+          delete :delete,
+            params: { owner_id: orga.id, owner_type: 'orgas', id: contact.id }
+          assert_response 200
+        end
+      end
+      assert response.body.blank?
+
+      contact2.reload
+      assert_nil contact2.location_id
+      assert_nil contact2.location
     end
   end
 
