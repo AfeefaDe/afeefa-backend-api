@@ -20,16 +20,7 @@ module DataPlugins::Contact::Concerns::HasContacts
     ActiveRecord::Base.transaction do
       contact = DataPlugins::Contact::Contact.find(params[:id])
       raise ActiveRecord::RecordNotFound if contact.nil?
-
-      # delete contact persons
-      # :delete_all is needed to prevent from nullify association
-      contact.contact_persons.delete_all(:delete_all)
-      # delete location if it's own location
-      if contact.location && contact.location.contact == contact
-        contact.location.delete
-      end
-      # delete contact
-      return contact.delete
+      return contact.destroy
     end
   end
 

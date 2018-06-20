@@ -9,7 +9,12 @@ FactoryGirl.define do
 
     after(:build) do |facet, evaluator|
       facet.owner_types = evaluator.owner_types.map do |owner_type|
-        DataPlugins::Facet::FacetOwnerType.new(owner_type: owner_type)
+        isMain = false
+        unless owner_type.is_a? String
+          isMain = owner_type[:isMain]
+          owner_type = owner_type[:type]
+        end
+        DataPlugins::Facet::FacetOwnerType.new(owner_type: owner_type, main_facet: isMain)
       end
     end
 

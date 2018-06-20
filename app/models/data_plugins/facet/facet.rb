@@ -22,7 +22,7 @@ module DataPlugins::Facet
       end
 
       def default_attributes_for_json
-        %i(title color color_sub_items).freeze
+        %i(title color color_sub_items main_facet_of).freeze
       end
 
       def relation_whitelist_for_json
@@ -48,6 +48,11 @@ module DataPlugins::Facet
     def facet_items_to_hash
       items = facet_items.select { |item| item.parent_id == nil }
       items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
+    end
+
+    def main_facet_of_to_hash
+      main_owner_type = owner_types.find { |owner_type| owner_type.main_facet == true }
+      return main_owner_type ? main_owner_type.owner_type : nil
     end
 
     def owner_types_to_hash
