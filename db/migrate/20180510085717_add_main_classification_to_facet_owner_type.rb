@@ -2,6 +2,8 @@ class AddMainClassificationToFacetOwnerType < ActiveRecord::Migration[5.0]
   def change
     add_column :facet_owner_types, :main_facet, :boolean, null: false, default: false
 
+    DataPlugins::Facet::FacetOwnerType.reset_column_information
+
     DataPlugins::Facet::FacetOwnerType.
         where(owner_type: 'Orga').
         order('id').
