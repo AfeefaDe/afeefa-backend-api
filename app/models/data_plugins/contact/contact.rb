@@ -24,7 +24,6 @@ module DataPlugins::Contact
     validates :web, length: { maximum: 1000 }
     validates :social_media, length: { maximum: 1000 }
     validates :spoken_languages, length: { maximum: 255 }
-    validates :fax, length: { maximum: 255 }
     validates :opening_hours, length: { maximum: 65000 }
 
     # HOOKS
@@ -54,7 +53,7 @@ module DataPlugins::Contact
       end
 
       def default_attributes_for_json
-        %i(title fax social_media spoken_languages web opening_hours).freeze
+        %i(title social_media spoken_languages web opening_hours).freeze
       end
 
       def relation_whitelist_for_json

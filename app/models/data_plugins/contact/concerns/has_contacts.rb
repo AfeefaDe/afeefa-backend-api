@@ -86,7 +86,7 @@ module DataPlugins::Contact::Concerns::HasContacts
 
   module ClassMethods
     def contact_params
-      [:id, :title, :web, :social_media, :opening_hours, :spoken_languages, :fax]
+      [:id, :title, :web, :social_media, :opening_hours, :spoken_languages]
     end
 
     def contact_person_params

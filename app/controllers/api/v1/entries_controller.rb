@@ -41,7 +41,7 @@ class Api::V1::EntriesController < Api::V1::EntriesBaseController
         # build allowed attributes
         allowed_attributes = %w(orgas.title orgas.short_description orgas.description events.title events.short_description events.description)
         allowed_attributes +=
-          %w(contact_infos.mail contact_infos.phone contact_infos.fax
+          %w(contact_infos.mail contact_infos.phone
               contact_infos.contact_person contact_infos.web contact_infos.social_media)
         # join locations
         table_name = :locations
@@ -76,7 +76,7 @@ class Api::V1::EntriesController < Api::V1::EntriesBaseController
 
   def apply_contact_info_filter!(objects, filter_criterion)
     allowed_attributes =
-      %w(contact_infos.mail contact_infos.phone contact_infos.fax
+      %w(contact_infos.mail contact_infos.phone
           contact_infos.contact_person contact_infos.web contact_infos.social_media)
     apply_nested_objects_filter!(objects, filter_criterion, 'contact_infos', 'contactable', allowed_attributes)
   end
