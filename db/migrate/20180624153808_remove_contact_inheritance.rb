@@ -17,6 +17,7 @@ class RemoveContactInheritance < ActiveRecord::Migration[5.0]
             )
 
             contact.update(
+              location_id: parent_contact.location_id,
               social_media: parent_contact.social_media,
               spoken_languages: parent_contact.spoken_languages,
               web: parent_contact.web,
@@ -46,6 +47,7 @@ class RemoveContactInheritance < ActiveRecord::Migration[5.0]
             parent_contact = parent.contacts.first
 
             contact.update(
+              location_id: contact.location_id || parent_contact.location_id,
               social_media: contact.social_media || parent_contact.social_media,
               spoken_languages: contact.spoken_languages || parent_contact.spoken_languages,
               web: contact.web || parent_contact.web,
