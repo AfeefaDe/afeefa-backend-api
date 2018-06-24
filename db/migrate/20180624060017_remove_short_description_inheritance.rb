@@ -13,6 +13,18 @@ class RemoveShortDescriptionInheritance < ActiveRecord::Migration[5.0]
     # uUpdate annotation category name
     annotation_category.update!(title: 'Kurzbeschreibung')
 
+    # orga: add annotation if short description and inheritance are present
+    orgas_with_short_description = Orga.where('short_description is not null and length(short_description) >= 2')
+    orgas_with_short_description.each do |orga|
+      if orga.inheritance && orga.inheritance.include?('short_description')
+        Annotation.create!(
+          detail: @inheritance_info,
+          entry: orga,
+          annotation_category: annotation_category
+        )
+      end
+    end
+
     orgas_without_short_description = Orga.where('short_description is null or length(short_description) < 2')
 
     # orga: copy short descriptions if empty and inheritance is set
@@ -40,19 +52,6 @@ class RemoveShortDescriptionInheritance < ActiveRecord::Migration[5.0]
         )
       end
     end
-
-    # orga: add annotation if short description and inheritance are present
-    orgas_with_short_description = Orga.where('short_description is not null and length(short_description) >= 2')
-    orgas_with_short_description.each do |orga|
-      if orga.inheritance && orga.inheritance.include?('short_description')
-        Annotation.create!(
-          detail: @inheritance_info,
-          entry: orga,
-          annotation_category: annotation_category
-        )
-      end
-    end
-
 
     # event: add annotation if no short_description is present
     events_without_short_description = Event.where('(date_start > now() or date_end > now()) and (short_description is null or length(short_description) < 2)')
