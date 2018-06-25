@@ -48,12 +48,14 @@ module Dev
           end
 
           facet_and_navigation_items.each do |item|
-            type = item.is_a?(DataPlugins::Facet::FacetItem) ? :facet_item : :navigation_item
+            if (locale == Translatable::DEFAULT_LOCALE or rand(100) == 0) # not de => translate randomly 1 percent
+                type = item.is_a?(DataPlugins::Facet::FacetItem) ? :facet_item : :navigation_item
 
-            if !item.title.blank?
-              translation_hash[type][item.id] = {}
-              title = locale == Translatable::DEFAULT_LOCALE ? item.title : "#{type}.#{item.id}.title.#{locale}"
-              translation_hash[type][item.id][:title] = title
+              if !item.title.blank?
+                translation_hash[type][item.id] = {}
+                title = locale == Translatable::DEFAULT_LOCALE ? item.title : "#{type}.#{item.id}.title.#{locale}"
+                translation_hash[type][item.id][:title] = title
+              end
             end
           end
 
