@@ -153,6 +153,37 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
     end
 
+    should 'remove cache record if all values are empty' do
+      event = create(:event)
+
+      TranslationCache.create!(
+        cacheable_type: 'event',
+        cacheable_id: event.id,
+        title: event.title,
+        language: 'en'
+      )
+
+      json = parse_json_file file: 'translation_webhook.json' do |payload|
+        payload.gsub!('<translation_operation>', 'update')
+        payload.gsub!('<translation_content>', '')
+        payload.gsub!('<translation_key>', "event.#{event.id}.title")
+        payload.gsub!('<translation_locale>', 'en')
+      end
+
+      request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
+      request.env['RAW_POST_DATA'] = json.to_json
+
+      FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, locale: 'en'))
+
+      assert_difference -> { TranslationCache.count }, -1 do
+        post :phraseapp_webhook
+      end
+
+      assert_response :ok, response.body
+      assert_nil TranslationCache.find_by(cacheable_type: 'event', cacheable_id: event.id, language: 'en')
+    end
+
+
     should 'start cache job upon updated translation with navigation_item' do
       navigation_item = create(:fe_navigation_item)
 

@@ -30,7 +30,7 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
 
     if entry
       if json['event'] == 'translations:create'
-        TranslationCache.create!(
+        cache = TranslationCache.create!(
           cacheable_type: type.capitalize,
           cacheable_id: id,
           title: field == 'title' ? content : nil,
@@ -39,12 +39,17 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
         )
         render json: { status: 'ok' }, status: :created
       else
-        TranslationCache.where(
+        cache = TranslationCache.find_by(
           cacheable_type: type.capitalize,
           cacheable_id: id,
           language: language
-        ).update(field => content)
+        )
+        cache.update(field => content)
         render json: { status: 'ok' }, status: :ok
+      end
+
+      if cache.title.blank? && cache.short_description.blank?
+        cache.destroy
       end
 
       fapi_client.entry_translated(entry, language)
