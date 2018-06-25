@@ -31,7 +31,7 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
     if entry
       if json['event'] == 'translations:create'
         TranslationCache.create!(
-          cacheable_type: type,
+          cacheable_type: type.capitalize,
           cacheable_id: id,
           title: field == 'title' ? content : nil,
           short_description: field == 'short_description' ? content : nil,
@@ -40,7 +40,7 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
         render json: { status: 'ok' }, status: :created
       else
         TranslationCache.where(
-          cacheable_type: type,
+          cacheable_type: type.capitalize,
           cacheable_id: id,
           language: language
         ).update(field => content)
