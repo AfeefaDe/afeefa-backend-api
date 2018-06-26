@@ -22,6 +22,8 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
       entry = Orga.find_by(id: id)
     when 'event'
       entry = Event.find_by(id: id)
+    when 'offer'
+      entry = DataModules::Offer::Offer.find_by(id: id)
     when 'facet_item'
       entry = DataPlugins::Facet::FacetItem.find_by(id: id)
     when 'navigation_item'
@@ -35,8 +37,10 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
           cacheable_id: id,
           title: field == 'title' ? content : nil,
           short_description: field == 'short_description' ? content : nil,
+          description: field == 'description' ? content : nil,
           language: language
         )
+
         render json: { status: 'ok' }, status: :created
       else
         cache = TranslationCache.find_by(
@@ -48,7 +52,7 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
         render json: { status: 'ok' }, status: :ok
       end
 
-      if cache.title.blank? && cache.short_description.blank?
+      if cache.title.blank? && cache.short_description.blank? && cache.description.blank?
         cache.destroy
       end
 

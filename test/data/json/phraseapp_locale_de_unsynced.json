@@ -1,14 +1,27 @@
 {
   "orga": {
     "<existing_orga_id>": {
-      "short_description": "orga.<existing_orga_id>.short_description",
-      "title": "orga.<existing_orga_id>.title"
+      "short_description": "<existing_orga_short_description>",
+      "title": "<existing_orga_title>"
     },
     "<orga_whithout_title_id>": {
-        "short_description": "orga.<orga_whithout_title_id>.short_description"
+        "short_description": "<orga_whithout_title_short_description>"
+    },
+    "<orga_with_changed_title_id>": {
+        "title": "<orga_with_changed_title_title>",
+        "short_description": "<orga_with_changed_title_short_description>"
     },
     "<orga_whithout_short_description_id>": {
-        "title": "orga.<orga_whithout_short_description_id>.title"
+        "title": "<orga_whithout_short_description_title>"
+    }
+  },
+  "offer": {
+    "<existing_offer_id>": {
+      "title": "<existing_offer_title>",
+      "description": "<existing_offer_description>"
+    },
+    "<offer_without_description_id>": {
+      "title": "offer.<offer_without_description_id>.title"
     }
   },
   "facet_item": {

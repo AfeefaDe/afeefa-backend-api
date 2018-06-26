@@ -1,6 +1,7 @@
 module DataModules::Offer
   class Offer < ApplicationRecord
     include Jsonable
+    include Translatable
 
     # ASSOCIATIONS
     has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, dependent: :destroy
@@ -10,6 +11,14 @@ module DataModules::Offer
 
     # CLASS METHODS
     class << self
+      def translatable_attributes
+        %i(title description)
+      end
+
+      def translation_key_type
+        'offer'
+      end
+
       def attribute_whitelist_for_json
         default_attributes_for_json.freeze
       end

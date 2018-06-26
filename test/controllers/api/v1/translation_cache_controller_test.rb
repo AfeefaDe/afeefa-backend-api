@@ -58,6 +58,30 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       assert_equal 'i am a magician', cache.title
     end
 
+    should 'start cache job upon created translation with offer description' do
+      offer = create(:offer, description: 'offer description')
+
+      json = parse_json_file file: 'translation_webhook.json' do |payload|
+        payload.gsub!('<translation_operation>', 'create')
+        payload.gsub!('<translation_content>', 'رفضت هيئة الإشراف على البث التلفزيوني')
+        payload.gsub!('<translation_key>', "offer.#{offer.id}.description")
+        payload.gsub!('<translation_locale>', 'ar')
+      end
+
+      request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
+      request.env['RAW_POST_DATA'] = json.to_json
+
+      FapiClient.any_instance.expects(:request).with(has_entries(type: 'offer', id: offer.id, locale: 'ar'))
+
+      post :phraseapp_webhook
+
+      assert_response :created, response.body
+
+      cache = TranslationCache.where(cacheable_type: 'offer', cacheable_id: offer.id, language: 'ar').first
+
+      assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.description
+    end
+
     should 'start cache job upon updated translation' do
       orga = create(:orga)
 
@@ -120,6 +144,38 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       cache = TranslationCache.where(cacheable_type: 'event', cacheable_id: event.id, language: 'ar').first
 
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
+    end
+
+    should 'start cache job upon updated translation with offer description' do
+      offer = create(:offer)
+
+      TranslationCache.create!(
+        cacheable_type: 'offer',
+        cacheable_id: offer.id,
+        title: offer.title,
+        description: offer.description,
+        language: 'ar'
+      )
+
+      json = parse_json_file file: 'translation_webhook.json' do |payload|
+        payload.gsub!('<translation_operation>', 'update')
+        payload.gsub!('<translation_content>', 'رفضت هيئة الإشراف على البث التلفزيوني')
+        payload.gsub!('<translation_key>', "offer.#{offer.id}.description")
+        payload.gsub!('<translation_locale>', 'ar')
+      end
+
+      request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
+      request.env['RAW_POST_DATA'] = json.to_json
+
+      FapiClient.any_instance.expects(:request).with(has_entries(type: 'offer', id: offer.id, locale: 'ar'))
+
+      post :phraseapp_webhook
+
+      assert_response :ok, response.body
+
+      cache = TranslationCache.where(cacheable_type: 'offer', cacheable_id: offer.id, language: 'ar').first
+
+      assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.description
     end
 
     should 'start cache job upon updated translation with facet_item' do

@@ -227,6 +227,12 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     facet_item = create(:facet_item)
     navigation_item = create(:fe_navigation_item)
 
+    offer = create(:offer)
+    offer.description = 'offer description'
+    offer.save(validate: false)
+    offer_without_description = create(:offer)
+    offer_without_description.save(validate: false)
+
     json = parse_json_file file: 'phraseapp_locale_de.json' do |payload|
       payload.gsub!('<existing_orga_id>', existing_orga.id.to_s)
       payload.gsub!('<nonexisting_orga_id>', 100000000000000.to_s)
@@ -235,6 +241,9 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       payload.gsub!('<orga_whithout_attributes_id>', orga_whithout_attributes.id.to_s)
       payload.gsub!('<existing_facet_item_id>', facet_item.id.to_s)
       payload.gsub!('<nonexisting_facet_item_id>', 100000000000000.to_s)
+      payload.gsub!('<existing_offer_id>', offer.id.to_s)
+      payload.gsub!('<offer_without_description_id>', offer_without_description.id.to_s)
+      payload.gsub!('<nonexisting_offer_id>', 100000000000000.to_s)
       payload.gsub!('<existing_navigation_item_id>', navigation_item.id.to_s)
       payload.gsub!('<nonexisting_navigation_item_id>', 100000000000000.to_s)
     end
@@ -246,10 +255,11 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       "orga.#{orga_whithout_short_description.id}.short_description",
       "orga.#{orga_whithout_attributes.id}.title",
       "orga.#{orga_whithout_attributes.id}.short_description",
+      "offer.100000000000000.title",
+      "offer.100000000000000.description",
+      "offer.#{offer_without_description.id}.description",
       "facet_item.100000000000000.title",
-      "facet_item.100000000000000.short_description",
-      "navigation_item.100000000000000.title",
-      "navigation_item.100000000000000.short_description"
+      "navigation_item.100000000000000.title"
     ]
 
     result = mock()
@@ -271,40 +281,76 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     existing_orga = create(:orga)
 
     orga_whithout_title = build(:orga)
-    orga_whithout_title.title = 'orga_whithout_title'
+    orga_whithout_title.title = ''
     orga_whithout_title.save(validate: false)
+
+    orga_with_changed_title = create(:orga_with_random_title)
 
     orga_whithout_short_description = build(:orga)
     orga_whithout_short_description.title = 'orga_whithout_short_description'
+    orga_whithout_short_description.short_description = ''
     orga_whithout_short_description.save(validate: false)
 
     new_orga = build(:orga)
     new_orga.title = 'new_orga'
     new_orga.save(validate: false)
 
-    facet_item = create(:facet_item)
+    existing_offer = create(:offer)
+    existing_offer.description = 'offer description'
+    existing_offer.save(validate: false)
+    offer_without_description = create(:offer)
+    offer_without_description.save(validate: false)
+
     existing_facet_item = create(:facet_item, title: 'existing_facet_item title')
-    navigation_item = create(:fe_navigation_item)
+    new_facet_item = create(:facet_item)
 
     json = parse_json_file file: 'phraseapp_locale_de_unsynced.json' do |payload|
       payload.gsub!('<existing_orga_id>', existing_orga.id.to_s)
+      payload.gsub!('<existing_orga_title>', existing_orga.title)
+      payload.gsub!('<existing_orga_short_description>', existing_orga.short_description)
+
       payload.gsub!('<orga_whithout_title_id>', orga_whithout_title.id.to_s)
+      payload.gsub!('<orga_whithout_title_short_description>', orga_whithout_title.short_description)
+
+      payload.gsub!('<orga_with_changed_title_id>', orga_with_changed_title.id.to_s)
+      payload.gsub!('<orga_with_changed_title_title>', orga_with_changed_title.title)
+      payload.gsub!('<orga_with_changed_title_short_description>', orga_with_changed_title.short_description)
+
       payload.gsub!('<orga_whithout_short_description_id>', orga_whithout_short_description.id.to_s)
+      payload.gsub!('<orga_whithout_short_description_title>', orga_whithout_short_description.title)
+
+      payload.gsub!('<existing_offer_id>', existing_offer.id.to_s)
+      payload.gsub!('<existing_offer_title>', existing_offer.title)
+      payload.gsub!('<existing_offer_description>', existing_offer.description)
+      payload.gsub!('<offer_without_description_id>', offer_without_description.id.to_s)
+
       payload.gsub!('<existing_facet_item_id>', existing_facet_item.id.to_s)
     end
+
+    orga_with_changed_title.title = 'new title'
+    orga_with_changed_title.save(validate: false)
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       file = File.read(file)
       json = JSON.parse(file)
 
-      assert_equal 4, json['orga'].length
+      assert_equal 2, json['orga'].length
+      assert json['orga'][orga_with_changed_title.id.to_s]['short_description']
+      assert json['orga'][orga_with_changed_title.id.to_s]['title']
+      assert json['orga'][new_orga.id.to_s]['title']
+      assert json['orga'][new_orga.id.to_s]['short_description']
+
+      assert_equal 1, json['offer'].length
+      assert json['offer'][offer_without_description.id.to_s]['title']
+      assert_nil json['offer'][offer_without_description.id.to_s]['description']
+
       assert_equal 1, json['facet_item'].length
-      assert_equal 1, json['navigation_item'].length
+      assert json['facet_item'][new_facet_item.id.to_s]['title']
     end
 
     num_added = @client.add_missing_or_invalid_keys(json)
 
-    assert_equal 6, num_added
+    assert_equal 4, num_added
   end
 
   should 'download locale file' do

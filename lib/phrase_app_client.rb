@@ -119,6 +119,7 @@ class PhraseAppClient
       models_in_area =
         Orga.where(area: area) +
         Event.where(area: area) +
+        DataModules::Offer::Offer.where(area: area) +
         DataModules::FeNavigation::FeNavigationItem.joins(:navigation).where(fe_navigations: {area: area})
       num_tagged += tag_models(area, models_in_area)
     end
@@ -154,8 +155,10 @@ class PhraseAppClient
       keys = []
       models_to_process.each do |model|
         keys << model.build_translation_key('title')
-        if model.respond_to?('short_description')
+        if model.respond_to?('short_description') # orga, event
           keys << model.build_translation_key('short_description')
+        elsif model.respond_to?('description') # offer
+          keys << model.build_translation_key('description')
         end
       end
       q = 'name:' + keys.join(',')
@@ -182,12 +185,14 @@ class PhraseAppClient
     begin
       event_ids = json['event'].try(:keys) || []
       orga_ids = json['orga'].try(:keys) || []
+      offer_ids = json['offer'].try(:keys) || []
       facet_item_ids = json['facet_item'].try(:keys) || []
       navigation_items_ids = json['navigation_item'].try(:keys) || []
 
       keys_to_destroy =
         get_keys_to_destroy(Orga, orga_ids) +
         get_keys_to_destroy(Event, event_ids) +
+        get_keys_to_destroy(DataModules::Offer::Offer, offer_ids) +
         get_keys_to_destroy(DataPlugins::Facet::FacetItem, facet_item_ids) +
         get_keys_to_destroy(DataModules::FeNavigation::FeNavigationItem, navigation_items_ids)
 
@@ -209,6 +214,7 @@ class PhraseAppClient
     model_classes = [
       Orga,
       Event,
+      DataModules::Offer::Offer,
       DataPlugins::Facet::FacetItem,
       DataModules::FeNavigation::FeNavigationItem
     ]
@@ -216,11 +222,23 @@ class PhraseAppClient
       model_class.all.each do |model|
         type = model.class.translation_key_type
         id = model.id.to_s
-        if (!json[type] || !json[type][id] ||
-          json[type][id]['title'] != model.title ||
+        if (
+          # model not in json
+          !json[type] ||
+          !json[type][id] ||
+          # title differs
+          model.title.present? &&
+            json[type][id]['title'] != model.title ||
+          # short description differs
           model.respond_to?('short_description') &&
-            json[type][id]['short_description'] != model.short_description)
-
+            model.short_description.present? &&
+            json[type][id]['short_description'] != model.short_description ||
+          # offer: description differs
+          model_class == DataModules::Offer::Offer &&
+            model.respond_to?('description') &&
+            model.description.present? &&
+            json[type][id]['description'] != model.description
+        )
           update_json = model.create_json_for_translation_file(only_changes: false)
           updates_json = updates_json.deep_merge(update_json)
           added += 1
@@ -264,7 +282,12 @@ class PhraseAppClient
         end
       else
         list << model_class.build_translation_key(id, 'title')
-        list << model_class.build_translation_key(id, 'short_description')
+        if model_class.translatable_attributes.include?(:short_description)
+          list << model_class.build_translation_key(id, 'short_description')
+        end
+        if model_class.translatable_attributes.include?(:description)
+          list << model_class.build_translation_key(id, 'description')
+        end
       end
     end
     list
