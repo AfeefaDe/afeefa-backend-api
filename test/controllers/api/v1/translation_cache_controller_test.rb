@@ -53,7 +53,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       assert_response :created, response.body
 
-      cache = TranslationCache.where(cacheable_type: 'orga', cacheable_id: orga.id, language: 'en').first
+      cache = TranslationCache.where(cacheable_type: 'Orga', cacheable_id: orga.id, language: 'en').first
 
       assert_equal 'i am a magician', cache.title
     end
@@ -77,7 +77,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       assert_response :created, response.body
 
-      cache = TranslationCache.where(cacheable_type: 'offer', cacheable_id: offer.id, language: 'ar').first
+      cache = TranslationCache.where(cacheable_type: 'DataModules::Offer::Offer', cacheable_id: offer.id, language: 'ar').first
 
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.description
     end
@@ -86,7 +86,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       orga = create(:orga)
 
       TranslationCache.create!(
-        cacheable_type: 'orga',
+        cacheable_type: 'Orga',
         cacheable_id: orga.id,
         title: orga.title,
         short_description: orga.short_description,
@@ -109,7 +109,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       assert_response :ok, response.body
 
-      cache = TranslationCache.where(cacheable_type: 'orga', cacheable_id: orga.id, language: 'ar').first
+      cache = TranslationCache.where(cacheable_type: 'Orga', cacheable_id: orga.id, language: 'ar').first
 
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
     end
@@ -118,7 +118,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       event = create(:event)
 
       TranslationCache.create!(
-        cacheable_type: 'event',
+        cacheable_type: 'Event',
         cacheable_id: event.id,
         title: event.title,
         short_description: event.short_description,
@@ -141,7 +141,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       assert_response :ok, response.body
 
-      cache = TranslationCache.where(cacheable_type: 'event', cacheable_id: event.id, language: 'ar').first
+      cache = TranslationCache.where(cacheable_type: 'Event', cacheable_id: event.id, language: 'ar').first
 
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
     end
@@ -150,7 +150,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       offer = create(:offer)
 
       TranslationCache.create!(
-        cacheable_type: 'offer',
+        cacheable_type: 'DataModules::Offer::Offer',
         cacheable_id: offer.id,
         title: offer.title,
         description: offer.description,
@@ -173,7 +173,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       assert_response :ok, response.body
 
-      cache = TranslationCache.where(cacheable_type: 'offer', cacheable_id: offer.id, language: 'ar').first
+      cache = TranslationCache.where(cacheable_type: 'DataModules::Offer::Offer', cacheable_id: offer.id, language: 'ar').first
 
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.description
     end
@@ -182,7 +182,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       facet_item = create(:facet_item)
 
       TranslationCache.create!(
-        cacheable_type: 'facet_item',
+        cacheable_type: 'DataPlugins::Facet::FacetItem',
         cacheable_id: facet_item.id,
         title: facet_item.title,
         language: 'ar'
@@ -204,7 +204,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       assert_response :ok, response.body
 
-      cache = TranslationCache.where(cacheable_type: 'facet_item', cacheable_id: facet_item.id, language: 'ar').first
+      cache = TranslationCache.where(cacheable_type: 'DataPlugins::Facet::FacetItem', cacheable_id: facet_item.id, language: 'ar').first
 
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
     end
@@ -213,7 +213,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       event = create(:event)
 
       TranslationCache.create!(
-        cacheable_type: 'event',
+        cacheable_type: 'Event',
         cacheable_id: event.id,
         title: event.title,
         language: 'en'
@@ -236,7 +236,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       end
 
       assert_response :ok, response.body
-      assert_nil TranslationCache.find_by(cacheable_type: 'event', cacheable_id: event.id, language: 'en')
+      assert_nil TranslationCache.find_by(cacheable_type: 'Event', cacheable_id: event.id, language: 'en')
     end
 
 
@@ -244,7 +244,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       navigation_item = create(:fe_navigation_item)
 
       TranslationCache.create!(
-        cacheable_type: 'navigation_item',
+        cacheable_type: 'DataModules::FeNavigation::FeNavigationItem',
         cacheable_id: navigation_item.id,
         title: navigation_item.title,
         language: 'ar'
@@ -266,7 +266,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
       assert_response :ok, response.body
 
-      cache = TranslationCache.where(cacheable_type: 'navigation_item', cacheable_id: navigation_item.id, language: 'ar').first
+      cache = TranslationCache.where(cacheable_type: 'DataModules::FeNavigation::FeNavigationItem', cacheable_id: navigation_item.id, language: 'ar').first
 
       assert_equal 'رفضت هيئة الإشراف على البث التلفزيوني', cache.title
     end
@@ -279,6 +279,9 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
     end
 
     should 'trigger cache rebuild' do
+      # create at least one orga that will be translated in order to get the correct timestamp updated_at below
+      create(:orga, id: 1690) # @see vcr cassette ids
+
       # TODO: Check cassette and write tests for other responses
       VCR.use_cassette('translation_cache_controller_test_trigger_cache_rebuild') do
         get :index

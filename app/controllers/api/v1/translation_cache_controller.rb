@@ -16,25 +16,13 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
     content = json['translation']['content']
     language = json['translation']['locale']['code']
 
-    entry = nil
-    case type
-    when 'orga'
-      entry = Orga.find_by(id: id)
-    when 'event'
-      entry = Event.find_by(id: id)
-    when 'offer'
-      entry = DataModules::Offer::Offer.find_by(id: id)
-    when 'facet_item'
-      entry = DataPlugins::Facet::FacetItem.find_by(id: id)
-    when 'navigation_item'
-      entry = DataModules::FeNavigation::FeNavigationItem.find_by(id: id)
-    end
+    entry = TranslationCache.phraseapp_entry_params_to_entry(type, id)
 
     if entry
       if json['event'] == 'translations:create'
         cache = TranslationCache.create!(
-          cacheable_type: type.capitalize,
-          cacheable_id: id,
+          cacheable_id: entry.id,
+          cacheable_type: entry.class.name,
           title: field == 'title' ? content : nil,
           short_description: field == 'short_description' ? content : nil,
           description: field == 'description' ? content : nil,
@@ -44,8 +32,8 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
         render json: { status: 'ok' }, status: :created
       else
         cache = TranslationCache.find_by(
-          cacheable_type: type.capitalize,
-          cacheable_id: id,
+          cacheable_id: entry.id,
+          cacheable_type: entry.class.name,
           language: language
         )
         cache.update(field => content)
