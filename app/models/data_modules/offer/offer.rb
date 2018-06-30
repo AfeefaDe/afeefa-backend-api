@@ -9,6 +9,16 @@ module DataModules::Offer
 
     scope :by_area, ->(area) { where(area: area) }
 
+    after_save do
+      fapi_client = FapiClient.new
+      fapi_client.entry_updated(self)
+    end
+
+    after_destroy do
+      fapi_client = FapiClient.new
+      fapi_client.entry_deleted(self)
+    end
+
     # CLASS METHODS
     class << self
       def translatable_attributes

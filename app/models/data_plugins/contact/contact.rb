@@ -36,6 +36,20 @@ module DataPlugins::Contact
       end
     end
 
+    after_save do
+      if owner
+        fapi_client = FapiClient.new
+        fapi_client.entry_updated(owner)
+      end
+    end
+
+    after_destroy do
+      if owner
+        fapi_client = FapiClient.new
+        fapi_client.entry_deleted(owner)
+      end
+    end
+
     def contact_persons_to_hash
       contact_persons.map { |cp| cp.to_hash(attributes: cp.class.default_attributes_for_json) }
     end

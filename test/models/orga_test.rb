@@ -14,6 +14,28 @@ class OrgaTest < ActiveSupport::TestCase
     end
   end
 
+  should 'create orga triggers fapi cache' do
+    FapiClient.any_instance.expects(:entry_updated).with(instance_of(Orga)).at_least_once
+
+    Orga.new.save(validate: false)
+  end
+
+  should 'update orga triggers fapi cache' do
+    orga = create(:orga)
+
+    FapiClient.any_instance.expects(:entry_updated).with(orga)
+
+    orga.update(certified_sfr: true)
+  end
+
+  should 'remove orga triggers fapi cache' do
+    orga = create(:orga)
+
+    FapiClient.any_instance.expects(:entry_deleted).with(orga)
+
+    orga.destroy
+  end
+
   should 'render json' do
     orga = create(:orga)
     assert_jsonable_hash(orga)

@@ -9,6 +9,28 @@ module ActsAsFacetItemTest
       assert item.errors[root_id_field].present?
     end
 
+    should 'create item triggers fapi cache' do
+      FapiClient.any_instance.expects(:entry_updated).with(instance_of(itemClass)).at_least_once
+
+      create_item
+    end
+
+    should 'update item triggers fapi cache' do
+      item = create_item
+
+      FapiClient.any_instance.expects(:entry_updated).with(item)
+
+      item.update(title: 'new title')
+    end
+
+    should 'remove item triggers fapi cache' do
+      item = create_item
+
+      FapiClient.any_instance.expects(:entry_deleted).with(item)
+
+      item.destroy
+    end
+
     should 'create item with parent_id' do
       root = create_root_with_items
       parent = get_root_items(root).first

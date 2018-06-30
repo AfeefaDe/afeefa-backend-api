@@ -2,6 +2,28 @@ require 'test_helper'
 
 class EventTest < ActiveSupport::TestCase
 
+  should 'create event triggers fapi cache' do
+    FapiClient.any_instance.expects(:entry_updated).with(instance_of(Event)).at_least_once
+
+    Event.new.save(validate: false)
+  end
+
+  should 'update event triggers fapi cache' do
+    event = create(:event)
+
+    FapiClient.any_instance.expects(:entry_updated).with(event)
+
+    event.update(certified_sfr: true)
+  end
+
+  should 'remove event triggers fapi cache' do
+    event = create(:event)
+
+    FapiClient.any_instance.expects(:entry_deleted).with(event)
+
+    event.destroy
+  end
+
   should 'render json' do
     event = create(:event)
     assert_jsonable_hash(event)

@@ -78,6 +78,16 @@ module Able
       self.facebook_id.present? || self.facebook_id = nil
     end
 
+    after_save do
+      fapi_client = FapiClient.new
+      fapi_client.entry_updated(self)
+    end
+
+    after_destroy do
+      fapi_client = FapiClient.new
+      fapi_client.entry_deleted(self)
+    end
+
     def create_entry!
       if is_a?(Orga) && root_orga?
         true

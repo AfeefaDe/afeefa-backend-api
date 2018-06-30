@@ -34,6 +34,16 @@ module DataPlugins::Facet
     after_save :move_sub_items_to_new_facet
     after_save :move_owners_to_new_parent
 
+    after_save do
+      fapi_client = FapiClient.new
+      fapi_client.entry_updated(self)
+    end
+
+    after_destroy do
+      fapi_client = FapiClient.new
+      fapi_client.entry_deleted(self)
+    end
+
     # CLASS METHODS
     class << self
       def translatable_attributes

@@ -2,6 +2,28 @@ require 'test_helper'
 
 class OfferTest < ActiveSupport::TestCase
 
+  should 'create offer triggers fapi cache' do
+    FapiClient.any_instance.expects(:entry_updated).with(instance_of(DataModules::Offer::Offer)).at_least_once
+
+    DataModules::Offer::Offer.new.save(validate: false)
+  end
+
+  should 'update offer triggers fapi cache' do
+    offer = create(:offer)
+
+    FapiClient.any_instance.expects(:entry_updated).with(offer)
+
+    offer.update(area: 'kumbutzburg')
+  end
+
+  should 'remove offer triggers fapi cache' do
+    offer = create(:offer)
+
+    FapiClient.any_instance.expects(:entry_deleted).with(offer)
+
+    offer.destroy
+  end
+
   should 'render json' do
     assert_equal(DataModules::Offer::Offer.attribute_whitelist_for_json.sort,
       JSON.parse(DataModules::Offer::Offer.new.to_json)['attributes'].symbolize_keys.keys.sort)

@@ -328,57 +328,10 @@ class TranslatableTest < ActiveSupport::TestCase
     assert navigation_item.destroy
   end
 
-  should 'not trigger fapi if force_sync_fapi_after_save is not set' do
-    orga = build(:orga)
-
-    orga.expects(:sync_fapi_after_change).never
-    FapiClient.any_instance.expects(:request).never
-
-    orga.save
-  end
-
-  should 'trigger fapi if force_sync_fapi_after_save is set' do
-    orga = create(:orga)
-    orga.force_sync_fapi_after_save = true
-
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
-
-    orga.update(title: 'new title for orga')
-  end
-
-  # currently not necessary since entries have no dependencies on other entries in fapi
-  # should 'trigger fapi for parent orga' do
-  #   orga = create(:orga)
-  #   orga2 = create(:orga, title: 'orga2')
-  #   orga.force_sync_fapi_after_save = true
-
-  #   FapiClient.any_instance.expects(:request).with(has_entry(:id, orga.id))
-  #   FapiClient.any_instance.expects(:request).with(has_entry(:id, orga2.id))
-
-  #   orga.update(parent_orga_id: orga2.id)
-  # end
-
-  should 'trigger fapi for parent and sub orga' do
-    orga = create(:orga)
-    orga2 = create(:orga, title: 'orga2', parent_orga_id: orga.id)
-    orga3 = create(:orga, title: 'orga3', parent_orga_id: orga2.id, inheritance: 'short_description')
-    orga4 = create(:orga, title: 'orga4')
-    orga2.force_sync_fapi_after_save = true
-
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga2.id))
-    # currently not necessary since entries have no dependencies on other entries in fapi
-    # FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
-    # FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga4.id))
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga3.id))
-
-    orga2.update(parent_orga_id: orga4.id)
-  end
-
   should 'trigger fapi if facet item is created' do
     facet_item = build(:facet_item, title: 'New Category')
-    facet_item.force_sync_fapi_after_save = true
 
-    FapiClient.any_instance.expects(:request).with do |facet_item_to_create|
+    FapiClient.any_instance.expects(:request).at_least_once.with do |facet_item_to_create|
       facet_item_id = DataPlugins::Facet::FacetItem.last.id
       assert_equal 'facet_item', facet_item_to_create[:type]
       assert_equal facet_item_id, facet_item_to_create[:id]
@@ -389,9 +342,8 @@ class TranslatableTest < ActiveSupport::TestCase
 
   should 'trigger fapi if navigation item is created' do
     navigation_item = build(:fe_navigation_item, title: 'New Entry')
-    navigation_item.force_sync_fapi_after_save = true
 
-    FapiClient.any_instance.expects(:request).with do |navigation_item_to_create|
+    FapiClient.any_instance.expects(:request).at_least_once.with do |navigation_item_to_create|
       navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id
       assert_equal 'navigation_item', navigation_item_to_create[:type]
       assert_equal navigation_item_id, navigation_item_to_create[:id]
@@ -402,9 +354,8 @@ class TranslatableTest < ActiveSupport::TestCase
 
   should 'trigger fapi if facet item is updated' do
     facet_item = create(:facet_item, title: 'New Category')
-    facet_item.force_sync_fapi_after_save = true
 
-    FapiClient.any_instance.expects(:request).with do |facet_item_to_update|
+    FapiClient.any_instance.expects(:request).at_least_once.with do |facet_item_to_update|
       facet_item_id = DataPlugins::Facet::FacetItem.last.id
       assert_equal 'facet_item', facet_item_to_update[:type]
       assert_equal facet_item_id, facet_item_to_update[:id]
@@ -415,9 +366,8 @@ class TranslatableTest < ActiveSupport::TestCase
 
   should 'trigger fapi if navigation item is updated' do
     navigation_item = create(:fe_navigation_item, title: 'New Entry')
-    navigation_item.force_sync_fapi_after_save = true
 
-    FapiClient.any_instance.expects(:request).with do |navigation_item_to_update|
+    FapiClient.any_instance.expects(:request).at_least_once.with do |navigation_item_to_update|
       navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id
       assert_equal 'navigation_item', navigation_item_to_update[:type]
       assert_equal navigation_item_id, navigation_item_to_update[:id]
@@ -426,58 +376,18 @@ class TranslatableTest < ActiveSupport::TestCase
     navigation_item.update(title: 'new title')
   end
 
-  should 'trigger fapi for suborgas and events' do
-    orga = create(:orga)
-    orga2 = create(:orga, title: 'orga2', parent_orga_id: orga.id, inheritance: 'locations')
-    orga3 = create(:orga, title: 'orga3', parent_orga_id: orga.id) # no inheritance, no trigger
-    orga4 = create(:orga, title: 'orga4', parent_orga_id: orga.id, inheritance: 'contact_infos')
-    event = create(:event, orga_id: orga.id, inheritance: 'short_description')
-    event2 = create(:event, orga_id: orga.id) # no inheritance, no trigger
-    event3 = create(:event, orga_id: orga.id, inheritance: 'locations')
-
-    assert_equal orga.id, event.orga_id
-    assert_equal orga.id, orga2.parent_orga_id
-    assert_equal [orga2, orga3, orga4], orga.sub_orgas
-    assert_equal [event, event2, event3], Event.where(orga_id: orga.id)
-
-    orga.force_sync_fapi_after_save = true
-
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga2.id))
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga4.id))
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id))
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event3.id))
-
-    orga.update(title: 'test')
-  end
-
-  # currently not necessary since entries have no dependencies on other entries in fapi
-  # should 'trigger fapi for events orga' do
-  #   event = create(:event)
-  #   orga = create(:orga, title: 'orga')
-  #   event.force_sync_fapi_after_save = true
-
-  #   FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id))
-  #   FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: event.orga.id))
-  #   FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id))
-
-  #   event.update(orga_id: orga.id)
-  # end
-
   should 'trigger fapi if entry deleted' do
     event = create(:event)
-    event.force_sync_fapi_after_save = true
 
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, deleted: true))
+    FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, deleted: true)).at_least_once
 
     event.destroy
   end
 
   should 'trigger fapi if facet item is deleted' do
     facet_item = create(:facet_item, title: 'New Category')
-    facet_item.force_sync_fapi_after_save = true
 
-    FapiClient.any_instance.expects(:request).with do |facet_item_to_delete|
+    FapiClient.any_instance.expects(:request).at_least_once.with do |facet_item_to_delete|
       assert_nil facet_item_to_delete[:area]
       assert_equal 'facet_item', facet_item_to_delete[:type]
       assert_equal facet_item.id, facet_item_to_delete[:id]
@@ -489,9 +399,8 @@ class TranslatableTest < ActiveSupport::TestCase
 
   should 'trigger fapi if navigation item is deleted' do
     navigation_item = create(:fe_navigation_item, title: 'New Entry')
-    navigation_item.force_sync_fapi_after_save = true
 
-    FapiClient.any_instance.expects(:request).with do |navigation_item_to_delete|
+    FapiClient.any_instance.expects(:request).at_least_once.with do |navigation_item_to_delete|
       assert_equal 'dresden', navigation_item_to_delete[:area]
       assert_equal 'navigation_item', navigation_item_to_delete[:type]
       assert_equal navigation_item.id, navigation_item_to_delete[:id]
