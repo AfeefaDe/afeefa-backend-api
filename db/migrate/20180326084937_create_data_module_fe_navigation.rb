@@ -9,6 +9,7 @@ class CreateDataModuleFeNavigation < ActiveRecord::Migration[5.0]
     create_table :fe_navigation_items do |t|
       t.string :title
       t.string :color
+      t.string :icon
 
       t.references :navigation, index: true
       t.references :parent, index: true

@@ -266,6 +266,7 @@ ActiveRecord::Schema.define(version: 20180629163147) do
   create_table "fe_navigation_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string   "title"
     t.string   "color"
+    t.string   "icon"
     t.integer  "navigation_id"
     t.integer  "parent_id"
     t.datetime "created_at",    null: false

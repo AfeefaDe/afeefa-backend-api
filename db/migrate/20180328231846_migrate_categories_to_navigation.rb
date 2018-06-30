@@ -8,7 +8,8 @@ class MigrateCategoriesToNavigation < ActiveRecord::Migration[5.0]
         navigation_item = DataModules::FeNavigation::FeNavigationItem.create(
           navigation: navigation,
           title: key_to_title(category.title),
-          color: key_to_color(category.title)
+          color: key_to_color(category.title),
+          icon: key_to_icon(category.title)
         )
 
         Orga.where(category_id: category.id).each do |orga|
@@ -29,7 +30,8 @@ class MigrateCategoriesToNavigation < ActiveRecord::Migration[5.0]
           sub_navigation_item = DataModules::FeNavigation::FeNavigationItem.create(
             navigation: navigation,
             parent: navigation_item,
-            title: key_to_title(sub_category.title)
+            title: key_to_title(sub_category.title),
+            icon: key_to_icon(sub_category.title)
           )
 
           Orga.where(sub_category_id: sub_category.id).each do |orga|
@@ -83,6 +85,89 @@ class MigrateCategoriesToNavigation < ActiveRecord::Migration[5.0]
     }
 
     colors[key.to_sym]
+  end
+
+  def key_to_icon(key)
+    icons = [
+      'general',
+      'language',
+      'medic',
+      'jobs',
+      'consultation',
+      'leisure',
+      'community',
+      'donation',
+      'external-event',
+
+      'wifi',
+      'jewish',
+      'christian',
+      'islam',
+      'religious-other',
+      'shop',
+      'nature',
+      'authority',
+      'hospital',
+      'police',
+      'public-transport',
+
+      'german-course',
+      'german-course-state',
+      'meet-and-speak',
+      'learning-place',
+      'interpreter',
+      'foreign-language',
+
+      'medical-counselling',
+      'psychological-counselling',
+
+      'job-counselling',
+      'education-counselling',
+      'political-education',
+      'library',
+
+      'asylum-counselling',
+      'legal-advice',
+      'social-counselling',
+      'family-counselling',
+      'volunteer-coordination',
+
+      'youth-club',
+      'sports',
+      'museum',
+      'music',
+      'stage',
+      'craft-art',
+      'workspace',
+      'gardening',
+      'cooking',
+      'festival',
+      'lecture',
+      'film',
+      'congress',
+
+      'welcome-network',
+      'meeting-place',
+      'childcare',
+      'workshop',
+      'sponsorship',
+      'lgbt',
+      'housing-project',
+
+      'food',
+      'clothes',
+      'furniture',
+
+      'iwgr',
+      'fb-event',
+
+      'hotspots',
+      'advice-and-support',
+      'living-in-leipzig',
+      'work-and-education'
+    ]
+
+    icons.include?(key) ? key : nil
   end
 
   def key_to_title(key)
