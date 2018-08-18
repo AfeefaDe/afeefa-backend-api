@@ -36,7 +36,7 @@ module DataPlugins::Contact
       end
     end
 
-    after_save do
+    after_commit on: [:create, :update] do
       if owner
         fapi_client = FapiClient.new
         fapi_client.entry_updated(owner)

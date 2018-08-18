@@ -9,7 +9,7 @@ module DataModules::Offer
 
     scope :by_area, ->(area) { where(area: area) }
 
-    after_save do
+    after_commit on: [:create, :update] do
       fapi_client = FapiClient.new
       fapi_client.entry_updated(self)
     end

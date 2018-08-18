@@ -70,7 +70,7 @@ module DataModules::FeNavigation
     # SAVE HOOKS
     after_save :move_owners_to_new_parent
 
-    after_save do
+    after_commit on: [:create, :update] do
       fapi_client = FapiClient.new
       fapi_client.entry_updated(self)
     end

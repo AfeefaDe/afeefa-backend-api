@@ -78,7 +78,7 @@ module Able
       self.facebook_id.present? || self.facebook_id = nil
     end
 
-    after_save do
+    after_commit on: [:create, :update] do
       fapi_client = FapiClient.new
       fapi_client.entry_updated(self)
     end
