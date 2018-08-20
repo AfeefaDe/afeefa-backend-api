@@ -44,10 +44,6 @@ module Able
     scope :by_area, ->(area) { where(area: area) }
 
     # VALIDATIONS
-    # validates :contact_infos, presence: true, on: :update
-    validates :category, presence: true, on: :update
-    validate :validate_sub_category, if: -> { sub_category_id.present? }
-
     validates :title, presence: true, length: { maximum: 150 }
     # FIXME: Disabled for testing Todos
     # validates :description, presence: true
@@ -102,12 +98,6 @@ module Able
 
     def validate_parent_id
       errors.add(:parent_id, 'Can not be the parent of itself!') if parent_id == id
-    end
-
-    def validate_sub_category
-      if category_id != sub_category.parent_id
-        errors.add(:sub_category, 'Unterkategorie passt nicht zur Hauptkategorie')
-      end
     end
 
     def do_not_skip_short_description_validation!

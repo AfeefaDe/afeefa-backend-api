@@ -59,24 +59,6 @@ class OrgaTest < ActiveSupport::TestCase
     assert orga.errors[:support_wanted_detail].any?
   end
 
-  should 'validate sub_category' do
-    orga = Orga.new
-    orga.valid?
-    assert orga.errors[:sub_category].blank?
-
-    orga.sub_category = Category.sub_categories.last
-    orga.valid?
-    assert_match 'passt nicht', orga.errors[:sub_category].first
-
-    orga.category = Category.main_categories.first
-    orga.valid?
-    assert_match 'passt nicht', orga.errors[:sub_category].first
-
-    orga.sub_category = Category.main_categories.first.sub_categories.last
-    orga.valid?
-    assert orga.errors[:sub_category].blank?
-  end
-
   should 'validate attributes' do
     parent_orga = create(:orga)
     orga = Orga.new(parent: parent_orga)
@@ -85,8 +67,6 @@ class OrgaTest < ActiveSupport::TestCase
     assert orga.errors[:locations].blank?
     assert_match 'fehlt', orga.errors[:title].first
     assert_match 'fehlt', orga.errors[:short_description].first
-    # FIXME: validate category
-    # assert_match 'fehlt', orga.errors[:category].first
 
     orga.orga_type_id = 100000000
     assert_not orga.valid?

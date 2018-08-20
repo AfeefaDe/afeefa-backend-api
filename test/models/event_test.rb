@@ -42,8 +42,6 @@ class EventTest < ActiveSupport::TestCase
     assert event.errors[:locations].blank?
     assert_match 'fehlt', event.errors[:title].first
     assert_match 'fehlt', event.errors[:short_description].first
-    # FIXME: validate category
-    # assert_match 'fehlt', event.errors[:category].first
 
     event.tags = 'foo bar'
     assert_not event.valid?
