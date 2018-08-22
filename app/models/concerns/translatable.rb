@@ -32,10 +32,6 @@ module Translatable
       @force_translatable_attribute_update = true
     end
 
-    def do_not_force_translatable_attribute_update!
-      @force_translatable_attribute_update = false
-    end
-
     def force_translatable_attribute_update?
       @force_translatable_attribute_update || false
     end

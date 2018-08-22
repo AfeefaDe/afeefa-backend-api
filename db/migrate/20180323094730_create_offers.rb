@@ -3,6 +3,7 @@ class CreateOffers < ActiveRecord::Migration[5.0]
     create_table :offers do |t|
       t.string :title
       t.text :description
+      t.string :area
 
       t.timestamps
     end
