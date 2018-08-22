@@ -32,18 +32,20 @@ class FapiClient
   private
 
   def request(params)
-    params[:token] = Settings.afeefa.fapi_webhook_api_token
-    path = '/changes_webhook'
-    path << "?#{params.to_query}" if params.keys.any?
-    url = URI.parse(Settings.afeefa.fapi_url + path)
-    request = Net::HTTP::Get.new(url.to_s)
-    begin
-      response = Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == 'https') do |http|
-        http.request(request)
+    if Settings.afeefa.fapi_sync_active
+      params[:token] = Settings.afeefa.fapi_webhook_api_token
+      path = '/changes_webhook'
+      path << "?#{params.to_query}" if params.keys.any?
+      url = URI.parse(Settings.afeefa.fapi_url + path)
+      request = Net::HTTP::Get.new(url.to_s)
+      begin
+        response = Net::HTTP.start(url.host, url.port, use_ssl: url.scheme == 'https') do |http|
+          http.request(request)
+        end
+        response.body
+      rescue StandardError
+        Rails.logger.debug('fapi sync did not succeed. service not available')
       end
-      response.body
-    rescue StandardError
-      Rails.logger.debug('fapi sync did not succeed. service not available')
     end
   end
 
