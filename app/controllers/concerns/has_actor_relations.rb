@@ -1,13 +1,9 @@
 module HasActorRelations
   extend ActiveSupport::Concern
 
-  def get_actor_relations
-    orga = Orga.find(params[:id])
-    json = {}
-    %i(projects project_initiators networks network_members partners).each do |relation|
-      json[relation] = orga.send("#{relation}_to_hash")
-    end
-    render status: :ok, json: json
+  def get_project_initiators
+    find_actor
+    render status: :ok, json: @actor.project_initiators_to_hash
   end
 
   def link_project_initiators
@@ -27,6 +23,11 @@ module HasActorRelations
     end
   end
 
+  def get_projects
+    find_actor
+    render status: :ok, json: @actor.projects_to_hash
+  end
+
   def link_projects
     find_actor
 
@@ -42,6 +43,11 @@ module HasActorRelations
     rescue
       head :unprocessable_entity
     end
+  end
+
+  def get_networks
+    find_actor
+    render status: :ok, json: @actor.networks_to_hash
   end
 
   def link_networks
@@ -61,6 +67,11 @@ module HasActorRelations
     end
   end
 
+  def get_network_members
+    find_actor
+    render status: :ok, json: @actor.network_members_to_hash
+  end
+
   def link_network_members
     find_actor
 
@@ -76,6 +87,11 @@ module HasActorRelations
     rescue
       head :unprocessable_entity
     end
+  end
+
+  def get_partners
+    find_actor
+    render status: :ok, json: @actor.partners_to_hash
   end
 
   def link_partners
