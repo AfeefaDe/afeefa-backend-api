@@ -29,8 +29,8 @@ class Event < ApplicationRecord
   # HOOKS
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
 
-  scope :all_for_ids, -> (ids) {
-    includes(Event.default_includes).
+  scope :all_for_ids, -> (ids, includes = default_includes) {
+    includes(includes).
     where(id: ids)
   }
 
@@ -67,23 +67,36 @@ class Event < ApplicationRecord
             public_speaker location_type legacy_entry_id facebook_id)).freeze
     end
 
+    def lazy_attributes_for_json
+      %i(title active created_at updated_at
+        date_start date_end has_time_start has_time_end).freeze
+    end
+
     def default_attributes_for_json
-      %i(title created_at updated_at state_changed_at
-          date_start date_end
-          has_time_start has_time_end active inheritance).freeze
+      (lazy_attributes_for_json + %i(state_changed_at)).freeze
     end
 
     def relation_whitelist_for_json
       (default_relations_for_json + %i(contacts)).freeze
     end
 
+    def lazy_relations_for_json
+      %i(facet_items navigation_items).freeze
+    end
+
     def default_relations_for_json
-      %i(hosts annotations facet_items navigation_items creator last_editor).freeze
+      (lazy_relations_for_json + %i(hosts annotations creator last_editor)).freeze
+    end
+
+    def lazy_includes
+      [
+        :facet_items,
+        :navigation_items
+      ]
     end
 
     def default_includes
-      [
-        :facet_items,
+      lazy_includes + [
         :hosts,
         :creator,
         :last_editor,

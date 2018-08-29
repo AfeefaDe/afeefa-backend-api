@@ -20,8 +20,14 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       expected = {
         data: [
-          offer.to_hash,
-          offer2.to_hash
+          offer.to_hash(
+            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
+            relationships: DataModules::Offer::Offer.lazy_relations_for_json
+          ),
+          offer2.to_hash(
+            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
+            relationships: DataModules::Offer::Offer.lazy_relations_for_json
+          )
         ]
       }
       assert_equal expected.deep_stringify_keys, json
@@ -31,8 +37,14 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       expected = {
         data: [
-          offer3.to_hash,
-          offer4.to_hash
+          offer3.to_hash(
+            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
+            relationships: DataModules::Offer::Offer.lazy_relations_for_json
+          ),
+          offer4.to_hash(
+            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
+            relationships: DataModules::Offer::Offer.lazy_relations_for_json
+          )
         ]
       }
       assert_equal expected.deep_stringify_keys, json
@@ -117,26 +129,42 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       actor = create(:orga)
       offer = create(:offer, actors: [actor.id])
 
+      get :index
+      json = JSON.parse(response.body)['data'][0]
+      assert_nil json['relationships']['owners']
+
+      get :index, params: { ids: [offer.id] }
+      json = JSON.parse(response.body)['data'][0]
+      assert_equal 1, json['relationships']['owners']['data'][0]['attributes'].count
+      assert_nil json['relationships']['owners']['data'][0]['attributes']['count_offers']
+
       get :show, params: { id: offer.id }
       json = JSON.parse(response.body)['data']
       assert_operator 1, :<, json['relationships']['owners']['data'][0]['attributes'].count
       assert_equal 1, json['relationships']['owners']['data'][0]['attributes']['count_offers']
-
-      get :index
-      json = JSON.parse(response.body)['data'][0]
-      assert_equal 1, json['relationships']['owners']['data'][0]['attributes'].count
-      assert_nil json['relationships']['owners']['data'][0]['attributes']['count_offers']
     end
 
     should 'deliver attributes and relations in show and index' do
       actor = create(:orga)
       offer = create(:offer, actors: [actor.id])
 
-      attributes = [
-        "title",
-        "description"
-      ]
-      relationships = ["owners", "facet_items", "navigation_items"]
+      attributes = ["title"]
+      relationships = ["facet_items", "navigation_items"]
+
+      get :index
+      json = JSON.parse(response.body)['data'][0]
+
+      assert_same_elements attributes, json['attributes'].keys
+      assert_same_elements relationships, json['relationships'].keys
+
+      relationships << 'owners'
+      attributes << 'description'
+
+      get :index, params: { ids: [offer.id] }
+      json = JSON.parse(response.body)['data'][0]
+
+      assert_same_elements attributes, json['attributes'].keys
+      assert_same_elements relationships, json['relationships'].keys
 
       get :show, params: { id: offer.id }
       json = JSON.parse(response.body)['data']
@@ -144,11 +172,6 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_same_elements attributes, json['attributes'].keys
       assert_same_elements relationships, json['relationships'].keys
 
-      get :index
-      json = JSON.parse(response.body)['data'][0]
-
-      assert_same_elements attributes, json['attributes'].keys
-      assert_same_elements relationships, json['relationships'].keys
     end
 
     should 'link owners' do

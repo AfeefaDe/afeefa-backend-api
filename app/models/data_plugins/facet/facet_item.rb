@@ -59,7 +59,7 @@ module DataPlugins::Facet
       end
 
       def default_attributes_for_json
-        %i(title color facet_id parent_id count_owners).freeze
+        %i(title color facet_id parent_id).freeze
       end
 
       def relation_whitelist_for_json
@@ -68,10 +68,6 @@ module DataPlugins::Facet
 
       def default_relations_for_json
         %i(sub_items).freeze
-      end
-
-      def count_relation_whitelist_for_json
-        %i(owners).freeze
       end
 
       def facet_item_params(params)

@@ -95,7 +95,7 @@ module DataModules::FeNavigation
       end
 
       def default_attributes_for_json
-        %i(title color icon parent_id count_owners count_owners_via_facet_items count_direct_owners).freeze
+        %i(title color icon parent_id).freeze
       end
 
       def relation_whitelist_for_json
@@ -103,7 +103,7 @@ module DataModules::FeNavigation
       end
 
       def default_relations_for_json
-        %i(sub_items facet_items).freeze
+        %i(sub_items).freeze
       end
 
       def navigation_item_params(params)

@@ -9,10 +9,19 @@ FactoryGirl.define do
     parent_orga { Orga.root_orga }
 
     locations { [build(:location)] }
+    contacts { [build(:contact)] }
     association :category, factory: :category
 
     after(:build) do |orga|
       orga.orga_type_id = OrgaType.default_orga_type_id
+
+      location = orga.locations.first
+      location.owner = orga
+
+      contact = orga.contacts.first
+      contact.owner = orga
+      contact.location = location
+      location.contact = contact
     end
 
     factory :orga_with_random_title do

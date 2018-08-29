@@ -42,8 +42,8 @@ class Orga < ApplicationRecord
   scope :without_root, -> { where(title: nil).or(where.not(title: ROOT_ORGA_TITLE)) }
   default_scope { without_root }
 
-  scope :all_for_ids, -> (ids) {
-    includes(Orga.default_includes).
+  scope :all_for_ids, -> (ids, includes = default_includes) {
+    includes(includes).
     where(id: ids)
   }
 
@@ -60,11 +60,6 @@ class Orga < ApplicationRecord
       Orga.unscoped.find_by_title(ROOT_ORGA_TITLE)
     end
 
-    def default_attributes_for_json
-      %i(orga_type_id title created_at updated_at state_changed_at active
-        count_events count_resource_items).freeze
-    end
-
     def attribute_whitelist_for_json
       (default_attributes_for_json +
         %i(description short_description media_url media_type
@@ -72,8 +67,14 @@ class Orga < ApplicationRecord
             tags certified_sfr inheritance facebook_id)).freeze
     end
 
-    def default_relations_for_json
-      %i(project_initiators annotations facet_items navigation_items creator last_editor).freeze
+    def lazy_attributes_for_json
+      %i(title created_at updated_at active).freeze
+    end
+
+    def default_attributes_for_json
+      (lazy_attributes_for_json + %i(orga_type_id
+        state_changed_at
+        count_events count_resource_items)).freeze
     end
 
     def relation_whitelist_for_json
@@ -81,14 +82,27 @@ class Orga < ApplicationRecord
         %i(projects networks network_members partners)).freeze
     end
 
+    def lazy_relations_for_json
+      %i(facet_items navigation_items).freeze
+    end
+
+    def default_relations_for_json
+      (lazy_relations_for_json + %i(project_initiators annotations creator last_editor)).freeze
+    end
+
     def count_relation_whitelist_for_json
       %i(resource_items events).freeze
     end
 
-    def default_includes
+    def lazy_includes
       [
         :facet_items,
-        :navigation_items,
+        :navigation_items
+      ]
+    end
+
+    def default_includes
+      lazy_includes + [
         :creator,
         :last_editor,
         :annotations,

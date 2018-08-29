@@ -21,7 +21,9 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Orga.count, json['data'].size
-      assert_equal Orga.last.to_hash.deep_stringify_keys, json['data'].last
+      assert_equal Orga.last.
+        to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json).
+        deep_stringify_keys, json['data'].last
       assert_equal Orga.last.active, json['data'].last['attributes']['active']
 
       assert_not json['data'].last['attributes'].key?('support_wanted_detail')
@@ -32,21 +34,73 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
     should 'deliver initiators with different detail granularity' do
       orga = create(:orga_with_initiator)
 
+      get :index
+      json = JSON.parse(response.body)['data'][0]
+
+      assert_nil json['relationships']['project_initiators']
+
+      get :index, params: { ids: [orga.id] }
+      json = JSON.parse(response.body)['data'][0]
+
+      assert_equal 1, json['relationships']['project_initiators']['data'][0]['attributes'].count
+      assert_nil json['relationships']['project_initiators']['data'][0]['attributes']['count_projects']
+
       get :show, params: { id: orga.id }
       json = JSON.parse(response.body)['data']
 
       assert_operator 1, :<, json['relationships']['project_initiators']['data'][0]['attributes'].count
       assert_equal 1, json['relationships']['project_initiators']['data'][0]['attributes']['count_projects']
-
-      get :index
-      json = JSON.parse(response.body)['data'][0]
-
-      assert_equal 1, json['relationships']['project_initiators']['data'][0]['attributes'].count
-      assert_nil json['relationships']['project_initiators']['data'][0]['attributes']['count_projects']
     end
 
     should 'deliver different attributes and relations when show or index' do
       orga = create(:orga)
+
+      get :index
+      json = JSON.parse(response.body)['data'][0]
+
+      attributes = [
+        "title",
+        "created_at",
+        "updated_at",
+        "active"
+      ]
+
+      relationships = [
+        "facet_items",
+        "navigation_items"
+      ]
+
+      assert_same_elements attributes, json['attributes'].keys
+      assert_same_elements relationships, json['relationships'].keys
+
+      get :index, params: { ids: [orga.id] }
+      json = JSON.parse(response.body)['data'][0]
+
+      attributes = [
+        "orga_type_id",
+        "title",
+        "created_at",
+        "updated_at",
+        "state_changed_at",
+        "active",
+        "count_events",
+        "count_resource_items",
+        "count_projects",
+        "count_network_members",
+        "count_offers"
+      ]
+
+      relationships = [
+        "project_initiators",
+        "annotations",
+        "facet_items",
+        "navigation_items",
+        "creator",
+        "last_editor"
+      ]
+
+      assert_same_elements attributes, json['attributes'].keys
+      assert_same_elements relationships, json['relationships'].keys
 
       get :show, params: { id: orga.id }
       json = JSON.parse(response.body)['data']
@@ -93,35 +147,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       assert_same_elements attributes, json['attributes'].keys
       assert_same_elements relationships, json['relationships'].keys
-
-      get :index
-      json = JSON.parse(response.body)['data'][0]
-
-      attributes = [
-        "orga_type_id",
-        "title",
-        "created_at",
-        "updated_at",
-        "state_changed_at",
-        "active",
-        "count_events",
-        "count_resource_items",
-        "count_projects",
-        "count_network_members",
-        "count_offers"
-      ]
-
-      relationships = [
-        "project_initiators",
-        "annotations",
-        "facet_items",
-        "navigation_items",
-        "creator",
-        "last_editor"
-      ]
-
-      assert_same_elements attributes, json['attributes'].keys
-      assert_same_elements relationships, json['relationships'].keys
     end
 
     should 'get index only data of area of user' do
@@ -148,27 +173,10 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal Orga.by_area(user.area).count, json['data'].size
       orga_from_db = Orga.by_area(user.area).last
-      assert_equal orga_from_db.to_hash.deep_stringify_keys, json['data'].last
+      assert_equal orga_from_db.
+        to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json).
+        deep_stringify_keys, json['data'].last
       assert_equal orga_from_db.active, json['data'].last['attributes']['active']
-    end
-
-    should 'get title filtered list for orgas' do
-      user = create(:user)
-      orga0 = create(:orga, title: 'Hackathon', description: 'Mate fuer alle!')
-      orga1 = create(:orga, title: 'Montagscafe', description: 'Kaffee und so im Schauspielhaus')
-      orga2 = create(:orga, title: 'Joggen im Garten', description: 'Gemeinsames Laufengehen im Grossen Garten')
-
-      get :index, params: { filter: { title: 'Garten' } }
-      assert_response :ok
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].size
-
-      get :index, params: { filter: { title: 'foo' } }
-      assert_response :ok
-      json = JSON.parse(response.body)
-      assert_kind_of Array, json['data']
-      assert_equal 0, json['data'].size
     end
 
     should 'not get show root_orga' do
@@ -425,10 +433,13 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
 
       should 'destroy orga' do
         assert @orga.locations.any?
-        skip 'destroy of locations on orga destroy needs to be implemented'
+        assert @orga.contacts.any?
+        assert_equal @orga.locations.first, @orga.contacts.first.location
+
+        # skip 'destroy of locations on orga destroy needs to be implemented'
         assert_difference 'Orga.count', -1 do
           assert_difference 'Orga.undeleted.count', -1 do
-            assert_difference 'ContactInfo.count', -1 do
+            assert_difference -> { DataPlugins::Contact::Contact.count }, -1 do
               assert_difference -> { DataPlugins::Location::Location.count }, -1 do
                 assert_no_difference 'AnnotationCategory.count' do
                   delete :destroy,

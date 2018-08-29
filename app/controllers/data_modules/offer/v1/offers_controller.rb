@@ -10,6 +10,30 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
     render status: :created, json: { data: offer_hash }
   end
 
+  def index
+    area = current_api_v1_user.area
+
+    if params[:ids]
+      offers = DataModules::Offer::Offer.
+        all_for_ids(params[:ids].split(/,/)).
+        map do |offer|
+          offer.to_hash(
+            attributes: DataModules::Offer::Offer.default_attributes_for_json,
+            relationships: DataModules::Offer::Offer.default_relations_for_json)
+        end
+    else
+      offers = DataModules::Offer::Offer.includes(DataModules::Offer::Offer.lazy_includes).
+        by_area(area).
+        map do |offer|
+          offer.to_hash(
+            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
+            relationships: DataModules::Offer::Offer.lazy_relations_for_json)
+        end
+    end
+
+    render status: :ok, json: { data: offers.as_json }
+  end
+
   def create
     begin
       ActiveRecord::Base.transaction do # fail if one fails

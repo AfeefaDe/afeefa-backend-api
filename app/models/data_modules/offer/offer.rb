@@ -9,6 +9,11 @@ module DataModules::Offer
 
     scope :by_area, ->(area) { where(area: area) }
 
+    scope :all_for_ids, -> (ids, includes = default_includes) {
+      includes(includes).
+      where(id: ids)
+    }
+
     after_commit on: [:create, :update] do
       fapi_client = FapiClient.new
       fapi_client.entry_updated(self)
@@ -30,19 +35,40 @@ module DataModules::Offer
       end
 
       def attribute_whitelist_for_json
-        default_attributes_for_json.freeze
+        default_attributes_for_json
+      end
+
+      def lazy_attributes_for_json
+        %i(title).freeze
       end
 
       def default_attributes_for_json
-        %i(title description).freeze
+        (lazy_attributes_for_json + %i(description)).freeze
       end
 
       def relation_whitelist_for_json
-        default_relations_for_json.freeze
+        default_relations_for_json
+      end
+
+      def lazy_relations_for_json
+        %i(facet_items navigation_items).freeze
       end
 
       def default_relations_for_json
-        %i(owners facet_items navigation_items).freeze
+        (lazy_relations_for_json + %i(owners facet_items navigation_items)).freeze
+      end
+
+      def lazy_includes
+        [
+          :facet_items,
+          :navigation_items
+        ]
+      end
+
+      def default_includes
+        lazy_includes + [
+          :owners
+        ]
       end
 
       def offer_params(offer, params)

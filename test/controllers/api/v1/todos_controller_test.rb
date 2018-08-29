@@ -32,7 +32,9 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal Orga.by_area(user.area).count, json['data'].size
       orga_from_db = Orga.by_area(user.area).last
-      assert_equal orga.to_hash.deep_stringify_keys, json['data'].last
+      assert_equal orga.
+        to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json + [:annotations]).
+        deep_stringify_keys, json['data'].last
     end
 
     should 'get filtered for annotation category' do
@@ -57,7 +59,9 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_response :ok
       assert_kind_of Array, json['data']
       assert_equal 1, json['data'].size
-      assert_equal orga.to_hash.deep_stringify_keys, json['data'].first
+      assert_equal orga.
+        to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json + [:annotations]).
+        deep_stringify_keys, json['data'].first
     end
 
     should 'get todos default filter and sort' do
@@ -77,8 +81,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       todo2 = Event.find(json['data'].last['id'])
       expected = {
         data: [
-          todo1.to_hash,
-          todo2.to_hash
+          todo1.to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json + [:annotations]),
+          todo2.to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json + [:annotations])
         ]
       }
       assert_equal expected.deep_stringify_keys, json
@@ -100,8 +104,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       todo2 = Event.find(json['data'].last['id'])
       expected = {
         data: [
-          todo1.to_hash,
-          todo2.to_hash
+          todo1.to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json + [:annotations]),
+          todo2.to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json + [:annotations])
         ]
       }
       assert_equal expected.deep_stringify_keys, json

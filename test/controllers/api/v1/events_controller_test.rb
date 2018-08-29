@@ -17,10 +17,24 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Event.count, json['data'].size
+      assert_equal Event.last.
+        to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json).
+        deep_stringify_keys, json['data'].last
+
+      assert !json['data'].last['attributes'].key?('support_wanted_detail')
+      assert !json['data'].last['attributes'].key?('state_changed_at')
+      assert json['data'].last['attributes'].key?('updated_at')
+
+      get :index, params: { ids: [event.id] }
+      assert_response :ok, response.body
+      json = JSON.parse(response.body)
+      assert_kind_of Array, json['data']
+      assert_equal Event.count, json['data'].size
       assert_equal Event.last.to_hash.deep_stringify_keys, json['data'].last
 
       assert !json['data'].last['attributes'].key?('support_wanted_detail')
-      assert json['data'].last['attributes'].key?('inheritance')
+      assert json['data'].last['attributes'].key?('state_changed_at')
+      assert json['data'].last['attributes'].key?('updated_at')
     end
 
     should 'get index only data of area of user' do
@@ -47,7 +61,9 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal Event.by_area(user.area).count, json['data'].size
       event_from_db = Event.by_area(user.area).last
-      assert_equal event_from_db.to_hash.deep_stringify_keys, json['data'].last
+      assert_equal event_from_db.
+        to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json).
+        deep_stringify_keys, json['data'].last
       assert_equal event_from_db.active, json['data'].last['attributes']['active']
     end
 
@@ -256,19 +272,62 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       end
 
       should 'deliver hosts with different detail granularity' do
-        get :show, params: { id: @event.id }
-        json = JSON.parse(response.body)['data']
-
-        assert_operator 1, :<, json['relationships']['hosts']['data'][0]['attributes'].count
-        assert_equal 1, json['relationships']['hosts']['data'][0]['attributes']['count_events']
-
         get :index
+        json = JSON.parse(response.body)['data'][0]
+        assert_nil json['relationships']['hosts']
+
+        get :index, params: { ids: [@event.id] }
         json = JSON.parse(response.body)['data'][0]
         assert_equal 1, json['relationships']['hosts']['data'][0]['attributes'].count
         assert_nil json['relationships']['hosts']['data'][0]['attributes']['count_events']
+
+        get :show, params: { id: @event.id }
+        json = JSON.parse(response.body)['data']
+        assert_operator 1, :<, json['relationships']['hosts']['data'][0]['attributes'].count
+        assert_equal 1, json['relationships']['hosts']['data'][0]['attributes']['count_events']
+
       end
 
       should 'deliver different attributes and relations when show or index' do
+        get :index
+        json = JSON.parse(response.body)['data'][0]
+
+        attributes = [
+          "title",
+          "created_at",
+          "updated_at",
+          "date_start",
+          "date_end",
+          "has_time_start",
+          "has_time_end",
+          "active"
+        ]
+
+        relationships = ["facet_items", "navigation_items"]
+
+        assert_same_elements attributes, json['attributes'].keys
+        assert_same_elements relationships, json['relationships'].keys
+
+        get :index, params: { ids: [@event.id] }
+        json = JSON.parse(response.body)['data'][0]
+
+        attributes = [
+          "title",
+          "created_at",
+          "updated_at",
+          "state_changed_at",
+          "date_start",
+          "date_end",
+          "has_time_start",
+          "has_time_end",
+          "active"
+        ]
+
+        relationships = ["hosts", "annotations", "facet_items", "navigation_items", "creator", "last_editor"]
+
+        assert_same_elements attributes, json['attributes'].keys
+        assert_same_elements relationships, json['relationships'].keys
+
         get :show, params: { id: @event.id }
         json = JSON.parse(response.body)['data']
 
@@ -282,7 +341,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           "has_time_start",
           "has_time_end",
           "active",
-          "inheritance",
           "description",
           "short_description",
           "media_url",
@@ -297,27 +355,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           "facebook_id"
         ]
         relationships = ["hosts", "annotations", "facet_items", "navigation_items", "creator", "last_editor", "contacts"]
-
-        assert_same_elements attributes, json['attributes'].keys
-        assert_same_elements relationships, json['relationships'].keys
-
-        get :index
-        json = JSON.parse(response.body)['data'][0]
-
-        attributes = [
-          "title",
-          "created_at",
-          "updated_at",
-          "state_changed_at",
-          "date_start",
-          "date_end",
-          "has_time_start",
-          "has_time_end",
-          "active",
-          "inheritance"
-        ]
-
-        relationships = ["hosts", "annotations", "facet_items", "navigation_items", "creator", "last_editor"]
 
         assert_same_elements attributes, json['attributes'].keys
         assert_same_elements relationships, json['relationships'].keys
@@ -568,34 +605,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert @controller.current_api_v1_user, event.reload.creator
       end
     end
-
-    should 'create new event with parent relation and inheritance' do
-      orga = create(:orga)
-
-      params = parse_json_file file: 'create_event_with_orga.json' do |payload|
-        payload.gsub!('<orga_id>', orga.id.to_s)
-        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-      end
-
-      assert_not_nil params['data']['attributes']['inheritance']
-      inh = params['data']['attributes']['inheritance']
-
-      assert_difference 'Event.count' do
-        post :create, params: params
-        assert_response :created, response.body
-      end
-
-      response_json = JSON.parse(response.body)
-      new_event_id = response_json['data']['id']
-
-      assert_equal Event.find(new_event_id).orga, orga
-
-      #todo: ticket #276 somehow in create methode parent_orga is set to 1 (ROOT_ORGA) so inheritance gets unset, but WHY!!! #secondsave
-      assert_equal inh, response_json['data']['attributes']['inheritance']
-      assert_not_nil response_json['data']['attributes']['inheritance']
-    end
-
 
     should 'link hosts' do
       host = create(:orga)

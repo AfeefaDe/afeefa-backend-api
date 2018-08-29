@@ -14,12 +14,12 @@ class Annotation < ApplicationRecord
 
   # CLASS METHODS
   class << self
-    def entries(annotations)
+    def entries(annotations, includes)
       event_ids = annotations.select { |a| a.entry_type == 'Event' }.pluck(:entry_id)
-      events = Event.all_for_ids(event_ids)
+      events = Event.all_for_ids(event_ids, Event.send(includes) + [:annotations])
 
       actor_ids = annotations.select { |a| a.entry_type == 'Orga' }.pluck(:entry_id)
-      orgas = Orga.all_for_ids(actor_ids)
+      orgas = Orga.all_for_ids(actor_ids, Orga.send(includes) + [:annotations])
 
       annotations.map do |a|
         if a.entry_type == 'Event'
