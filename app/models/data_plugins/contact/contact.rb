@@ -1,18 +1,6 @@
 module DataPlugins::Contact
   class Contact < ApplicationRecord
-
-    # disable rails single table inheritance
-    self.inheritance_column = :_type_disabled
-
-    MAIN = 'main'.freeze
-    SUB = 'sub'.freeze
-    TYPES = [MAIN, SUB]
-
     include Jsonable
-
-    # SCOPES
-    scope :main, -> { where(type: MAIN) }
-    scope :sub, -> { where(type: SUB) }
 
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
@@ -78,6 +66,5 @@ module DataPlugins::Contact
         %i(location contact_persons).freeze
       end
     end
-
   end
 end

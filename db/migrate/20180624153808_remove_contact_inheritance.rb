@@ -11,10 +11,7 @@ class RemoveContactInheritance < ActiveRecord::Migration[5.0]
           if parent.contacts.count > 0
             parent_contact = parent.contacts.first
 
-            contact = DataPlugins::Contact::Contact.create(
-              owner: orga,
-              type: DataPlugins::Contact::Contact::MAIN
-            )
+            contact = DataPlugins::Contact::Contact.create(owner: orga)
 
             contact.update(
               location_id: parent_contact.location_id,

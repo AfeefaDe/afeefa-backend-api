@@ -1,11 +1,9 @@
 class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
-
   def do_up_stuff
     create_table :contacts do |t|
       t.references :owner, polymorphic: true, index: true
       t.references :location, index: true
 
-      t.string :type
       t.string :title
       t.string :web, limit: 1000
       t.string :social_media, limit: 1000
@@ -48,10 +46,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
     ::Location.all.each do |location|
       next if location.locatable.blank?
 
-      contact = DataPlugins::Contact::Contact.create(
-        owner: location.locatable,
-        type: DataPlugins::Contact::Contact::MAIN
-      )
+      contact = DataPlugins::Contact::Contact.create(owner: location.locatable)
 
       location = DataPlugins::Location::Location.create(
         owner: location.locatable,
@@ -74,10 +69,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       contact = DataPlugins::Contact::Contact.where(owner: contact_info.contactable).try(:first)
 
       unless contact
-        contact = DataPlugins::Contact::Contact.create(
-          owner: contact_info.contactable,
-          type: DataPlugins::Contact::Contact::MAIN
-        )
+        contact = DataPlugins::Contact::Contact.create(owner: contact_info.contactable)
       end
 
       contact.update(
@@ -114,5 +106,4 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
     drop_table :contact_persons
     drop_table :contacts
   end
-
 end
