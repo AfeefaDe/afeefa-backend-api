@@ -102,6 +102,8 @@ Rails.application.routes.draw do
         get 'orgas/:id/partners', to: 'orgas#get_partners'
         post 'orgas/:id/partners', to: 'orgas#link_partners'
 
+        get 'orgas/:id/offers', to: 'orgas#get_offers'
+
         jsonapi_resources :events
         get 'events/:id/hosts', to: 'events#get_hosts'
         post 'events/:id/hosts', to: 'events#link_hosts'

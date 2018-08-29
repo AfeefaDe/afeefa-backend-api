@@ -11,6 +11,11 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
     render status: :ok, json: { data: orga_hash }
   end
 
+  def get_offers
+    orga = Orga.find(params[:id])
+    render status: :ok, json: orga.offers_to_hash
+  end
+
   def do_includes!(objects)
     objects.includes(Orga.default_includes)
   end
