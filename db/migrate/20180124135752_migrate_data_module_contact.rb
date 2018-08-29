@@ -42,6 +42,9 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
+    add_reference :orgas, :contact, after: :id, index: true
+    add_reference :events, :contact, after: :id, index: true
+
     ::Location.all.each do |location|
       next if location.locatable.blank?
 
@@ -94,6 +97,11 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
         )
       end
 
+      Orga.connection.schema_cache.clear!
+      Orga.reset_column_information
+      Event.connection.schema_cache.clear!
+      Event.reset_column_information
+      contact_info.contactable.update(contact_id: contact.id)
     end
   end
 

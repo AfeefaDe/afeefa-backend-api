@@ -1,6 +1,7 @@
 class CreateOffers < ActiveRecord::Migration[5.0]
   def up
     create_table :offers do |t|
+      t.references :contact, index: true
       t.string :title
       t.text :description
       t.string :area
