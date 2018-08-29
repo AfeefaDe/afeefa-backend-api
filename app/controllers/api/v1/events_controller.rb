@@ -23,7 +23,8 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
         includes(Event.lazy_includes).
         by_area(area).
         map do |event|
-          event.to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json)
+          EventSerializer.new(event).serializable_hash[:data]
+          # event.to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json)
         end
     end
 

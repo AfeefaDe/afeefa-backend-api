@@ -52,6 +52,9 @@ gem 'config'
 # gem 'jsonapi-resources'
 gem 'jsonapi-resources', '0.9.0.beta3'
 
+# json serialization
+gem 'fast_jsonapi'
+
 # tree relatiions (e.g. orga-suborga)
 gem 'acts_as_tree', '~> 2.4'
 
@@ -114,6 +117,7 @@ group :development, :test do
   gem 'bullet'
 
   # code coverage
+  gem 'ruby-prof'
   gem 'simplecov', require: false
 
   # request recording for tests

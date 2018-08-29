@@ -20,11 +20,12 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
         map do |orga|
           orga.to_hash(attributes: Orga.default_attributes_for_json, relationships: Orga.default_relations_for_json)
         end
-    else
-      orgas = Orga.includes(Orga.lazy_includes).
+      else
+        orgas = Orga.includes(Orga.lazy_includes).
         by_area(area).
         map do |orga|
-          orga.to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json)
+          OrgaSerializer.new(orga).serializable_hash[:data]
+          #orga.to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json)
         end
     end
 
