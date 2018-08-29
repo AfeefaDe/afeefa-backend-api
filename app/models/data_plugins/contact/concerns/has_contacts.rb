@@ -1,5 +1,4 @@
 module DataPlugins::Contact::Concerns::HasContacts
-
   extend ActiveSupport::Concern
 
   included do
@@ -97,5 +96,4 @@ module DataPlugins::Contact::Concerns::HasContacts
       [:name, :role, :mail, :phone]
     end
   end
-
 end

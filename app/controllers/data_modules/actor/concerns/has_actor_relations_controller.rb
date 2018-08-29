@@ -1,4 +1,4 @@
-module HasActorRelations
+module DataModules::Actor::Concerns::HasActorRelationsController
   extend ActiveSupport::Concern
 
   def get_project_initiators
@@ -145,5 +145,4 @@ module HasActorRelations
       type: type
     )
   end
-
 end

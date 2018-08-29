@@ -139,7 +139,6 @@ ActiveRecord::Schema.define(version: 20180629163147) do
     t.string   "owner_type"
     t.integer  "owner_id"
     t.integer  "location_id"
-    t.string   "type"
     t.string   "title"
     t.string   "web",              limit: 1000
     t.string   "social_media",     limit: 1000
@@ -168,6 +167,7 @@ ActiveRecord::Schema.define(version: 20180629163147) do
   end
 
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "contact_id"
     t.string   "title"
     t.text     "description",           limit: 65535
     t.text     "short_description",     limit: 65535
@@ -201,6 +201,7 @@ ActiveRecord::Schema.define(version: 20180629163147) do
     t.string   "facebook_id"
     t.index ["area"], name: "index_events_on_area", using: :btree
     t.index ["category_id"], name: "index_events_on_category_id", using: :btree
+    t.index ["contact_id"], name: "index_events_on_contact_id", using: :btree
     t.index ["creator_id"], name: "index_events_on_creator_id", using: :btree
     t.index ["last_editor_id"], name: "index_events_on_last_editor_id", using: :btree
     t.index ["orga_id"], name: "index_events_on_orga_id", using: :btree
@@ -312,11 +313,13 @@ ActiveRecord::Schema.define(version: 20180629163147) do
   end
 
   create_table "offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "contact_id"
     t.string   "title"
     t.text     "description", limit: 65535
     t.string   "area"
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+    t.index ["contact_id"], name: "index_offers_on_contact_id", using: :btree
   end
 
   create_table "orga_category_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -336,6 +339,7 @@ ActiveRecord::Schema.define(version: 20180629163147) do
   end
 
   create_table "orgas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "contact_id"
     t.integer  "orga_type_id"
     t.datetime "created_at",                                          null: false
     t.datetime "updated_at",                                          null: false
@@ -363,6 +367,7 @@ ActiveRecord::Schema.define(version: 20180629163147) do
     t.string   "facebook_id"
     t.index ["area"], name: "index_orgas_on_area", using: :btree
     t.index ["category_id"], name: "index_orgas_on_category_id", using: :btree
+    t.index ["contact_id"], name: "index_orgas_on_contact_id", using: :btree
     t.index ["creator_id"], name: "index_orgas_on_creator_id", using: :btree
     t.index ["last_editor_id"], name: "index_orgas_on_last_editor_id", using: :btree
     t.index ["orga_type_id"], name: "index_orgas_on_orga_type_id", using: :btree

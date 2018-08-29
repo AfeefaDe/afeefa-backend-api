@@ -1,6 +1,5 @@
 class Api::V1::OrgasController < Api::V1::EntriesBaseController
-
-  include HasActorRelations
+  include DataModules::Actor::Concerns::HasActorRelationsController
 
   def show
     orga = Orga.find(params[:id])
@@ -48,5 +47,4 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
   def do_includes!(objects)
     objects.includes(Orga.default_includes)
   end
-
 end
