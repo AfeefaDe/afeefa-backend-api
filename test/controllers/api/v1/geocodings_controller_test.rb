@@ -1,17 +1,7 @@
 require 'test_helper'
 
 class Api::V1::GeocodingsControllerTest < ActionController::TestCase
-
-  setup do
-    WebMock.allow_net_connect!(allow_localhost: false)
-  end
-
-  teardown do
-    WebMock.disable_net_connect!(allow_localhost: false)
-  end
-
-  should 'get geocoding unauthorized' do
-    # TODO: stub geocoding api
+  test 'should get geocoding unauthorized' do
     VCR.use_cassette('geocoding_controller_test_get_geocoding_unauthorized') do
       get :index
       assert_response :unauthorized
@@ -24,7 +14,7 @@ class Api::V1::GeocodingsControllerTest < ActionController::TestCase
 
       get :index, params: { token: Settings.geocoding.api_token }
       assert_response :unprocessable_entity
-      assert_equal 'geocoding failed', response.body
+      assert_equal 'geocoding failed for address', response.body
 
       address_string = build(:location_old_dresden).address_for_geocoding
       get :index, params: { token: Settings.geocoding.api_token, address: address_string }
@@ -39,4 +29,10 @@ class Api::V1::GeocodingsControllerTest < ActionController::TestCase
     end
   end
 
+  test 'should deliver geocoder error via api' do
+    Geocoder.expects(:search).raises(Geocoder::OverQueryLimitError)
+    get :index, params: { token: Settings.geocoding.api_token, address: 'Zwinger, Dresden' }
+    assert_response :internal_server_error
+    assert_equal 'error of type Geocoder::OverQueryLimitError occured, please try again', response.body
+  end
 end

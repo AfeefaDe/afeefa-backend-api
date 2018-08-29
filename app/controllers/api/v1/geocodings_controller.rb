@@ -1,5 +1,4 @@
 class Api::V1::GeocodingsController < ApplicationController
-
   include EnsureToken
   include Cors
 
@@ -16,8 +15,10 @@ class Api::V1::GeocodingsController < ApplicationController
         full_address: result.address
       }
     else
-      render json: 'geocoding failed', status: :unprocessable_entity
+      render json: 'geocoding failed for address', status: :unprocessable_entity
     end
+  rescue => exception
+    render json: "error of type #{exception.class.to_s} occured, please try again", status: :internal_server_error
   end
 
   private
@@ -30,5 +31,4 @@ class Api::V1::GeocodingsController < ApplicationController
   def token_to_ensure
     Settings.geocoding.api_token
   end
-
 end
