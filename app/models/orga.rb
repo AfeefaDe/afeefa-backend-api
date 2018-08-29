@@ -88,6 +88,7 @@ class Orga < ApplicationRecord
     def default_includes
       [
         :facet_items,
+        :navigation_items,
         :creator,
         :last_editor,
         :annotations,
