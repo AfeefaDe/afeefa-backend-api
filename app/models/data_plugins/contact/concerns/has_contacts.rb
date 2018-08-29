@@ -8,9 +8,16 @@ module DataPlugins::Contact::Concerns::HasContacts
     belongs_to :linked_contact, class_name: DataPlugins::Contact::Contact, primary_key: :contact_id
 
     has_many :owned_contact_persons,
-      class_name: DataPlugins::Contact::ContactPerson, through: :owned_contacts, dependent: :destroy
+      class_name: DataPlugins::Contact::ContactPerson,
+      through: :owned_contacts, source: :contact_persons,
+      dependent: :destroy
     has_one :linked_contact_person,
       class_name: DataPlugins::Contact::ContactPerson, through: :linked_contact, dependent: :destroy
+  end
+
+  # temporary helper for contacts
+  def contacts
+    [linked_contact].compact
   end
 
   def delete_contact(params)
