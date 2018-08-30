@@ -48,7 +48,7 @@ module DataModules::Offer
       end
 
       def relation_whitelist_for_json
-        default_relations_for_json
+        (default_relations_for_json + %i(contacts).freeze)
       end
 
       def lazy_relations_for_json
@@ -104,6 +104,10 @@ module DataModules::Offer
       )
     end
 
+    def contacts_to_hash
+      contacts.map { |c| c.to_hash }
+    end
+
     # TODO owners are part of the list resource as well as the item resource
     # but we want to include more owner details on the item resource
     # hence, there is a patch of this method in offer_controller#show
@@ -111,6 +115,8 @@ module DataModules::Offer
       owners.map { |o| o.to_hash(attributes: [:title], relationships: nil) }
     end
 
+    include DataPlugins::Contact::Concerns::HasContacts
+    include DataPlugins::Location::Concerns::HasLocations
     include DataPlugins::Facet::Concerns::HasFacetItems
     include DataModules::FeNavigation::Concerns::HasFeNavigationItems
   end

@@ -34,6 +34,8 @@ class DataPlugins::Contact::V1::ContactsController < Api::V1::BaseController
         Orga.find(params[:owner_id])
       when 'events'
         Event.find(params[:owner_id])
+      when 'offers'
+        DataModules::Offer::Offer.find(params[:owner_id])
       end
     unless @owner
       raise ActiveRecord::RecordNotFound,

@@ -166,6 +166,8 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_same_elements attributes, json['attributes'].keys
       assert_same_elements relationships, json['relationships'].keys
 
+      relationships << 'contacts'
+
       get :show, params: { id: offer.id }
       json = JSON.parse(response.body)['data']
 
