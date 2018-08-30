@@ -39,7 +39,7 @@ module DataModules::Offer
       end
 
       def lazy_attributes_for_json
-        %i(title).freeze
+        %i(title created_at updated_at).freeze
       end
 
       def default_attributes_for_json
