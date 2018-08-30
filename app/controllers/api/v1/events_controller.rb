@@ -23,12 +23,11 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
         includes(Event.lazy_includes).
         by_area(area).
         map do |event|
-          EventSerializer.new(event, {params: {facet_items:true, navigation_items:true}}).serializable_hash[:data]
-          # event.to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json)
+          event.serialize_lazy
         end
     end
 
-    render status: :ok, json: { data: events.as_json }
+    render status: :ok, json: { data: events }
   end
 
   def get_hosts

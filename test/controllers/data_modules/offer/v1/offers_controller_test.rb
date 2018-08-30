@@ -148,7 +148,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       actor = create(:orga)
       offer = create(:offer, actors: [actor.id])
 
-      attributes = ["title"]
+      attributes = ["title", 'created_at', 'updated_at']
       relationships = ["facet_items", "navigation_items"]
 
       get :index

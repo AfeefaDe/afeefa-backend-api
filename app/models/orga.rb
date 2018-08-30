@@ -7,6 +7,7 @@ class Orga < ApplicationRecord
   include Owner
   include Able
   include Jsonable
+  include LazySerializable
 
   # ATTRIBUTES AND ASSOCIATIONS
   acts_as_tree(foreign_key: :parent_orga_id)
@@ -114,6 +115,11 @@ class Orga < ApplicationRecord
         :network_members
       ]
     end
+  end
+
+  # LazySerializable
+  def lazy_serializer
+    OrgaSerializer
   end
 
   # INSTANCE METHODS

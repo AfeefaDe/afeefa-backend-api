@@ -17,9 +17,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       assert_kind_of Array, json['data']
       assert_equal Event.count, json['data'].size
-      assert_equal Event.last.
-        to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json).
-        deep_stringify_keys, json['data'].last
+      assert_equal Event.last.serialize_lazy.as_json,
+        json['data'].last
 
       assert !json['data'].last['attributes'].key?('support_wanted_detail')
       assert !json['data'].last['attributes'].key?('state_changed_at')
@@ -61,9 +60,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal Event.by_area(user.area).count, json['data'].size
       event_from_db = Event.by_area(user.area).last
-      assert_equal event_from_db.
-        to_hash(attributes: Event.lazy_attributes_for_json, relationships: Event.lazy_relations_for_json).
-        deep_stringify_keys, json['data'].last
+      assert_equal event_from_db.serialize_lazy.as_json,
+        json['data'].last
       assert_equal event_from_db.active, json['data'].last['attributes']['active']
     end
 

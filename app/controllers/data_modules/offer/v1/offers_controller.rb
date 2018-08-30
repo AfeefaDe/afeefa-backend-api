@@ -5,7 +5,7 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
   def show
     # put more details into the offer.owners list @see offer#owners_to_hash
     owners_hash = @offer.owners.map { |o| o.to_hash }
-    offer_hash = @offer.to_hash
+    offer_hash = @offer.as_json
     offer_hash[:relationships][:owners] = { data: owners_hash }
     render status: :created, json: { data: offer_hash }
   end
@@ -25,14 +25,11 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
       offers = DataModules::Offer::Offer.includes(DataModules::Offer::Offer.lazy_includes).
         by_area(area).
         map do |offer|
-          OfferSerializer.new(offer, {params: {facet_items:true, navigation_items:true}}).serializable_hash[:data]
-          # offer.to_hash(
-          #   attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
-          #   relationships: DataModules::Offer::Offer.lazy_relations_for_json)
+          offer.serialize_lazy
         end
     end
 
-    render status: :ok, json: { data: offers.as_json }
+    render status: :ok, json: { data: offers }
   end
 
   def create

@@ -2,6 +2,7 @@ module DataModules::Offer
   class Offer < ApplicationRecord
     include Jsonable
     include Translatable
+    include LazySerializable
 
     # ASSOCIATIONS
     has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, dependent: :destroy
@@ -55,7 +56,7 @@ module DataModules::Offer
       end
 
       def default_relations_for_json
-        (lazy_relations_for_json + %i(owners facet_items navigation_items)).freeze
+        (lazy_relations_for_json + %i(owners)).freeze
       end
 
       def lazy_includes
@@ -85,6 +86,11 @@ module DataModules::Offer
         offer.save!
         offer
       end
+    end
+
+    # LazySerializable
+    def lazy_serializer
+      OfferSerializer
     end
 
     def link_owner(actor_id)

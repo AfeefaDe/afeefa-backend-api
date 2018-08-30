@@ -24,12 +24,11 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
         orgas = Orga.includes(Orga.lazy_includes).
         by_area(area).
         map do |orga|
-          OrgaSerializer.new(orga, {params: {facet_items:true, navigation_items:true}}).serializable_hash[:data]
-          #orga.to_hash(attributes: Orga.lazy_attributes_for_json, relationships: Orga.lazy_relations_for_json)
+          orga.serialize_lazy
         end
     end
 
-    render status: :ok, json: { data: orgas.as_json }
+    render status: :ok, json: { data: orgas }
   end
 
   def get_offers

@@ -9,6 +9,7 @@ class Event < ApplicationRecord
 
   include Thing
   include Jsonable
+  include LazySerializable
 
   acts_as_tree(foreign_key: :parent_event_id)
   alias_method :sub_events, :children
@@ -105,6 +106,11 @@ class Event < ApplicationRecord
     end
   end
 
+  # LazySerializable
+  def lazy_serializer
+    EventSerializer
+  end
+
   def link_host(actor_id)
     host = Orga.find(actor_id)
     unless host.area == self.area
@@ -133,6 +139,14 @@ class Event < ApplicationRecord
     contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
   end
 
+  def has_time_start
+    time_start?
+  end
+
+  def has_time_end
+    time_end?
+  end
+
   private
 
   def deny_destroy_if_associated_objects_present
@@ -145,14 +159,6 @@ class Event < ApplicationRecord
     errors.full_messages.each do |message|
       raise CustomDeleteRestrictionError, message
     end
-  end
-
-  def has_time_start
-    time_start?
-  end
-
-  def has_time_end
-    time_end?
   end
 
   # INCLUDE NEW CODE FROM ACTOR
