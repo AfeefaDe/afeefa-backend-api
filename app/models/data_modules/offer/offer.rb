@@ -85,7 +85,7 @@ module DataModules::Offer
       end
 
       def offer_params(offer, params)
-        permitted = [:title, :description, :actors, :image_url]
+        permitted = [:title, :description, :active, :actors, :image_url]
         unless offer.id
           permitted << :area
         end
