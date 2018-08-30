@@ -25,7 +25,7 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
       offers = DataModules::Offer::Offer.includes(DataModules::Offer::Offer.lazy_includes).
         by_area(area).
         map do |offer|
-          OfferSerializer.new(offer).serializable_hash[:data]
+          OfferSerializer.new(offer, {params: {facet_items:true, navigation_items:true}}).serializable_hash[:data]
           # offer.to_hash(
           #   attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
           #   relationships: DataModules::Offer::Offer.lazy_relations_for_json)
