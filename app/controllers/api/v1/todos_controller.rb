@@ -13,7 +13,7 @@ class Api::V1::TodosController < Api::V1::EntriesController
     end
 
     annotations = objects.all
-    entries = Annotation.entries(annotations, 'lazy_includes')
+    entries = Annotation.entries(annotations)
     todos = entries.map do |item|
       item.serialize_lazy(annotations: true, facets: false)
     end

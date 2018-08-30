@@ -7,6 +7,8 @@ module DataModules::Offer
     # ASSOCIATIONS
     has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, dependent: :destroy
     has_many :owners, through: :offer_owners, source: :actor
+    belongs_to :last_editor, class_name: 'User', optional: true
+    belongs_to :creator, class_name: 'User', optional: true
 
     scope :by_area, ->(area) { where(area: area) }
 
@@ -25,6 +27,14 @@ module DataModules::Offer
       fapi_client.entry_deleted(self)
     end
 
+    before_create do
+      self.creator = Current.user
+    end
+
+    before_save do
+      self.last_editor = Current.user
+    end
+
     # CLASS METHODS
     class << self
       def translatable_attributes
@@ -40,11 +50,11 @@ module DataModules::Offer
       end
 
       def lazy_attributes_for_json
-        %i(title created_at updated_at).freeze
+        %i(title active created_at updated_at).freeze
       end
 
       def default_attributes_for_json
-        (lazy_attributes_for_json + %i(description)).freeze
+        (lazy_attributes_for_json + %i(description image_url)).freeze
       end
 
       def relation_whitelist_for_json
@@ -56,7 +66,7 @@ module DataModules::Offer
       end
 
       def default_relations_for_json
-        (lazy_relations_for_json + %i(owners)).freeze
+        (lazy_relations_for_json + %i(owners creator last_editor)).freeze
       end
 
       def lazy_includes
@@ -68,12 +78,14 @@ module DataModules::Offer
 
       def default_includes
         lazy_includes + [
-          :owners
+          :owners,
+          :creator,
+          :last_editor
         ]
       end
 
       def offer_params(offer, params)
-        permitted = [:title, :description, :actors]
+        permitted = [:title, :description, :actors, :image_url]
         unless offer.id
           permitted << :area
         end
@@ -106,6 +118,14 @@ module DataModules::Offer
 
     def contacts_to_hash
       contacts.map { |c| c.to_hash }
+    end
+
+    def last_editor_to_hash
+      last_editor.try(&:to_hash)
+    end
+
+    def creator_to_hash
+      creator.try(&:to_hash)
     end
 
     # TODO owners are part of the list resource as well as the item resource

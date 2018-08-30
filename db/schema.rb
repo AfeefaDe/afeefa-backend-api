@@ -313,10 +313,16 @@ ActiveRecord::Schema.define(version: 20180629163147) do
 
   create_table "offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string   "title"
-    t.text     "description", limit: 65535
+    t.text     "description",    limit: 65535
     t.string   "area"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.boolean  "active",                       default: false, null: false
+    t.string   "image_url"
+    t.integer  "last_editor_id"
+    t.integer  "creator_id"
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
+    t.index ["creator_id"], name: "index_offers_on_creator_id", using: :btree
+    t.index ["last_editor_id"], name: "index_offers_on_last_editor_id", using: :btree
   end
 
   create_table "orga_category_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|

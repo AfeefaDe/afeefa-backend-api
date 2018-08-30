@@ -20,14 +20,8 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       expected = {
         data: [
-          offer.to_hash(
-            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
-            relationships: DataModules::Offer::Offer.lazy_relations_for_json
-          ),
-          offer2.to_hash(
-            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
-            relationships: DataModules::Offer::Offer.lazy_relations_for_json
-          )
+          offer.serialize_lazy.as_json,
+          offer2.serialize_lazy.as_json
         ]
       }
       assert_equal expected.deep_stringify_keys, json
@@ -37,14 +31,8 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       expected = {
         data: [
-          offer3.to_hash(
-            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
-            relationships: DataModules::Offer::Offer.lazy_relations_for_json
-          ),
-          offer4.to_hash(
-            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
-            relationships: DataModules::Offer::Offer.lazy_relations_for_json
-          )
+          offer3.serialize_lazy.as_json,
+          offer4.serialize_lazy.as_json
         ]
       }
       assert_equal expected.deep_stringify_keys, json
@@ -148,7 +136,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       actor = create(:orga)
       offer = create(:offer, actors: [actor.id])
 
-      attributes = ["title", 'created_at', 'updated_at']
+      attributes = ["title", 'active', 'created_at', 'updated_at']
       relationships = ["facet_items", "navigation_items"]
 
       get :index
@@ -157,8 +145,8 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_same_elements attributes, json['attributes'].keys
       assert_same_elements relationships, json['relationships'].keys
 
-      relationships << 'owners'
-      attributes << 'description'
+      relationships << 'owners' << 'creator' << 'last_editor'
+      attributes << 'description' << 'image_url'
 
       get :index, params: { ids: [offer.id] }
       json = JSON.parse(response.body)['data'][0]
