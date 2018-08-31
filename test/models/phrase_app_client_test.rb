@@ -231,6 +231,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     offer.description = 'offer description'
     offer.save(validate: false)
     offer_without_description = create(:offer)
+    offer_without_description.description = ''
     offer_without_description.save(validate: false)
 
     json = parse_json_file file: 'phraseapp_locale_de.json' do |payload|
@@ -299,6 +300,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     existing_offer.description = 'offer description'
     existing_offer.save(validate: false)
     offer_without_description = create(:offer)
+    offer_without_description.description = ''
     offer_without_description.save(validate: false)
 
     existing_facet_item = create(:facet_item, title: 'existing_facet_item title')

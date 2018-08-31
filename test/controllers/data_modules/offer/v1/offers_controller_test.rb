@@ -39,11 +39,9 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     end
 
     should 'create offer without owner' do
-      actor = create(:orga)
-
       assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot' }
+          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung' }
           assert_response :created
         end
       end
@@ -60,7 +58,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
 
       assert_difference -> { DataModules::Offer::OfferOwner.count }, 2 do
         assert_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot', actors: [actor.id, actor2.id] }
+          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung', owners: [actor.id, actor2.id] }
           assert_response :created
         end
       end
@@ -73,9 +71,26 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     should 'raise exception if create offer with wrong actor' do
       assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_no_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot', actors: [134] }
+          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung', owners: [134] }
           assert_response :unprocessable_entity
         end
+      end
+    end
+
+    should 'raise exception if create offer with missing data' do
+      assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
+        assert_no_difference -> { DataModules::Offer::Offer.count } do
+          post :create, params: {}
+          assert_response :unprocessable_entity
+        end
+        json = JSON.parse(response.body)
+        assert_equal(
+          [
+            'Titel - fehlt',
+            'Beschreibung - fehlt',
+          ],
+          json['errors']
+        )
       end
     end
 

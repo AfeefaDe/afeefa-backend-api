@@ -30,6 +30,25 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
     render status: :ok, json: { data: events }
   end
 
+  def create
+    begin
+      ActiveRecord::Base.transaction do # fail if one fails
+        params[:data][:attributes][:area] = current_api_v1_user.area
+        event = Event.create_event(params)
+
+        hosts = params[:data][:relationships][:hosts] || []
+        hosts.each do |host_id|
+          event.link_host(host_id)
+        end
+        render status: :created, json: { data: event }
+      end
+    rescue ActiveRecord::RecordInvalid
+      raise # let base controller handle
+    rescue
+      head :unprocessable_entity
+    end
+  end
+
   def get_hosts
     event = Event.find(params[:id])
     render status: :ok, json: event.hosts_to_hash

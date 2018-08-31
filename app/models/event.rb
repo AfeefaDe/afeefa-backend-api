@@ -30,6 +30,14 @@ class Event < ApplicationRecord
   # HOOKS
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
 
+  before_create do
+    self.creator = Current.user
+  end
+
+  before_save do
+    self.last_editor = Current.user
+  end
+
   scope :all_for_ids, -> (ids, includes = default_includes) {
     includes(includes).
     where(id: ids)
@@ -103,6 +111,29 @@ class Event < ApplicationRecord
         :last_editor,
         :annotations
       ]
+    end
+
+    def event_create_params(event, params)
+      permitted = {
+        attributes: [:title, :short_description, :date_start, :has_time_start, :date_end, :has_time_end]
+      }
+      unless event.id
+        permitted[:attributes] << :area
+      end
+
+      event_params = params.require(:data).permit(permitted)[:attributes]
+      if event_params
+        event_params["time_start"] = event_params.delete("has_time_start")
+        event_params["time_end"] = event_params.delete("has_time_end")
+      end
+      event_params || {}
+    end
+
+    def create_event(params)
+      event = Event.new
+      event.assign_attributes(event_create_params(event, params))
+      event.save!
+      event
     end
   end
 

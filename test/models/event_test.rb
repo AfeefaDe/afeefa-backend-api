@@ -93,7 +93,7 @@ class EventTest < ActiveSupport::TestCase
 
   context 'with new event' do
     setup do
-      @user = create(:user)
+      @user = Current.user
       @orga = create(:orga)
       @event = build(:event, creator: @user)
     end

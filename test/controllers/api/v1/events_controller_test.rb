@@ -378,32 +378,39 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       )
 
       assert_difference 'Event.count' do
-        assert_no_difference 'AnnotationCategory.count' do
-          assert_difference 'Annotation.count', 2 do
-            post :create, params: params
-            assert_response :created, response.body
-          end
-        end
+        post :create, params: params
+        assert_response :created, response.body
       end
       json = JSON.parse(response.body)
-      assert_equal StateMachine::ACTIVE.to_s, Event.last.state
-      assert_equal true, json['data']['attributes']['active']
-      assert_includes AnnotationCategory.first.entries.pluck(:entry_id), Event.last.id
-      assert_includes AnnotationCategory.second.entries.pluck(:entry_id), Event.last.id
+      assert_equal StateMachine::INACTIVE.to_s, Event.last.state
+      assert_equal false, json['data']['attributes']['active']
 
-      # Then we could deliver the mapping there
-      %w(annotations).each do |relation|
-        assert json['data']['relationships'][relation]['data'].any?, "No element for relation #{relation} found."
-        assert_equal relation, json['data']['relationships'][relation]['data'].first['type']
-        assert_equal(
-          Event.last.send(relation).first.id.to_s,
-          json['data']['relationships'][relation]['data'].first['id'])
-      end
-
-      user = @controller.current_api_v1_user
+      user = Current.user
       assert_equal user.area, Event.last.area
       assert_equal user.id, Event.last.creator_id
       assert_equal user.id, Event.last.last_editor_id
+    end
+
+    should 'create event with host' do
+      actor = create(:orga)
+      actor2 = create(:orga_with_random_title)
+      params = parse_json_file(file: 'create_event_without_orga.json')
+      params['data']['relationships'].merge!(
+        hosts: [actor.id, actor2.id]
+      )
+
+      assert_difference -> { EventHost.count }, 2 do
+        assert_difference -> { Event.count } do
+          post :create, params: params
+          assert_response :created
+        end
+      end
+
+      json = JSON.parse(response.body)
+      event = Event.last
+      event_json = JSON.parse(event.to_json)
+      event_json = {'data' => event_json}
+      assert_equal event_json, json
     end
 
     should 'An event should only change allowed states' do
@@ -473,8 +480,11 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                 data: {
                   type: 'events',
                   attributes: {
+                    x: 'y'
                   },
                   relationships: {
+                  },
+                  test: {
                   }
                 }
               }
@@ -486,7 +496,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                   'Kurzbeschreibung - fehlt',
                   'Start-Datum - fehlt'
                 ],
-                json['errors'].map { |x| x['detail'] }
+                json['errors']
               )
             end
           end
@@ -495,8 +505,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'update event without sub_category' do
-      creator = create(:user)
-      event = create(:event, title: 'foobar', creator_id: creator.id)
+      event = create(:event, title: 'foobar')
       Annotation.create!(detail: 'annotation123', entry: event, annotation_category: AnnotationCategory.first)
       annotation = event.annotations.last
 
@@ -529,13 +538,12 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal 'foo-bar', annotation.reload.detail
       assert_equal Category.main_categories.first.id, event.category_id
 
-      user = @controller.current_api_v1_user
-      assert_not_equal creator.id, user.id
+      user = Current.user
       assert_equal user.area, Event.last.area
-      assert_equal creator.id, Event.last.creator_id
+      assert_equal user.id, Event.last.creator_id
       assert_equal user.id, Event.last.last_editor_id
       json = JSON.parse(response.body)
-      assert_equal creator.id.to_s, json['data']['relationships']['creator']['data']['id']
+      assert_equal user.id.to_s, json['data']['relationships']['creator']['data']['id']
       assert_equal user.id.to_s, json['data']['relationships']['last_editor']['data']['id']
     end
 

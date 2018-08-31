@@ -26,7 +26,7 @@ class Api::V1::BaseController < ApplicationController
 
   rescue_from ActiveRecord::RecordInvalid do |error|
     messages = error.record.errors.messages.map do |key, value|
-      key.to_s + ' - ' + value.first
+      I18n.t("api.attributes.#{key}", default: key) + ' - ' + value.first
     end
 
     render status: :unprocessable_entity, json: {

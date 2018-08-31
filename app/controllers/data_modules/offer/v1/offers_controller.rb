@@ -7,7 +7,7 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
     owners_hash = @offer.owners.map { |o| o.to_hash }
     offer_hash = @offer.as_json
     offer_hash[:relationships][:owners] = { data: owners_hash }
-    render status: :created, json: { data: offer_hash }
+    render status: :ok, json: { data: offer_hash }
   end
 
   def index
@@ -38,12 +38,14 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
         params[:area] = current_api_v1_user.area
         offer = DataModules::Offer::Offer.save_offer(params)
 
-        actors = params[:actors] || []
-        actors.each do |actor_id|
-          offer.link_owner(actor_id)
+        owners = params[:owners] || []
+        owners.each do |owner_id|
+          offer.link_owner(owner_id)
         end
         render status: :created, json: offer
       end
+    rescue ActiveRecord::RecordInvalid
+      raise # let base controller handle
     rescue
       head :unprocessable_entity
     end

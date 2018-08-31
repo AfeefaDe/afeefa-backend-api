@@ -11,6 +11,9 @@ module DataModules::Offer
     belongs_to :creator, class_name: 'User', optional: true
     has_many :annotations, as: :entry, dependent: :destroy
 
+    validates :title, presence: true, length: { maximum: 150 }
+    validates :description, presence: true, length: { maximum: 350 }
+
     scope :by_area, ->(area) { where(area: area) }
 
     scope :all_for_ids, -> (ids, includes = default_includes) {
@@ -86,7 +89,7 @@ module DataModules::Offer
       end
 
       def offer_params(offer, params)
-        permitted = [:title, :description, :active, :actors, :image_url]
+        permitted = [:title, :description, :active, :image_url]
         unless offer.id
           permitted << :area
         end
