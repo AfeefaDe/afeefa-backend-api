@@ -145,7 +145,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_same_elements attributes, json['attributes'].keys
       assert_same_elements relationships, json['relationships'].keys
 
-      relationships << 'owners' << 'creator' << 'last_editor'
+      relationships << 'owners' << 'annotations' << 'creator' << 'last_editor'
       attributes << 'description' << 'image_url'
 
       get :index, params: { ids: [offer.id] }

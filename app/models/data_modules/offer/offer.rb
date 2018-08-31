@@ -9,6 +9,7 @@ module DataModules::Offer
     has_many :owners, through: :offer_owners, source: :actor
     belongs_to :last_editor, class_name: 'User', optional: true
     belongs_to :creator, class_name: 'User', optional: true
+    has_many :annotations, as: :entry, dependent: :destroy
 
     scope :by_area, ->(area) { where(area: area) }
 
@@ -66,7 +67,7 @@ module DataModules::Offer
       end
 
       def default_relations_for_json
-        (lazy_relations_for_json + %i(owners creator last_editor)).freeze
+        (lazy_relations_for_json + %i(owners annotations creator last_editor)).freeze
       end
 
       def lazy_includes
@@ -126,6 +127,10 @@ module DataModules::Offer
 
     def creator_to_hash
       creator.try(&:to_hash)
+    end
+
+    def annotations_to_hash
+      annotations.map { |a| a.to_hash(attributes: a.class.default_attributes_for_json) }
     end
 
     # TODO owners are part of the list resource as well as the item resource
