@@ -195,6 +195,7 @@ class Event < ApplicationRecord
   # INCLUDE NEW CODE FROM ACTOR
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
+  include DataPlugins::Annotation::Concerns::HasAnnotations
   include DataPlugins::Facet::Concerns::HasFacetItems
   include DataModules::FeNavigation::Concerns::HasFeNavigationItems
 

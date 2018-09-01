@@ -194,6 +194,7 @@ class Orga < ApplicationRecord
   include DataModules::Actor::Concerns::HasActorRelations
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
+  include DataPlugins::Annotation::Concerns::HasAnnotations
   include DataPlugins::Facet::Concerns::HasFacetItems
   include DataModules::Offer::Concerns::HasOffers
   include DataModules::FeNavigation::Concerns::HasFeNavigationItems

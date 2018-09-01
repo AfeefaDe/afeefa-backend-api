@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   factory :orga do
-    title 'an orga'
+    title {"title#{rand(0..10000)}"}
     description 'this is a description of this orga'
     short_description 'this is the short description'
     area 'dresden'
@@ -34,7 +34,7 @@ FactoryGirl.define do
 
     factory :orga_with_initiator do
       after(:create) do |orga|
-        orga.project_initiators << create(:orga_with_random_title)
+        orga.project_initiators << create(:orga)
       end
     end
 

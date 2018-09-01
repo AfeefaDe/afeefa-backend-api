@@ -13,6 +13,9 @@ class Annotation < ApplicationRecord
     where('events.area = ? or orgas.area = ? or offers.area = ?', area, area, area)
   }
 
+  #VALIDATIONS
+  validate :validate_consistency
+
   # CLASS METHODS
   class << self
     def entries(annotations)
@@ -50,6 +53,40 @@ class Annotation < ApplicationRecord
 
     def default_relations_for_json
       [].freeze
+    end
+
+    def annotation_params(annotation, params)
+      permitted = [:detail, :annotation_category_id, :entry_id, :entry_type]
+      params.permit(permitted)
+    end
+
+    def save_annotation(params)
+      annotation = params[:id] ? find(params[:id]) : Annotation.new
+      annotation.assign_attributes(annotation_params(annotation, params))
+      annotation.save!
+      annotation
+    end
+  end
+
+  def validate_consistency
+    if persisted? && (changes.key?('entry_id') || changes.key?('entry_type'))
+      return errors.add(:entry, 'Eigentümer kann nicht geändert werden.')
+    end
+
+    unless persisted?
+      unless changes.key?('annotation_category_id')
+        return errors.add(:annotation_category_id, 'Kategorie fehlt.')
+      end
+
+      unless entry
+        return errors.add(:navigation_id, 'Entry existiert nicht.')
+      end
+    end
+
+    if changes.key?('annotation_category_id')
+      unless AnnotationCategory.exists?(annotation_category_id)
+        return errors.add(:annotation_category_id, 'Kategorie existiert nicht.')
+      end
     end
   end
 

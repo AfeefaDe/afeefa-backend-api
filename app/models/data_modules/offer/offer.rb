@@ -9,7 +9,6 @@ module DataModules::Offer
     has_many :owners, through: :offer_owners, source: :actor
     belongs_to :last_editor, class_name: 'User', optional: true
     belongs_to :creator, class_name: 'User', optional: true
-    has_many :annotations, as: :entry, dependent: :destroy
 
     validates :title, presence: true, length: { maximum: 150 }
     validates :description, presence: true, length: { maximum: 350 }
@@ -132,10 +131,6 @@ module DataModules::Offer
       creator.try(&:to_hash)
     end
 
-    def annotations_to_hash
-      annotations.map { |a| a.to_hash(attributes: a.class.default_attributes_for_json) }
-    end
-
     # TODO owners are part of the list resource as well as the item resource
     # but we want to include more owner details on the item resource
     # hence, there is a patch of this method in offer_controller#show
@@ -145,6 +140,7 @@ module DataModules::Offer
 
     include DataPlugins::Contact::Concerns::HasContacts
     include DataPlugins::Location::Concerns::HasLocations
+    include DataPlugins::Annotation::Concerns::HasAnnotations
     include DataPlugins::Facet::Concerns::HasFacetItems
     include DataModules::FeNavigation::Concerns::HasFeNavigationItems
   end

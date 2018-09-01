@@ -82,8 +82,12 @@ Rails.application.routes.draw do
 
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
-        get ':owner_type/:owner_id/annotations', to: 'annotations#get_owner_annotations'
         get ':owner_type/:owner_id/resource_items', to: 'resource_items#get_owner_resources'
+
+        get ':owner_type/:owner_id/annotations', to: 'annotations#index'
+        post ':owner_type/:owner_id/annotations', to: 'annotations#create'
+        patch ':owner_type/:owner_id/annotations/:id', to: 'annotations#update'
+        delete ':owner_type/:owner_id/annotations/:id', to: 'annotations#delete'
 
         jsonapi_resources :orgas
 

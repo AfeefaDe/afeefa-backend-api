@@ -19,7 +19,7 @@ class TranslatableTest < ActiveSupport::TestCase
   end
 
   should 'upload translation when no attributes are changed but force_translatable_attribute_update is set' do
-    orga = create(:orga)
+    orga = create(:orga, title: 'testorga')
     orga_id = orga.id.to_s
     orga.force_translatable_attribute_update!
     orga.force_translation_after_save = true
@@ -30,7 +30,7 @@ class TranslatableTest < ActiveSupport::TestCase
 
       assert_not_nil json['orga']
       assert_not_nil json['orga'][orga_id]
-      assert_equal 'an orga', json['orga'][orga_id]['title']
+      assert_equal 'testorga', json['orga'][orga_id]['title']
       assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
 
       assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
@@ -68,7 +68,7 @@ class TranslatableTest < ActiveSupport::TestCase
   end
 
   should 'create translation on entry create' do
-    orga = build(:orga)
+    orga = build(:orga, title: 'testorga')
     orga.force_translation_after_save = true
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
@@ -79,7 +79,7 @@ class TranslatableTest < ActiveSupport::TestCase
 
       assert_not_nil json['orga']
       assert_not_nil json['orga'][orga_id]
-      assert_equal 'an orga', json['orga'][orga_id]['title']
+      assert_equal 'testorga', json['orga'][orga_id]['title']
       assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
 
       assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
