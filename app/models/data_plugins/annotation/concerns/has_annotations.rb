@@ -3,7 +3,7 @@ module DataPlugins::Annotation::Concerns::HasAnnotations
   extend ActiveSupport::Concern
 
   included do
-    has_many :annotations, as: :entry, dependent: :destroy
+    has_many :annotations, -> { order(id: :desc) }, as: :entry, dependent: :destroy
   end
 
   def save_annotation(params)
