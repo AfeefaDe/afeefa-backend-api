@@ -506,36 +506,28 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'update event without sub_category' do
       event = create(:event, title: 'foobar')
-      Annotation.create!(detail: 'annotation123', entry: event, annotation_category: AnnotationCategory.first)
-      annotation = event.annotations.last
 
       assert_no_difference 'Event.count' do
         assert_no_difference 'ContactInfo.count' do
           assert_no_difference 'Location.count' do
-            assert_no_difference 'AnnotationCategory.count' do
-              patch :update,
-                params: {
-                  id: event.id,
-                }.merge(
-                  parse_json_file(
-                    file: 'update_event_without_sub_category.json'
-                  ) do |payload|
-                    payload.gsub!('<id>', event.id.to_s)
-                    payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-                    payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-                    # payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
-                  end
-                )
-              assert_response :ok, response.body
-            end
+            patch :update,
+              params: {
+                id: event.id,
+              }.merge(
+                parse_json_file(
+                  file: 'update_event_without_sub_category.json'
+                ) do |payload|
+                  payload.gsub!('<id>', event.id.to_s)
+                  payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
+                  # payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
+                end
+              )
+            assert_response :ok, response.body
           end
         end
       end
       event.reload
       assert_equal 'Street Store', event.title
-      assert_equal 1, event.annotations.count
-      assert_equal annotation.reload, event.annotations.first
-      assert_equal 'foo-bar', annotation.reload.detail
       assert_equal Category.main_categories.first.id, event.category_id
 
       user = Current.user

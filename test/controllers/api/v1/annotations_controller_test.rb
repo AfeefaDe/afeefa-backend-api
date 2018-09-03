@@ -19,8 +19,8 @@ class Api::V1::AnnotationsControllerTest < ActionController::TestCase
 
         json = JSON.parse(response.body)
         assert_equal [
-          a1.to_hash.deep_stringify_keys,
-          a2.to_hash.deep_stringify_keys
+          a2.to_hash.deep_stringify_keys,
+          a1.to_hash.deep_stringify_keys
         ], json
       end
 

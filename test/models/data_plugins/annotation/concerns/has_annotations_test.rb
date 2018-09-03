@@ -22,6 +22,34 @@ module DataPlugins::Annotation
         assert_equal [annotation], entry.annotations.all
       end
 
+      should "deliver annotations by updated_at for #{entry_factory}" do
+        entry = create(entry_factory)
+        assert_equal [], entry.annotations.all
+
+        annotation = Annotation.create(
+          annotation_category_id: @annotation_category.id,
+          detail: 'Mache das',
+          entry: entry
+        )
+        annotation2 = Annotation.create(
+          annotation_category_id: @annotation_category.id,
+          detail: 'Mache das2',
+          entry: entry
+        )
+        annotation3 = Annotation.create(
+          annotation_category_id: @annotation_category.id,
+          detail: 'Mache das3',
+          entry: entry
+        )
+
+        ActiveRecord::Base.record_timestamps = false
+        now = 10.minutes.from_now
+        annotation2.update(updated_at: now)
+        ActiveRecord::Base.record_timestamps = true
+
+        assert_equal [annotation2, annotation3, annotation], entry.annotations.all
+      end
+
       should "add annotation for #{entry_factory}" do
         entry = create(entry_factory)
 
@@ -31,6 +59,18 @@ module DataPlugins::Annotation
         ))
 
         assert_equal [annotation], entry.annotations.all
+      end
+
+      should "set creator on add annotation for #{entry_factory}" do
+        entry = create(entry_factory)
+
+        annotation = entry.save_annotation(ActionController::Parameters.new(
+          annotation_category_id: @annotation_category.id,
+          detail: 'Mache das',
+        ))
+
+        assert_equal Current.user, annotation.creator
+        assert_equal Current.user, annotation.last_editor
       end
 
       should "fail adding with wrong category for #{entry_factory}" do
@@ -85,6 +125,24 @@ module DataPlugins::Annotation
         assert_equal 1, entry.annotations.count
         annotation = entry.annotations.first
         assert_equal 'Mache das jetzt doch nicht so', annotation.detail
+      end
+
+      should "set editor on update annotation for #{entry_factory}" do
+        entry = create(entry_factory)
+
+        annotation = Annotation.create(
+          annotation_category_id: @annotation_category.id,
+          detail: 'Mache das',
+          entry: entry
+        )
+
+        assert_equal Current.user, annotation.last_editor
+
+        user2 = create(:user)
+        Current.stubs(:user).returns(user2)
+        annotation.update(detail: 'Yeah!!! Getan')
+
+        assert_equal user2, annotation.last_editor
       end
 
       should "fail update if annotation does not exist for #{entry_factory}" do

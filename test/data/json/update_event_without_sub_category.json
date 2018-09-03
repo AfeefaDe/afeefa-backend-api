@@ -22,29 +22,6 @@
       },
       "sub_category": {
         "data": null
-      },
-//      "contact_infos": {
-//        "data": []
-//      },
-      "annotations": {
-        "data": [
-          {
-            "type": "annotations",
-            "id": "<annotation_id_1>",
-            "attributes": {
-              "detail": "foo-bar"
-            }
-          }
-        ]
-//      },
-//      "locations": {
-//        "data": [
-//          {
-//            "attributes": {},
-//            "type": "locations",
-//            "id": "1408"
-//          }
-//        ]
       }
     },
     "type": "events"

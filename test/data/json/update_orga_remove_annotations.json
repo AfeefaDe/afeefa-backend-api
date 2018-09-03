@@ -8,12 +8,6 @@
       "inheritance": "short_description|locations"
     },
     "relationships": {
-      //      "parent_orga":{
-      //        "data":{
-      //          "type":"orgas",
-      //          "id":"683"
-      //        }
-      //      },
       "category": {
         "data": {
           "type": "categories",

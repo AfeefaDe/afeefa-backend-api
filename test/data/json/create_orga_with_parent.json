@@ -29,9 +29,6 @@
           "type": "categories",
           "id": "<sub_category_id>"
         }
-      },
-      "annotations": {
-        "data": []
       }
     },
     "type": "orgas"
