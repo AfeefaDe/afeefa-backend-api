@@ -153,10 +153,12 @@ class Event < ApplicationRecord
     )
   end
 
-  # TODO hosts are part of the list resource as well as the item resource
-  # but we want to include more host details on the item resource
+  # TODO hosts are part of the event list resource as well as the item resource
+  # The list default is just to load the host with its title,
+  # but we want to include more host details on the item resource.
   # hence, there is a patch of this method in events_controller#show
-  def hosts_to_hash
+  # which adds more details to the event relation than defined here.
+   def hosts_to_hash
     hosts.map { |h| h.to_hash(attributes: ['title'], relationships: nil) }
   end
 

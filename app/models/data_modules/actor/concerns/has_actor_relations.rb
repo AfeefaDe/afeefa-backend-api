@@ -28,9 +28,11 @@ module DataModules::Actor::Concerns::HasActorRelations
       projects.map(&:to_hash)
     end
 
-    # TODO initiators are part of the list resource as well as the item resource
-    # but we want to include more host details on the item resource
+    # TODO initiators are part of the actor list resource as well as the item resource
+    # The list default is just to load the initiator with its title,
+    # but we want to include more initiator details on the item resource.
     # hence, there is a patch of this method in orgas_controller#show
+    # which adds more details to the initiator relation than defined here.
     def project_initiators_to_hash
       project_initiators.map { |i| i.to_hash(attributes: ['title'], relationships: nil) }
     end

@@ -7,7 +7,7 @@ module DataModules::Offer::Concerns::HasOffers
     has_many :offers, class_name: DataModules::Offer::Offer, through: :offer_owners
 
     def offers_to_hash
-      offers.map { |o| o.to_hash(attributes: o.class.default_attributes_for_json, relationships: nil) }
+      offers.map { |o| o.to_hash }
     end
 
     # CLASS METHODS

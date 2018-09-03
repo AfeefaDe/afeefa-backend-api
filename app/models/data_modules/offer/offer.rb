@@ -131,9 +131,11 @@ module DataModules::Offer
       creator.try(&:to_hash)
     end
 
-    # TODO owners are part of the list resource as well as the item resource
-    # but we want to include more owner details on the item resource
-    # hence, there is a patch of this method in offer_controller#show
+    # TODO owners are part of the offer list resource as well as the item resource
+    # The list default is just to load the owner with its title,
+    # but we want to include more owner details on the item resource.
+    # hence, there is a patch of this method in offers_controller#show
+    # which adds more details to the offer relation than defined here.
     def owners_to_hash
       owners.map { |o| o.to_hash(attributes: [:title], relationships: nil) }
     end

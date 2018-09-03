@@ -12,8 +12,6 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
   # or
   # attributes *(ATTRIBUTES + [:foo, :bar])
 
-  has_many :annotations, class_name: 'Annotation'
-
   has_one :category
   has_one :sub_category, class_name: 'Category'
   has_one :creator, class_name: 'User'
