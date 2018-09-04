@@ -6,6 +6,7 @@ class Api::V1::TodosController < Api::V1::EntriesController
 
     objects = Annotation.
       by_area(current_api_v1_user.area).
+      order(updated_at: :desc, id: :desc).
       group_by_entry.order(:id)
 
     if filter_params[:annotation_category_id].present?
