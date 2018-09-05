@@ -75,8 +75,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      todo1 = Orga.find(json['data'].first['id'])
-      todo2 = Event.find(json['data'].last['id'])
+      todo1 = Event.find(json['data'].first['id'])
+      todo2 = Orga.find(json['data'].last['id'])
       expected = {
         data: [
           todo1.serialize_lazy(annotations: true, facets: false).as_json,
@@ -98,8 +98,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      todo1 = Orga.find(json['data'].first['id'])
-      todo2 = Event.find(json['data'].last['id'])
+      todo1 = Event.find(json['data'].first['id'])
+      todo2 = Orga.find(json['data'].last['id'])
       expected = {
         data: [
           todo1.serialize_lazy(annotations: true, facets: false).as_json,
