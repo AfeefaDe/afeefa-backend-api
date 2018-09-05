@@ -3,20 +3,8 @@ module DataPlugins::Contact::Concerns::HasContacts
 
   included do
     # ASSOCIATIONS
-    has_many :owned_contacts, class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :destroy
+    has_many :contacts, class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :destroy
     belongs_to :linked_contact, class_name: DataPlugins::Contact::Contact, foreign_key: :contact_id
-
-    has_many :owned_contact_persons,
-      class_name: DataPlugins::Contact::ContactPerson,
-      through: :owned_contacts, source: :contact_persons,
-      dependent: :destroy
-    has_one :linked_contact_person,
-      class_name: DataPlugins::Contact::ContactPerson, through: :linked_contact, dependent: :destroy
-  end
-
-  # temporary helper for contacts
-  def contacts
-    [linked_contact].compact
   end
 
   def delete_contact(params)
@@ -106,18 +94,14 @@ module DataPlugins::Contact::Concerns::HasContacts
     update!(contact_id: contact_id)
   end
 
-  def remove_owned_contacts!
-    owned_contacts.destroy_all
-  end
-
   def ensure_no_linked_contact_given!
-    if contacts.any?
+    if linked_contact.present?
       raise Errors::NotPermittedException, 'There is already a linked contact given.'
     end
   end
 
   def ensure_no_owned_contact_given!
-    if owned_contacts.any?
+    if contacts.any?
       raise Errors::NotPermittedException, 'There is already an owned contact given.'
     end
   end
@@ -130,7 +114,7 @@ module DataPlugins::Contact::Concerns::HasContacts
   end
 
   def own_contact?(contact_id)
-    owned_contacts.pluck(:id).include?(contact_id)
+    contacts.pluck(:id).include?(contact_id)
   end
 
   def ensure_given_contact_is_linked!(contact_id)
@@ -152,6 +136,13 @@ module DataPlugins::Contact::Concerns::HasContacts
       contact
     end
   end
+
+
+  def linked_contacts_to_hash
+    [linked_contact&.to_hash].compact
+  end
+  # json api alias
+  alias :contacts_to_hash :linked_contacts_to_hash
 
   module ClassMethods
     def contact_params

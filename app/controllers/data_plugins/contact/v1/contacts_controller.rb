@@ -4,7 +4,7 @@ class DataPlugins::Contact::V1::ContactsController < Api::V1::BaseController
   before_action :find_owner
 
   def index
-    render status: :ok, json: @owner.contacts
+    render status: :ok, json: @owner.contacts_to_hash
   end
 
   def create

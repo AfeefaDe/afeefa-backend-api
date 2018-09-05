@@ -60,7 +60,7 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
 
     should 'create contact with new location and contact_persons' do
       orga = create(:orga)
-      assert orga.owned_contacts.blank?
+      assert orga.contacts.blank?
       assert orga.contacts.blank?
 
       assert_difference -> { DataPlugins::Contact::Contact.count } do
@@ -136,7 +136,7 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
           end
         end
       end
-      assert_equal [contact], orga_editing.reload.contacts
+      assert_equal contact, orga_editing.reload.linked_contact
       json = JSON.parse(response.body)
       contact.reload
       assert_equal JSON.parse(contact.to_json), json
@@ -157,7 +157,8 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
         )
       assert contact_existing
       assert location_existing.update(contact: contact_existing)
-      assert_equal [contact_existing], orga_editing.owned_contacts
+      assert_equal [contact_existing], orga_editing.contacts
+      assert orga_editing.linked_contact.blank?
 
       assert_no_difference -> { DataPlugins::Contact::Contact.count } do
         assert_no_difference -> { DataPlugins::Location::Location.count } do

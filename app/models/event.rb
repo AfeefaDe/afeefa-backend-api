@@ -114,10 +114,6 @@ class Event < ApplicationRecord
     end
   end
 
-  def contacts_to_hash
-    contacts.map { |c| c.to_hash(attributes: c.class.default_attributes_for_json) }
-  end
-
   private
 
   def deny_destroy_if_associated_objects_present

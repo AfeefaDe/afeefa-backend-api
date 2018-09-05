@@ -136,10 +136,6 @@ class Orga < ApplicationRecord
     title == ROOT_ORGA_TITLE
   end
 
-  def contacts_to_hash
-    contacts.map { |c| c.to_hash }
-  end
-
   def resource_items_to_hash
     resource_items.map { |r| r.to_hash }
   end
