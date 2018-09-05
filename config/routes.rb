@@ -22,7 +22,7 @@ Rails.application.routes.draw do
   #
   # }
 
-  scope format: false, defaults: {format: :json} do
+  scope format: false, defaults: { format: :json } do
     scope :api do
       scope :v1 do
         get ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#index'

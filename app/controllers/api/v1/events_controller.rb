@@ -1,5 +1,4 @@
 class Api::V1::EventsController < Api::V1::EntriesBaseController
-
   def show
     event = Event.find(params[:id])
     # put more details into the event.hosts list @see event#hosts_to_hash
@@ -56,5 +55,4 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
   def do_includes!(objects)
     objects.includes(Event.default_includes)
   end
-
 end

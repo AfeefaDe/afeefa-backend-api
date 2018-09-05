@@ -10,8 +10,6 @@ class Api::V1::ChaptersController < Api::V1::BaseController
 
   respond_to :json
 
-  # before_action :authenticate_api_v1_user!
-
   rescue_from ActiveRecord::RecordNotFound do
     head :not_found
   end

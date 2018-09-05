@@ -10,8 +10,8 @@ class RemoveShortDescriptionInheritance < ActiveRecord::Migration[5.0]
   def up
     annotation_category = AnnotationCategory.find_by(title: 'Kurzbeschreibung fehlt')
 
-    # uUpdate annotation category name
-    annotation_category.update!(title: 'Kurzbeschreibung')
+    # update annotation category name
+    annotation_category.update!(title: 'Kurzbeschreibung') if annotation_category.present?
 
     # orga: add annotation if short description and inheritance are present
     orgas_with_short_description = Orga.where('short_description is not null and length(short_description) >= 2')

@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class Api::V1::OrgasControllerTest < ActionController::TestCase
-
   include ActsAsHasActorRelationsControllerTest
 
   context 'as authorized user' do
@@ -28,7 +27,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_not json['data'].last['relationships'].key?('resources')
     end
 
-
     should 'deliver initiators with different detail granularity' do
       orga = create(:orga_with_initiator)
 
@@ -52,43 +50,43 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)['data']
 
       attributes = [
-        "orga_type_id",
-        "title",
-        "created_at",
-        "updated_at",
-        "state_changed_at",
-        "active",
-        "count_events",
-        "count_resource_items",
-        "count_projects",
-        "count_network_members",
-        "count_offers",
-        "description",
-        "short_description",
-        "media_url",
-        "media_type",
-        "support_wanted",
-        "support_wanted_detail",
-        "tags",
-        "certified_sfr",
-        "inheritance",
-        "facebook_id"
+        'orga_type_id',
+        'title',
+        'created_at',
+        'updated_at',
+        'state_changed_at',
+        'active',
+        'count_events',
+        'count_resource_items',
+        'count_projects',
+        'count_network_members',
+        'count_offers',
+        'description',
+        'short_description',
+        'media_url',
+        'media_type',
+        'support_wanted',
+        'support_wanted_detail',
+        'tags',
+        'certified_sfr',
+        'inheritance',
+        'facebook_id'
       ]
 
       relationships = [
-        "project_initiators",
-        "annotations",
-        "facet_items",
-        "navigation_items",
-        "creator",
-        "last_editor",
-        "resource_items",
-        "contacts",
-        "offers",
-        "projects",
-        "networks",
-        "network_members",
-        "partners"
+        'project_initiators',
+        'annotations',
+        'facet_items',
+        'navigation_items',
+        'creator',
+        'last_editor',
+        'resource_items',
+        'contacts',
+        'offers',
+        'projects',
+        'networks',
+        'network_members',
+        'partners'
       ]
 
       assert_same_elements attributes, json['attributes'].keys
@@ -98,26 +96,26 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)['data'][0]
 
       attributes = [
-        "orga_type_id",
-        "title",
-        "created_at",
-        "updated_at",
-        "state_changed_at",
-        "active",
-        "count_events",
-        "count_resource_items",
-        "count_projects",
-        "count_network_members",
-        "count_offers"
+        'orga_type_id',
+        'title',
+        'created_at',
+        'updated_at',
+        'state_changed_at',
+        'active',
+        'count_events',
+        'count_resource_items',
+        'count_projects',
+        'count_network_members',
+        'count_offers'
       ]
 
       relationships = [
-        "project_initiators",
-        "annotations",
-        "facet_items",
-        "navigation_items",
-        "creator",
-        "last_editor"
+        'project_initiators',
+        'annotations',
+        'facet_items',
+        'navigation_items',
+        'creator',
+        'last_editor'
       ]
 
       assert_same_elements attributes, json['attributes'].keys
@@ -492,7 +490,26 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         end
       end
 
+      should 'get contacts' do
+        contact = DataPlugins::Contact::Contact.create(title: 'brand new contact', owner: @orga)
+        assert @orga.update(contact_id: contact.id)
+        get :get_contacts, params: { orga_id: @orga.id }
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_kind_of Array, json
+        assert_equal contact.id.to_s, json[0]['id'].to_s
+        assert_equal contact.title, json[0]['attributes']['title']
+      end
+
+      should 'link contact' do
+        contact = DataPlugins::Contact::Contact.create(title: 'another contact', owner: @orga)
+        get :link_contact, params: { orga_id: @orga.id }
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_kind_of Array, json
+        assert_equal contact.id.to_s, json[0]['id'].to_s
+        assert_equal contact.title, json[0]['attributes']['title']
+      end
     end
   end
-
 end

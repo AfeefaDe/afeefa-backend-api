@@ -1,5 +1,3 @@
-require 'errors'
-
 class Event < ApplicationRecord
 
   # to get rid of invalid encoding on facebook import:
@@ -130,7 +128,7 @@ class Event < ApplicationRecord
     end
 
     errors.full_messages.each do |message|
-      raise CustomDeleteRestrictionError, message
+      raise Errors::CustomDeleteRestrictionError, message
     end
   end
 

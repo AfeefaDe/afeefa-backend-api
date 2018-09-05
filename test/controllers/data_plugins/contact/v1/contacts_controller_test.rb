@@ -1,10 +1,35 @@
 require 'test_helper'
 
 class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestCase
-
   context 'as authorized user' do
     setup do
       stub_current_user
+    end
+
+    should 'not create contact for owner with already existing contact' do
+      orga = create(:orga, title: 'creator')
+      location = create(:afeefa_office)
+      contact =
+        DataPlugins::Contact::Contact.create(owner: orga, location: location, title: 'already existing contact')
+      assert contact
+      assert orga.update(contact_id: contact.id)
+
+      assert_no_difference -> { DataPlugins::Contact::Contact.count } do
+        assert_no_difference -> { DataPlugins::Contact::ContactPerson.count } do
+          assert_no_difference -> { DataPlugins::Location::Location.count } do
+            post :create,
+              params:
+                { owner_id: orga.id, owner_type: 'orgas' }.merge(
+                  parse_json_file(file: 'contact_with_location_id.json') do |payload|
+                    payload.gsub!('<location_id>', location.id.to_s)
+                  end
+                )
+            assert_response :unprocessable_entity
+          end
+        end
+      end
+      json = JSON.parse(response.body)
+      assert_equal 'There is already a contact for this owner.', json['error']
     end
 
     should 'create contact with location_id and contact_persons' do
@@ -53,6 +78,65 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
       assert_equal location, contact.location
       contact_persons = DataPlugins::Contact::ContactPerson.order(id: :desc)[0..1]
       assert_equal contact_persons.sort, contact.contact_persons.sort
+    end
+
+    should 'not update contact not owned by owner' do
+      orga_editing = create(:orga, title: 'editor')
+      orga_owning = create(:orga, title: 'owner')
+      assert location = create(:afeefa_office)
+      assert contact = DataPlugins::Contact::Contact.create(owner: orga_owning, location: location, title: 'old title')
+
+      assert_no_difference -> { DataPlugins::Contact::Contact.count } do
+        assert_no_difference -> { DataPlugins::Contact::ContactPerson.count } do
+          assert_no_difference -> { DataPlugins::Location::Location.count } do
+            patch :update,
+              params:
+                { owner_id: orga_editing.id, owner_type: 'orgas', id: contact.id }.merge(
+                  parse_json_file(file: 'contact_with_location_id.json') do |payload|
+                    payload.gsub!('<location_id>', location.id.to_s)
+                  end
+                )
+            assert_response :unprocessable_entity
+          end
+        end
+      end
+      json = JSON.parse(response.body)
+      assert_equal 'You are not permitted to update this contact.', json['error']
+    end
+
+    should 'not link not existing contact' do
+      orga = create(:orga, title: 'editor')
+
+      assert_no_difference -> { DataPlugins::Contact::Contact.count } do
+        assert_no_difference -> { DataPlugins::Contact::ContactPerson.count } do
+          assert_no_difference -> { DataPlugins::Location::Location.count } do
+            patch :update, params: { owner_id: orga.id, owner_type: 'orgas', id: 'not-existing-id' }
+            assert_response :not_found
+          end
+        end
+      end
+      assert response.body.blank?
+    end
+
+    should 'link existing contact' do
+      orga_editing = create(:orga, title: 'editor')
+      orga_owning = create(:orga, title: 'owner')
+      assert location = create(:afeefa_office)
+      assert contact = DataPlugins::Contact::Contact.create(owner: orga_owning, location: location, title: 'old title')
+      assert orga_editing.contacts.blank?
+
+      assert_no_difference -> { DataPlugins::Contact::Contact.count } do
+        assert_no_difference -> { DataPlugins::Contact::ContactPerson.count } do
+          assert_no_difference -> { DataPlugins::Location::Location.count } do
+            patch :update, params: { owner_id: orga_editing.id, owner_type: 'orgas', id: contact.id }
+            assert_response :ok, response.body
+          end
+        end
+      end
+      assert_equal [contact], orga_editing.reload.contacts
+      json = JSON.parse(response.body)
+      contact.reload
+      assert_equal JSON.parse(contact.to_json), json
     end
 
     should 'update contact with location_id and without contact_persons' do
@@ -204,5 +288,4 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
       assert_nil contact2.location
     end
   end
-
 end

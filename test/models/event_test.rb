@@ -177,7 +177,7 @@ class EventTest < ActiveSupport::TestCase
         assert_no_difference 'Event.undeleted.count' do
           assert_no_difference 'Orga.undeleted.count' do
             exception =
-              assert_raise CustomDeleteRestrictionError do
+              assert_raise Errors::CustomDeleteRestrictionError do
                 @event.destroy!
               end
             assert_equal 'Unterevents müssen gelöscht werden', exception.message
