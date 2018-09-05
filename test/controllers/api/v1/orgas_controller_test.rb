@@ -489,27 +489,6 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           assert_equal new_orga_id.to_s, resource.orga_id.to_s
         end
       end
-
-      should 'get contacts' do
-        contact = DataPlugins::Contact::Contact.create(title: 'brand new contact', owner: @orga)
-        assert @orga.update(contact_id: contact.id)
-        get :get_contacts, params: { orga_id: @orga.id }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Array, json
-        assert_equal contact.id.to_s, json[0]['id'].to_s
-        assert_equal contact.title, json[0]['attributes']['title']
-      end
-
-      should 'link contact' do
-        contact = DataPlugins::Contact::Contact.create(title: 'another contact', owner: @orga)
-        get :link_contact, params: { orga_id: @orga.id }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Array, json
-        assert_equal contact.id.to_s, json[0]['id'].to_s
-        assert_equal contact.title, json[0]['attributes']['title']
-      end
     end
   end
 end

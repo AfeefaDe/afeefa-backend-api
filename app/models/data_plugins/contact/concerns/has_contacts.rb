@@ -44,7 +44,7 @@ module DataPlugins::Contact::Concerns::HasContacts
         ensure_given_contact_is_an_owned_contact_and_is_linked!(contact.id)
       end
 
-      has_attribute_params = params.except(:controller, :action, :id).keys.present?
+      has_attribute_params = params.except(:controller, :action, :owner_type, :owner_id, :id).keys.present?
       if has_attribute_params
         # create or update contact
         if params[:action] == 'create'
