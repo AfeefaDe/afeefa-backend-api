@@ -8,6 +8,25 @@ class OfferTest < ActiveSupport::TestCase
     DataModules::Offer::Offer.new.save(validate: false)
   end
 
+  should 'set creator and editor on create and update' do
+    user = Current.user
+    offer = create(:offer)
+
+    assert_equal user, offer.creator
+    assert_equal user, offer.last_editor
+  end
+
+  should 'set editor on update' do
+    user = Current.user
+    offer = create(:offer)
+    assert_equal user, offer.last_editor
+
+    user2 = create(:user)
+    Current.stubs(:user).returns(user2)
+    offer.update(title: 'new')
+    assert_equal user2, offer.last_editor
+  end
+
   should 'update offer triggers fapi cache' do
     offer = create(:offer)
 

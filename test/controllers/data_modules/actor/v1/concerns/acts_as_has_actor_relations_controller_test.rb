@@ -71,7 +71,7 @@ module ActsAsHasActorRelationsControllerTest
             assert_no_difference -> { Orga.count } do
               assert_no_difference -> { DataModules::Actor::ActorRelation.public_send(scope).count } do
                 post actionName, params: { id: @actor.id, actors: [@actor2.id, Orga.last.id + 1] }
-                assert_response :unprocessable_entity, response.body
+                assert_response :unprocessable_entity
                 assert response.body.blank?
               end
             end
@@ -81,7 +81,7 @@ module ActsAsHasActorRelationsControllerTest
             assert_no_difference -> { Orga.count } do
               assert_no_difference -> { DataModules::Actor::ActorRelation.public_send(scope).count } do
                 post actionName, params: { id: @actor.id, actors: [@actor2.id, @actor4.id] }
-                assert_response :unprocessable_entity, response.body
+                assert_response :unprocessable_entity
                 assert response.body.blank?
               end
             end

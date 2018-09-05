@@ -1,9 +1,31 @@
 class Api::V1::AnnotationsController < Api::V1::BaseController
 
-  before_action :find_owner, only: %i(get_owner_annotations)
+  before_action :find_owner
 
-  def get_owner_annotations
+  # POST :owner_type/:owner_id/annotations
+  def create
+    contact = @owner.save_annotation(params)
+    render status: :created, json: contact
+  end
+
+  # GET :owner_type/:owner_id/annotations
+  def index
     render status: :ok, json: @owner.annotations
+  end
+
+  # PUT :owner_type/:owner_id/annotations/:id
+  def update
+    contact = @owner.save_annotation(params)
+    render status: :ok, json: contact
+  end
+
+  # DELETE :owner_type/:owner_id/annotations/:id
+  def delete
+    if @owner.delete_annotation(params)
+      render status: :ok
+    else
+      render status: :unprocessable_entity
+    end
   end
 
   private
@@ -15,6 +37,8 @@ class Api::V1::AnnotationsController < Api::V1::BaseController
         Orga.find(params[:owner_id])
       when 'events'
         Event.find(params[:owner_id])
+      when 'offers'
+        DataModules::Offer::Offer.find(params[:owner_id])
       end
     unless @owner
       raise ActiveRecord::RecordNotFound,

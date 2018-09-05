@@ -23,7 +23,7 @@ class ContactTest < ActiveSupport::TestCase
     orga = create(:orga)
     contact = DataPlugins::Contact::Contact.create!(owner: orga, location: nil, title: 'title')
 
-    FapiClient.any_instance.expects(:entry_deleted).with(orga)
+    FapiClient.any_instance.expects(:entry_updated).with(orga)
 
     contact.destroy
   end

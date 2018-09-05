@@ -3,14 +3,14 @@ require 'test_helper'
 class AnnotationTest < ActiveSupport::TestCase
 
   should 'render json' do
-    object_keys = [:id, :type, :attributes]
-    attribute_keys = [:annotation_category_id, :detail]
+    object_keys = [:id, :type, :attributes, :relationships]
+    attribute_keys = [:annotation_category_id, :detail, :created_at, :updated_at]
     annotation = Annotation.new(entry: create(:orga), annotation_category: AnnotationCategory.first, detail: 'FooBar')
     assert annotation.save, annotation.errors.messages
     json = JSON.parse(annotation.to_json).deep_symbolize_keys
     assert_equal(object_keys.sort, json.keys.sort)
     assert_equal(attribute_keys.sort, json[:attributes].keys.sort)
-    assert_not json.key?(:relationships)
+    assert json.key?(:relationships)
   end
 
   # should 'render todos json' do

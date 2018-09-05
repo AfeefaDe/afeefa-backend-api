@@ -34,6 +34,7 @@ de:
       sub_orgas: Unterorganisationen
       events: Events
       sub_events: Unterevents
+      annotation_category_id: Kategorie
   activerecord:
     attributes:
       orga:

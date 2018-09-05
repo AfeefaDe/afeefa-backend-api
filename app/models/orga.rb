@@ -7,9 +7,10 @@ class Orga < ApplicationRecord
   include Owner
   include Able
   include Jsonable
+  include LazySerializable
 
   # ATTRIBUTES AND ASSOCIATIONS
-  acts_as_tree(foreign_key: :parent_orga_id)
+  acts_as_tree(foreign_key: :parent_orga_id, dependent: :nullify)
   alias_method :sub_orgas, :children
   alias_method :sub_orgas=, :children=
   alias_method :parent_orga, :parent
@@ -18,6 +19,9 @@ class Orga < ApplicationRecord
 
   has_many :hosted_events, class_name: EventHost, foreign_key: :actor_id, dependent: :destroy
   has_many :events, through: :hosted_events
+  has_many :upcoming_events, -> { Event.upcoming }, through: :hosted_events, source: :event
+  has_many :past_events, -> { Event.past }, through: :hosted_events, source: :event
+
   has_many :resource_items
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
@@ -42,8 +46,8 @@ class Orga < ApplicationRecord
   scope :without_root, -> { where(title: nil).or(where.not(title: ROOT_ORGA_TITLE)) }
   default_scope { without_root }
 
-  scope :all_for_ids, -> (ids) {
-    includes(Orga.default_includes).
+  scope :all_for_ids, -> (ids, includes = default_includes) {
+    includes(includes).
     where(id: ids)
   }
 
@@ -60,11 +64,6 @@ class Orga < ApplicationRecord
       Orga.unscoped.find_by_title(ROOT_ORGA_TITLE)
     end
 
-    def default_attributes_for_json
-      %i(orga_type_id title created_at updated_at state_changed_at active
-        count_events count_resource_items).freeze
-    end
-
     def attribute_whitelist_for_json
       (default_attributes_for_json +
         %i(description short_description media_url media_type
@@ -72,8 +71,14 @@ class Orga < ApplicationRecord
             tags certified_sfr inheritance facebook_id)).freeze
     end
 
-    def default_relations_for_json
-      %i(project_initiators annotations facet_items navigation_items creator last_editor).freeze
+    def lazy_attributes_for_json
+      %i(title created_at updated_at active).freeze
+    end
+
+    def default_attributes_for_json
+      (lazy_attributes_for_json + %i(orga_type_id
+        state_changed_at
+        count_upcoming_events count_past_events count_resource_items)).freeze
     end
 
     def relation_whitelist_for_json
@@ -81,14 +86,27 @@ class Orga < ApplicationRecord
         %i(projects networks network_members partners)).freeze
     end
 
+    def lazy_relations_for_json
+      %i(facet_items navigation_items).freeze
+    end
+
+    def default_relations_for_json
+      (lazy_relations_for_json + %i(project_initiators annotations creator last_editor)).freeze
+    end
+
     def count_relation_whitelist_for_json
-      %i(resource_items events).freeze
+      %i(resource_items upcoming_events past_events).freeze
+    end
+
+    def lazy_includes
+      [
+        :facet_items,
+        :navigation_items
+      ]
     end
 
     def default_includes
-      [
-        :facet_items,
-        :navigation_items,
+      lazy_includes + [
         :creator,
         :last_editor,
         :annotations,
@@ -100,6 +118,11 @@ class Orga < ApplicationRecord
         :network_members
       ]
     end
+  end
+
+  # LazySerializable
+  def lazy_serializer
+    OrgaSerializer
   end
 
   # INSTANCE METHODS
@@ -170,6 +193,7 @@ class Orga < ApplicationRecord
   include DataModules::Actor::Concerns::HasActorRelations
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
+  include DataPlugins::Annotation::Concerns::HasAnnotations
   include DataPlugins::Facet::Concerns::HasFacetItems
   include DataModules::Offer::Concerns::HasOffers
   include DataModules::FeNavigation::Concerns::HasFeNavigationItems

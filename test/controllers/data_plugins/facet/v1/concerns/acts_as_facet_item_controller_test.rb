@@ -60,7 +60,7 @@ module ActsAsFacetItemControllerTest
         assert_equal 3, json.count
 
         assert_same_elements [
-          orga.to_hash.as_json,
+          orga.to_hash.as_json, # converts dates to json
           event.to_hash.as_json,
           offer.to_hash.as_json
         ], json

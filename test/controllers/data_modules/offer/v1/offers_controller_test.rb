@@ -20,8 +20,8 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       expected = {
         data: [
-          offer.to_hash,
-          offer2.to_hash
+          offer.serialize_lazy.as_json,
+          offer2.serialize_lazy.as_json
         ]
       }
       assert_equal expected.deep_stringify_keys, json
@@ -31,19 +31,17 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       json = JSON.parse(response.body)
       expected = {
         data: [
-          offer3.to_hash,
-          offer4.to_hash
+          offer3.serialize_lazy.as_json,
+          offer4.serialize_lazy.as_json
         ]
       }
       assert_equal expected.deep_stringify_keys, json
     end
 
     should 'create offer without owner' do
-      actor = create(:orga)
-
       assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot' }
+          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung' }
           assert_response :created
         end
       end
@@ -60,7 +58,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
 
       assert_difference -> { DataModules::Offer::OfferOwner.count }, 2 do
         assert_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot', actors: [actor.id, actor2.id] }
+          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung', owners: [actor.id, actor2.id] }
           assert_response :created
         end
       end
@@ -73,9 +71,26 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     should 'raise exception if create offer with wrong actor' do
       assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_no_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot', actors: [134] }
+          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung', owners: [134] }
           assert_response :unprocessable_entity
         end
+      end
+    end
+
+    should 'raise exception if create offer with missing data' do
+      assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
+        assert_no_difference -> { DataModules::Offer::Offer.count } do
+          post :create, params: {}
+          assert_response :unprocessable_entity
+        end
+        json = JSON.parse(response.body)
+        assert_equal(
+          [
+            'Titel - fehlt',
+            'Beschreibung - fehlt',
+          ],
+          json['errors']
+        )
       end
     end
 
@@ -117,26 +132,44 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       actor = create(:orga)
       offer = create(:offer, actors: [actor.id])
 
+      get :index
+      json = JSON.parse(response.body)['data'][0]
+      assert_nil json['relationships']['owners']
+
+      get :index, params: { ids: [offer.id] }
+      json = JSON.parse(response.body)['data'][0]
+      assert_equal 1, json['relationships']['owners']['data'][0]['attributes'].count
+      assert_nil json['relationships']['owners']['data'][0]['attributes']['count_offers']
+
       get :show, params: { id: offer.id }
       json = JSON.parse(response.body)['data']
       assert_operator 1, :<, json['relationships']['owners']['data'][0]['attributes'].count
       assert_equal 1, json['relationships']['owners']['data'][0]['attributes']['count_offers']
-
-      get :index
-      json = JSON.parse(response.body)['data'][0]
-      assert_equal 1, json['relationships']['owners']['data'][0]['attributes'].count
-      assert_nil json['relationships']['owners']['data'][0]['attributes']['count_offers']
     end
 
     should 'deliver attributes and relations in show and index' do
       actor = create(:orga)
       offer = create(:offer, actors: [actor.id])
 
-      attributes = [
-        "title",
-        "description"
-      ]
-      relationships = ["owners", "facet_items", "navigation_items"]
+      attributes = ["title", 'active', 'created_at', 'updated_at']
+      relationships = ["facet_items", "navigation_items"]
+
+      get :index
+      json = JSON.parse(response.body)['data'][0]
+
+      assert_same_elements attributes, json['attributes'].keys
+      assert_same_elements relationships, json['relationships'].keys
+
+      relationships << 'owners' << 'annotations' << 'creator' << 'last_editor'
+      attributes << 'description' << 'image_url'
+
+      get :index, params: { ids: [offer.id] }
+      json = JSON.parse(response.body)['data'][0]
+
+      assert_same_elements attributes, json['attributes'].keys
+      assert_same_elements relationships, json['relationships'].keys
+
+      relationships << 'contacts'
 
       get :show, params: { id: offer.id }
       json = JSON.parse(response.body)['data']
@@ -144,11 +177,6 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_same_elements attributes, json['attributes'].keys
       assert_same_elements relationships, json['relationships'].keys
 
-      get :index
-      json = JSON.parse(response.body)['data'][0]
-
-      assert_same_elements attributes, json['attributes'].keys
-      assert_same_elements relationships, json['relationships'].keys
     end
 
     should 'link owners' do
@@ -203,7 +231,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_no_difference -> { Orga.count } do
         assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
           post :link_owners, params: { id: offer.id, actors: [owner.id, 2341] }
-          assert_response :unprocessable_entity, response.body
+          assert_response :unprocessable_entity
           assert response.body.blank?
         end
       end
@@ -217,10 +245,128 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_no_difference -> { Orga.count } do
         assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
           post :link_owners, params: { id: offer.id, actors: [owner.id, owner2.id] }
-          assert_response :unprocessable_entity, response.body
+          assert_response :unprocessable_entity
           assert response.body.blank?
         end
       end
+    end
+
+    should 'convert actor and its relations to offer' do
+      actor = create(:orga)
+      actor.contacts.destroy_all
+      actor.locations.destroy_all
+      actor.reload
+
+      # old parents
+      actor_initiator1 = create(:orga)
+      actor.project_initiators << actor_initiator1
+      actor_initiator2 = create(:orga)
+      actor.project_initiators << actor_initiator2
+      assert_equal [actor_initiator1, actor_initiator2], actor.project_initiators
+
+      # offers, events, projects
+      event1 = create(:event)
+      actor.events << event1
+      event2 = create(:event)
+      actor.events << event2
+      assert_equal [event1, event2], actor.events
+
+      offer1 = create(:offer)
+      actor.offers << offer1
+      offer2 = create(:offer)
+      actor.offers << offer2
+      assert_equal [offer1, offer2], actor.offers
+
+      project1 = create(:orga)
+      actor.projects << project1
+      project2 = create(:orga)
+      actor.projects << project2
+      assert_equal [project1, project2], actor.projects
+
+      # contact, location
+      contact = create(:contact)
+      location = create(:location, contact: contact, owner: actor) # location is owned by this contact
+      contact.update(location: location) # contact links to this location
+      actor.contacts << contact
+      assert_equal contact, actor.contacts.first
+      assert_equal actor, contact.owner
+      assert_equal location, actor.locations.first
+      assert_equal actor, location.owner
+
+      # navigation
+      navigation_item = create(:fe_navigation_item)
+      actor.navigation_items << navigation_item
+      assert_equal [navigation_item], actor.navigation_items
+
+      # annotations
+      annotation1 = Annotation.create!(detail: 'annotation123', entry: actor, annotation_category: AnnotationCategory.first)
+      annotation2 = Annotation.create!(detail: 'annotation456', entry: actor, annotation_category: AnnotationCategory.first)
+      assert_equal [annotation2, annotation1], actor.annotations
+
+      new_offer_owner = create(:orga)
+
+      new_offer = nil
+
+      assert_difference -> { Orga.count }, -1 do
+      assert_difference -> { DataModules::Offer::Offer.count } do
+      assert_no_difference -> { Event.count } do
+      assert_no_difference -> { Annotation.count } do
+      assert_no_difference -> { DataPlugins::Location::Location.count } do
+      assert_no_difference -> { DataPlugins::Contact::Contact.count } do
+      # before 2parents-actor->2projects
+      # after parent1->2projects parent2->2projects
+      assert_no_difference -> { DataModules::Actor::ActorRelation.count } do
+        post :convert_from_actor, params: {
+          actorId: actor.id,
+          owners: [actor_initiator1.id, new_offer_owner.id],
+          title: 'Neuer Titel',
+          description: 'Neue Beschreibung',
+          image_url: 'http://image.jpg'
+        }
+        assert_response :created
+        json = JSON.parse(response.body)
+        new_offer = DataModules::Offer::Offer.last
+        assert_equal JSON.parse(new_offer.to_json), json
+      end
+      end
+      end
+      end
+      end
+      end
+      end
+
+      actor_initiator1.reload
+      actor_initiator2.reload
+      new_offer_owner.reload
+      contact.reload
+      location.reload
+
+      # owners
+      assert_equal [actor_initiator1, new_offer_owner], new_offer.owners
+
+      # offers, events, projects
+      assert_equal [event1, event2], actor_initiator1.events
+      assert_equal [event1, event2], new_offer_owner.events
+
+      assert_equal [new_offer, offer1, offer2], actor_initiator1.offers
+      assert_equal [new_offer, offer1, offer2], new_offer_owner.offers
+
+      assert_equal [project1, project2], actor_initiator1.projects
+      assert_equal [project1, project2], new_offer_owner.projects
+      assert_nil actor_initiator2.projects.first
+
+      # contact, location
+      assert_equal contact, new_offer.contacts.first
+      assert_equal new_offer, contact.owner
+      assert_equal location, new_offer.locations.first
+      assert_equal new_offer, location.owner
+
+      # navigation
+      assert_equal [navigation_item], new_offer.navigation_items
+
+      # annotations
+      assert_equal [annotation2, annotation1], new_offer.annotations
+
     end
 
   end

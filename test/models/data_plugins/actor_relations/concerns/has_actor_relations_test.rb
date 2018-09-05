@@ -44,6 +44,21 @@ module DataModules::Actor
       end
     end
 
+    should 'do not remove projects on initiator removal' do
+      actor = create(:orga)
+      partner = create(:orga_with_random_title)
+      partner2 = create(:orga_with_random_title)
+
+      actor.projects << partner
+      actor.projects << partner2
+
+      assert_difference 'Orga.count', -1 do
+        assert_difference 'DataModules::Actor::ActorRelation.count', -2 do
+          actor.destroy!
+        end
+      end
+    end
+
     should 'deliver partner is associated from right or from left' do
       actor = create(:orga)
       partner = create(:orga_with_random_title)

@@ -129,7 +129,7 @@ class DataModules::FeNavigation::V1::FeNavigationItemsControllerTest < ActionCon
       assert_equal 4, json.count
 
       assert_same_elements [
-        orga.to_hash.as_json,
+        orga.to_hash.as_json, # converts dates to json
         event.to_hash.as_json,
         offer.to_hash.as_json,
         orga2.to_hash.as_json

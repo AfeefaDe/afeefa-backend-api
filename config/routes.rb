@@ -33,6 +33,7 @@ Rails.application.routes.draw do
         resources :offers, controller: 'data_modules/offer/v1/offers'
         get 'offers/:id/owners', to: 'data_modules/offer/v1/offers#get_owners'
         post 'offers/:id/owners', to: 'data_modules/offer/v1/offers#link_owners'
+        post 'offers/convert_from_actor', to: 'data_modules/offer/v1/offers#convert_from_actor'
 
         resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
 
@@ -82,8 +83,12 @@ Rails.application.routes.draw do
 
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'
-        get ':owner_type/:owner_id/annotations', to: 'annotations#get_owner_annotations'
         get ':owner_type/:owner_id/resource_items', to: 'resource_items#get_owner_resources'
+
+        get ':owner_type/:owner_id/annotations', to: 'annotations#index'
+        post ':owner_type/:owner_id/annotations', to: 'annotations#create'
+        patch ':owner_type/:owner_id/annotations/:id', to: 'annotations#update'
+        delete ':owner_type/:owner_id/annotations/:id', to: 'annotations#delete'
 
         jsonapi_resources :orgas
 

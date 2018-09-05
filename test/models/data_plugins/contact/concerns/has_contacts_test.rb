@@ -3,11 +3,11 @@ require 'test_helper'
 module DataPlugins::Contact
   class HasContactsTest < ActiveSupport::TestCase
     should 'create contact with own location' do
-      contact = nil
-      orga = create(:orga)
+      orga = create(:orga_without_contacts)
+      assert orga.linked_contact.blank?
+      assert orga.contacts.blank?
 
-      orga.update!(linked_contact: contact)
-      orga.reload
+      contact = nil
 
       assert_difference -> { DataPlugins::Contact::Contact.count } do
         assert_difference -> { DataPlugins::Contact::ContactPerson.count }, 2 do
@@ -37,7 +37,7 @@ module DataPlugins::Contact
 
     should 'create contact with linked location' do
       contact = nil
-      orga = create(:orga)
+      orga = create(:orga_without_contacts)
 
       contact2 = create(:contact)
       orga2 = create(:another_orga)
@@ -164,12 +164,6 @@ module DataPlugins::Contact
       assert_equal contact3, contact.location.contact
     end
 
-    private
-
-    def save_contact(orga, hash)
-      orga.save_contact(ActionController::Parameters.new(hash))
-    end
-
     should 'update (contact with linked location) with own location' do
       orga2 = create(:another_orga)
       contact2 = create(:contact)
@@ -200,12 +194,6 @@ module DataPlugins::Contact
       assert_equal 'Neues Büro', contact.location.title
       assert_equal orga, contact.location.owner
       assert_equal contact, contact.location.contact
-    end
-
-    private
-
-    def save_contact(orga, hash)
-      orga.save_contact(ActionController::Parameters.new(hash))
     end
 
     should 'update (contact with own location) with no location and delete own location' do
@@ -272,6 +260,12 @@ module DataPlugins::Contact
       location = contact2.location
       assert_equal contact2, location.contact
       assert_equal orga2, location.owner
+    end
+
+    private
+
+    def save_contact(orga, hash)
+      orga.save_contact(ActionController::Parameters.new(hash))
     end
   end
 end

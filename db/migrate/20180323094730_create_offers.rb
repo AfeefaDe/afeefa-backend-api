@@ -5,11 +5,16 @@ class CreateOffers < ActiveRecord::Migration[5.0]
       t.string :title
       t.text :description
       t.string :area
+      t.boolean :active, default: false, null: false
+      t.string :image_url
+
+      t.references :last_editor, references: :users
+      t.references :creator, references: :users
 
       t.timestamps
     end
 
-    create_table :owner_offers do |t|
+    create_table :offer_owners do |t|
       t.references :actor, index: true
       t.references :offer, index: true
 
@@ -19,6 +24,6 @@ class CreateOffers < ActiveRecord::Migration[5.0]
 
   def down
     drop_table :offers
-    drop_table :owner_offers
+    drop_table :offer_owners
   end
 end

@@ -33,7 +33,7 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
     end
 
     should 'create contact with location_id and contact_persons' do
-      orga = create(:orga)
+      orga = create(:orga_without_contacts)
       location = create(:afeefa_office)
 
       assert_difference -> { DataPlugins::Contact::Contact.count } do
@@ -59,8 +59,7 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
     end
 
     should 'create contact with new location and contact_persons' do
-      orga = create(:orga)
-      assert orga.contacts.blank?
+      orga = create(:orga_without_contacts)
       assert orga.contacts.blank?
 
       assert_difference -> { DataPlugins::Contact::Contact.count } do
@@ -122,7 +121,7 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
     end
 
     should 'link existing external contact' do
-      assert orga_editing = create(:orga, title: 'editor')
+      assert orga_editing = create(:orga_without_contacts, title: 'editor')
       assert orga_owning = create(:orga, title: 'owner')
       assert location = create(:afeefa_office)
       assert contact = DataPlugins::Contact::Contact.create(owner: orga_owning, location: location, title: 'old title')
@@ -143,8 +142,8 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
     end
 
     should 'not link existing external contact if own contact given' do
-      orga_editing = create(:orga, title: 'editor')
-      orga_owning = create(:orga, title: 'owner')
+      orga_editing = create(:orga_without_contacts, title: 'editor')
+      orga_owning = create(:orga_without_contacts, title: 'owner')
       contact_to_link =
         DataPlugins::Contact::Contact.create(
           owner: orga_owning, location: create(:afeefa_office), title: 'contact to link'
@@ -155,6 +154,8 @@ class DataPlugins::Contact::V1::ContactsControllerTest < ActionController::TestC
         DataPlugins::Contact::Contact.create(
           owner: orga_editing, location: location_existing, title: 'existing old contact'
         )
+
+      orga_editing.reload
       assert contact_existing
       assert location_existing.update(contact: contact_existing)
       assert_equal [contact_existing], orga_editing.contacts

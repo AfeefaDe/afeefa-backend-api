@@ -7,6 +7,7 @@ class Event < ApplicationRecord
 
   include Thing
   include Jsonable
+  include LazySerializable
 
   acts_as_tree(foreign_key: :parent_event_id)
   alias_method :sub_events, :children
@@ -27,8 +28,16 @@ class Event < ApplicationRecord
   # HOOKS
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
 
-  scope :all_for_ids, -> (ids) {
-    includes(Event.default_includes).
+  before_create do
+    self.creator = Current.user
+  end
+
+  before_save do
+    self.last_editor = Current.user
+  end
+
+  scope :all_for_ids, -> (ids, includes = default_includes) {
+    includes(includes).
     where(id: ids)
   }
 
@@ -65,29 +74,70 @@ class Event < ApplicationRecord
             public_speaker location_type legacy_entry_id facebook_id)).freeze
     end
 
+    def lazy_attributes_for_json
+      %i(title active created_at updated_at
+        date_start date_end has_time_start has_time_end).freeze
+    end
+
     def default_attributes_for_json
-      %i(title created_at updated_at state_changed_at
-          date_start date_end
-          has_time_start has_time_end active inheritance).freeze
+      (lazy_attributes_for_json + %i(state_changed_at)).freeze
     end
 
     def relation_whitelist_for_json
       (default_relations_for_json + %i(contacts)).freeze
     end
 
+    def lazy_relations_for_json
+      %i(facet_items navigation_items).freeze
+    end
+
     def default_relations_for_json
-      %i(hosts annotations facet_items navigation_items creator last_editor).freeze
+      (lazy_relations_for_json + %i(hosts annotations creator last_editor)).freeze
+    end
+
+    def lazy_includes
+      [
+        :facet_items,
+        :navigation_items
+      ]
     end
 
     def default_includes
-      [
-        :facet_items,
+      lazy_includes + [
         :hosts,
         :creator,
         :last_editor,
         :annotations
       ]
     end
+
+    def event_create_params(event, params)
+      permitted = {
+        attributes: [:title, :short_description, :date_start, :has_time_start, :date_end, :has_time_end]
+      }
+      unless event.id
+        permitted[:attributes] << :area
+      end
+
+      event_params = params.require(:data).permit(permitted)[:attributes]
+      if event_params
+        event_params["time_start"] = event_params.delete("has_time_start")
+        event_params["time_end"] = event_params.delete("has_time_end")
+      end
+      event_params || {}
+    end
+
+    def create_event(params)
+      event = Event.new
+      event.assign_attributes(event_create_params(event, params))
+      event.save!
+      event
+    end
+  end
+
+  # LazySerializable
+  def lazy_serializer
+    EventSerializer
   end
 
   def link_host(actor_id)
@@ -101,10 +151,12 @@ class Event < ApplicationRecord
     )
   end
 
-  # TODO hosts are part of the list resource as well as the item resource
-  # but we want to include more host details on the item resource
+  # TODO hosts are part of the event list resource as well as the item resource
+  # The list default is just to load the host with its title,
+  # but we want to include more host details on the item resource.
   # hence, there is a patch of this method in events_controller#show
-  def hosts_to_hash
+  # which adds more details to the event relation than defined here.
+   def hosts_to_hash
     hosts.map { |h| h.to_hash(attributes: ['title'], relationships: nil) }
   end
 
@@ -112,6 +164,14 @@ class Event < ApplicationRecord
     if orga && !orga.root_orga?
       orga.to_hash
     end
+  end
+
+  def has_time_start
+    time_start?
+  end
+
+  def has_time_end
+    time_end?
   end
 
   private
@@ -128,17 +188,10 @@ class Event < ApplicationRecord
     end
   end
 
-  def has_time_start
-    time_start?
-  end
-
-  def has_time_end
-    time_end?
-  end
-
   # INCLUDE NEW CODE FROM ACTOR
   include DataPlugins::Contact::Concerns::HasContacts
   include DataPlugins::Location::Concerns::HasLocations
+  include DataPlugins::Annotation::Concerns::HasAnnotations
   include DataPlugins::Facet::Concerns::HasFacetItems
   include DataModules::FeNavigation::Concerns::HasFeNavigationItems
 

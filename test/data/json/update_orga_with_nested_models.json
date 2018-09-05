@@ -8,12 +8,6 @@
       "media_url": ""
     },
     "relationships": {
-      //      "parent_orga":{
-      //        "data":{
-      //          "type":"orgas",
-      //          "id":"683"
-      //        }
-      //      },
       "category": {
         "data": {
           "type": "categories",
@@ -25,17 +19,6 @@
           "type": "categories",
           "id": "<sub_category_id>"
         }
-      },
-      "annotations": {
-        "data": [
-          {
-            "type": "annotations",
-            "id": "<annotation_id_1>",
-            "attributes": {
-              "detail": "foo-bar"
-            }
-          }
-        ]
       },
       "resource_items": {
         "data": [

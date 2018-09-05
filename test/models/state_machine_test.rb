@@ -9,9 +9,9 @@ class StateMachineTest < ActiveSupport::TestCase
 
   should 'create event' do
     assert_difference 'Event.count' do
-      user = create(:user)
+      user = Current.user
       orga = create(:orga)
-      event = build(:event, creator: user, orga: orga)
+      event = build(:event, orga: orga)
       assert event.save, event.errors.full_messages
       assert_equal user, event.creator
       assert_nil event.parent_event

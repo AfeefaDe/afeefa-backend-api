@@ -34,7 +34,7 @@ module DataPlugins::Contact
     after_destroy do
       if owner
         fapi_client = FapiClient.new
-        fapi_client.entry_deleted(owner)
+        fapi_client.entry_updated(owner)
       end
     end
 

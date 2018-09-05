@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180629163147) do
+ActiveRecord::Schema.define(version: 20180903213332) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "associating_actor_id"
@@ -50,12 +50,18 @@ ActiveRecord::Schema.define(version: 20180629163147) do
   end
 
   create_table "annotations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.integer "annotation_category_id"
-    t.string  "entry_type"
-    t.integer "entry_id"
-    t.text    "detail",                 limit: 65535
+    t.integer  "annotation_category_id"
+    t.string   "entry_type"
+    t.integer  "entry_id"
+    t.text     "detail",                 limit: 65535
+    t.integer  "creator_id"
+    t.integer  "last_editor_id"
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
     t.index ["annotation_category_id"], name: "index_annotations_on_annotation_category_id", using: :btree
+    t.index ["creator_id"], name: "index_annotations_on_creator_id", using: :btree
     t.index ["entry_type", "entry_id"], name: "index_annotations_on_entry_type_and_entry_id", using: :btree
+    t.index ["last_editor_id"], name: "index_annotations_on_last_editor_id", using: :btree
   end
 
   create_table "area_chapter_configs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
@@ -315,11 +321,17 @@ ActiveRecord::Schema.define(version: 20180629163147) do
   create_table "offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "contact_id"
     t.string   "title"
-    t.text     "description", limit: 65535
+    t.text     "description",    limit: 65535
     t.string   "area"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.boolean  "active",                       default: false, null: false
+    t.string   "image_url"
+    t.integer  "last_editor_id"
+    t.integer  "creator_id"
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
     t.index ["contact_id"], name: "index_offers_on_contact_id", using: :btree
+    t.index ["creator_id"], name: "index_offers_on_creator_id", using: :btree
+    t.index ["last_editor_id"], name: "index_offers_on_last_editor_id", using: :btree
   end
 
   create_table "orga_category_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|

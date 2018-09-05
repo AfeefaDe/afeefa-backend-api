@@ -32,7 +32,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal Orga.by_area(user.area).count, json['data'].size
       orga_from_db = Orga.by_area(user.area).last
-      assert_equal orga.to_hash.deep_stringify_keys, json['data'].last
+      assert_equal orga.serialize_lazy(annotations: true, facets: false).as_json,
+        json['data'].last
     end
 
     should 'get filtered for annotation category' do
@@ -57,7 +58,8 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_response :ok
       assert_kind_of Array, json['data']
       assert_equal 1, json['data'].size
-      assert_equal orga.to_hash.deep_stringify_keys, json['data'].first
+      assert_equal orga.serialize_lazy(annotations: true, facets: false).as_json,
+        json['data'].first
     end
 
     should 'get todos default filter and sort' do
@@ -73,12 +75,12 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      todo1 = Orga.find(json['data'].first['id'])
-      todo2 = Event.find(json['data'].last['id'])
+      todo1 = Event.find(json['data'].first['id'])
+      todo2 = Orga.find(json['data'].last['id'])
       expected = {
         data: [
-          todo1.to_hash,
-          todo2.to_hash
+          todo1.serialize_lazy(annotations: true, facets: false).as_json,
+          todo2.serialize_lazy(annotations: true, facets: false).as_json
         ]
       }
       assert_equal expected.deep_stringify_keys, json
@@ -96,12 +98,12 @@ class Api::V1::TodosControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
 
-      todo1 = Orga.find(json['data'].first['id'])
-      todo2 = Event.find(json['data'].last['id'])
+      todo1 = Event.find(json['data'].first['id'])
+      todo2 = Orga.find(json['data'].last['id'])
       expected = {
         data: [
-          todo1.to_hash,
-          todo2.to_hash
+          todo1.serialize_lazy(annotations: true, facets: false).as_json,
+          todo2.serialize_lazy(annotations: true, facets: false).as_json
         ]
       }
       assert_equal expected.deep_stringify_keys, json

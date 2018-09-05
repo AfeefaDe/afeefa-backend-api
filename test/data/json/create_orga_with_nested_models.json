@@ -11,12 +11,6 @@
       "state_changed_at": null
     },
     "relationships": {
-      //      "parent_orga":{
-      //        "data":{
-      //          "type":"orgas",
-      //          "id":"683"
-      //        }
-      //      },
       "category": {
         "data": {
           "type": "categories",
@@ -28,24 +22,6 @@
           "type": "categories",
           "id": "<sub_category_id>"
         }
-      },
-      "annotations": {
-        "data": [
-          {
-            "type": "annotations",
-            "attributes": {
-              "detail": "foo-bar",
-              "annotation_category_id": "<annotation_category_id_1>"
-            }
-          },
-          {
-            "type": "annotations",
-            "attributes": {
-              "detail": "foo-bar",
-              "annotation_category_id": "<annotation_category_id_2>"
-            }
-          }
-        ]
       },
       "resource_items": {
         "data": [

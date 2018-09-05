@@ -14,37 +14,24 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
     area = current_api_v1_user.area
 
     if params[:ids]
-      orgas = Orga.all_for_ids(params[:ids].split(/,/))
-    else
       orgas = Orga.
-        includes([:facet_items, :navigation_items]).
+        all_for_ids(params[:ids].split(/,/)).
+        map do |orga|
+          orga.to_hash(attributes: Orga.default_attributes_for_json, relationships: Orga.default_relations_for_json)
+        end
+      else
+        orgas = Orga.includes(Orga.lazy_includes).
         by_area(area).
         map do |orga|
-        {
-          id: orga.id,
-          type: 'orgas',
-          attributes: {
-            title: orga.title,
-            created_at: orga.created_at,
-            active: orga.active
-          },
-          relationships: {
-            facet_items: orga.facet_items_to_hash,
-            navigation_items: orga.navigation_items_to_hash,
-          }
-        }
-      end
+          orga.serialize_lazy
+        end
     end
 
-    render status: :ok, json: orgas.as_json
+    render status: :ok, json: { data: orgas }
   end
 
   def get_offers
     orga = Orga.find(params[:id])
     render status: :ok, json: orga.offers_to_hash
-  end
-
-  def do_includes!(objects)
-    objects.includes(Orga.default_includes)
   end
 end

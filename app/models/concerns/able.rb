@@ -21,9 +21,6 @@ module Able
     has_many :locations, as: :locatable, dependent: :destroy # attention: overridden in orga
     has_many :contact_infos, as: :contactable, dependent: :destroy
 
-    has_many :annotations, as: :entry, dependent: :destroy
-    has_many :annotation_categories, through: :annotations
-
     belongs_to :category, optional: true
     belongs_to :sub_category, class_name: 'Category', optional: true
     belongs_to :last_editor, class_name: 'User', optional: true
@@ -35,12 +32,6 @@ module Able
       skip_unset_inheritance || false
     end
 
-    scope :annotated, -> { joins(:annotations) }
-    scope :unannotated,
-      -> {
-        includes(:annotation_categories).references(:annotation_categories).
-          where(annotation_categories: { id: nil })
-      }
     scope :by_area, ->(area) { where(area: area) }
 
     # VALIDATIONS
@@ -110,10 +101,6 @@ module Able
 
     def skip_short_description_validation?
       @skip_short_description_validation || false
-    end
-
-    def annotations_to_hash
-      annotations.map { |a| a.to_hash(attributes: a.class.default_attributes_for_json) }
     end
 
     def last_editor_to_hash

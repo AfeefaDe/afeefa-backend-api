@@ -1,7 +1,7 @@
 FactoryGirl.define do
 
   factory :orga do
-    title 'an orga'
+    title {"title#{rand(0..10000)}"}
     description 'this is a description of this orga'
     short_description 'this is the short description'
     area 'dresden'
@@ -9,14 +9,29 @@ FactoryGirl.define do
     parent_orga { Orga.root_orga }
 
     locations { [build(:location)] }
+    contacts { [build(:contact)] }
     association :category, factory: :category
 
     after(:build) do |orga|
       orga.orga_type_id = OrgaType.default_orga_type_id
+
+      if orga.contacts.present?
+        location = orga.locations.first
+        location.owner = orga
+
+        contact = orga.contacts.first
+        contact.owner = orga
+        contact.location = location
+        location.contact = contact
+      end
     end
 
     factory :orga_with_random_title do
       title {"title#{rand(0..10000)}"}
+    end
+
+    factory :orga_without_contacts do
+      contacts []
     end
 
     factory :another_orga do
@@ -25,7 +40,7 @@ FactoryGirl.define do
 
     factory :orga_with_initiator do
       after(:create) do |orga|
-        orga.project_initiators << create(:orga_with_random_title)
+        orga.project_initiators << create(:orga)
       end
     end
 
