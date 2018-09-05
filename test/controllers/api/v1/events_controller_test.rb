@@ -488,7 +488,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                   }
                 }
               }
-              assert_response :unprocessable_entity, response.body
+              assert_response :unprocessable_entity
               json = JSON.parse(response.body)
               assert_equal(
                 [
@@ -655,7 +655,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_no_difference -> { Orga.count } do
         assert_no_difference -> { EventHost.count } do
           post :link_hosts, params: { id: event.id, actors: [host.id, 2341] }
-          assert_response :unprocessable_entity, response.body
+          assert_response :unprocessable_entity
           assert response.body.blank?
         end
       end
@@ -669,7 +669,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_no_difference -> { Orga.count } do
         assert_no_difference -> { EventHost.count } do
           post :link_hosts, params: { id: event.id, actors: [host.id, host2.id] }
-          assert_response :unprocessable_entity, response.body
+          assert_response :unprocessable_entity
           assert response.body.blank?
         end
       end

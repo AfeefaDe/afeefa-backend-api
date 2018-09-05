@@ -70,7 +70,7 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
       assert_no_difference -> { ChapterConfig.count } do
         assert_no_difference -> { AreaChapterConfig.count } do
           post :create, params: chapter.except(:id)
-          assert_response :unprocessable_entity, response.body
+          assert_response :unprocessable_entity
           assert response.body.blank?
         end
       end
@@ -102,7 +102,7 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
       assert_no_difference -> { ChapterConfig.count } do
         assert_no_difference -> { AreaChapterConfig.count } do
           patch :update, params: chapter
-          assert_response :unprocessable_entity, response.body
+          assert_response :unprocessable_entity
           assert response.body.blank?
         end
       end
@@ -137,7 +137,7 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
       assert_no_difference -> { ChapterConfig.count } do
         assert_no_difference -> { AreaChapterConfig.count } do
           delete :destroy, params: chapter.slice(:id)
-          assert_response :unprocessable_entity, response.body
+          assert_response :unprocessable_entity
           assert response.body.blank?
         end
       end

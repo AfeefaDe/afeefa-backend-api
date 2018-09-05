@@ -259,7 +259,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                     }
                   }
                 }
-                assert_response :unprocessable_entity, response.body
+                assert_response :unprocessable_entity
                 json = JSON.parse(response.body)
                 assert_equal(
                   [

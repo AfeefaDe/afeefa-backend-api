@@ -89,6 +89,7 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
         params[:area] = current_api_v1_user.area
         offer = DataModules::Offer::Offer.save_offer(params)
 
+        # link new offer owners
         owners = params[:owners] || []
         owners.each do |owner_id|
           offer.link_owner(owner_id)
@@ -96,9 +97,34 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
 
         actor = Orga.find(params[:actorId])
 
+        # relink contact, location, navigation
         DataPlugins::Contact::Contact.where(owner: actor).update(owner: offer)
         DataPlugins::Location::Location.where(owner: actor).update(owner: offer)
         DataModules::FeNavigation::FeNavigationItemOwner.where(owner: actor).update(owner: offer)
+
+        # move actor events to all specfied offer owners
+        events = actor.events
+        events.each do |event|
+          offer.owners.each do |owner|
+            event.hosts << owner
+          end
+        end
+
+        # move actor projects to all specfied offer owners
+        projects = actor.projects
+        projects.each do |project|
+          offer.owners.each do |owner|
+            owner.projects << project
+          end
+        end
+
+        # move actor offers to all specfied offer owners
+        offers = actor.offers
+        offers.each do |actor_offer|
+          offer.owners.each do |owner|
+            owner.offers << actor_offer
+          end
+        end
 
         # skip set entry validation for annotations
         annotations = Annotation.where(entry: actor)
