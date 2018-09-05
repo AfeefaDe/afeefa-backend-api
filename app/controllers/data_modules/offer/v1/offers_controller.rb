@@ -83,6 +83,41 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
     render status: :ok, json: @offer.owners_to_hash
   end
 
+  def convert_from_actor
+    begin
+      ActiveRecord::Base.transaction do # fail if one fails
+        params[:area] = current_api_v1_user.area
+        offer = DataModules::Offer::Offer.save_offer(params)
+
+        owners = params[:owners] || []
+        owners.each do |owner_id|
+          offer.link_owner(owner_id)
+        end
+
+        actor = Orga.find(params[:actorId])
+
+        DataPlugins::Contact::Contact.where(owner: actor).update(owner: offer)
+        DataPlugins::Location::Location.where(owner: actor).update(owner: offer)
+        DataModules::FeNavigation::FeNavigationItemOwner.where(owner: actor).update(owner: offer)
+
+        # skip set entry validation for annotations
+        annotations = Annotation.where(entry: actor)
+        annotations.each do |annotation|
+          annotation.entry = offer
+          annotation.save(validate: false)
+        end
+
+        actor.destroy
+
+        render status: :created, json: offer
+      end
+    rescue ActiveRecord::RecordInvalid
+      raise # let base controller handle
+    rescue
+      head :unprocessable_entity
+    end
+  end
+
   private
 
   def base_for_find_objects

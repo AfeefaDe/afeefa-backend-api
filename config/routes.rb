@@ -33,6 +33,7 @@ Rails.application.routes.draw do
         resources :offers, controller: 'data_modules/offer/v1/offers'
         get 'offers/:id/owners', to: 'data_modules/offer/v1/offers#get_owners'
         post 'offers/:id/owners', to: 'data_modules/offer/v1/offers#link_owners'
+        post 'offers/convert_from_actor', to: 'data_modules/offer/v1/offers#convert_from_actor'
 
         resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
 
