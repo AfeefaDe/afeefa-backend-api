@@ -277,12 +277,12 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         get :index, params: { ids: [@event.id] }
         json = JSON.parse(response.body)['data'][0]
         assert_equal 1, json['relationships']['hosts']['data'][0]['attributes'].count
-        assert_nil json['relationships']['hosts']['data'][0]['attributes']['count_events']
+        assert_nil json['relationships']['hosts']['data'][0]['attributes']['count_upcoming_events']
 
         get :show, params: { id: @event.id }
         json = JSON.parse(response.body)['data']
         assert_operator 1, :<, json['relationships']['hosts']['data'][0]['attributes'].count
-        assert_equal 1, json['relationships']['hosts']['data'][0]['attributes']['count_events']
+        assert_equal 1, json['relationships']['hosts']['data'][0]['attributes']['count_upcoming_events']
 
       end
 

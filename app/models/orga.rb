@@ -19,6 +19,9 @@ class Orga < ApplicationRecord
 
   has_many :hosted_events, class_name: EventHost, foreign_key: :actor_id, dependent: :destroy
   has_many :events, through: :hosted_events
+  has_many :upcoming_events, -> { Event.upcoming }, through: :hosted_events, source: :event
+  has_many :past_events, -> { Event.past }, through: :hosted_events, source: :event
+
   has_many :resource_items
   # has_many :roles, dependent: :destroy
   # has_many :users, through: :roles
@@ -75,7 +78,7 @@ class Orga < ApplicationRecord
     def default_attributes_for_json
       (lazy_attributes_for_json + %i(orga_type_id
         state_changed_at
-        count_events count_resource_items)).freeze
+        count_upcoming_events count_past_events count_resource_items)).freeze
     end
 
     def relation_whitelist_for_json
@@ -92,7 +95,7 @@ class Orga < ApplicationRecord
     end
 
     def count_relation_whitelist_for_json
-      %i(resource_items events).freeze
+      %i(resource_items upcoming_events past_events).freeze
     end
 
     def lazy_includes
