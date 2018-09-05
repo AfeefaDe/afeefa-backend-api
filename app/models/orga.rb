@@ -10,7 +10,7 @@ class Orga < ApplicationRecord
   include LazySerializable
 
   # ATTRIBUTES AND ASSOCIATIONS
-  acts_as_tree(foreign_key: :parent_orga_id)
+  acts_as_tree(foreign_key: :parent_orga_id, dependent: :nullify)
   alias_method :sub_orgas, :children
   alias_method :sub_orgas=, :children=
   alias_method :parent_orga, :parent
