@@ -21,9 +21,12 @@ module DataPlugins::Contact::Concerns::HasContacts
 
   def delete_contact(params)
     ActiveRecord::Base.transaction do
-      contact = DataPlugins::Contact::Contact.find(params[:id])
-      raise ActiveRecord::RecordNotFound if contact.nil?
-      return contact.destroy
+      contact = ensure_contact_if_id_param_is_given!(params[:id])
+      ensure_given_contact_is_linked!(contact.id)
+      if own_contact?(contact.id)
+        contact.destroy!
+      end
+      update!(linked_contact: nil)
     end
   end
 
@@ -32,22 +35,22 @@ module DataPlugins::Contact::Concerns::HasContacts
 
     ActiveRecord::Base.transaction do
       contact_params = params.permit(*self.class.contact_params)
-      has_attribute_params = contact_params.except(:id).keys.present?
+      contact = ensure_contact_if_id_param_is_given!(params[:id])
 
-      # check existing contact for update
-      if params[:action] == 'update'
-        contact = DataPlugins::Contact::Contact.find(params[:id])
-        raise ActiveRecord::RecordNotFound if contact.nil?
+      if params[:action] == 'create'
+        ensure_no_linked_contact_given!
+        ensure_no_owned_contact_given!
+      elsif params[:action] == 'update'
+        ensure_given_contact_is_an_owned_contact_and_is_linked!(contact.id)
       end
 
+      has_attribute_params = params.except(:controller, :action, :id).keys.present?
       if has_attribute_params
         # create or update contact
         if params[:action] == 'create'
           contact_params = contact_params.merge(owner: self)
           contact = DataPlugins::Contact::Contact.create!(contact_params)
         elsif params[:action] == 'update'
-          # check permission for update, existence was already checked above
-          raise Errors::NotPermittedException, 'You are not permitted to update this contact.' unless self == contact.owner
           contact.update!(contact_params)
         end
 
@@ -92,15 +95,62 @@ module DataPlugins::Contact::Concerns::HasContacts
         end
       end
 
-      link_contact(contact.id)
+      link_contact!(contact.id)
     end
 
     contact.reload
   end
 
-  def link_contact(contact_id)
+  def link_contact!(contact_id)
     # link contact to owner
     update!(contact_id: contact_id)
+  end
+
+  def remove_owned_contacts!
+    owned_contacts.destroy_all
+  end
+
+  def ensure_no_linked_contact_given!
+    if contacts.any?
+      raise Errors::NotPermittedException, 'There is already a linked contact given.'
+    end
+  end
+
+  def ensure_no_owned_contact_given!
+    if owned_contacts.any?
+      raise Errors::NotPermittedException, 'There is already an owned contact given.'
+    end
+  end
+
+  def ensure_given_contact_is_an_owned_contact_and_is_linked!(contact_id)
+    ensure_given_contact_is_linked!(contact_id)
+    unless own_contact?(contact_id)
+      raise Errors::NotPermittedException, 'The given contact is not owned by you.'
+    end
+  end
+
+  def own_contact?(contact_id)
+    owned_contacts.pluck(:id).include?(contact_id)
+  end
+
+  def ensure_given_contact_is_linked!(contact_id)
+    unless linked_contact.try(:id) == contact_id
+      raise Errors::NotPermittedException, 'The given contact is not linked by you.'
+    end
+  end
+
+  def ensure_given_contact_is_linked!(contact_id)
+    unless linked_contact.try(:id) == contact_id
+      raise Errors::NotPermittedException, 'The given contact is not linked by you.'
+    end
+  end
+
+  def ensure_contact_if_id_param_is_given!(id)
+    if id.present?
+      contact = DataPlugins::Contact::Contact.find(id)
+      raise ActiveRecord::RecordNotFound if contact.nil?
+      contact
+    end
   end
 
   module ClassMethods

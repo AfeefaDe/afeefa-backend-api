@@ -8,12 +8,8 @@ class DataPlugins::Contact::V1::ContactsController < Api::V1::BaseController
   end
 
   def create
-    if @owner.contacts.blank?
-      contact = @owner.save_contact(params)
-      render status: :created, json: contact
-    else
-      render status: :unprocessable_entity, json: { error: 'There is already a contact for this owner.' }
-    end
+    contact = @owner.save_contact(params)
+    render status: :created, json: contact
   rescue Errors::NotPermittedException => exception
     render status: :unprocessable_entity, json: { error: exception.message }
   end
@@ -31,6 +27,8 @@ class DataPlugins::Contact::V1::ContactsController < Api::V1::BaseController
     else
       render status: :unprocessable_entity
     end
+  rescue Errors::NotPermittedException => exception
+    render status: :unprocessable_entity, json: { error: exception.message }
   end
 
   private

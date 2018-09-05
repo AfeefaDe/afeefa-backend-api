@@ -1,18 +1,23 @@
 require 'test_helper'
 
 module DataPlugins::Contact
-  class ContactTest < ActiveSupport::TestCase
-
+  class HasContactsTest < ActiveSupport::TestCase
     should 'create contact with own location' do
       contact = nil
       orga = create(:orga)
 
+      orga.update!(linked_contact: contact)
+      orga.reload
+
       assert_difference -> { DataPlugins::Contact::Contact.count } do
         assert_difference -> { DataPlugins::Contact::ContactPerson.count }, 2 do
           assert_difference -> { DataPlugins::Location::Location.count } do
-            contact = save_contact(orga, { action: 'create', owner_id: orga.id, owner_type: 'orgas' }.merge(
-              parse_json_file(file: 'contact_with_location.json')
-            ))
+            contact =
+              save_contact(
+                orga,
+                { action: 'create', owner_id: orga.id, owner_type: 'orgas' }.
+                  merge(parse_json_file(file: 'contact_with_location.json'))
+              )
           end
         end
       end
@@ -37,6 +42,9 @@ module DataPlugins::Contact
       contact2 = create(:contact)
       orga2 = create(:another_orga)
       location = create(:afeefa_office, contact: contact2, owner: orga2)
+
+      orga.update!(linked_contact: contact)
+      orga.reload
 
       assert_difference -> { DataPlugins::Contact::Contact.count } do
         assert_difference -> { DataPlugins::Contact::ContactPerson.count }, 2 do
@@ -70,6 +78,9 @@ module DataPlugins::Contact
       assert_equal 'Bayrische Str.8', location.street
       assert_equal orga, location.owner
       assert_equal contact, location.contact
+
+      orga.update!(linked_contact: contact)
+      orga.reload
 
       assert_no_difference -> { DataPlugins::Location::Location.count } do
         save_contact(orga, {action: 'update', id: contact.id, location: {
@@ -105,8 +116,11 @@ module DataPlugins::Contact
       assert_equal orga, location.owner
       assert_equal contact, location.contact
 
+      orga.update!(linked_contact: contact)
+      orga.reload
+
       assert_difference -> { DataPlugins::Location::Location.count }, -1 do
-        save_contact(orga, {action: 'update', id: contact.id, location_id: location2.id})
+        save_contact(orga, { action: 'update', id: contact.id, location_id: location2.id })
       end
 
       contact.reload
@@ -133,6 +147,9 @@ module DataPlugins::Contact
       assert_equal location2, contact.location
       assert_equal orga2, contact.location.owner
       assert_equal contact2, contact.location.contact
+
+      orga.update!(linked_contact: contact)
+      orga.reload
 
       assert_no_difference -> { DataPlugins::Location::Location.count } do
         save_contact(orga, {action: 'update', id: contact.id, location_id: location3.id})
@@ -165,6 +182,9 @@ module DataPlugins::Contact
       assert_equal location2, contact.location
       assert_equal orga2, contact.location.owner
       assert_equal contact2, contact.location.contact
+
+      orga.update!(linked_contact: contact)
+      orga.reload
 
       assert_difference -> { DataPlugins::Location::Location.count } do
         save_contact(orga, {action: 'update', id: contact.id, location: {
@@ -200,6 +220,9 @@ module DataPlugins::Contact
       assert_equal orga, location.owner
       assert_equal contact, location.contact
 
+      orga.update!(linked_contact: contact)
+      orga.reload
+
       assert_difference -> { DataPlugins::Location::Location.count }, -1 do
         save_contact(orga, {action: 'update', id: contact.id, location_id: nil})
       end
@@ -215,6 +238,9 @@ module DataPlugins::Contact
       location = create(:afeefa_office, owner: orga)
       contact = create(:contact, owner: orga, location: location)
       location.update(contact: contact)
+
+      orga.update!(linked_contact: contact)
+      orga.reload
 
       assert_difference -> { DataPlugins::Contact::Contact.count }, -1 do
         assert_difference -> { DataPlugins::Location::Location.count }, -1 do
@@ -232,6 +258,9 @@ module DataPlugins::Contact
       orga = create(:orga)
       contact = create(:contact, owner: orga, location: location2)
 
+      orga.update!(linked_contact: contact)
+      orga.reload
+
       assert_difference -> { DataPlugins::Contact::Contact.count }, -1 do
         assert_no_difference -> { DataPlugins::Location::Location.count }, 0 do
           orga.delete_contact({id: contact.id})
@@ -244,6 +273,5 @@ module DataPlugins::Contact
       assert_equal contact2, location.contact
       assert_equal orga2, location.owner
     end
-
   end
 end

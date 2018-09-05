@@ -1,5 +1,4 @@
 FactoryGirl.define do
-
   factory :location, class: DataPlugins::Location::Location do
     street 'Hauptstr. 1'
 
@@ -25,5 +24,4 @@ FactoryGirl.define do
       end
     end
   end
-
 end
