@@ -32,6 +32,7 @@ FactoryGirl.define do
 
     factory :orga_without_contacts do
       contacts []
+      locations []
     end
 
     factory :another_orga do

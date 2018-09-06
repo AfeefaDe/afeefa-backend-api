@@ -252,10 +252,9 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     end
 
     should 'convert actor and its relations to offer' do
-      actor = create(:orga)
-      actor.contacts.destroy_all
-      actor.locations.destroy_all
-      actor.reload
+      actor = create(:orga_without_contacts)
+      assert actor.contacts.blank?
+      assert actor.locations.blank?
 
       # old parents
       actor_initiator1 = create(:orga)
@@ -284,14 +283,24 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_equal [project1, project2], actor.projects
 
       # contact, location
-      contact = create(:contact)
+      contact = create(:contact, owner: actor)
       location = create(:location, contact: contact, owner: actor) # location is owned by this contact
-      contact.update(location: location) # contact links to this location
-      actor.contacts << contact
-      assert_equal contact, actor.contacts.first
+      # link location to contact
+      location.linking_contacts << contact
+      # link contact to actor
+      contact.linking_owners << actor
+
+      actor.reload
+
       assert_equal actor, contact.owner
-      assert_equal location, actor.locations.first
+      assert_equal actor, contact.linking_owners.first
+      assert_equal contact, actor.contacts.first
+      assert_equal contact, actor.linked_contact
+
       assert_equal actor, location.owner
+      assert_equal contact, location.linking_contacts.first
+      assert_equal location, actor.locations.first
+      assert_equal location, contact.location
 
       # navigation
       navigation_item = create(:fe_navigation_item)

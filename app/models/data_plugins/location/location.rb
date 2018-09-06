@@ -15,6 +15,7 @@ module DataPlugins::Location
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
     belongs_to :contact, class_name: ::DataPlugins::Contact::Contact
+    has_many :linking_contacts, class_name: ::DataPlugins::Contact::Contact
     has_many :contacts, class_name: ::DataPlugins::Contact::Contact, dependent: :nullify
 
     geocoded_by :address_for_geocoding, latitude: :lat, longitude: :lon

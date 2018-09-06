@@ -5,6 +5,7 @@ module DataPlugins::Contact
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
     has_many :contact_persons, class_name: ::DataPlugins::Contact::ContactPerson, dependent: :destroy
+    has_many :linking_owners, class_name: Orga
     belongs_to :location, class_name: ::DataPlugins::Location::Location
 
     # VALIDATIONS
