@@ -1,3 +1,5 @@
+ENV['RAILS_ENV'] = 'development'
+
 FactoryGirl.reload
 
 module Dev

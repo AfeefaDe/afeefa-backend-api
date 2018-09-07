@@ -93,9 +93,6 @@ gem 'paperclip', '~> 5.1'
 # http requests
 gem 'http'
 
-# tasks
-gem 'factory_girl_rails'
-
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   # gem 'byebug', platform: :mri
@@ -114,6 +111,7 @@ group :development, :test do
   gem 'capybara'
   gem 'minitest-rails-capybara'
   gem 'timecop'
+  gem 'factory_girl_rails'
 
   gem 'rails_best_practices'
   gem 'bullet'
