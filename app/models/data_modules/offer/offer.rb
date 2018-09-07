@@ -11,7 +11,7 @@ module DataModules::Offer
     belongs_to :creator, class_name: 'User', optional: true
 
     validates :title, presence: true, length: { maximum: 150 }
-    validates :description, presence: true, length: { maximum: 350 }
+    validates :short_description, presence: true, length: { maximum: 350 }
 
     scope :by_area, ->(area) { where(area: area) }
 
@@ -41,7 +41,7 @@ module DataModules::Offer
     # CLASS METHODS
     class << self
       def translatable_attributes
-        %i(title description)
+        %i(title short_description)
       end
 
       def translation_key_type
@@ -49,7 +49,7 @@ module DataModules::Offer
       end
 
       def attribute_whitelist_for_json
-        default_attributes_for_json
+        (default_attributes_for_json + %i(short_description description image_url)).freeze
       end
 
       def lazy_attributes_for_json
@@ -57,7 +57,7 @@ module DataModules::Offer
       end
 
       def default_attributes_for_json
-        (lazy_attributes_for_json + %i(description image_url)).freeze
+        lazy_attributes_for_json
       end
 
       def relation_whitelist_for_json
@@ -88,7 +88,7 @@ module DataModules::Offer
       end
 
       def offer_params(offer, params)
-        permitted = [:title, :description, :active, :image_url]
+        permitted = [:title, :short_description, :description, :active, :image_url]
         unless offer.id
           permitted << :area
         end

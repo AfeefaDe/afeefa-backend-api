@@ -38,13 +38,13 @@
   "offer": {
     "<existing_offer_id>": {
       "title": "offer.<existing_offer_id>.title",
-      "description": "offer.<existing_offer_id>.description"
+      "short_description": "offer.<existing_offer_id>.description"
     },
     "<nonexisting_offer_id>": {
       "title": "offer.<nonexisting_offer_id>.title"
     },
-    "<offer_without_description_id>": {
-      "title": "offer.<offer_without_description_id>.title"
+    "<offer_without_short_description_id>": {
+      "title": "offer.<offer_without_short_description_id>.title"
     }
   },
   "navigation_item": {

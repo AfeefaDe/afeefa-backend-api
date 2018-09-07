@@ -18,10 +18,10 @@
   "offer": {
     "<existing_offer_id>": {
       "title": "<existing_offer_title>",
-      "description": "<existing_offer_description>"
+      "short_description": "<existing_offer_description>"
     },
-    "<offer_without_description_id>": {
-      "title": "offer.<offer_without_description_id>.title"
+    "<offer_without_short_description_id>": {
+      "title": "offer.<offer_without_short_description_id>.title"
     }
   },
   "facet_item": {

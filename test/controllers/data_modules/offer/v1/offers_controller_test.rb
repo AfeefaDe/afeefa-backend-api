@@ -41,7 +41,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     should 'create offer without owner' do
       assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung' }
+          post :create, params: { title: 'Neues Angebot', short_description: 'Beschreibung' }
           assert_response :created
         end
       end
@@ -58,7 +58,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
 
       assert_difference -> { DataModules::Offer::OfferOwner.count }, 2 do
         assert_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung', owners: [actor.id, actor2.id] }
+          post :create, params: { title: 'Neues Angebot', short_description: 'Beschreibung', owners: [actor.id, actor2.id] }
           assert_response :created
         end
       end
@@ -71,7 +71,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     should 'raise exception if create offer with wrong actor' do
       assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_no_difference -> { DataModules::Offer::Offer.count } do
-          post :create, params: { title: 'Neues Angebot', description: 'Beschreibung', owners: [134] }
+          post :create, params: { title: 'Neues Angebot', short_description: 'Beschreibung', owners: [134] }
           assert_response :unprocessable_entity
         end
       end
@@ -87,7 +87,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
         assert_equal(
           [
             'Titel - fehlt',
-            'Beschreibung - fehlt',
+            'Kurzbeschreibung - fehlt',
           ],
           json['errors']
         )
@@ -161,7 +161,6 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_same_elements relationships, json['relationships'].keys
 
       relationships << 'owners' << 'annotations' << 'creator' << 'last_editor'
-      attributes << 'description' << 'image_url'
 
       get :index, params: { ids: [offer.id] }
       json = JSON.parse(response.body)['data'][0]
@@ -170,6 +169,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_same_elements relationships, json['relationships'].keys
 
       relationships << 'contacts'
+      attributes << 'short_description' << 'description' << 'image_url'
 
       get :show, params: { id: offer.id }
       json = JSON.parse(response.body)['data']
@@ -329,6 +329,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
           actorId: actor.id,
           owners: [actor_initiator1.id, new_offer_owner.id],
           title: 'Neuer Titel',
+          short_description: 'Neue Kurzbeschreibung',
           description: 'Neue Beschreibung',
           image_url: 'http://image.jpg'
         }
@@ -336,6 +337,8 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
         json = JSON.parse(response.body)
         new_offer = DataModules::Offer::Offer.last
         assert_equal JSON.parse(new_offer.to_json), json
+        assert_equal 'Neue Kurzbeschreibung', new_offer.short_description
+        assert_equal 'Neue Beschreibung', new_offer.description
       end
       end
       end

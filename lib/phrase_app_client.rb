@@ -232,13 +232,9 @@ class PhraseAppClient
           # short description differs
           model.respond_to?('short_description') &&
             model.short_description.present? &&
-            json[type][id]['short_description'] != model.short_description ||
-          # offer: description differs
-          model_class == DataModules::Offer::Offer &&
-            model.respond_to?('description') &&
-            model.description.present? &&
-            json[type][id]['description'] != model.description
+            json[type][id]['short_description'] != model.short_description
         )
+
           update_json = model.create_json_for_translation_file(only_changes: false)
           updates_json = updates_json.deep_merge(update_json)
           added += 1

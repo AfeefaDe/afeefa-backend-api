@@ -321,14 +321,15 @@ ActiveRecord::Schema.define(version: 20180903213332) do
   create_table "offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "contact_id"
     t.string   "title"
-    t.text     "description",    limit: 65535
+    t.text     "short_description", limit: 65535
+    t.text     "description",       limit: 65535
     t.string   "area"
-    t.boolean  "active",                       default: false, null: false
+    t.boolean  "active",                          default: false, null: false
     t.string   "image_url"
     t.integer  "last_editor_id"
     t.integer  "creator_id"
-    t.datetime "created_at",                                   null: false
-    t.datetime "updated_at",                                   null: false
+    t.datetime "created_at",                                      null: false
+    t.datetime "updated_at",                                      null: false
     t.index ["contact_id"], name: "index_offers_on_contact_id", using: :btree
     t.index ["creator_id"], name: "index_offers_on_creator_id", using: :btree
     t.index ["last_editor_id"], name: "index_offers_on_last_editor_id", using: :btree

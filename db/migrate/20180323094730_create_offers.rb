@@ -3,6 +3,7 @@ class CreateOffers < ActiveRecord::Migration[5.0]
     create_table :offers do |t|
       t.references :contact, index: true
       t.string :title
+      t.text :short_description
       t.text :description
       t.string :area
       t.boolean :active, default: false, null: false

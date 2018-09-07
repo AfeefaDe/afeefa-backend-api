@@ -228,11 +228,11 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     navigation_item = create(:fe_navigation_item)
 
     offer = create(:offer)
-    offer.description = 'offer description'
+    offer.short_description = 'offer description'
     offer.save(validate: false)
-    offer_without_description = create(:offer)
-    offer_without_description.description = ''
-    offer_without_description.save(validate: false)
+    offer_without_short_description = create(:offer)
+    offer_without_short_description.short_description = ''
+    offer_without_short_description.save(validate: false)
 
     json = parse_json_file file: 'phraseapp_locale_de.json' do |payload|
       payload.gsub!('<existing_orga_id>', existing_orga.id.to_s)
@@ -243,7 +243,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       payload.gsub!('<existing_facet_item_id>', facet_item.id.to_s)
       payload.gsub!('<nonexisting_facet_item_id>', 100000000000000.to_s)
       payload.gsub!('<existing_offer_id>', offer.id.to_s)
-      payload.gsub!('<offer_without_description_id>', offer_without_description.id.to_s)
+      payload.gsub!('<offer_without_short_description_id>', offer_without_short_description.id.to_s)
       payload.gsub!('<nonexisting_offer_id>', 100000000000000.to_s)
       payload.gsub!('<existing_navigation_item_id>', navigation_item.id.to_s)
       payload.gsub!('<nonexisting_navigation_item_id>', 100000000000000.to_s)
@@ -257,8 +257,8 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       "orga.#{orga_whithout_attributes.id}.title",
       "orga.#{orga_whithout_attributes.id}.short_description",
       "offer.100000000000000.title",
-      "offer.100000000000000.description",
-      "offer.#{offer_without_description.id}.description",
+      "offer.100000000000000.short_description",
+      "offer.#{offer_without_short_description.id}.short_description",
       "facet_item.100000000000000.title",
       "navigation_item.100000000000000.title"
     ]
@@ -297,11 +297,11 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     new_orga.save(validate: false)
 
     existing_offer = create(:offer)
-    existing_offer.description = 'offer description'
+    existing_offer.short_description = 'offer short description'
     existing_offer.save(validate: false)
-    offer_without_description = create(:offer)
-    offer_without_description.description = ''
-    offer_without_description.save(validate: false)
+    offer_without_short_description = create(:offer)
+    offer_without_short_description.short_description = ''
+    offer_without_short_description.save(validate: false)
 
     existing_facet_item = create(:facet_item, title: 'existing_facet_item title')
     new_facet_item = create(:facet_item)
@@ -323,8 +323,8 @@ class PhraseAppClientTest < ActiveSupport::TestCase
 
       payload.gsub!('<existing_offer_id>', existing_offer.id.to_s)
       payload.gsub!('<existing_offer_title>', existing_offer.title)
-      payload.gsub!('<existing_offer_description>', existing_offer.description)
-      payload.gsub!('<offer_without_description_id>', offer_without_description.id.to_s)
+      payload.gsub!('<existing_offer_description>', existing_offer.short_description)
+      payload.gsub!('<offer_without_short_description_id>', offer_without_short_description.id.to_s)
 
       payload.gsub!('<existing_facet_item_id>', existing_facet_item.id.to_s)
     end
@@ -343,8 +343,8 @@ class PhraseAppClientTest < ActiveSupport::TestCase
       assert json['orga'][new_orga.id.to_s]['short_description']
 
       assert_equal 1, json['offer'].length
-      assert json['offer'][offer_without_description.id.to_s]['title']
-      assert_nil json['offer'][offer_without_description.id.to_s]['description']
+      assert json['offer'][offer_without_short_description.id.to_s]['title']
+      assert_nil json['offer'][offer_without_short_description.id.to_s]['short_description']
 
       assert_equal 1, json['facet_item'].length
       assert json['facet_item'][new_facet_item.id.to_s]['title']
