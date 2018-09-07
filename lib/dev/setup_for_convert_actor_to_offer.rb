@@ -1,12 +1,10 @@
-ENV['RAILS_ENV'] = 'development'
-
-FactoryGirl.reload
-
 module Dev
   module SetupForConvertActorToOffer
 
     class << self
+      FactoryGirl.reload
       include FactoryGirl::Syntax::Methods
+
       def setup
         Current.user = User.where(area: 'dresden').last
 
