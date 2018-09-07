@@ -2,10 +2,9 @@ module Dev
   module SetupForConvertActorToOffer
 
     class << self
-      FactoryGirl.reload
-      include FactoryGirl::Syntax::Methods
-
       def setup
+        include FactoryGirl::Syntax::Methods
+        FactoryGirl.reload
         Current.user = User.where(area: 'dresden').last
 
         title_key = Time.now.strftime("%d.%m.%Y %H:%M:%S")
