@@ -35,10 +35,9 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
         params[:data][:attributes][:area] = current_api_v1_user.area
         event = Event.create_event(params)
 
-        hosts = params[:data][:relationships][:hosts] || []
+        hosts = params.dig(:data, :relationships, :hosts) || []
         hosts.each do |host_id|
           host = event.link_host(host_id)
-
 
           if !event.linked_contact && host.contacts.present?
             event.link_contact!(host.contacts.first.id)
