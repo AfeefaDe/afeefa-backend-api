@@ -37,8 +37,14 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
 
         hosts = params[:data][:relationships][:hosts] || []
         hosts.each do |host_id|
-          event.link_host(host_id)
+          host = event.link_host(host_id)
+
+
+          if !event.linked_contact && host.contacts.present?
+            event.link_contact!(host.contacts.first.id)
+          end
         end
+
         render status: :created, json: { data: event }
       end
     rescue ActiveRecord::RecordInvalid

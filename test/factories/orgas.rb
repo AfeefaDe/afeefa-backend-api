@@ -16,11 +16,19 @@ FactoryGirl.define do
       orga.orga_type_id = OrgaType.default_orga_type_id
 
       if orga.contacts.present?
+        contact = orga.contacts.first
+
+        # set contact owner
+        orga.linked_contact = contact
+
+        # link contact
+        contact.owner = orga
+
+        # set location owner
         location = orga.locations.first
         location.owner = orga
 
-        contact = orga.contacts.first
-        contact.owner = orga
+        # set location contact relation
         contact.location = location
         location.contact = contact
       end

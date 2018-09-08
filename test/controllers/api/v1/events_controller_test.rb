@@ -413,6 +413,37 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal event_json, json
     end
 
+    should 'create event with host and link contact of first host' do
+      actor = create(:orga)
+      assert actor.linked_contact
+      assert actor.contacts.first
+      actor2 = create(:orga)
+      assert actor2.linked_contact
+      assert actor2.contacts.first
+
+      params = parse_json_file(file: 'create_event_without_orga.json')
+      params['data']['relationships'].merge!(
+        hosts: [actor.id, actor2.id]
+      )
+
+      assert_difference -> { EventHost.count }, 2 do
+        assert_difference -> { Event.count } do
+          post :create, params: params
+          assert_response :created
+        end
+      end
+
+      json = JSON.parse(response.body)
+      event = Event.last
+      event_json = JSON.parse(event.to_json)
+      event_json = {'data' => event_json}
+      assert_equal event_json, json
+
+      assert_equal actor.linked_contact, event.linked_contact
+      assert_equal actor.contacts.first, event.linked_contact
+      assert_empty event.contacts
+    end
+
     should 'An event should only change allowed states' do
       # allowed transition active -> inactive
       orga = create(:another_orga)

@@ -117,10 +117,7 @@ module DataModules::Offer
         actor: owner,
         offer: self
       )
-    end
-
-    def contacts_to_hash
-      contacts.map { |c| c.to_hash }
+      owner
     end
 
     def last_editor_to_hash

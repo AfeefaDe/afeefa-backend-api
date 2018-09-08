@@ -149,6 +149,7 @@ class Event < ApplicationRecord
       actor_id: actor_id,
       event: self
     )
+    host
   end
 
   # TODO hosts are part of the event list resource as well as the item resource

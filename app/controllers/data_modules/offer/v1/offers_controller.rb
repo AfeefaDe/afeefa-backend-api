@@ -40,7 +40,11 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
 
         owners = params[:owners] || []
         owners.each do |owner_id|
-          offer.link_owner(owner_id)
+          owner = offer.link_owner(owner_id)
+
+          if !offer.linked_contact && owner.contacts.present?
+            offer.link_contact!(owner.contacts.first.id)
+          end
         end
         render status: :created, json: offer
       end

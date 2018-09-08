@@ -68,6 +68,31 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_equal JSON.parse(offer.to_json), json
     end
 
+
+    should 'create offer with owners and link contact of first owner' do
+      actor = create(:orga)
+      assert actor.linked_contact
+      assert actor.contacts.first
+      actor2 = create(:orga)
+      assert actor2.linked_contact
+      assert actor2.contacts.first
+
+      assert_difference -> { DataModules::Offer::OfferOwner.count }, 2 do
+        assert_difference -> { DataModules::Offer::Offer.count } do
+          post :create, params: { title: 'Neues Angebot', short_description: 'Beschreibung', owners: [actor.id, actor2.id] }
+          assert_response :created
+        end
+      end
+
+      json = JSON.parse(response.body)
+      offer = DataModules::Offer::Offer.last
+      assert_equal JSON.parse(offer.to_json), json
+
+      assert_equal actor.linked_contact, offer.linked_contact
+      assert_equal actor.contacts.first, offer.linked_contact
+      assert_empty offer.contacts
+    end
+
     should 'raise exception if create offer with wrong actor' do
       assert_no_difference -> { DataModules::Offer::OfferOwner.count } do
         assert_no_difference -> { DataModules::Offer::Offer.count } do
