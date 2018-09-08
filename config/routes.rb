@@ -97,6 +97,7 @@ Rails.application.routes.draw do
 
         get 'orgas/:id/project_initiators', to: 'orgas#get_project_initiators'
         post 'orgas/:id/project_initiators', to: 'orgas#link_project_initiators'
+        delete 'orgas/:id/project_initiators', to: 'orgas#unlink_project_initiator'
 
         post 'orgas/:id/networks', to: 'orgas#link_networks'
         get 'orgas/:id/networks', to: 'orgas#get_networks'

@@ -16,6 +16,87 @@ module ActsAsHasActorRelationsControllerTest
           @actor4 = create(:orga_with_random_title, area: 'hosenmatz')
         end
 
+        def self.test_attach_one(scope, relationName, reverseRelationName, actionName)
+          should "link single actor: #{relationName}" do
+            assert_no_difference -> { Orga.count } do
+              assert_difference -> { DataModules::Actor::ActorRelation.public_send(scope).count }, 1 do
+                post actionName, params: { id: @actor.id, actor: @actor2.id }
+                assert_response :created, response.body
+                assert response.body.blank?
+              end
+            end
+
+            assert_equal @actor, @actor2.send(reverseRelationName).first
+            assert_equal [@actor2], @actor.send(relationName)
+          end
+
+          should "throw error if related actor is invalid:  #{relationName}" do
+            assert_no_difference -> { Orga.count } do
+              assert_no_difference -> { DataModules::Actor::ActorRelation.public_send(scope).count } do
+                post actionName, params: { id: @actor.id, actor: @actor4.id } # area
+                assert_response :unprocessable_entity
+                assert response.body.blank?
+
+                post actionName, params: { id: @actor.id, actor: Orga.last.id + 1 }
+                assert_response :unprocessable_entity
+                assert response.body.blank?
+
+                post actionName, params: { id: @actor.id }
+                assert_response :unprocessable_entity
+                assert response.body.blank?
+
+                post actionName, params: { id: @actor.id, actor: [] }
+                assert_response :unprocessable_entity
+                assert response.body.blank?
+              end
+            end
+          end
+        end
+
+        def self.test_detach_one(scope, relationName, reverseRelationName, actionName)
+          should "unlink single actor: #{relationName}" do
+            @actor.project_initiators << @actor2
+            assert_equal @actor, @actor2.send(reverseRelationName).first
+            assert_equal [@actor2], @actor.send(relationName)
+
+            assert_no_difference -> { Orga.count } do
+              assert_difference -> { DataModules::Actor::ActorRelation.public_send(scope).count }, -1 do
+                delete actionName, params: { id: @actor.id, actor: @actor2.id }
+                assert_response :ok, response.body
+                assert response.body.blank?
+              end
+            end
+
+            @actor.reload
+            @actor2.reload
+
+            assert_nil @actor2.send(reverseRelationName).first
+            assert_equal [], @actor.send(relationName)
+          end
+
+          should "throw error on wrong parameters: #{relationName}" do
+            @actor.project_initiators << @actor2
+            assert_equal @actor, @actor2.send(reverseRelationName).first
+            assert_equal [@actor2], @actor.send(relationName)
+
+            assert_no_difference -> { Orga.count } do
+              assert_no_difference -> { DataModules::Actor::ActorRelation.public_send(scope).count } do
+                delete actionName, params: { id: @actor.id, actor: Orga.last.id }
+                assert_response :unprocessable_entity
+                assert response.body.blank?
+
+                delete actionName, params: { id: @actor.id }
+                assert_response :unprocessable_entity
+                assert response.body.blank?
+
+                delete actionName, params: { id: @actor.id, actor: [] }
+                assert_response :unprocessable_entity
+                assert response.body
+              end
+            end
+          end
+        end
+
         def self.test_association(scope, relationName, reverseRelationName, actionName)
           should "link actors: #{relationName}" do
             assert_no_difference -> { Orga.count } do
@@ -45,6 +126,7 @@ module ActsAsHasActorRelationsControllerTest
 
             assert_no_difference -> { Orga.count } do
               assert_difference -> { DataModules::Actor::ActorRelation.public_send(scope).count }, -1 do
+                request.headers['Content-Type'] = 'application/json' # https://github.com/rails/rails/issues/26569
                 post actionName, params: { id: @actor.id, actors: [] }
                 assert_response :created, response.body
                 assert response.body.blank?
@@ -97,6 +179,10 @@ module ActsAsHasActorRelationsControllerTest
         test_association('network', :networks, :network_members, :link_networks)
 
         test_association('partner', :partners, :partners, :link_partners)
+
+        test_attach_one('project', :project_initiators, :projects, :link_project_initiators)
+
+        test_detach_one('project', :project_initiators, :projects, :unlink_project_initiator)
       end
     end
   end

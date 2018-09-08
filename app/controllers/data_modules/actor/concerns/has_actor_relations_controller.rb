@@ -11,12 +11,33 @@ module DataModules::Actor::Concerns::HasActorRelationsController
 
     begin
       ActiveRecord::Base.transaction do # fail if one fails
-        @actor.project_initiators.destroy_all
-        actor_ids = params[:actors] || [] # https://github.com/rails/rails/issues/26569
+        actor_ids = []
+        if params.has_key?(:actors)
+          @actor.project_initiators.destroy_all
+          actor_ids = params[:actors]
+        elsif params.has_key?(:actor)
+          actor_ids = [params[:actor]].compact
+        else
+          head :unprocessable_entity
+          return
+        end
         actor_ids.each do |actor_id|
           add_association(actor_id, nil, DataModules::Actor::ActorRelation::PROJECT)
         end
         head 201
+      end
+    rescue
+      head :unprocessable_entity
+    end
+  end
+
+  def unlink_project_initiator
+    find_actor
+
+    begin
+      ActiveRecord::Base.transaction do # fail if one fails
+        remove_association(params[:actor], nil, DataModules::Actor::ActorRelation::PROJECT)
+        head 200
       end
     rescue
       head :unprocessable_entity
@@ -34,7 +55,7 @@ module DataModules::Actor::Concerns::HasActorRelationsController
     begin
       ActiveRecord::Base.transaction do # fail if one fails
         @actor.projects.destroy_all
-        actor_ids = params[:actors] || [] # https://github.com/rails/rails/issues/26569
+        actor_ids = params[:actors]
         actor_ids.each do |actor_id|
           add_association(nil, actor_id, DataModules::Actor::ActorRelation::PROJECT)
         end
@@ -56,7 +77,7 @@ module DataModules::Actor::Concerns::HasActorRelationsController
     begin
       ActiveRecord::Base.transaction do # fail if one fails
         @actor.networks.destroy_all
-        actor_ids = params[:actors] || [] # https://github.com/rails/rails/issues/26569
+        actor_ids = params[:actors]
         actor_ids.each do |actor_id|
           add_association(actor_id, nil, DataModules::Actor::ActorRelation::NETWORK)
         end
@@ -78,7 +99,7 @@ module DataModules::Actor::Concerns::HasActorRelationsController
     begin
       ActiveRecord::Base.transaction do # fail if one fails
         @actor.network_members.destroy_all
-        actor_ids = params[:actors] || [] # https://github.com/rails/rails/issues/26569
+        actor_ids = params[:actors]
         actor_ids.each do |actor_id|
           add_association(nil, actor_id, DataModules::Actor::ActorRelation::NETWORK)
         end
@@ -101,7 +122,7 @@ module DataModules::Actor::Concerns::HasActorRelationsController
       ActiveRecord::Base.transaction do # fail if one fails
         @actor.partners_i_have_associated.destroy_all
         @actor.partners_that_associated_me.destroy_all
-        actor_ids = params[:actors] || [] # https://github.com/rails/rails/issues/26569
+        actor_ids = params[:actors]
         actor_ids.each do |actor_id|
           add_association(nil, actor_id, DataModules::Actor::ActorRelation::PARTNER)
         end
@@ -120,8 +141,8 @@ module DataModules::Actor::Concerns::HasActorRelationsController
 
   def get_association(left_id, right_id, type)
     DataModules::Actor::ActorRelation.find_by(
-      associating_actor_id: left_id,
-      associated_actor_id: right_id,
+      associating_actor_id: left_id || @actor.id,
+      associated_actor_id: right_id || @actor.id,
       type: type
     )
   end
@@ -144,5 +165,21 @@ module DataModules::Actor::Concerns::HasActorRelationsController
       associated_actor: right,
       type: type
     )
+  end
+
+  def remove_association(left_id, right_id, type)
+    unless get_association(left_id, right_id, type)
+      raise 'Association does not exist'
+      return
+    end
+
+    left = left_id ? Orga.find(left_id) : @actor
+    right = right_id ? Orga.find(right_id) : @actor
+
+    DataModules::Actor::ActorRelation.where(
+      associating_actor: left,
+      associated_actor: right,
+      type: type
+    ).delete_all
   end
 end
