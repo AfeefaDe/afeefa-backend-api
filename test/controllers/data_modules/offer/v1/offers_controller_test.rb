@@ -288,12 +288,11 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       # link location to contact
       location.linking_contacts << contact
       # link contact to actor
-      contact.linking_owners << actor
+      actor.update(linked_contact: contact)
 
       actor.reload
 
       assert_equal actor, contact.owner
-      assert_equal actor, contact.linking_owners.first
       assert_equal contact, actor.contacts.first
       assert_equal contact, actor.linked_contact
 
@@ -370,6 +369,8 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       # contact, location
       assert_equal contact, new_offer.contacts.first
       assert_equal new_offer, contact.owner
+      assert_equal contact, new_offer.linked_contact
+
       assert_equal location, new_offer.locations.first
       assert_equal new_offer, location.owner
 

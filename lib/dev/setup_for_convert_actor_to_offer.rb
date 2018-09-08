@@ -38,7 +38,7 @@ module Dev
         # link location to contact
         location.linking_contacts << contact
         # link contact to actor
-        contact.linking_owners << actor
+        actor.update(contact_id: contact.id)
 
         # navigation
         navigation_item = DataModules::FeNavigation::FeNavigation.by_area('dresden').last.navigation_items.last

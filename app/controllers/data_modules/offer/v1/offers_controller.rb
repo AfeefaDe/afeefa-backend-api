@@ -99,6 +99,10 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
 
         # relink contact, location, navigation
         DataPlugins::Contact::Contact.where(owner: actor).update(owner: offer)
+        if actor.linked_contact
+          offer.update(linked_contact: actor.linked_contact)
+        end
+
         DataPlugins::Location::Location.where(owner: actor).update(owner: offer)
         DataModules::FeNavigation::FeNavigationItemOwner.where(owner: actor).update(owner: offer)
 
