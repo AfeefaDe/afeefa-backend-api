@@ -391,6 +391,13 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_equal user.id, Event.last.last_editor_id
     end
 
+    should 'allow to create event with existing title' do
+      event = create(:event, title: 'test')
+      event2 = create(:event, title: 'test')
+
+      assert_equal event.title, event2.title
+    end
+
     should 'create event with host' do
       actor = create(:orga)
       actor2 = create(:orga_with_random_title)

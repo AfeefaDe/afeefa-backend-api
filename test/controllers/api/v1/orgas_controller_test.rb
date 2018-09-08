@@ -216,6 +216,26 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       assert_equal user.id.to_s, json['data']['relationships']['creator']['data']['id']
     end
 
+    should 'not allow to create orga with existing title' do
+      orga = create(:orga, title: 'test')
+
+      exception = assert_raises(ActiveRecord::RecordInvalid) {
+        orga2 = create(:orga, title: 'test')
+      }
+      assert_match 'Titel ist bereits vergeben', exception.message
+
+      # offer event are allowed
+      assert create(:offer, title: 'test')
+      assert create(:event, title: 'test')
+    end
+
+    should 'allow to create orga with existing title in other area' do
+      orga = create(:orga, title: 'test', area: 'area')
+      orga2 = create(:orga, title: 'test', area: 'area2')
+
+      assert_equal orga.title, orga2.title
+    end
+
     context 'with given orga' do
       setup do
         @orga = create(:orga)

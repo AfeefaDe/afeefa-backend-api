@@ -32,7 +32,7 @@ class Orga < ApplicationRecord
   # VALIDATIONS
   validate :validate_orga_type_id
 
-  validates_uniqueness_of :title
+  validates_uniqueness_of :title, { scope: :area }
 
   validate :add_root_orga_edit_error, if: -> { root_orga? }
   validates_presence_of :parent_id, unless: :root_orga?

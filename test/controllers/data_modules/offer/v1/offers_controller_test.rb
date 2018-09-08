@@ -52,6 +52,14 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_equal JSON.parse(offer.to_json), json
     end
 
+
+    should 'allow to create offer with existing title' do
+      offer = create(:offer, title: 'test')
+      offer2 = create(:offer, title: 'test')
+
+      assert_equal offer.title, offer2.title
+    end
+
     should 'create offer with owners' do
       actor = create(:orga)
       actor2 = create(:orga_with_random_title)
