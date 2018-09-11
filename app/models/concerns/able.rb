@@ -23,8 +23,6 @@ module Able
 
     belongs_to :category, optional: true
     belongs_to :sub_category, class_name: 'Category', optional: true
-    belongs_to :last_editor, class_name: 'User', optional: true
-    belongs_to :creator, class_name: 'User', optional: true
 
     # can be removed after migration
     attr_accessor :skip_unset_inheritance
@@ -103,13 +101,6 @@ module Able
       @skip_short_description_validation || false
     end
 
-    def last_editor_to_hash
-      last_editor.try(&:to_hash)
-    end
-
-    def creator_to_hash
-      creator.try(&:to_hash)
-    end
   end
 
 end

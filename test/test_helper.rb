@@ -61,7 +61,8 @@ end
 class ActiveSupport::TestCase
 
   setup do
-    Current.stubs(:user).returns(valid_user)
+    @valid_user = valid_user
+    Current.stubs(:user).returns(@valid_user)
   end
 
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
@@ -134,7 +135,7 @@ class ActionController::TestCase
 
   private
 
-  def stub_current_user(user: valid_user)
+  def stub_current_user(user: @valid_user)
     @controller.class.any_instance.stubs(:set_user_by_token).returns(user)
   end
 

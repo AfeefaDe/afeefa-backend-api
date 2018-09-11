@@ -19,8 +19,6 @@ module Thing
     # has_many :thing_tag_relations
     # has_many :tags, through: :thing_tag_relations
 
-    belongs_to :creator, class_name: 'User'
-
     # VALIDATIONS
     validates_presence_of :orga_id
 

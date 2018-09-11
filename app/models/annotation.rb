@@ -1,10 +1,9 @@
 class Annotation < ApplicationRecord
   include Jsonable
+  include HasCreatorAndEditor
 
   belongs_to :annotation_category
   belongs_to :entry, polymorphic: true
-  belongs_to :last_editor, class_name: 'User', optional: true
-  belongs_to :creator, class_name: 'User', optional: true
 
   scope :group_by_entry, -> { group(:entry_id, :entry_type) }
 
@@ -17,15 +16,6 @@ class Annotation < ApplicationRecord
 
   #VALIDATIONS
   validate :validate_consistency
-
-  # HOOKS
-  before_create do
-    self.creator = Current.user
-  end
-
-  before_save do
-    self.last_editor = Current.user
-  end
 
   # CLASS METHODS
   class << self
@@ -103,14 +93,6 @@ class Annotation < ApplicationRecord
 
   def annotation_to_hash
     self.to_hash(relationships: nil)
-  end
-
-  def last_editor_to_hash
-    last_editor.try(&:to_hash)
-  end
-
-  def creator_to_hash
-    creator.try(&:to_hash)
   end
 
 end

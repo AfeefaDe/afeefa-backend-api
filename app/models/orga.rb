@@ -8,6 +8,7 @@ class Orga < ApplicationRecord
   include Able
   include Jsonable
   include LazySerializable
+  include HasCreatorAndEditor
 
   # ATTRIBUTES AND ASSOCIATIONS
   acts_as_tree(foreign_key: :parent_orga_id, dependent: :nullify)

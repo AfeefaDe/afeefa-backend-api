@@ -8,6 +8,7 @@ class Event < ApplicationRecord
   include Thing
   include Jsonable
   include LazySerializable
+  include HasCreatorAndEditor
 
   acts_as_tree(foreign_key: :parent_event_id)
   alias_method :sub_events, :children
@@ -27,14 +28,6 @@ class Event < ApplicationRecord
 
   # HOOKS
   before_validation :unset_inheritance, if: -> { orga.root_orga? && !skip_unset_inheritance? }
-
-  before_create do
-    self.creator = Current.user
-  end
-
-  before_save do
-    self.last_editor = Current.user
-  end
 
   scope :all_for_ids, -> (ids, includes = default_includes) {
     includes(includes).

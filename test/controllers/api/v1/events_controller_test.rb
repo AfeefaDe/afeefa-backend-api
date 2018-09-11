@@ -543,7 +543,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     end
 
     should 'update event without sub_category' do
-      event = create(:event, title: 'foobar')
+      event = create(:event, title: 'foobar', creator: nil)
 
       assert_no_difference 'Event.count' do
         assert_no_difference 'ContactInfo.count' do

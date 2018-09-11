@@ -3,12 +3,11 @@ module DataModules::Offer
     include Jsonable
     include Translatable
     include LazySerializable
+    include HasCreatorAndEditor
 
     # ASSOCIATIONS
     has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, dependent: :destroy
     has_many :owners, through: :offer_owners, source: :actor
-    belongs_to :last_editor, class_name: 'User', optional: true
-    belongs_to :creator, class_name: 'User', optional: true
 
     validates :title, presence: true, length: { maximum: 150 }
     validates :short_description, presence: true, length: { maximum: 350 }
@@ -28,14 +27,6 @@ module DataModules::Offer
     after_destroy do
       fapi_client = FapiClient.new
       fapi_client.entry_deleted(self)
-    end
-
-    before_create do
-      self.creator = Current.user
-    end
-
-    before_save do
-      self.last_editor = Current.user
     end
 
     # CLASS METHODS
@@ -118,14 +109,6 @@ module DataModules::Offer
         offer: self
       )
       owner
-    end
-
-    def last_editor_to_hash
-      last_editor.try(&:to_hash)
-    end
-
-    def creator_to_hash
-      creator.try(&:to_hash)
     end
 
     # TODO owners are part of the offer list resource as well as the item resource
