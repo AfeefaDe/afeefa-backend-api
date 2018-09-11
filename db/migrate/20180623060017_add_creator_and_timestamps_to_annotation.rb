@@ -5,6 +5,15 @@ class AddCreatorAndTimestampsToAnnotation < ActiveRecord::Migration[5.0]
     add_column :annotations, :created_at, :datetime, null: false
     add_column :annotations, :updated_at, :datetime, null: false
 
-    Annotation.update_all(created_at: Time.now, updated_at: Time.now)
+    Annotation.all.each do |annotation|
+      if annotation.entry.present?
+        annotation.update!(
+          created_at: annotation.entry.updated_at,
+          updated_at: annotation.entry.updated_at
+        )
+      else
+        annotation.destroy
+      end
+    end
   end
 end
