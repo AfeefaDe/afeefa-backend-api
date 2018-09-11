@@ -56,7 +56,7 @@ module DataPlugins::Location
       end
 
       def default_attributes_for_json
-        %i(title lat lon street zip city directions).freeze
+        %i(title lat lon street zip city directions contact_id).freeze
       end
 
       def relation_whitelist_for_json
@@ -64,7 +64,7 @@ module DataPlugins::Location
       end
 
       def default_relations_for_json
-        %i(contact owner).freeze
+        %i(owner).freeze
       end
     end
 
