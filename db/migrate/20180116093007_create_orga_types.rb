@@ -1,3 +1,5 @@
+include Migrations::DisableUpdatedAt
+
 class CreateOrgaTypes < ActiveRecord::Migration[5.0]
   def up
     create_table :orga_types do |t|
@@ -13,17 +15,19 @@ class CreateOrgaTypes < ActiveRecord::Migration[5.0]
 
     add_reference :orgas, :orga_type, references: :orga_types, index: true, after: :id
 
-    Orga.unscoped.all.each do |orga|
-      if orga.id == 1
-        orga.orga_type_id = OrgaType.where(name: 'Root').first['id']
-      else
-        if orga.parent_orga_id != 1
-          orga.orga_type_id = OrgaType.where(name: 'Project').first['id']
+    without_updated_at do
+      Orga.unscoped.all.each do |orga|
+        if orga.id == 1
+          orga.orga_type_id = OrgaType.where(name: 'Root').first['id']
         else
-          orga.orga_type_id = OrgaType.where(name: 'Organization').first['id']
+          if orga.parent_orga_id != 1
+            orga.orga_type_id = OrgaType.where(name: 'Project').first['id']
+          else
+            orga.orga_type_id = OrgaType.where(name: 'Organization').first['id']
+          end
         end
+        orga.save(validate: false)
       end
-      orga.save(validate: false)
     end
   end
 

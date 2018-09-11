@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180903213332) do
+ActiveRecord::Schema.define(version: 20180629163147) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "associating_actor_id"
@@ -142,15 +142,16 @@ ActiveRecord::Schema.define(version: 20180903213332) do
   end
 
   create_table "contacts", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.string   "owner_type"
-    t.integer  "owner_id"
-    t.integer  "location_id"
     t.string   "title"
     t.string   "web",              limit: 1000
     t.string   "social_media",     limit: 1000
     t.string   "spoken_languages"
     t.string   "fax"
     t.text     "opening_hours",    limit: 65535
+    t.string   "owner_type"
+    t.integer  "owner_id"
+    t.integer  "location_id"
+    t.string   "location_spec"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
     t.index ["location_id"], name: "index_contacts_on_location_id", using: :btree
@@ -173,7 +174,6 @@ ActiveRecord::Schema.define(version: 20180903213332) do
   end
 
   create_table "events", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.integer  "contact_id"
     t.string   "title"
     t.text     "description",           limit: 65535
     t.text     "short_description",     limit: 65535
@@ -203,6 +203,8 @@ ActiveRecord::Schema.define(version: 20180903213332) do
     t.string   "tags"
     t.string   "inheritance"
     t.string   "area"
+    t.integer  "contact_id"
+    t.string   "contact_spec"
     t.integer  "last_editor_id"
     t.string   "facebook_id"
     t.index ["area"], name: "index_events_on_area", using: :btree
@@ -319,13 +321,14 @@ ActiveRecord::Schema.define(version: 20180903213332) do
   end
 
   create_table "offers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.integer  "contact_id"
     t.string   "title"
     t.text     "short_description", limit: 65535
     t.text     "description",       limit: 65535
     t.string   "area"
     t.boolean  "active",                          default: false, null: false
     t.string   "image_url"
+    t.integer  "contact_id"
+    t.string   "contact_spec"
     t.integer  "last_editor_id"
     t.integer  "creator_id"
     t.datetime "created_at",                                      null: false
@@ -352,7 +355,6 @@ ActiveRecord::Schema.define(version: 20180903213332) do
   end
 
   create_table "orgas", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
-    t.integer  "contact_id"
     t.integer  "orga_type_id"
     t.datetime "created_at",                                          null: false
     t.datetime "updated_at",                                          null: false
@@ -375,6 +377,8 @@ ActiveRecord::Schema.define(version: 20180903213332) do
     t.string   "tags"
     t.string   "inheritance"
     t.string   "area"
+    t.integer  "contact_id"
+    t.string   "contact_spec"
     t.integer  "last_editor_id"
     t.integer  "creator_id"
     t.string   "facebook_id"

@@ -1,15 +1,18 @@
+include Migrations::DisableUpdatedAt
+
 class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
   def do_up_stuff
     create_table :contacts do |t|
-      t.references :owner, polymorphic: true, index: true
-      t.references :location, index: true
-
       t.string :title
       t.string :web, limit: 1000
       t.string :social_media, limit: 1000
       t.string :spoken_languages
       t.string :fax
       t.text :opening_hours
+
+      t.references :owner, polymorphic: true, index: true
+      t.references :location, index: true
+      t.string :location_spec
 
       t.timestamps
     end
@@ -40,8 +43,11 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    add_reference :orgas, :contact, after: :id, index: true
-    add_reference :events, :contact, after: :id, index: true
+    add_reference :orgas, :contact, after: :area, index: true
+    add_column :orgas, :contact_spec, :string, after: :contact_id
+
+    add_reference :events, :contact, after: :area, index: true
+    add_column :events, :contact_spec, :string, after: :contact_id
 
     ::Location.all.each do |location|
       next if location.locatable.blank?
@@ -60,6 +66,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
         directions: location.directions
       )
 
+      # link location
       contact.update(location: location)
     end
 
@@ -93,7 +100,11 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       Orga.reset_column_information
       Event.connection.schema_cache.clear!
       Event.reset_column_information
-      contact_info.contactable.update(contact_id: contact.id)
+
+      # link contact
+      without_updated_at do
+        contact_info.contactable.update(contact_id: contact.id)
+      end
     end
   end
 
@@ -105,5 +116,10 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
     drop_table :addresses
     drop_table :contact_persons
     drop_table :contacts
+
+    remove_column :orgas, :contact_id
+    remove_column :orgas, :contact_spec
+    remove_column :events, :contact_id
+    remove_column :events, :contact_spec
   end
 end

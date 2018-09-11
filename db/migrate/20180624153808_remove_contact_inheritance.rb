@@ -1,3 +1,5 @@
+include Migrations::DisableUpdatedAt
+
 class RemoveContactInheritance < ActiveRecord::Migration[5.0]
   def up
     orgas = Orga.where('inheritance like ?', '%contact_infos%')
@@ -20,6 +22,11 @@ class RemoveContactInheritance < ActiveRecord::Migration[5.0]
               web: parent_contact.web,
               opening_hours: parent_contact.opening_hours
             )
+
+            # link contact
+            without_updated_at do
+              orga.update(contact_id: contact.id)
+            end
 
             if parent_contact.contact_persons.count > 0
               parent_person = parent_contact.contact_persons.first
@@ -61,7 +68,7 @@ class RemoveContactInheritance < ActiveRecord::Migration[5.0]
                   name: contact_person.name || parent_person.name,
                   phone: contact_person.phone || parent_person.phone
                 )
-                  else
+              else
                 DataPlugins::Contact::ContactPerson.create(
                   contact: contact,
                   mail: parent_person.mail,

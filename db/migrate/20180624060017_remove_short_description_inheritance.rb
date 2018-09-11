@@ -1,3 +1,5 @@
+include Migrations::DisableUpdatedAt
+
 class RemoveShortDescriptionInheritance < ActiveRecord::Migration[5.0]
   def initialize(name, version)
     super(name, version)
@@ -20,7 +22,7 @@ class RemoveShortDescriptionInheritance < ActiveRecord::Migration[5.0]
         Annotation.create!(
           detail: @inheritance_info,
           entry: orga,
-          annotation_category: annotation_category
+          annotation_category_id: annotation_category.id
         )
       end
     end
@@ -32,11 +34,15 @@ class RemoveShortDescriptionInheritance < ActiveRecord::Migration[5.0]
       if orga.inheritance && orga.inheritance.include?('short_description')
         parent_orga = orga.project_initiators.first
         if parent_orga && parent_orga.short_description
-          orga.update!(short_description: parent_orga.short_description)
+
+          without_updated_at do
+            orga.update!(short_description: parent_orga.short_description)
+          end
+
           Annotation.create!(
             detail: @copy_info + parent_orga.title,
             entry: orga,
-            annotation_category: annotation_category
+            annotation_category_id: annotation_category.id
           )
         end
       end
@@ -48,7 +54,7 @@ class RemoveShortDescriptionInheritance < ActiveRecord::Migration[5.0]
         Annotation.create!(
           detail: @empty_info,
           entry: orga,
-          annotation_category: annotation_category
+          annotation_category_id: annotation_category.id
         )
       end
     end
@@ -59,7 +65,7 @@ class RemoveShortDescriptionInheritance < ActiveRecord::Migration[5.0]
       Annotation.create!(
         detail: @empty_info,
         entry: event,
-        annotation_category: annotation_category
+        annotation_category_id: annotation_category.id
       )
     end
 
