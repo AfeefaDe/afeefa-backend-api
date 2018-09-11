@@ -29,13 +29,15 @@ Rails.application.routes.draw do
         post ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#create'
         patch ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#update'
         delete ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#delete'
+        delete ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#delete'
 
         resources :offers, controller: 'data_modules/offer/v1/offers'
         get 'offers/:id/owners', to: 'data_modules/offer/v1/offers#get_owners'
         post 'offers/:id/owners', to: 'data_modules/offer/v1/offers#link_owners'
         post 'offers/convert_from_actor', to: 'data_modules/offer/v1/offers#convert_from_actor'
 
-        resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index, :show]
+        resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index]
+        get 'contacts', to: 'data_plugins/contact/v1/contacts#get_contacts'
 
         resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit] do
           resources :facet_items, controller: 'data_plugins/facet/v1/facet_items', except: [:new, :edit]

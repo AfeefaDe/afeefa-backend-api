@@ -68,6 +68,7 @@ class Orga < ApplicationRecord
     def attribute_whitelist_for_json
       (default_attributes_for_json +
         %i(description short_description media_url media_type
+            contact_spec
             support_wanted support_wanted_detail
             tags certified_sfr inheritance facebook_id)).freeze
     end

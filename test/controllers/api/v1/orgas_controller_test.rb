@@ -126,7 +126,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         'tags',
         'certified_sfr',
         'inheritance',
-        'facebook_id'
+        'facebook_id',
+        'contact_spec'
       ]
 
       relationships = [

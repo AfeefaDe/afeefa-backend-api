@@ -40,7 +40,7 @@ module DataModules::Offer
       end
 
       def attribute_whitelist_for_json
-        (default_attributes_for_json + %i(short_description description image_url)).freeze
+        (default_attributes_for_json + %i(short_description description image_url contact_spec)).freeze
       end
 
       def lazy_attributes_for_json
@@ -79,7 +79,7 @@ module DataModules::Offer
       end
 
       def offer_params(offer, params)
-        permitted = [:title, :short_description, :description, :active, :image_url]
+        permitted = [:title, :short_description, :description, :active, :image_url, :contact_spec]
         unless offer.id
           permitted << :area
         end

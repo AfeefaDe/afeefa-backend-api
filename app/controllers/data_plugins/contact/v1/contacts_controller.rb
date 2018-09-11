@@ -1,7 +1,18 @@
 class DataPlugins::Contact::V1::ContactsController < Api::V1::BaseController
 
   skip_before_action :find_objects
-  before_action :find_owner
+  before_action :find_owner, except: :get_contacts
+
+  def get_contacts
+    area = current_api_v1_user.area
+    query = DataPlugins::Contact::Contact.
+      selectable_in_area(area).
+      includes(:owner, :location, :contact_persons)
+
+    contacts = query.all.map { |contact| contact.to_hash(attributes: nil, relationships: [:owner, :location, :contact_persons]) }
+
+    render status: :ok, json: contacts
+  end
 
   def index
     render status: :ok, json: @owner.contacts_to_hash

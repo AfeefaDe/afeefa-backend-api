@@ -202,7 +202,7 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_same_elements relationships, json['relationships'].keys
 
       relationships << 'contacts'
-      attributes << 'short_description' << 'description' << 'image_url'
+      attributes << 'short_description' << 'description' << 'image_url' << 'contact_spec'
 
       get :show, params: { id: offer.id }
       json = JSON.parse(response.body)['data']

@@ -4,6 +4,7 @@ class Api::V1::EntriesBaseResource < Api::V1::BaseResource
 
   ATTRIBUTES = [
     :title, :description, :short_description, :created_at, :updated_at,
+    :contact_spec,
     :media_url, :media_type, :support_wanted, :support_wanted_detail,
     :certified_sfr, :tags,
     :state_changed_at, :active, :inheritance, :facebook_id]

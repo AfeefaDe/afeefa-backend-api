@@ -45,7 +45,7 @@ module DataPlugins::Location
 
     def owner_to_hash
       if owner
-        owner.to_hash(attributes: ['title'], relationships: nil)
+        owner.to_hash(attributes: [:title], relationships: nil)
       end
     end
 
@@ -60,11 +60,11 @@ module DataPlugins::Location
       end
 
       def relation_whitelist_for_json
-        default_relations_for_json.freeze
+        (default_relations_for_json + %i(owner)).freeze
       end
 
       def default_relations_for_json
-        %i(owner).freeze
+        [].freeze
       end
     end
 

@@ -32,7 +32,12 @@ module DataPlugins::Contact::Concerns::HasContacts
         ensure_given_contact_is_an_owned_contact_and_is_linked!(contact.id)
       end
 
-      has_attribute_params = params.except(:controller, :action, :owner_type, :owner_id, :id).keys.present?
+      has_attribute_params = true
+      if params[:action] == 'create' && params[:id].present?
+        ensure_contact_can_be_linked!(contact)
+        has_attribute_params = false
+      end
+
       if has_attribute_params
         # create or update contact
         if params[:action] == 'create'
@@ -79,11 +84,20 @@ module DataPlugins::Contact::Concerns::HasContacts
             end
           end
           # set new location
-          contact.update!({ location_id: params[:location_id] })
+          unless contact.location_id == params[:location_id]
+            contact.update!(
+              location_id: params[:location_id],
+              location_spec: nil
+            )
+          end
         end
       end
 
-      link_contact!(contact.id)
+      # remove contact_spec if linking a new contact
+      unless linked_contact.try(:id) == contact.id
+        update!(contact_spec: nil)
+        link_contact!(contact.id)
+      end
     end
 
     contact.reload
@@ -123,12 +137,6 @@ module DataPlugins::Contact::Concerns::HasContacts
     end
   end
 
-  def ensure_given_contact_is_linked!(contact_id)
-    unless linked_contact.try(:id) == contact_id
-      raise Errors::NotPermittedException, 'The given contact is not linked by you.'
-    end
-  end
-
   def ensure_contact_if_id_param_is_given!(id)
     if id.present?
       contact = DataPlugins::Contact::Contact.find(id)
@@ -137,6 +145,11 @@ module DataPlugins::Contact::Concerns::HasContacts
     end
   end
 
+  def ensure_contact_can_be_linked!(contact)
+    unless contact.owner.instance_of? Orga
+      raise Errors::NotPermittedException, 'The given contact cannot be linked.'
+    end
+  end
 
   def linked_contacts_to_hash
     [linked_contact&.to_hash].compact
@@ -146,7 +159,7 @@ module DataPlugins::Contact::Concerns::HasContacts
 
   module ClassMethods
     def contact_params
-      [:id, :title, :web, :social_media, :opening_hours, :spoken_languages]
+      [:id, :title, :web, :social_media, :opening_hours, :spoken_languages, :location_spec]
     end
 
     def contact_person_params

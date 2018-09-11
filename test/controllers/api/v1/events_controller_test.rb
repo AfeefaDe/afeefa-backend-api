@@ -350,7 +350,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
           "public_speaker",
           "location_type",
           "legacy_entry_id",
-          "facebook_id"
+          "facebook_id",
+          'contact_spec'
         ]
         relationships = ["hosts", "annotations", "facet_items", "navigation_items", "creator", "last_editor", "contacts"]
 

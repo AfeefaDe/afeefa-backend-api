@@ -43,9 +43,6 @@ module DataPlugins::Contact
       orga2 = create(:another_orga)
       location = create(:afeefa_office, contact: contact2, owner: orga2)
 
-      orga.update!(linked_contact: contact)
-      orga.reload
-
       assert_difference -> { DataPlugins::Contact::Contact.count } do
         assert_difference -> { DataPlugins::Contact::ContactPerson.count }, 2 do
           assert_no_difference -> { DataPlugins::Location::Location.count } do
@@ -64,6 +61,53 @@ module DataPlugins::Contact
       assert_equal contact2, location.contact
       assert_equal orga2, location.owner
       assert_equal 'Afeefa Büro', location.title
+    end
+
+    should "link location should reset contacts location_spec" do
+      orga = create(:orga)
+      contact = orga.contacts.first
+      contact.update!(location_spec: 'Im Hinterhaus')
+      assert_equal 'Im Hinterhaus', contact.location_spec
+
+      orga2 = create(:another_orga)
+      location2 = orga2.contacts.first.location
+
+      save_contact(orga, { action: 'update', owner_id: orga.id, owner_type: 'orgas', id: contact.id }.merge(
+        parse_json_file(file: 'contact_with_location_id.json') do |payload|
+          payload.gsub!('<location_id>', location2.id.to_s)
+        end
+      ))
+
+      contact.reload
+      assert_equal location2, contact.location
+      assert_nil contact.location_spec
+    end
+
+    should 'not allow linking contacts from other owners than actors' do
+      skip
+    end
+
+    [:orga, :event, :offer].each do |entry_factory|
+      should "link contact should reset owners contact_spec #{entry_factory}" do
+        entry = create(entry_factory, contacts: [], contact_spec: 'Mein Kontakt')
+        assert_equal 'Mein Kontakt', entry.contact_spec
+
+        orga_owning = create(:orga, title: 'owner')
+        assert contact = orga_owning.contacts.first
+
+        assert entry.contacts.blank?
+        assert entry.linked_contact.blank?
+
+        entry.save_contact(ActionController::Parameters.new(
+          id: contact.id
+        ))
+
+        entry.reload
+
+        assert entry.contacts.blank?
+        assert_equal contact, entry.linked_contact
+        assert_nil entry.contact_spec
+      end
     end
 
     should 'update (contact with own location) with own location' do

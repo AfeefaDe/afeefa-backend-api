@@ -13,6 +13,14 @@ module DataPlugins::Contact
     validates :social_media, length: { maximum: 1000 }
     validates :spoken_languages, length: { maximum: 255 }
     validates :opening_hours, length: { maximum: 65000 }
+    validates :location_spec, length: { maximum: 255 }
+
+    # SCOPES
+    scope :selectable_in_area, -> (area) {
+      includes(:owner).
+      joins("INNER JOIN orgas on owner_type = 'Orga' and owner_id = orgas.id").
+      where(owner_type: 'Orga', 'orgas.area': area, 'orgas.state': 'active')
+    }
 
     # HOOKS
     after_destroy :remove_links
@@ -38,6 +46,10 @@ module DataPlugins::Contact
       end
     end
 
+    def owner_to_hash
+      owner.to_hash(attributes: [:title], relationships: nil)
+    end
+
     def contact_persons_to_hash
       contact_persons.map { |cp| cp.to_hash(attributes: cp.class.default_attributes_for_json) }
     end
@@ -55,7 +67,7 @@ module DataPlugins::Contact
       end
 
       def default_attributes_for_json
-        %i(title social_media spoken_languages web opening_hours).freeze
+        %i(title social_media spoken_languages web opening_hours location_spec).freeze
       end
 
       def relation_whitelist_for_json
@@ -63,7 +75,7 @@ module DataPlugins::Contact
       end
 
       def default_relations_for_json
-        %i(location contact_persons).freeze
+        %i(location contact_persons owner).freeze
       end
     end
   end
