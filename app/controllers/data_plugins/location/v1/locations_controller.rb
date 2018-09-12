@@ -10,7 +10,7 @@ class DataPlugins::Location::V1::LocationsController < Api::V1::BaseController
     map do |location|
       location.to_hash(
         attributes: DataPlugins::Location::Location.default_attributes_for_json,
-        relationships: DataPlugins::Location::Location.default_relations_for_json)
+        relationships: [:linking_actors])
     end
 
     render status: :ok, json: { data: locations }

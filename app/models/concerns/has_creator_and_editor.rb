@@ -14,11 +14,11 @@ module HasCreatorAndEditor
     end
   end
 
-  def last_editor_to_hash
+  def last_editor_to_hash(relationships: nil)
     last_editor.try(&:to_hash)
   end
 
-  def creator_to_hash
+  def creator_to_hash(relationships: nil)
     creator.try(&:to_hash)
   end
 

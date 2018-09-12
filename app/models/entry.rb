@@ -21,7 +21,7 @@ class Entry < ApplicationRecord
     end
   end
 
-  def entry_to_hash
+  def entry_to_hash(relationships: nil)
     entry.try(&:to_hash)
   end
 

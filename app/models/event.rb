@@ -151,11 +151,11 @@ class Event < ApplicationRecord
   # but we want to include more host details on the item resource.
   # hence, there is a patch of this method in events_controller#show
   # which adds more details to the event relation than defined here.
-   def hosts_to_hash
+   def hosts_to_hash(relationships: nil)
     hosts.map { |h| h.to_hash(attributes: ['title'], relationships: nil) }
   end
 
-  def orga_to_hash
+  def orga_to_hash(relationships: nil)
     if orga && !orga.root_orga?
       orga.to_hash
     end

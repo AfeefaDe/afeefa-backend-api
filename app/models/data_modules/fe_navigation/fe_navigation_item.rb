@@ -160,11 +160,11 @@ module DataModules::FeNavigation
       true
     end
 
-    def sub_items_to_hash
+    def sub_items_to_hash(relationships: nil)
       sub_items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
     end
 
-    def owners_to_hash
+    def owners_to_hash(relationships: nil)
       owners.map { |owner| owner.to_hash }
     end
 

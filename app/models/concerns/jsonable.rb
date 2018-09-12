@@ -13,6 +13,7 @@ module Jsonable
   def to_hash(
       attributes: self.class.default_attributes_for_json,
       relationships: self.class.default_relations_for_json,
+      dependent_relationships: {},
       type: nil)
 
       default_hash(type: type).tap do |hash|
@@ -55,21 +56,28 @@ module Jsonable
           relation = relation.to_sym
           next unless relation.in?(self.class.relation_whitelist_for_json)
 
+          use_dependent_relations = dependent_relationships.has_key?(relation)
+          to_hash_params = use_dependent_relations ? { relationships: dependent_relationships.try(:[], relation) } : {}
+
+          dependent_relationships.try(:[], relation)
+
           association =
             if respond_to?("#{relation}_to_hash")
               skip_to_hash = true
-              send("#{relation}_to_hash")
+              send("#{relation}_to_hash", to_hash_params)
             else
               skip_to_hash = false
               send(relation)
             end
 
           unless skip_to_hash
+            to_hash_params.merge!(attributes: nil)
+
             association =
               if association.respond_to?(:map)
-                association.map { |element| element.to_hash(attributes: nil, relationships: nil) }
+                association.map { |element| element.to_hash(to_hash_params) }
               else
-                association.try(:to_hash, attributes: nil, relationships: nil)
+                association.try(:to_hash, to_hash_params)
               end
           end
 

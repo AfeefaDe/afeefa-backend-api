@@ -45,17 +45,17 @@ module DataPlugins::Facet
       end
     end
 
-    def facet_items_to_hash
+    def facet_items_to_hash(relationships: nil)
       items = facet_items.select { |item| item.parent_id == nil }
       items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
     end
 
-    def main_facet_of_to_hash
+    def main_facet_of_to_hash(relationships: nil)
       main_owner_type = owner_types.find { |owner_type| owner_type.main_facet == true }
       return main_owner_type ? main_owner_type.owner_type : nil
     end
 
-    def owner_types_to_hash
+    def owner_types_to_hash(relationships: nil)
       owner_types.map { |owner_type| owner_type.owner_type }
     end
 

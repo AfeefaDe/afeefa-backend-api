@@ -91,7 +91,7 @@ class Annotation < ApplicationRecord
     end
   end
 
-  def annotation_to_hash
+  def annotation_to_hash(relationships: nil)
     self.to_hash(relationships: nil)
   end
 

@@ -161,7 +161,7 @@ class Orga < ApplicationRecord
     title == ROOT_ORGA_TITLE
   end
 
-  def resource_items_to_hash
+  def resource_items_to_hash(relationships: nil)
     resource_items.map { |r| r.to_hash }
   end
 

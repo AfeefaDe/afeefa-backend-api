@@ -45,13 +45,13 @@ module DataPlugins::Location
       address.gsub(/\A, /, '')
     end
 
-    def owner_to_hash
+    def owner_to_hash(relationships: nil)
       if owner
         owner.to_hash(attributes: [:title], relationships: nil)
       end
     end
 
-    def linking_actors_to_hash
+    def linking_actors_to_hash(relationships: nil)
       linking_actors.map { |actor| actor.to_hash(attributes: [:title], relationships: nil) }
     end
 
@@ -66,11 +66,11 @@ module DataPlugins::Location
       end
 
       def relation_whitelist_for_json
-        (default_relations_for_json + %i(owner)).freeze
+        (default_relations_for_json + %i()).freeze
       end
 
       def default_relations_for_json
-        %i(linking_actors).freeze
+        %i(linking_actors owner).freeze
       end
 
       def default_includes
