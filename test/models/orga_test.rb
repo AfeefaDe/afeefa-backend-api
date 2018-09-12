@@ -272,6 +272,7 @@ class OrgaTest < ActiveSupport::TestCase
     assert orga_owner.reload
     assert_equal [contact.id], orga_owner.contact_ids
     assert_equal [location.id], orga_owner.location_ids
+
     assert orga_linker = create(:orga)
     orga_linker.update!(linked_contact: contact)
     assert contact_linker = create(:contact, location: location)

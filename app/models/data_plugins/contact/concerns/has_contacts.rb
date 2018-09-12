@@ -14,6 +14,8 @@ module DataPlugins::Contact::Concerns::HasContacts
       update!(linked_contact: nil)
       if own_contact?(contact.id)
         contact.destroy!
+      else
+        true
       end
     end
   end

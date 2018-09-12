@@ -90,8 +90,23 @@ module Able
 
     def move_associated_objects_to_root_orga!
       ActiveRecord::Base.transaction do
-        locations.update_all(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
-        contacts.update(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
+        locations.each do |location|
+          if location.linking_contacts.count > 1 || location.linking_actors.first != self
+            location.update!(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
+          else
+            location.update!(owner: nil)
+            location.destroy
+          end
+        end
+        contacts.each do |contact|
+          if contact.linking_actors.count > 1 || contact.linking_actors.first != self
+            contact.update!(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
+          else
+            update!(contact_id: nil)
+            contact.update!(owner: nil)
+            contact.destroy
+          end
+        end
       end
       reload
     end
