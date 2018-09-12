@@ -45,24 +45,24 @@ module DataPlugins::Location
       address.gsub(/\A, /, '')
     end
 
-    def owner_to_hash(relationships: nil)
+    def owner_to_hash(attributes: nil, relationships: nil)
       if owner
         owner.to_hash(attributes: [:title], relationships: nil)
       end
     end
 
-    def linking_actors_to_hash(relationships: nil)
+    def linking_actors_to_hash(attributes: nil, relationships: nil)
       linking_actors.map { |actor| actor.to_hash(attributes: [:title], relationships: nil) }
     end
 
     # CLASS METHODS
     class << self
       def attribute_whitelist_for_json
-        (default_attributes_for_json + %i(lat lon directions contact_id)).freeze
+        default_attributes_for_json.freeze
       end
 
       def default_attributes_for_json
-        %i(title street zip city).freeze
+        %i(title street zip city lat lon directions contact_id).freeze
       end
 
       def relation_whitelist_for_json

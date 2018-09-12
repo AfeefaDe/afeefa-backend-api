@@ -9,7 +9,13 @@ class DataPlugins::Contact::V1::ContactsController < Api::V1::BaseController
       selectable_in_area(area).
       includes(:owner, :location, :contact_persons)
 
-    contacts = query.all.map { |contact| contact.to_hash(attributes: nil, dependent_relationships: { location: nil })  }
+    contacts = query.all.map do |contact|
+      contact.to_hash(
+        attributes: nil,
+        dependent_attributes: { location: %i(street zip city) },
+        dependent_relationships: { location: nil }
+      )
+    end
 
     render status: :ok, json: contacts
   end

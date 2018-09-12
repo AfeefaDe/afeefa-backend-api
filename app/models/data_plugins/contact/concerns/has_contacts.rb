@@ -176,7 +176,7 @@ module DataPlugins::Contact::Concerns::HasContacts
     end
   end
 
-  def linked_contacts_to_hash(relationships: nil)
+  def linked_contacts_to_hash(attributes: nil, relationships: nil)
     [linked_contact&.to_hash].compact
   end
   # json api alias

@@ -116,7 +116,7 @@ module DataModules::Offer
     # but we want to include more owner details on the item resource.
     # hence, there is a patch of this method in offers_controller#show
     # which adds more details to the offer relation than defined here.
-    def owners_to_hash(relationships: nil)
+    def owners_to_hash(attributes: nil, relationships: nil)
       owners.map { |o| o.to_hash(attributes: [:title], relationships: nil) }
     end
 

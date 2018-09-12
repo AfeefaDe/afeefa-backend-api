@@ -8,7 +8,7 @@ module DataPlugins::Facet::Concerns::HasFacetItems
     has_many :facets, class_name: DataPlugins::Facet::Facet, through: :facet_items
   end
 
-  def facet_items_to_hash(relationships: nil)
+  def facet_items_to_hash(attributes: nil, relationships: nil)
     facet_items.map { |item| item.to_hash(attributes: nil, relationships: nil) }
   end
 

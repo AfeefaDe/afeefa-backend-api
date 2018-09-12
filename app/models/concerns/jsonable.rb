@@ -14,6 +14,7 @@ module Jsonable
       attributes: self.class.default_attributes_for_json,
       relationships: self.class.default_relations_for_json,
       dependent_relationships: {},
+      dependent_attributes: {},
       type: nil)
 
       default_hash(type: type).tap do |hash|
@@ -56,10 +57,13 @@ module Jsonable
           relation = relation.to_sym
           next unless relation.in?(self.class.relation_whitelist_for_json)
 
-          use_dependent_relations = dependent_relationships.has_key?(relation)
-          to_hash_params = use_dependent_relations ? { relationships: dependent_relationships.try(:[], relation) } : {}
-
-          dependent_relationships.try(:[], relation)
+          to_hash_params = {}
+          if dependent_relationships.has_key?(relation)
+            to_hash_params[:relationships] = dependent_relationships.try(:[], relation)
+          end
+          if dependent_attributes.has_key?(relation)
+            to_hash_params[:attributes] = dependent_attributes.try(:[], relation)
+          end
 
           association =
             if respond_to?("#{relation}_to_hash")

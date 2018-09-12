@@ -31,7 +31,7 @@ module DataModules::FeNavigation
 
     end
 
-    def navigation_items_to_hash(relationships: nil)
+    def navigation_items_to_hash(attributes: nil, relationships: nil)
       items = navigation_items.select { |item| item.parent_id == nil }
       items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
     end

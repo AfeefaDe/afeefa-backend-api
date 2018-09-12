@@ -47,18 +47,21 @@ module DataPlugins::Contact
       end
     end
 
-    def owner_to_hash(relationships: nil)
+    def owner_to_hash(attributes: nil, relationships: nil)
       owner.to_hash(attributes: [:title], relationships: nil)
     end
 
-    def contact_persons_to_hash(relationships: nil)
+    def contact_persons_to_hash(attributes: nil, relationships: nil)
       contact_persons.map { |cp| cp.to_hash(attributes: cp.class.default_attributes_for_json) }
     end
 
-    def location_to_hash(relationships: DataPlugins::Location::Location.default_relations_for_json)
+    def location_to_hash(
+      attributes: DataPlugins::Location::Location.default_attributes_for_json,
+      relationships: DataPlugins::Location::Location.default_relations_for_json
+      )
       if location
         location.to_hash(
-          attributes: location.class.default_attributes_for_json,
+          attributes: attributes,
           relationships: relationships
         )
       end

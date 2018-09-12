@@ -24,7 +24,7 @@ module DataModules::Actor::Concerns::HasActorRelations
     has_many :projects, through: :project_relations, source: :associated_actor
     has_many :project_initiators, through: :project_initiators_relations, source: :associating_actor
 
-    def projects_to_hash(relationships: nil)
+    def projects_to_hash(attributes: nil, relationships: nil)
       projects.map(&:to_hash)
     end
 
@@ -33,7 +33,7 @@ module DataModules::Actor::Concerns::HasActorRelations
     # but we want to include more initiator details on the item resource.
     # hence, there is a patch of this method in orgas_controller#show
     # which adds more details to the initiator relation than defined here.
-    def project_initiators_to_hash(relationships: nil)
+    def project_initiators_to_hash(attributes: nil, relationships: nil)
       project_initiators.map { |i| i.to_hash(attributes: ['title'], relationships: nil) }
     end
 
@@ -49,11 +49,11 @@ module DataModules::Actor::Concerns::HasActorRelations
     has_many :networks, through: :network_relations, source: :associating_actor
     has_many :network_members, through: :network_member_relations, source: :associated_actor
 
-    def networks_to_hash(relationships: nil)
+    def networks_to_hash(attributes: nil, relationships: nil)
       networks.map(&:to_hash)
     end
 
-    def network_members_to_hash(relationships: nil)
+    def network_members_to_hash(attributes: nil, relationships: nil)
       network_members.map(&:to_hash)
     end
 
@@ -73,7 +73,7 @@ module DataModules::Actor::Concerns::HasActorRelations
       Orga.where(id: partners_i_have_associated.pluck(:id) + partners_that_associated_me.pluck(:id))
     end
 
-    def partners_to_hash(relationships: nil)
+    def partners_to_hash(attributes: nil, relationships: nil)
       partners.map(&:to_hash)
     end
 

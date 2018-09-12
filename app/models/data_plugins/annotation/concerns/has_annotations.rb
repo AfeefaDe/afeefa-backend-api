@@ -17,7 +17,7 @@ module DataPlugins::Annotation::Concerns::HasAnnotations
     return annotation.destroy
   end
 
-  def annotations_to_hash(relationships: nil)
+  def annotations_to_hash(attributes: nil, relationships: nil)
     annotations.map { |a| a.to_hash(attributes: a.class.default_attributes_for_json) }
   end
 

@@ -121,11 +121,11 @@ module DataPlugins::Facet
       true
     end
 
-    def sub_items_to_hash(relationships: nil)
+    def sub_items_to_hash(attributes: nil, relationships: nil)
       sub_items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json, relationships: nil) }
     end
 
-    def owners_to_hash(relationships: nil)
+    def owners_to_hash(attributes: nil, relationships: nil)
       owners.map { |owner| owner.to_hash }
     end
 
