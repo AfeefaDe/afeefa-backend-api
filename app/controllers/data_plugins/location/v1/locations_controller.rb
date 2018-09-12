@@ -1,10 +1,19 @@
 class DataPlugins::Location::V1::LocationsController < Api::V1::BaseController
 
-  private
+  skip_before_action :find_objects
 
-  def base_for_find_objects
+  def index
     area = current_api_v1_user.area
-    DataPlugins::Location::Location.selectable_in_area(area)
+
+    locations = DataPlugins::Location::Location.includes(DataPlugins::Location::Location.default_includes).
+    selectable_in_area(area).
+    map do |location|
+      location.to_hash(
+        attributes: DataPlugins::Location::Location.default_attributes_for_json,
+        relationships: DataPlugins::Location::Location.default_relations_for_json)
+    end
+
+    render status: :ok, json: { data: locations }
   end
 
 end

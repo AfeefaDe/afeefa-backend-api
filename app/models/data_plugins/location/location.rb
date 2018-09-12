@@ -9,14 +9,16 @@ module DataPlugins::Location
     scope :selectable_in_area, -> (area) {
       includes(:owner).
       joins("INNER JOIN orgas on owner_type = 'Orga' and owner_id = orgas.id").
-      where(owner_type: 'Orga', 'orgas.area': area)
+      where(owner_type: 'Orga', 'orgas.area': area, 'orgas.state': 'active')
     }
 
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
     belongs_to :contact, class_name: ::DataPlugins::Contact::Contact
-    has_many :linking_contacts, class_name: ::DataPlugins::Contact::Contact
     has_many :contacts, class_name: ::DataPlugins::Contact::Contact, dependent: :nullify
+
+    has_many :linking_contacts, class_name: ::DataPlugins::Contact::Contact
+    has_many :linking_actors, through: :linking_contacts
 
     geocoded_by :address_for_geocoding, latitude: :lat, longitude: :lon
     attr_accessor :address
@@ -49,22 +51,32 @@ module DataPlugins::Location
       end
     end
 
+    def linking_actors_to_hash
+      linking_actors.map { |actor| actor.to_hash(attributes: [:title], relationships: nil) }
+    end
+
     # CLASS METHODS
     class << self
       def attribute_whitelist_for_json
-        default_attributes_for_json.freeze
+        (default_attributes_for_json + %i(lat lon directions contact_id)).freeze
       end
 
       def default_attributes_for_json
-        %i(title lat lon street zip city directions contact_id).freeze
+        %i(title street zip city).freeze
       end
 
       def relation_whitelist_for_json
-        (default_relations_for_json + %i(owner)).freeze
+        default_relations_for_json.freeze
       end
 
       def default_relations_for_json
-        [].freeze
+        %i(linking_actors).freeze
+      end
+
+      def default_includes
+        [
+          :linking_actors
+        ]
       end
     end
 

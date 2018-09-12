@@ -25,7 +25,7 @@ class RemoveContactInheritance < ActiveRecord::Migration[5.0]
 
             # link contact
             without_updated_at do
-              orga.update(contact_id: contact.id)
+              orga.update_attribute(:contact_id, contact.id)
             end
 
             if parent_contact.contact_persons.count > 0

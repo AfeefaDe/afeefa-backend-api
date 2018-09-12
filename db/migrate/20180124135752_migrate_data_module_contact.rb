@@ -10,15 +10,15 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       t.string :fax
       t.text :opening_hours
 
-      t.references :owner, polymorphic: true, index: true
-      t.references :location, index: true
+      t.references :owner, polymorphic: true, index: false
+      t.references :location, index: false
       t.string :location_spec
 
       t.timestamps
     end
 
     create_table :contact_persons do |t|
-      t.references :contact, index: true
+      t.references :contact, index: false
 
       t.string :name
       t.string :role
@@ -29,8 +29,8 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
     end
 
     create_table :addresses do |t|
-      t.references :owner, polymorphic: true, index: true
-      t.references :contact, index: true
+      t.references :owner, polymorphic: true, index: false
+      t.references :contact, index: false
 
       t.string :title
       t.string :street
@@ -43,16 +43,20 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       t.timestamps
     end
 
-    add_reference :orgas, :contact, after: :area, index: true
+    add_reference :orgas, :contact, after: :area, index: false
     add_column :orgas, :contact_spec, :string, after: :contact_id
 
-    add_reference :events, :contact, after: :area, index: true
+    add_reference :events, :contact, after: :area, index: false
     add_column :events, :contact_spec, :string, after: :contact_id
 
     ::Location.all.each do |location|
       next if location.locatable.blank?
 
       contact = DataPlugins::Contact::Contact.create(owner: location.locatable)
+      # link owner
+      without_updated_at do
+        location.locatable.update_attribute(:contact_id, contact.id)
+      end
 
       location = DataPlugins::Location::Location.create(
         owner: location.locatable,
@@ -77,6 +81,10 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
 
       unless contact
         contact = DataPlugins::Contact::Contact.create(owner: contact_info.contactable)
+        # link contact
+        without_updated_at do
+          contact_info.contactable.update_attribute(:contact_id, contact.id)
+        end
       end
 
       contact.update(
@@ -100,12 +108,15 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       Orga.reset_column_information
       Event.connection.schema_cache.clear!
       Event.reset_column_information
-
-      # link contact
-      without_updated_at do
-        contact_info.contactable.update(contact_id: contact.id)
-      end
     end
+
+    add_index :contacts, [:owner_type, :owner_id]
+    add_index :contacts, :location_id
+    add_index :contact_persons, :contact_id
+    add_index :addresses, [:owner_type, :owner_id]
+    add_index :addresses, :contact_id
+    add_index :orgas, :contact_id
+    add_index :events, :contact_id
   end
 
   def up

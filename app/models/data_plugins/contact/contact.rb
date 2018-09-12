@@ -6,6 +6,7 @@ module DataPlugins::Contact
     belongs_to :owner, polymorphic: true
     has_many :contact_persons, class_name: ::DataPlugins::Contact::ContactPerson, dependent: :destroy
     belongs_to :location, class_name: ::DataPlugins::Location::Location
+    has_many :linking_actors, class_name: Orga, foreign_key: :contact_id
 
     # VALIDATIONS
     validates :title, length: { maximum: 1000 }
