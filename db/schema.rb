@@ -276,6 +276,7 @@ ActiveRecord::Schema.define(version: 20180629163147) do
     t.string   "title"
     t.string   "color"
     t.string   "icon"
+    t.string   "legacy_title"
     t.integer  "navigation_id"
     t.integer  "parent_id"
     t.datetime "created_at",    null: false

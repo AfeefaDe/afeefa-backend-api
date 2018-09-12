@@ -10,6 +10,7 @@ class CreateDataModuleFeNavigation < ActiveRecord::Migration[5.0]
       t.string :title
       t.string :color
       t.string :icon
+      t.string :legacy_title
 
       t.references :navigation, index: true
       t.references :parent, index: true

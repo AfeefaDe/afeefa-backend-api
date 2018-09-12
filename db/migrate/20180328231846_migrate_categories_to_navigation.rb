@@ -9,7 +9,8 @@ class MigrateCategoriesToNavigation < ActiveRecord::Migration[5.0]
           navigation: navigation,
           title: key_to_title(category.title),
           color: key_to_color(category.title),
-          icon: key_to_icon(category.title)
+          icon: key_to_icon(category.title),
+          legacy_title: category.title
         )
 
         Orga.where(category_id: category.id).each do |orga|
@@ -31,7 +32,8 @@ class MigrateCategoriesToNavigation < ActiveRecord::Migration[5.0]
             navigation: navigation,
             parent: navigation_item,
             title: key_to_title(sub_category.title),
-            icon: key_to_icon(sub_category.title)
+            icon: key_to_icon(sub_category.title),
+            legacy_title: sub_category.title
           )
 
           Orga.where(sub_category_id: sub_category.id).each do |orga|
