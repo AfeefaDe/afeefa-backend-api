@@ -2,7 +2,6 @@ require 'test_helper'
 
 module DataModules::FeNavigation
   class FeNavigationItemTest < ActiveSupport::TestCase
-
     include ActsAsFacetItemTest
 
     # ActsAsFacetItemTest
@@ -227,5 +226,14 @@ module DataModules::FeNavigation
       assert_equal 2, navigation_item.count_owners_via_facet_items
     end
 
+    test 'should be ordered' do
+      # initial state
+      create(:fe_navigation_with_items_and_sub_items, items_count: 5, sub_items_count: 5)
+      assert_operator FeNavigationItem.count, :>, 1
+      FeNavigationItem.ordered.each_with_index do |item, index|
+        next if index == 0
+        assert_operator item.order, :>=, FeNavigationItem.ordered[index-1].order
+      end
+    end
   end
 end
