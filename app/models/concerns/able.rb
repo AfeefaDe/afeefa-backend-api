@@ -18,8 +18,8 @@ module Able
 
     # ATTRIBUTES AND ASSOCIATIONS
     # ensure nothing will be deleted, should not occur because we move them to root orga before destroy
-    has_many :locations, as: :locatable, dependent: :restrict_with_exception
-    has_many :contact_infos, as: :contactable, dependent: :restrict_with_exception
+    has_many :locations, as: :locatable, dependent, dependent: :destroy
+    has_many :contact_infos, as: :contactable, dependent: :destroy
 
     belongs_to :category, optional: true
     belongs_to :sub_category, class_name: 'Category', optional: true
@@ -89,8 +89,11 @@ module Able
     end
 
     def move_associated_objects_to_root_orga!
+      pp 'HOHOHO', locations.count, contacts.count
       ActiveRecord::Base.transaction do
+        pp 'HAHAHA'
         locations.each do |location|
+          pp location.linking_contacts.count
           if location.linking_contacts.count > 1 || location.linking_actors.first != self
             location.update!(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
           else
@@ -98,7 +101,9 @@ module Able
             location.destroy
           end
         end
+        pp 'HAHAHA2'
         contacts.each do |contact|
+          pp contact.linking_actors.count
           if contact.linking_actors.count > 1 || contact.linking_actors.first != self
             contact.update!(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
           else
@@ -106,8 +111,11 @@ module Able
             contact.update!(owner: nil)
             contact.destroy
           end
+          pp 'HIHIHI2'
         end
+        pp 'HIHIHI'
       end
+      pp 'HIHIHI3'
       reload
     end
 
