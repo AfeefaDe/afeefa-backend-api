@@ -57,7 +57,7 @@ module DataPlugins::Contact
 
     def location_to_hash
       if location
-        location.to_hash(attributes: location.class.default_attributes_for_json)
+        location.as_json
       end
     end
 

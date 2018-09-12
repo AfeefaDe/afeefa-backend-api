@@ -36,7 +36,8 @@ Rails.application.routes.draw do
         post 'offers/:id/owners', to: 'data_modules/offer/v1/offers#link_owners'
         post 'offers/convert_from_actor', to: 'data_modules/offer/v1/offers#convert_from_actor'
 
-        resources :locations, controller: 'data_plugins/location/v1/locations', only: [:index]
+        get 'locations', to: 'data_plugins/location/v1/locations#index'
+        get 'locations/:id', to: 'data_plugins/location/v1/locations#show'
         get 'contacts', to: 'data_plugins/contact/v1/contacts#get_contacts'
 
         resources :facets, controller: 'data_plugins/facet/v1/facets', except: [:new, :edit] do

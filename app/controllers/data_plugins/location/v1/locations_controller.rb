@@ -16,4 +16,9 @@ class DataPlugins::Location::V1::LocationsController < Api::V1::BaseController
     render status: :ok, json: { data: locations }
   end
 
+  def show
+    location = DataPlugins::Location::Location.find(params[:id])
+    render status: :ok, json: location.as_json
+  end
+
 end

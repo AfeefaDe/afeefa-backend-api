@@ -66,7 +66,7 @@ module DataPlugins::Location
       end
 
       def relation_whitelist_for_json
-        default_relations_for_json.freeze
+        (default_relations_for_json + %i(owner)).freeze
       end
 
       def default_relations_for_json

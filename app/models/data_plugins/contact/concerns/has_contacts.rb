@@ -74,21 +74,29 @@ module DataPlugins::Contact::Concerns::HasContacts
         end
 
         # set location reference
-        if params.has_key?(:location_id)
+        if params[:location_id].present?
+          linked_location = ensure_location_if_id_param_is_given!(params[:location_id])
+
           # if location_id changes, delete old location, if own location
           if contact.location
-            if contact.location.id != params[:location_id]
+            if contact.location.id != linked_location.id
               if contact.location.contact == contact
                 contact.location.delete
               end
             end
           end
-          # set new location
-          unless contact.location_id == params[:location_id]
+
+          # link new location
+          unless contact.location_id == linked_location.id
             contact.update!(
-              location_id: params[:location_id],
-              location_spec: nil
+              location_id: linked_location.id
             )
+            # clear location_spec if not given
+            unless params.has_key?(:location_spec)
+              contact.update!(
+                location_spec: nil
+              )
+            end
           end
         end
       end
@@ -142,6 +150,14 @@ module DataPlugins::Contact::Concerns::HasContacts
       contact = DataPlugins::Contact::Contact.find(id)
       raise ActiveRecord::RecordNotFound if contact.nil?
       contact
+    end
+  end
+
+  def ensure_location_if_id_param_is_given!(id)
+    if id.present?
+      location = DataPlugins::Location::Location.find(id)
+      raise ActiveRecord::RecordNotFound if location.nil?
+      location
     end
   end
 
