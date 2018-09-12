@@ -60,7 +60,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       contact = DataPlugins::Contact::Contact.create!(owner: location.locatable)
       # link owner
       without_updated_at do
-        locatio.locatable.update_attribute(:contact_id, contact.id)
+        location.locatable.update_attribute(:contact_id, contact.id)
       end
 
       location = DataPlugins::Location::Location.create(
