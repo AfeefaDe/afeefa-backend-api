@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class EventTest < ActiveSupport::TestCase
-
   should 'create event triggers fapi cache' do
     FapiClient.any_instance.expects(:entry_updated).with(instance_of(Event)).at_least_once
 
@@ -187,5 +186,4 @@ class EventTest < ActiveSupport::TestCase
       assert_not @event.reload.deleted?
     end
   end
-
 end

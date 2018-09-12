@@ -3,7 +3,7 @@ module DataPlugins::Contact::Concerns::HasContacts
 
   included do
     # ASSOCIATIONS
-    has_many :contacts, class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :destroy
+    has_many :contacts, class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :restrict_with_exception
     belongs_to :linked_contact, class_name: DataPlugins::Contact::Contact, foreign_key: :contact_id
   end
 
@@ -11,10 +11,10 @@ module DataPlugins::Contact::Concerns::HasContacts
     ActiveRecord::Base.transaction do
       contact = ensure_contact_if_id_param_is_given!(params[:id])
       ensure_given_contact_is_linked!(contact.id)
+      update!(linked_contact: nil)
       if own_contact?(contact.id)
         contact.destroy!
       end
-      update!(linked_contact: nil)
     end
   end
 

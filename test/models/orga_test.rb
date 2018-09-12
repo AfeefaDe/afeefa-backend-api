@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class OrgaTest < ActiveSupport::TestCase
-
   should 'has root orga' do
     assert Orga.root_orga, 'root orga does not exist or scope is wrong'
   end
@@ -266,4 +265,30 @@ class OrgaTest < ActiveSupport::TestCase
     end
   end
 
+  test 'should move contacts to root orga on destroy' do
+    assert orga_owner = create(:orga_without_contacts)
+    assert contact = create(:contact, owner: orga_owner)
+    assert location = create(:location, owner: orga_owner)
+    assert orga_owner.reload
+    assert_equal [contact.id], orga_owner.contact_ids
+    assert_equal [location.id], orga_owner.location_ids
+    assert orga_linker = create(:orga)
+    orga_linker.update!(linked_contact: contact)
+    assert contact_linker = create(:contact, location: location)
+
+    assert_no_difference 'DataPlugins::Location::Location.count' do
+      assert_no_difference 'DataPlugins::Contact::Contact.count' do
+        assert_difference 'Orga.count', -1 do
+          orga_owner.destroy!
+        end
+      end
+    end
+
+    assert_equal Orga.root_orga.id, contact.reload.owner_id
+    assert_equal Orga.root_orga.class.name, contact.owner_type
+    assert_equal Orga.root_orga.id, location.reload.owner_id
+    assert_equal Orga.root_orga.class.name, location.owner_type
+    assert_equal contact, orga_linker.reload.linked_contact
+    assert_equal location, contact_linker.reload.location
+  end
 end

@@ -176,9 +176,6 @@ class Orga < ApplicationRecord
     self.parent_orga = Orga.root_orga
   end
 
-  def deny_destroy_if_associated_objects_present
-  end
-
   def move_sub_orgas_to_parent
     sub_orgas.each do |suborga|
       suborga.parent_orga = parent_orga
