@@ -13,9 +13,9 @@ class RemoveContactInheritance < ActiveRecord::Migration[5.0]
           if parent.contacts.count > 0
             parent_contact = parent.contacts.first
 
-            contact = DataPlugins::Contact::Contact.create(owner: orga)
+            contact = DataPlugins::Contact::Contact.create!(owner: orga)
 
-            contact.update(
+            contact.update!(
               location_id: parent_contact.location_id,
               social_media: parent_contact.social_media,
               spoken_languages: parent_contact.spoken_languages,
@@ -50,7 +50,7 @@ class RemoveContactInheritance < ActiveRecord::Migration[5.0]
           if parent.contacts.count > 0
             parent_contact = parent.contacts.first
 
-            contact.update(
+            contact.update!(
               location_id: contact.location_id || parent_contact.location_id,
               social_media: contact.social_media || parent_contact.social_media,
               spoken_languages: contact.spoken_languages || parent_contact.spoken_languages,

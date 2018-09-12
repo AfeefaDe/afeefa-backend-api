@@ -49,13 +49,17 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
     add_reference :events, :contact, after: :area, index: false
     add_column :events, :contact_spec, :string, after: :contact_id
 
+    Orga.connection.schema_cache.clear!
+    Orga.reset_column_information
+    Event.connection.schema_cache.clear!
+    Event.reset_column_information
+
     ::Location.all.each do |location|
       next if location.locatable.blank?
 
-      contact = DataPlugins::Contact::Contact.create(owner: location.locatable)
+      contact = DataPlugins::Contact::Contact.create!(owner: location.locatable)
       # link owner
       without_updated_at do
-        location.locatable.update_attribute(:contact_id, contact.id)
       end
 
       location = DataPlugins::Location::Location.create(
@@ -80,7 +84,7 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
       contact = DataPlugins::Contact::Contact.where(owner: contact_info.contactable).try(:first)
 
       unless contact
-        contact = DataPlugins::Contact::Contact.create(owner: contact_info.contactable)
+        contact = DataPlugins::Contact::Contact.create!(owner: contact_info.contactable)
         # link contact
         without_updated_at do
           contact_info.contactable.update_attribute(:contact_id, contact.id)
@@ -103,11 +107,6 @@ class MigrateDataModuleContact < ActiveRecord::Migration[5.0]
           phone: contact_info.phone
         )
       end
-
-      Orga.connection.schema_cache.clear!
-      Orga.reset_column_information
-      Event.connection.schema_cache.clear!
-      Event.reset_column_information
     end
 
     add_index :contacts, [:owner_type, :owner_id]
