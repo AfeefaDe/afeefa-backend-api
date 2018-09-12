@@ -84,7 +84,19 @@ module DataPlugins::Contact
     end
 
     should 'not allow linking contacts from other owners than actors' do
-      skip
+      assert orga_editing = create(:orga_without_contacts, title: 'editor')
+      assert event_owning = create(:event, title: 'owner')
+      assert location = create(:afeefa_office)
+      assert contact = DataPlugins::Contact::Contact.create(owner: event_owning, location: location, title: 'old title')
+      assert orga_editing.contacts.blank?
+
+      exception = assert_raises(Errors::NotPermittedException) {
+        orga_editing.save_contact(ActionController::Parameters.new(
+          id: contact.id,
+          action: 'create'
+        ))
+      }
+      assert_match 'The given contact cannot be linked.', exception.message
     end
 
     [:orga, :event, :offer].each do |entry_factory|
@@ -99,7 +111,8 @@ module DataPlugins::Contact
         assert entry.linked_contact.blank?
 
         entry.save_contact(ActionController::Parameters.new(
-          id: contact.id
+          id: contact.id,
+          action: 'create'
         ))
 
         entry.reload

@@ -73,6 +73,13 @@ module DataPlugins::Contact::Concerns::HasContacts
           end
         end
 
+        # if location_id is null -> remove own location
+        if params.has_key?(:location_id) && params[:location_id].blank?
+          if contact.location && contact.location.contact == contact
+            contact.location.delete
+          end
+        end
+
         # set location reference
         if params[:location_id].present?
           linked_location = ensure_location_if_id_param_is_given!(params[:location_id])
@@ -167,7 +174,7 @@ module DataPlugins::Contact::Concerns::HasContacts
     end
   end
 
-  def linked_contacts_to_hash
+  def linked_contacts_to_hash(relationships: nil)
     [linked_contact&.to_hash].compact
   end
   # json api alias
