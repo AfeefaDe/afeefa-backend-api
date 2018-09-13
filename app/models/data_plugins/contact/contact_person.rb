@@ -35,7 +35,7 @@ module DataPlugins::Contact
 
     def ensure_mail_or_phone
       if mail.blank? && phone.blank?
-        errors.add('Kontakt', 'Email oder Telefonnummer muss angegeben werden.')
+        errors.add('contact', 'Email oder Telefonnummer muss angegeben werden.')
       end
     end
   end
