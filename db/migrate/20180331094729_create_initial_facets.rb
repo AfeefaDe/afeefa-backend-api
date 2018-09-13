@@ -2,7 +2,7 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
   def up
     facets = [
       {
-        title: 'Organisationstyp',
+        title: 'Akteurstyp',
         owners: ['Orga'],
         color: '#99FF99',
         items: [
@@ -21,25 +21,9 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
             items: [
               { title: 'Krankenhaus' },
               { title: 'Polizei' },
-              {
-                title: 'Amt / Behörde',
-                categories: [133]
-              }
-            ]
-          },
-          {
-            title: 'Gemeinschaft',
-            items: [
-              { title: 'Wohnprojekt' },
-              { title: 'Treffpunkt' }
-            ]
-          },
-          {
-            title: 'Kommerziell',
-            items: [
-              { title: 'Café & Restaurant' },
-              { title: 'Restaurant' },
-              { title: 'Restaurant' }
+              { title: 'Amt / Behörde' },
+              { title: 'Schule' },
+              { title: 'KiTa' }
             ]
           },
           {
@@ -49,16 +33,16 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
               { title: 'Theater' },
               { title: 'Kino' },
               { title: 'Museum' },
-              { title: 'Park, Garten' }
+              { title: 'Parks & Gärten' }
             ]
           },
-          'Werkstatt',
           {
             title: 'Religiöse Einrichtung',
             items: [
               { title: 'Kirche' },
               { title: 'Moschee' },
-              { title: 'Synagoge' }
+              { title: 'Synagoge' },
+              { title: 'Tempel' }
             ]
           },
           {
@@ -66,7 +50,8 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
             items: [
               { title: 'Turnhalle' },
               { title: 'Schwimmhalle' },
-              { title: 'Fußballplatz' }
+              { title: 'Fußballplatz' },
+              { title: 'Spielplatz' }
             ]
           }
         ]
@@ -76,51 +61,42 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
         owners: ['Offer'],
         color: '#9999ff',
         items: [
+          'Auskunft',
           {
             title: 'Beratung',
-            categories: [333],
             items: [
               { title: 'Migrationsberatung' },
               { title: 'Rechtsberatung' },
               { title: 'Berufsberatung' },
-              {
-                title: 'Sozialberatung',
-                categories: [290]
-              },
+              { title: 'Sozialberatung' },
               { title: 'Suchtberatung' },
               { title: 'Familienberatung' }
             ]
           },
-          'Information',
           {
             title: 'Bildung',
-            categories: [325],
             items: [
               { title: 'Kurs' },
-              {
-                title: 'Staatlicher Kurs',
-                categories: [139]
-              },
-              {
-                title: 'Freier Kurs',
-                categories: [138]
-              },
-              {
-                title: 'Sprachtreff',
-                categories: [140]
-              },
+              { title: 'Sprachtreff' },
               { title: 'Lerntreff' },
               { title: 'Nachhilfe' }
             ]
           },
-          'Begegnung',
+          {
+            title: 'Begegnung',
+            items: [
+              { title: 'Treffpunkt' },
+              { title: 'Begegnungscafé' },
+              { title: 'Selbsthilfegruppe' }
+            ]
+          },
           {
             title: 'Begleitung & Unterstützung',
             items: [
+              { title: 'Professionelle Betreuung' },
               { title: 'Patenschaften' }
             ]
           },
-          'Betreuung',
           {
             title: 'Spenden',
             items: [
@@ -129,126 +105,117 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
               { title: 'Möbel' }
             ]
           },
-          'Übersetzungen'
-        ]
-      },
-      {
-        title: 'Themen',
-        owners: ['Orga', 'Offer', 'Event'],
-        color: '#e4b100',
-        items: [
           {
-            title: 'Wohnen',
-            categories: [276]
-          },
-          {
-            title: 'Hobby',
+            title: 'Sprachdienstleistung',
             items: [
-              { title: 'Kochen' },
-              { title: 'Gärtnern' },
-              { title: 'Handarbeit' },
-              { title: 'Handwerk' },
-              { title: 'Reparieren' }
+              { title: 'Übersetzung' },
+              { title: 'Dolmetschen' }
             ]
           },
           {
-            title: 'Alltag',
+            title: 'Selbst aktiv werden',
             items: [
-              { title: 'Einkaufen' },
-              { title: 'Mobilität' }
-            ]
-          },
-          {
-            title: 'Diversität',
-            items: [
-              { title: 'LGBT*I*' },
-              { title: 'Inklusion' }
-            ]
-          },
-          {
-            title: 'Familie',
-            categories: [284],
-            items: [
-              {
-                title: 'Kinder',
-                categories: [326]
-              },
-              { title: 'Partnerschaft' }
-            ]
-          },
-          'Arbeit',
-          {
-            title: 'Bildung',
-            categories: [331, 147],
-            items: [
-              { title: 'Ausbildung' },
-              {
-                title: 'Schule',
-                categories: [326]
-              },
-              { title: 'Studium' }
-            ]
-          },
-          {
-            title: 'Sprache',
-            categories: [137],
-            items: [
-              { title: 'Deutsch' },
-              { title: 'Fremdsprachen' }
-            ]
-          },
-          'Sport und Erholung',
-          {
-            title: 'Gesundheit und Wohlbefinden',
-            items: [
-              { title: 'Medizin' },
-              { title: 'Sucht' },
-              { title: 'Psychologie' }
-            ]
-          },
-          {
-            title: 'Engagement & Ehrenamt',
-            categories: [328]
-          },
-          'Politik',
-          'Asyl und Migration',
-          'Recht',
-          {
-            title: 'Religion',
-            categories: [269],
-            items: [
-              { title: 'Jüdische Religion' },
-              { title: 'Christliche Religion' },
-              { title: 'Islamische Religion' }
-            ]
-          },
-          'Gemeinschaft',
-          {
-            title: 'Kultur und Kunst',
-            items: [
-              { title: 'Musik' },
-              { title: 'Theater' },
-              { title: 'Gestaltung' }
+              { title: 'Offene Werkstatt' }
             ]
           }
         ]
       },
+      # {
+      #   title: 'Themen',
+      #   owners: ['Orga', 'Offer', 'Event'],
+      #   color: '#e4b100',
+      #   items: [
+      #     { title: 'Wohnen' },
+      #     {
+      #       title: 'Hobby',
+      #       items: [
+      #         { title: 'Kochen' },
+      #         { title: 'Gärtnern' },
+      #         { title: 'Handarbeit' },
+      #         { title: 'Handwerk' },
+      #         { title: 'Reparieren' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Alltag',
+      #       items: [
+      #         { title: 'Einkaufen' },
+      #         { title: 'Mobilität' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Diversität',
+      #       items: [
+      #         { title: 'LGBT*I*' },
+      #         { title: 'Inklusion' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Familie',
+      #       items: [
+      #         { title: 'Kinder' },
+      #         { title: 'Partnerschaft' }
+      #       ]
+      #     },
+      #     'Arbeit',
+      #     {
+      #       title: 'Bildung',
+      #       items: [
+      #         { title: 'Ausbildung' },
+      #         { title: 'Schule' },
+      #         { title: 'Studium' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Sprache',
+      #       items: [
+      #         { title: 'Deutsch' },
+      #         { title: 'Fremdsprachen' }
+      #       ]
+      #     },
+      #     'Sport und Erholung',
+      #     {
+      #       title: 'Gesundheit und Wohlbefinden',
+      #       items: [
+      #         { title: 'Medizin' },
+      #         { title: 'Sucht' },
+      #         { title: 'Psychologie' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Engagement & Ehrenamt',
+      #     },
+      #     'Politik',
+      #     'Asyl und Migration',
+      #     'Recht',
+      #     {
+      #       title: 'Religion',
+      #       items: [
+      #         { title: 'Jüdische Religion' },
+      #         { title: 'Christliche Religion' },
+      #         { title: 'Islamische Religion' }
+      #       ]
+      #     },
+      #     'Gemeinschaft',
+      #     {
+      #       title: 'Kultur und Kunst',
+      #       items: [
+      #         { title: 'Musik' },
+      #         { title: 'Theater' },
+      #         { title: 'Gestaltung' }
+      #       ]
+      #     }
+      #   ]
+      # },
       {
-        title: 'Teilnahmebedingungen',
+        title: 'Teilnahmekriterien',
         owners: ['Offer', 'Event'],
         color: '#99ccFF',
         items: [
           'Kostenpflichtig',
           'Anmeldung erforderlich',
-          {
-            title: 'Sprachlevel',
-            items: [
-              { title: 'A1' },
-              { title: 'A2' },
-              { title: 'B1' },
-              { title: 'B2' }
-            ]
-          },
+          'Kinderbetreuung möglich',
+          'barrierefrei'
         ]
       },
       {
@@ -256,38 +223,33 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
         owners: ['Offer', 'Event'],
         color: '#318b86',
         items: [
-          'Kinder',
           'Frauen',
-          'Jugendliche',
           'Männer',
+          'Kinder',
+          'Jugendliche',
+          'Familien',
           'Geflüchtete',
           'Ehrenamtliche',
-          'Familien',
-          'LGBT*I*'
+          'LGBT*I*',
+          'Multiplikator*innen'
         ]
       },
       {
-        title: 'Veranstaltungsformate',
+        title: 'Formate',
         owners: ['Offer', 'Event'],
         color: '#ff9999',
         items: [
           'Vortrag',
           'Diskussion',
-          'Begegnung',
+          'Treff',
+          'Konzert',
           'Film',
+          'Lesung',
+          'Ausstellung',
           'Kurs',
-          'Fest, Feier, Festival',
-          'Konferenz, Tagung',
-          'Unterricht',
           'Workshop',
-          {
-            title: 'Kulturveranstaltung',
-            items: [
-              { title: 'Ausstellung' },
-              { title: 'Konzert' },
-              { title: 'Performance' }
-            ]
-          }
+          'Konferenz, Tagung',
+          'Fest, Feier, Festival'
         ]
       }
     ]
