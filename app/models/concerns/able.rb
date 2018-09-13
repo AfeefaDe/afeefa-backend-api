@@ -102,7 +102,8 @@ module Able
           if contact.linking_actors.count > 1 || contact.linking_actors.first != self
             contact.update!(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
           else
-            update!(contact_id: nil)
+            self.contact_id = nil
+            save!(validate: false)
             contact.update!(owner: nil)
             contact.destroy
           end
