@@ -161,7 +161,7 @@ class Orga < ApplicationRecord
     title == ROOT_ORGA_TITLE
   end
 
-  def resource_items_to_hash
+  def resource_items_to_hash(attributes: nil, relationships: nil)
     resource_items.map { |r| r.to_hash }
   end
 
@@ -174,9 +174,6 @@ class Orga < ApplicationRecord
 
   def set_parent_orga_as_default
     self.parent_orga = Orga.root_orga
-  end
-
-  def deny_destroy_if_associated_objects_present
   end
 
   def move_sub_orgas_to_parent

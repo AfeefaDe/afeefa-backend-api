@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
-
   context 'as authorized user' do
     setup do
       stub_current_user
@@ -349,34 +348,34 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       new_offer = nil
 
       assert_difference -> { Orga.count }, -1 do
-      assert_difference -> { DataModules::Offer::Offer.count } do
-      assert_no_difference -> { Event.count } do
-      assert_no_difference -> { Annotation.count } do
-      assert_no_difference -> { DataPlugins::Location::Location.count } do
-      assert_no_difference -> { DataPlugins::Contact::Contact.count } do
-      # before 2parents-actor->2projects
-      # after parent1->2projects parent2->2projects
-      assert_no_difference -> { DataModules::Actor::ActorRelation.count } do
-        post :convert_from_actor, params: {
-          actorId: actor.id,
-          owners: [actor_initiator1.id, new_offer_owner.id],
-          title: 'Neuer Titel',
-          short_description: 'Neue Kurzbeschreibung',
-          description: 'Neue Beschreibung',
-          image_url: 'http://image.jpg'
-        }
-        assert_response :created
-        json = JSON.parse(response.body)
-        new_offer = DataModules::Offer::Offer.last
-        assert_equal JSON.parse(new_offer.to_json), json
-        assert_equal 'Neue Kurzbeschreibung', new_offer.short_description
-        assert_equal 'Neue Beschreibung', new_offer.description
-      end
-      end
-      end
-      end
-      end
-      end
+        assert_difference -> { DataModules::Offer::Offer.count } do
+          assert_no_difference -> { Event.count } do
+            assert_no_difference -> { Annotation.count } do
+              assert_no_difference -> { DataPlugins::Location::Location.count } do
+                assert_no_difference -> { DataPlugins::Contact::Contact.count } do
+                  # before 2parents-actor->2projects
+                  # after parent1->2projects parent2->2projects
+                  assert_no_difference -> { DataModules::Actor::ActorRelation.count } do
+                    post :convert_from_actor, params: {
+                      actorId: actor.id,
+                      owners: [actor_initiator1.id, new_offer_owner.id],
+                      title: 'Neuer Titel',
+                      short_description: 'Neue Kurzbeschreibung',
+                      description: 'Neue Beschreibung',
+                      image_url: 'http://image.jpg'
+                    }
+                    assert_response :created
+                    json = JSON.parse(response.body)
+                    new_offer = DataModules::Offer::Offer.last
+                    assert_equal JSON.parse(new_offer.to_json), json
+                    assert_equal 'Neue Kurzbeschreibung', new_offer.short_description
+                    assert_equal 'Neue Beschreibung', new_offer.description
+                  end
+                end
+              end
+            end
+          end
+        end
       end
 
       actor_initiator1.reload
@@ -389,14 +388,14 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       assert_equal [actor_initiator1, new_offer_owner], new_offer.owners
 
       # offers, events, projects
-      assert_equal [event1, event2], actor_initiator1.events
-      assert_equal [event1, event2], new_offer_owner.events
+      assert_equal [event1, event2].sort_by { |x| x.id }, actor_initiator1.events.order(:id)
+      assert_equal [event1, event2].sort_by { |x| x.id }, new_offer_owner.events.order(:id)
 
-      assert_equal [new_offer, offer1, offer2], actor_initiator1.offers
-      assert_equal [new_offer, offer1, offer2], new_offer_owner.offers
+      assert_equal [new_offer, offer1, offer2].sort_by { |x| x.id }, actor_initiator1.offers.order(:id)
+      assert_equal [new_offer, offer1, offer2].sort_by { |x| x.id }, new_offer_owner.offers.order(:id)
 
-      assert_equal [project1, project2], actor_initiator1.projects
-      assert_equal [project1, project2], new_offer_owner.projects
+      assert_equal [project1, project2].sort_by { |x| x.id }, actor_initiator1.projects.order(:id)
+      assert_equal [project1, project2].sort_by { |x| x.id }, new_offer_owner.projects.order(:id)
       assert_nil actor_initiator2.projects.first
 
       # contact, location
@@ -412,8 +411,6 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
 
       # annotations
       assert_equal [annotation2, annotation1], new_offer.annotations
-
     end
-
   end
 end

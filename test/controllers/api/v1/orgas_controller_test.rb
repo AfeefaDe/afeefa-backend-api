@@ -392,12 +392,11 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert orga.title.blank?
       end
 
-      should 'destroy orga' do
+      should 'destroy orga destroys contacts and locations' do
         assert @orga.locations.any?
         assert @orga.contacts.any?
         assert_equal @orga.locations.first, @orga.contacts.first.location
 
-        # skip 'destroy of locations on orga destroy needs to be implemented'
         assert_difference 'Orga.count', -1 do
           assert_difference 'Orga.undeleted.count', -1 do
             assert_difference -> { DataPlugins::Contact::Contact.count }, -1 do
@@ -413,6 +412,58 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
             end
           end
         end
+      end
+
+      should 'destroy orga moves linked contacts and locations to root orga' do
+        assert @orga.locations.any?
+        assert @orga.contacts.any?
+        assert_equal @orga.locations.first, @orga.contacts.first.location
+
+        linked_contact = @orga.linked_contact # will be moved to root
+        linked_location = @orga.linked_contact.location # will be moved to root
+
+        orga2 = create(:orga)
+        orga2.linked_contact = linked_contact
+        orga2.save!
+
+        orga2.linked_contact.location = linked_location
+        orga2.linked_contact.save!
+
+        orga3 = create(:orga)
+        orga3.linked_contact.location = linked_location
+        orga3.linked_contact.save!
+
+        assert orga2.linked_contact = linked_contact
+        assert orga2.linked_contact.location = linked_location
+        assert orga3.linked_contact.location = linked_location
+
+        assert_equal [@orga, orga2], linked_contact.linking_actors
+        assert_equal [@orga, orga2, orga3], linked_location.linking_actors
+        assert_equal [@orga.linked_contact, orga3.linked_contact], linked_location.linking_contacts
+
+        assert Orga.root_orga.contacts.blank?
+        assert Orga.root_orga.locations.blank?
+
+        assert_difference 'Orga.count', -1 do
+          assert_difference 'Orga.undeleted.count', -1 do
+            assert_difference 'Orga.root_orga.contacts.count' do
+              assert_difference 'Orga.root_orga.locations.count' do
+                assert_no_difference -> { DataPlugins::Contact::Contact.count } do
+                  assert_no_difference -> { DataPlugins::Location::Location.count } do
+                    delete :destroy,
+                      params: {
+                        id: @orga.id,
+                      }
+                    assert_response :no_content, response.body
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        assert_equal linked_contact, Orga.root_orga.contacts.first
+        assert_equal linked_location, Orga.root_orga.locations.first
       end
 
       should 'create new orga with parent relation and inheritance' do

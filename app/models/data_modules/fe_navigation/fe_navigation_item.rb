@@ -17,6 +17,9 @@ module DataModules::FeNavigation
     has_many :offers, through: :navigation_item_owners, source: :owner, source_type: 'DataModules::Offer::Offer'
     has_many :facet_items, through: :navigation_item_owners, source: :owner, source_type: 'DataPlugins::Facet::FacetItem'
 
+    # SCOPES
+    scope :ordered, -> { order(:order) }
+
     def owners
       (events + orgas + offers + facet_items.map { |fi| fi.owners }.flatten).uniq
       # (facet_items.map { |fi| fi.owners }.flatten).uniq
@@ -95,7 +98,7 @@ module DataModules::FeNavigation
       end
 
       def default_attributes_for_json
-        %i(title color icon parent_id).freeze
+        %i(title color icon parent_id order).freeze
       end
 
       def relation_whitelist_for_json
@@ -157,11 +160,11 @@ module DataModules::FeNavigation
       true
     end
 
-    def sub_items_to_hash
+    def sub_items_to_hash(attributes: nil, relationships: nil)
       sub_items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
     end
 
-    def owners_to_hash
+    def owners_to_hash(attributes: nil, relationships: nil)
       owners.map { |owner| owner.to_hash }
     end
 

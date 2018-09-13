@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180629163147) do
+ActiveRecord::Schema.define(version: 20180912112201) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "associating_actor_id"
@@ -279,8 +279,9 @@ ActiveRecord::Schema.define(version: 20180629163147) do
     t.string   "legacy_title"
     t.integer  "navigation_id"
     t.integer  "parent_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.integer  "order",         default: 0, null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.index ["navigation_id"], name: "index_fe_navigation_items_on_navigation_id", using: :btree
     t.index ["parent_id"], name: "index_fe_navigation_items_on_parent_id", using: :btree
   end

@@ -1,5 +1,4 @@
 module Able
-
   extend ActiveSupport::Concern
 
   included do
@@ -18,7 +17,8 @@ module Able
     auto_strip_attributes :title, :description, :short_description
 
     # ATTRIBUTES AND ASSOCIATIONS
-    has_many :locations, as: :locatable, dependent: :destroy # attention: overridden in orga
+    # ensure nothing will be deleted, should not occur because we move them to root orga before destroy
+    has_many :locations, as: :locatable, dependent: :destroy
     has_many :contact_infos, as: :contactable, dependent: :destroy
 
     belongs_to :category, optional: true
@@ -56,7 +56,10 @@ module Able
 
     # HOOKS
     after_create :create_entry!
-    before_destroy :deny_destroy_if_associated_objects_present, prepend: true
+    before_destroy :move_associated_objects_to_root_orga!, prepend: true
+    before_destroy :deny_destroy_if_associated_objects_present,
+      prepend: true,
+      if: -> { respond_to?(:deny_destroy_if_associated_objects_present) }
     after_destroy :destroy_entry
 
     before_save do
@@ -85,6 +88,29 @@ module Able
       Entry.where(entry: self).destroy_all
     end
 
+    def move_associated_objects_to_root_orga!
+      ActiveRecord::Base.transaction do
+        locations.each do |location|
+          if location.linking_contacts.count > 1 || location.linking_actors.first != self
+            location.update!(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
+          else
+            location.update!(owner: nil)
+            location.destroy
+          end
+        end
+        contacts.each do |contact|
+          if contact.linking_actors.count > 1 || contact.linking_actors.first != self
+            contact.update!(owner_id: Orga.root_orga.id, owner_type: Orga.root_orga.class.name)
+          else
+            update!(contact_id: nil)
+            contact.update!(owner: nil)
+            contact.destroy
+          end
+        end
+      end
+      reload
+    end
+
     def validate_parent_id
       errors.add(:parent_id, 'Can not be the parent of itself!') if parent_id == id
     end
@@ -100,7 +126,5 @@ module Able
     def skip_short_description_validation?
       @skip_short_description_validation || false
     end
-
   end
-
 end

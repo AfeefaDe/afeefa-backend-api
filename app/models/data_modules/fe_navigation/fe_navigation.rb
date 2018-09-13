@@ -4,7 +4,10 @@ module DataModules::FeNavigation
 
     # ASSOCIATIONS
     has_many :navigation_items,
-      class_name: DataModules::FeNavigation::FeNavigationItem, foreign_key: 'navigation_id', dependent: :destroy
+      -> { ordered },
+      class_name: DataModules::FeNavigation::FeNavigationItem,
+      foreign_key: 'navigation_id',
+      dependent: :destroy
 
     scope :by_area, -> (area) { where(area: area) }
 
@@ -28,10 +31,22 @@ module DataModules::FeNavigation
 
     end
 
-    def navigation_items_to_hash
+    def navigation_items_to_hash(attributes: nil, relationships: nil)
       items = navigation_items.select { |item| item.parent_id == nil }
       items.map { |item| item.to_hash(attributes: item.class.default_attributes_for_json) }
     end
 
+    def order_navigation_items!(ids)
+      ActiveRecord::Base.transaction do # fail if one fails
+        # reset order for not given items
+        navigation_items.where.not(id: ids).each do |item|
+          item.update_attribute(:order, 0)
+        end
+        # set new order for given items
+        ids.each_with_index do |id, index|
+          navigation_items.find(id).update_attribute(:order, index + 1)
+        end
+      end
+    end
   end
 end

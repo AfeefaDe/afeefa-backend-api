@@ -1,5 +1,4 @@
 FactoryGirl.define do
-
   factory :fe_navigation, class: DataModules::FeNavigation::FeNavigation do
     area 'dresden'
 
@@ -19,9 +18,13 @@ FactoryGirl.define do
       end
 
       after(:create) do |navigation, evaluator|
-        create_list(:fe_navigation_item_with_sub_items, evaluator.items_count, navigation: navigation, sub_items_count: evaluator.sub_items_count)
+        create_list(
+          :fe_navigation_item_with_sub_items,
+          evaluator.items_count,
+          navigation: navigation,
+          sub_items_count: evaluator.sub_items_count
+        )
       end
     end
   end
-
 end

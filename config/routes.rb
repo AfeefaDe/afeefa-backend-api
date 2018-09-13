@@ -52,6 +52,8 @@ Rails.application.routes.draw do
 
         scope :fe_navigation do
           get '', to: 'data_modules/fe_navigation/v1/fe_navigation#show'
+          patch '', to: 'data_modules/fe_navigation/v1/fe_navigation#set_ordered_navigation_items'
+          put '', to: 'data_modules/fe_navigation/v1/fe_navigation#set_ordered_navigation_items'
           resources :fe_navigation_items, controller: 'data_modules/fe_navigation/v1/fe_navigation_items'
 
           post 'fe_navigation_items/:id/owners', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_owners'

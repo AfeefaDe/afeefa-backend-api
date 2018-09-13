@@ -6,7 +6,7 @@ module DataModules::Offer::Concerns::HasOffers
     has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, foreign_key: 'actor_id', dependent: :destroy
     has_many :offers, class_name: DataModules::Offer::Offer, through: :offer_owners
 
-    def offers_to_hash
+    def offers_to_hash(attributes: nil, relationships: nil)
       offers.map { |o| o.to_hash }
     end
 

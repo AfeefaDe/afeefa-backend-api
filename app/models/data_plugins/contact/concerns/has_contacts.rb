@@ -3,7 +3,7 @@ module DataPlugins::Contact::Concerns::HasContacts
 
   included do
     # ASSOCIATIONS
-    has_many :contacts, class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :destroy
+    has_many :contacts, class_name: DataPlugins::Contact::Contact, as: :owner, dependent: :restrict_with_exception
     belongs_to :linked_contact, class_name: DataPlugins::Contact::Contact, foreign_key: :contact_id
   end
 
@@ -11,10 +11,12 @@ module DataPlugins::Contact::Concerns::HasContacts
     ActiveRecord::Base.transaction do
       contact = ensure_contact_if_id_param_is_given!(params[:id])
       ensure_given_contact_is_linked!(contact.id)
+      update!(linked_contact: nil)
       if own_contact?(contact.id)
         contact.destroy!
+      else
+        true
       end
-      update!(linked_contact: nil)
     end
   end
 
@@ -70,6 +72,13 @@ module DataPlugins::Contact::Concerns::HasContacts
           else
             location = DataPlugins::Location::Location.create!(location_params)
             params = params.merge(location_id: location.id)
+          end
+        end
+
+        # if location_id is null -> remove own location
+        if params.has_key?(:location_id) && params[:location_id].blank?
+          if contact.location && contact.location.contact == contact
+            contact.location.delete
           end
         end
 
@@ -167,7 +176,7 @@ module DataPlugins::Contact::Concerns::HasContacts
     end
   end
 
-  def linked_contacts_to_hash
+  def linked_contacts_to_hash(attributes: nil, relationships: nil)
     [linked_contact&.to_hash].compact
   end
   # json api alias

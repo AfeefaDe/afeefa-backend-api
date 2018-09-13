@@ -1,5 +1,4 @@
 class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::BaseController
-
   include HasLinkedOwners
 
   before_action :find_navigation, only: [:create]
@@ -106,5 +105,4 @@ class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::Base
         DataPlugins::Facet::FacetItem.find(params[:owner_id])
       end
   end
-
 end

@@ -102,13 +102,19 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
         actor = Orga.find(params[:actorId])
 
         # relink contact, location, navigation
-        DataPlugins::Contact::Contact.where(owner: actor).update(owner: offer)
+        unless DataPlugins::Contact::Contact.where(owner: actor).update(owner: offer)
+          raise ActiveRecord::RecordInvalid, 'could not convert contacts owner'
+        end
         if actor.linked_contact
           offer.update(linked_contact: actor.linked_contact)
         end
 
-        DataPlugins::Location::Location.where(owner: actor).update(owner: offer)
-        DataModules::FeNavigation::FeNavigationItemOwner.where(owner: actor).update(owner: offer)
+        unless DataPlugins::Location::Location.where(owner: actor).update(owner: offer)
+          raise ActiveRecord::RecordInvalid, 'could not convert locations owner'
+        end
+        unless DataModules::FeNavigation::FeNavigationItemOwner.where(owner: actor).update(owner: offer)
+          raise ActiveRecord::RecordInvalid, 'could not convert fe_navigation_items owner'
+        end
 
         # move actor events to all specfied offer owners
         events = actor.events
@@ -138,10 +144,10 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
         annotations = Annotation.where(entry: actor)
         annotations.each do |annotation|
           annotation.entry = offer
-          annotation.save(validate: false)
+          annotation.save!(validate: false)
         end
 
-        actor.destroy
+        actor.destroy!
 
         render status: :created, json: offer
       end
