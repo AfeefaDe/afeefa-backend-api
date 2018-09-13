@@ -120,93 +120,93 @@ class CreateInitialFacets < ActiveRecord::Migration[5.0]
           }
         ]
       },
-      {
-        title: 'Themen',
-        owners: ['Orga', 'Offer', 'Event'],
-        color: '#e4b100',
-        items: [
-          { title: 'Wohnen' },
-          {
-            title: 'Hobby',
-            items: [
-              { title: 'Kochen' },
-              { title: 'Gärtnern' },
-              { title: 'Handarbeit' },
-              { title: 'Handwerk' },
-              { title: 'Reparieren' }
-            ]
-          },
-          {
-            title: 'Alltag',
-            items: [
-              { title: 'Einkaufen' },
-              { title: 'Mobilität' }
-            ]
-          },
-          {
-            title: 'Diversität',
-            items: [
-              { title: 'LGBT*I*' },
-              { title: 'Inklusion' }
-            ]
-          },
-          {
-            title: 'Familie',
-            items: [
-              { title: 'Kinder' },
-              { title: 'Partnerschaft' }
-            ]
-          },
-          'Arbeit',
-          {
-            title: 'Bildung',
-            items: [
-              { title: 'Ausbildung' },
-              { title: 'Schule' },
-              { title: 'Studium' }
-            ]
-          },
-          {
-            title: 'Sprache',
-            items: [
-              { title: 'Deutsch' },
-              { title: 'Fremdsprachen' }
-            ]
-          },
-          'Sport und Erholung',
-          {
-            title: 'Gesundheit und Wohlbefinden',
-            items: [
-              { title: 'Medizin' },
-              { title: 'Sucht' },
-              { title: 'Psychologie' }
-            ]
-          },
-          {
-            title: 'Engagement & Ehrenamt',
-          },
-          'Politik',
-          'Asyl und Migration',
-          'Recht',
-          {
-            title: 'Religion',
-            items: [
-              { title: 'Jüdische Religion' },
-              { title: 'Christliche Religion' },
-              { title: 'Islamische Religion' }
-            ]
-          },
-          'Gemeinschaft',
-          {
-            title: 'Kultur und Kunst',
-            items: [
-              { title: 'Musik' },
-              { title: 'Theater' },
-              { title: 'Gestaltung' }
-            ]
-          }
-        ]
-      },
+      # {
+      #   title: 'Themen',
+      #   owners: ['Orga', 'Offer', 'Event'],
+      #   color: '#e4b100',
+      #   items: [
+      #     { title: 'Wohnen' },
+      #     {
+      #       title: 'Hobby',
+      #       items: [
+      #         { title: 'Kochen' },
+      #         { title: 'Gärtnern' },
+      #         { title: 'Handarbeit' },
+      #         { title: 'Handwerk' },
+      #         { title: 'Reparieren' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Alltag',
+      #       items: [
+      #         { title: 'Einkaufen' },
+      #         { title: 'Mobilität' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Diversität',
+      #       items: [
+      #         { title: 'LGBT*I*' },
+      #         { title: 'Inklusion' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Familie',
+      #       items: [
+      #         { title: 'Kinder' },
+      #         { title: 'Partnerschaft' }
+      #       ]
+      #     },
+      #     'Arbeit',
+      #     {
+      #       title: 'Bildung',
+      #       items: [
+      #         { title: 'Ausbildung' },
+      #         { title: 'Schule' },
+      #         { title: 'Studium' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Sprache',
+      #       items: [
+      #         { title: 'Deutsch' },
+      #         { title: 'Fremdsprachen' }
+      #       ]
+      #     },
+      #     'Sport und Erholung',
+      #     {
+      #       title: 'Gesundheit und Wohlbefinden',
+      #       items: [
+      #         { title: 'Medizin' },
+      #         { title: 'Sucht' },
+      #         { title: 'Psychologie' }
+      #       ]
+      #     },
+      #     {
+      #       title: 'Engagement & Ehrenamt',
+      #     },
+      #     'Politik',
+      #     'Asyl und Migration',
+      #     'Recht',
+      #     {
+      #       title: 'Religion',
+      #       items: [
+      #         { title: 'Jüdische Religion' },
+      #         { title: 'Christliche Religion' },
+      #         { title: 'Islamische Religion' }
+      #       ]
+      #     },
+      #     'Gemeinschaft',
+      #     {
+      #       title: 'Kultur und Kunst',
+      #       items: [
+      #         { title: 'Musik' },
+      #         { title: 'Theater' },
+      #         { title: 'Gestaltung' }
+      #       ]
+      #     }
+      #   ]
+      # },
       {
         title: 'Teilnahmekriterien',
         owners: ['Offer', 'Event'],
