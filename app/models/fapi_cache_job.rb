@@ -15,15 +15,27 @@ class FapiCacheJob < ApplicationRecord
   scope :not_for_entry, ->(entry) { # https://github.com/rails/rails/issues/16983
     where("entry_type != ? or entry_type is null or entry_id != ? or entry_id is null",
       entry.class.name, entry.id)
-    # where.not(entry_type: entry.class.name).
-    # or(where(entry_type: nil)).
-    # or(where.not(entry_id: entry.id)).
-    # or(where(entry_id: nil))
   }
 
   after_commit on: [:create] do
     fapi_client = FapiClient.new
     fapi_client.job_created
+  end
+
+  def update_all
+    existing_jobs = FapiCacheJob.
+      not_started.
+      where("area_id is not null or entry_type is not null")
+
+    if existing_jobs.any?
+      existing_jobs.delete_all
+    end
+
+    job = FapiCacheJob.not_started.find_by(entry: nil, area: nil, updated: true, translated: true)
+    unless job
+      job = FapiCacheJob.create!(updated: true, translated: true)
+    end
+    job
   end
 
   def update_all_entries_for_area(area)

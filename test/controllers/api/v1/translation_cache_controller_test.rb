@@ -288,7 +288,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
         assert_response :ok
         time_before = JSON.parse(response.body)['updated_at']
 
-        FapiClient.any_instance.expects(:all_updated).with()
+        FapiCacheJob.any_instance.expects(:update_all).with()
 
         perform_enqueued_jobs do
           post :update

@@ -43,6 +43,57 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
   # Job handling
 
+  should 'create a job to update all' do
+    job = FapiCacheJob.new.update_all
+
+    assert_fapi_cache_job(
+      job: job,
+      updated: true,
+      translated: true
+    )
+  end
+
+  should 'not create a job to update all multiple times' do
+    job = FapiCacheJob.new.update_all
+
+    assert_fapi_cache_job(
+      job: job,
+      updated: true,
+      translated: true
+    )
+
+    assert_no_difference -> { FapiCacheJob.count } do
+      job2 = FapiCacheJob.new.update_all
+      assert_equal job, job2
+    end
+
+  end
+
+  should 'remove all other jobs if update all is scheduled' do
+    orga = create(:orga)
+    FapiCacheJob.delete_all
+
+    FapiCacheJob.new.update_entry(orga)
+    FapiCacheJob.new.update_entry_translation(orga, 'en')
+    FapiCacheJob.new.update_entry_translation(orga, 'de')
+    FapiCacheJob.new.update_entry_translation(orga, 'fr')
+
+    assert_equal 4, FapiCacheJob.count
+
+    assert_difference -> { FapiCacheJob.count }, -3 do
+      FapiCacheJob.new.update_all
+
+    end
+
+    assert_equal 1, FapiCacheJob.count
+
+    assert_fapi_cache_job(
+      job: FapiCacheJob.last,
+      updated: true,
+      translated: true
+    )
+  end
+
   should 'create a job to update all area entries' do
     job = FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
 
