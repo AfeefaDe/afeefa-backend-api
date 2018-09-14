@@ -1,5 +1,11 @@
 class FapiClient
 
+  def job_created
+    request({
+      job_created: true
+    })
+  end
+
   def entry_translated(model, locale)
     request({
       type: model.class.translation_key_type,

@@ -87,7 +87,7 @@ module DataModules::FeNavigation
     def fapi_cacheable_on_destroy
       super
       areaModel = Area.find_by(title: area)
-      FapiCacheJob.update_all_entries_for_area(areaModel)
+      FapiCacheJob.new.update_all_entries_for_area(areaModel)
     end
 
     # CLASS METHODS

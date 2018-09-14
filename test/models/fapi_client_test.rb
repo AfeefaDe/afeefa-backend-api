@@ -3,8 +3,6 @@ require 'test_helper'
 class FapiClientTest < ActiveSupport::TestCase
 
   setup do
-    Settings.afeefa.fapi_sync_active = true
-
     @client ||= FapiClient.new
   end
 
@@ -12,8 +10,25 @@ class FapiClientTest < ActiveSupport::TestCase
     Settings.afeefa.fapi_sync_active = false
   end
 
+  should 'trigger fapi on cache job created' do
+    Settings.afeefa.fapi_sync_active = true
+
+    result = mock()
+    result.stubs(:body).returns({status: 'ok'}.to_json)
+    Net::HTTP.any_instance.expects(:request).with do |req|
+      query = CGI::parse(URI::parse(req.path).query) # wtf, there is no method to parse an url query into a hash???
+      assert_equal 'true', query['job_created'][0]
+      assert_equal Settings.afeefa.fapi_webhook_api_token, query['token'][0]
+    end.returns(result)
+
+    status = @client.job_created
+
+    assert_equal 'ok', JSON.parse(status)['status']
+  end
+
   should 'trigger fapi on translation change' do
     orga = create(:orga)
+    Settings.afeefa.fapi_sync_active = true
 
     result = mock()
     result.stubs(:body).returns({status: 'ok'}.to_json)
@@ -32,6 +47,7 @@ class FapiClientTest < ActiveSupport::TestCase
 
   should 'trigger fapi on entry update' do
     orga = create(:orga)
+    Settings.afeefa.fapi_sync_active = true
 
     result = mock()
     result.stubs(:body).returns({status: 'ok'}.to_json)
@@ -50,6 +66,7 @@ class FapiClientTest < ActiveSupport::TestCase
 
   should 'trigger fapi on update all' do
     orga = create(:orga)
+    Settings.afeefa.fapi_sync_active = true
 
     result = mock()
     result.stubs(:body).returns({status: 'ok'}.to_json)
@@ -68,6 +85,7 @@ class FapiClientTest < ActiveSupport::TestCase
 
   should 'trigger fapi on delete entry' do
     orga = create(:orga)
+    Settings.afeefa.fapi_sync_active = true
 
     result = mock()
     result.stubs(:body).returns({status: 'ok'}.to_json)
@@ -87,6 +105,8 @@ class FapiClientTest < ActiveSupport::TestCase
   end
 
   should 'build correct url' do
+    Settings.afeefa.fapi_sync_active = true
+
     params = { test: 'xyz', foo: 'bar', token: Settings.afeefa.fapi_webhook_api_token }
     result = mock()
     result.stubs(:body).returns({status: 'ok'}.to_json)

@@ -21,182 +21,185 @@ class FapiCacheJob < ApplicationRecord
     # or(where(entry_id: nil))
   }
 
-  class << self
-    def update_all_entries_for_area(area)
-      job = FapiCacheJob.not_started.find_by(entry: nil, area: area, updated: true)
-      unless job
-        job = FapiCacheJob.create!(area: area, updated: true)
-      end
-      job
+  after_commit on: [:create] do
+    fapi_client = FapiClient.new
+    fapi_client.job_created
+  end
+
+  def update_all_entries_for_area(area)
+    job = FapiCacheJob.not_started.find_by(entry: nil, area: area, updated: true)
+    unless job
+      job = FapiCacheJob.create!(area: area, updated: true)
     end
+    job
+  end
 
-    def update_all_entries_for_all_areas
-      jobs = []
-      Translatable::AREAS.each do |areaTitle|
-        area =  Area.find_by(title: areaTitle)
-        jobs << update_all_entries_for_area(area)
-      end
-      jobs
+  def update_all_entries_for_all_areas
+    jobs = []
+    Translatable::AREAS.each do |areaTitle|
+      area =  Area.find_by(title: areaTitle)
+      jobs << update_all_entries_for_area(area)
     end
+    jobs
+  end
 
-    def update_all_area_translations(area)
-      job = FapiCacheJob.not_started.find_by(entry: nil, area: area, translated: true)
-      unless job
-        job = FapiCacheJob.create!(area: area, translated: true)
-      end
-      job
+  def update_all_area_translations(area)
+    job = FapiCacheJob.not_started.find_by(entry: nil, area: area, translated: true)
+    unless job
+      job = FapiCacheJob.create!(area: area, translated: true)
     end
+    job
+  end
 
-    def update_area_translation(area, language)
-      job = FapiCacheJob.not_started.find_by(entry: nil, area: area, translated: true, language: language)
-      unless job
-        job = FapiCacheJob.create!(area: area, translated: true, language: language)
-      end
-      job
+  def update_area_translation(area, language)
+    job = FapiCacheJob.not_started.find_by(entry: nil, area: area, translated: true, language: language)
+    unless job
+      job = FapiCacheJob.create!(area: area, translated: true, language: language)
     end
+    job
+  end
 
-    def update_entry(entry)
-      job = nil
-      area = entry.respond_to?(:area) ? Area.find_by(title: entry.area) : nil
+  def update_entry(entry)
+    job = nil
+    area = entry.respond_to?(:area) ? Area.find_by(title: entry.area) : nil
 
-      if entry.is_a? DataModules::FeNavigation::FeNavigationItem
-        # do not allow more than one update/delete job at a time
-        job = ensure_not_more_than_one_navigation_update_job_per_area(area)
-        entry = entry.navigation
-      elsif entry.is_a? DataPlugins::Facet::FacetItem
-        # do not allow more than one update/delete job at a time
-        job = ensure_not_more_than_one_facet_update_job
-        entry = entry.facet
-      else
-        # do not allow more than one update/delete job at a time
-        job = ensure_not_more_than_one_entry_update_job_per_area(area, entry)
-      end
-
-      unless job
-        job = FapiCacheJob.find_by(entry: entry, updated: true, started_at: nil)
-        unless job
-          job = FapiCacheJob.create!(entry: entry, area: area, updated: true)
-        end
-      end
-
-      job
-    end
-
-    def delete_entry(entry)
-      if entry.is_a? DataModules::FeNavigation::FeNavigationItem
-        return update_entry(entry)
-      end
-
-      if entry.is_a? DataPlugins::Facet::FacetItem
-        return update_entry(entry)
-      end
-
-      area = Area.find_by(title: entry.area)
-
+    if entry.is_a? DataModules::FeNavigation::FeNavigationItem
+      # do not allow more than one update/delete job at a time
+      job = ensure_not_more_than_one_navigation_update_job_per_area(area)
+      entry = entry.navigation
+    elsif entry.is_a? DataPlugins::Facet::FacetItem
+      # do not allow more than one update/delete job at a time
+      job = ensure_not_more_than_one_facet_update_job
+      entry = entry.facet
+    else
       # do not allow more than one update/delete job at a time
       job = ensure_not_more_than_one_entry_update_job_per_area(area, entry)
+    end
 
+    unless job
+      job = FapiCacheJob.find_by(entry: entry, updated: true, started_at: nil)
       unless job
-        job = FapiCacheJob.not_started.find_by(entry: entry, deleted: true)
-        unless job
-          area = Area.find_by(title: entry.area)
-          job = FapiCacheJob.create!(entry: entry, area: area, deleted: true)
-        end
+        job = FapiCacheJob.create!(entry: entry, area: area, updated: true)
       end
-
-      job
     end
 
-    def update_entry_translation(entry, language)
-      if entry.is_a? DataPlugins::Facet::FacetItem
-        return update_facet_item_translation(entry, language)
-      end
+    job
+  end
 
-      job = nil
-      area = Area.find_by(title: entry.area)
+  def delete_entry(entry)
+    if entry.is_a? DataModules::FeNavigation::FeNavigationItem
+      return update_entry(entry)
+    end
 
-      job = ensure_not_more_than_one_entry_translation_per_area_and_language(area, entry, language)
+    if entry.is_a? DataPlugins::Facet::FacetItem
+      return update_entry(entry)
+    end
 
+    area = Area.find_by(title: entry.area)
+
+    # do not allow more than one update/delete job at a time
+    job = ensure_not_more_than_one_entry_update_job_per_area(area, entry)
+
+    unless job
+      job = FapiCacheJob.not_started.find_by(entry: entry, deleted: true)
       unless job
-        job = FapiCacheJob.not_started.find_by(entry: entry, area: area, translated: true, language: language)
-        unless job
-          job = FapiCacheJob.create!(entry: entry, area: area, translated: true, language: language)
-        end
+        area = Area.find_by(title: entry.area)
+        job = FapiCacheJob.create!(entry: entry, area: area, deleted: true)
       end
-      job
     end
 
-    private
+    job
+  end
 
-    def update_facet_item_translation(entry, language)
-      jobs = []
-      Translatable::AREAS.each do |areaTitle|
-        area =  Area.find_by(title: areaTitle)
-        job = update_entry_translation_for_area(area, entry, language)
-        jobs << job unless jobs.include?(job)
-      end
-      jobs
+  def update_entry_translation(entry, language)
+    if entry.is_a? DataPlugins::Facet::FacetItem
+      return update_facet_item_translation(entry, language)
     end
 
-    def update_entry_translation_for_area(area, entry, language)
-      job = nil
+    job = nil
+    area = Area.find_by(title: entry.area)
 
-      job = ensure_not_more_than_one_entry_translation_per_area_and_language(area, entry, language)
+    job = ensure_not_more_than_one_entry_translation_per_area_and_language(area, entry, language)
 
+    unless job
+      job = FapiCacheJob.not_started.find_by(entry: entry, area: area, translated: true, language: language)
       unless job
-        job = FapiCacheJob.not_started.find_by(entry: entry, area: area, translated: true, language: language)
-        unless job
-          job = FapiCacheJob.create!(entry: entry, area: area, translated: true, language: language)
-        end
-      end
-      job
-    end
-
-    def ensure_not_more_than_one_entry_translation_per_area_and_language(area, entry, language)
-      existing_jobs = FapiCacheJob.
-        by_area(area).
-        not_started.
-        where(translated: true, language: language).
-        not_for_entry(entry)
-
-      if existing_jobs.any?
-        existing_jobs.delete_all
-        return update_area_translation(area, language)
+        job = FapiCacheJob.create!(entry: entry, area: area, translated: true, language: language)
       end
     end
+    job
+  end
 
-    def ensure_not_more_than_one_entry_update_job_per_area(area, entry)
-      existing_jobs = FapiCacheJob.
-        by_area(area).
-        not_started.
-        is_update_or_delete_entry_job
+  private
 
-      if entry
-        existing_jobs = existing_jobs.not_for_entry(entry)
+  def update_facet_item_translation(entry, language)
+    jobs = []
+    Translatable::AREAS.each do |areaTitle|
+      area =  Area.find_by(title: areaTitle)
+      job = update_entry_translation_for_area(area, entry, language)
+      jobs << job unless jobs.include?(job)
+    end
+    jobs
+  end
+
+  def update_entry_translation_for_area(area, entry, language)
+    job = nil
+
+    job = ensure_not_more_than_one_entry_translation_per_area_and_language(area, entry, language)
+
+    unless job
+      job = FapiCacheJob.not_started.find_by(entry: entry, area: area, translated: true, language: language)
+      unless job
+        job = FapiCacheJob.create!(entry: entry, area: area, translated: true, language: language)
       end
+    end
+    job
+  end
 
-      if existing_jobs.any?
-        existing_jobs.delete_all
-        return update_all_entries_for_area(area)
-      end
+  def ensure_not_more_than_one_entry_translation_per_area_and_language(area, entry, language)
+    existing_jobs = FapiCacheJob.
+      by_area(area).
+      not_started.
+      where(translated: true, language: language).
+      not_for_entry(entry)
+
+    if existing_jobs.any?
+      existing_jobs.delete_all
+      return update_area_translation(area, language)
+    end
+  end
+
+  def ensure_not_more_than_one_entry_update_job_per_area(area, entry)
+    existing_jobs = FapiCacheJob.
+      by_area(area).
+      not_started.
+      is_update_or_delete_entry_job
+
+    if entry
+      existing_jobs = existing_jobs.not_for_entry(entry)
     end
 
-    def ensure_not_more_than_one_navigation_update_job_per_area(area)
-      FapiCacheJob.
-        by_area(area).
-        not_started.
-        is_update_or_delete_entry_job.
-        where(entry_type: DataModules::FeNavigation::FeNavigation.name).
-        first
+    if existing_jobs.any?
+      existing_jobs.delete_all
+      return update_all_entries_for_area(area)
     end
+  end
 
-    def ensure_not_more_than_one_facet_update_job
-      FapiCacheJob.
-        not_started.
-        is_update_or_delete_entry_job.
-        where(entry_type: DataPlugins::Facet::Facet.name).
-        first
-    end
+  def ensure_not_more_than_one_navigation_update_job_per_area(area)
+    FapiCacheJob.
+      by_area(area).
+      not_started.
+      is_update_or_delete_entry_job.
+      where(entry_type: DataModules::FeNavigation::FeNavigation.name).
+      first
+  end
+
+  def ensure_not_more_than_one_facet_update_job
+    FapiCacheJob.
+      not_started.
+      is_update_or_delete_entry_job.
+      where(entry_type: DataPlugins::Facet::Facet.name).
+      first
   end
 
 end

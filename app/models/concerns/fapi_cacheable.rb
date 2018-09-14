@@ -12,12 +12,12 @@ module FapiCacheable
 
   def fapi_cacheable_on_save
     # override if necessary
-    FapiCacheJob.update_entry(self)
+    FapiCacheJob.new.update_entry(self)
   end
 
   def fapi_cacheable_on_destroy
     # override if necessary
-    FapiCacheJob.delete_entry(self)
+    FapiCacheJob.new.delete_entry(self)
   end
 
 end

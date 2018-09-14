@@ -47,7 +47,7 @@ module DataPlugins::Facet
 
     def fapi_cacheable_on_destroy
       super
-      FapiCacheJob.update_all_entries_for_all_areas
+      FapiCacheJob.new.update_all_entries_for_all_areas
     end
 
     # CLASS METHODS

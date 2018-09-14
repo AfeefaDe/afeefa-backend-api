@@ -13,6 +13,8 @@ module Translatable
     after_save :update_or_create_translations,
       if: -> { (Settings.phraseapp.active || force_translation_after_save) }
 
+    after_save :create_fapi_cache_job, on: :update
+
     after_destroy :destroy_translations,
       if: -> { (Settings.phraseapp.active || force_translation_after_save) }
 
@@ -26,14 +28,6 @@ module Translatable
 
     def translation_key_type
       self.class.translation_key_type
-    end
-
-    def force_translatable_attribute_update!
-      @force_translatable_attribute_update = true
-    end
-
-    def force_translatable_attribute_update?
-      @force_translatable_attribute_update || false
     end
   end
 
@@ -51,10 +45,19 @@ module Translatable
     @@client ||= PhraseAppClient.new
   end
 
+  def create_fapi_cache_job
+    unless id_changed? # update
+      if translatable_attribute_changed?
+        # create translation cache job
+        FapiCacheJob.new.update_entry_translation(self, DEFAULT_LOCALE)
+      end
+    end
+  end
+
   def update_or_create_translations
     unless respond_to?(:root_orga?) && root_orga? # all entries except root orga
-      if translatable_attribute_changed? || force_translatable_attribute_update?
-        json = create_json_for_translation_file(only_changes: !force_translatable_attribute_update?)
+      if translatable_attribute_changed?
+        json = create_json_for_translation_file
         if json
           translation_file_name = "#{translation_key_type}-#{id.to_s}-translation-#{DEFAULT_LOCALE}-"
           file = client.write_translation_upload_json(translation_file_name, json)

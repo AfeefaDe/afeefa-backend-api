@@ -18,29 +18,6 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.update_or_create_translations
   end
 
-  should 'upload translation when no attributes are changed but force_translatable_attribute_update is set' do
-    orga = create(:orga, title: 'testorga')
-    orga_id = orga.id.to_s
-    orga.force_translatable_attribute_update!
-    orga.force_translation_after_save = true
-
-    PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
-      file = File.read(file)
-      json = JSON.parse(file)
-
-      assert_not_nil json['orga']
-      assert_not_nil json['orga'][orga_id]
-      assert_equal 'testorga', json['orga'][orga_id]['title']
-      assert_equal 'this is the short description', json['orga'][orga_id]['short_description']
-
-      assert_equal Translatable::DEFAULT_LOCALE, phraseapp_locale_id
-      assert_equal 'dresden', tags_hash[:tags]
-    end
-
-    orga.update_or_create_translations
-  end
-
-
   should 'build json for phraseapp' do
     VCR.use_cassette('generate_json_for_phraseapp') do
       orga = create(:orga)
@@ -328,84 +305,82 @@ class TranslatableTest < ActiveSupport::TestCase
     assert navigation_item.destroy
   end
 
-  should 'trigger fapi if facet item is created' do
+  # fapi cache integration
+
+  [:orga, :event, :offer].each do |entry_factory|
+    should "create fapi cache job on entry create for #{entry_factory}" do
+      entry = build(entry_factory)
+
+      FapiCacheJob.any_instance.expects(:update_entry_translation).never
+
+      entry.save!
+    end
+  end
+
+  should 'create fapi cache job if facet item is created' do
     facet_item = build(:facet_item, title: 'New Category')
 
-    FapiClient.any_instance.expects(:request).at_least_once.with do |facet_item_to_create|
-      facet_item_id = DataPlugins::Facet::FacetItem.last.id
-      assert_equal 'facet_item', facet_item_to_create[:type]
-      assert_equal facet_item_id, facet_item_to_create[:id]
-    end
+    FapiCacheJob.any_instance.expects(:update_entry_translation).never
 
-    facet_item.save
+    facet_item.save!
   end
 
-  should 'trigger fapi if navigation item is created' do
+  should 'create fapi cache job if navigation item is created' do
     navigation_item = build(:fe_navigation_item, title: 'New Entry')
 
-    FapiClient.any_instance.expects(:request).at_least_once.with do |navigation_item_to_create|
-      navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id
-      assert_equal 'navigation_item', navigation_item_to_create[:type]
-      assert_equal navigation_item_id, navigation_item_to_create[:id]
-    end
+    FapiCacheJob.any_instance.expects(:update_entry_translation).never
 
-    navigation_item.save
+    navigation_item.save!
   end
 
-  should 'trigger fapi if facet item is updated' do
+  [:orga, :event, :offer].each do |entry_factory|
+    should "create fapi cache job on entry update for #{entry_factory}" do
+      entry = create(entry_factory)
+
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(entry, 'de')
+
+      entry.update!(title: 'new title')
+    end
+  end
+
+  should 'create fapi cache job if facet item is updated' do
     facet_item = create(:facet_item, title: 'New Category')
 
-    FapiClient.any_instance.expects(:request).at_least_once.with do |facet_item_to_update|
-      facet_item_id = DataPlugins::Facet::FacetItem.last.id
-      assert_equal 'facet_item', facet_item_to_update[:type]
-      assert_equal facet_item_id, facet_item_to_update[:id]
-    end
+    FapiCacheJob.any_instance.expects(:update_entry_translation).with(facet_item, 'de')
 
-    facet_item.update(title: 'new title')
+    facet_item.update!(title: 'new title')
   end
 
-  should 'trigger fapi if navigation item is updated' do
+  should 'create fapi cache job if navigation item is updated' do
     navigation_item = create(:fe_navigation_item, title: 'New Entry')
 
-    FapiClient.any_instance.expects(:request).at_least_once.with do |navigation_item_to_update|
-      navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id
-      assert_equal 'navigation_item', navigation_item_to_update[:type]
-      assert_equal navigation_item_id, navigation_item_to_update[:id]
+    FapiCacheJob.any_instance.expects(:update_entry_translation).with(navigation_item, 'de')
+
+    navigation_item.update!(title: 'new title')
+  end
+
+  [:orga, :event, :offer].each do |entry_factory|
+    should "create fapi cache job on entry delete for #{entry_factory}" do
+      entry = create(entry_factory)
+
+      FapiCacheJob.any_instance.expects(:update_entry_translation).never
+
+      entry.destroy
     end
-
-    navigation_item.update(title: 'new title')
   end
 
-  should 'trigger fapi if entry deleted' do
-    event = create(:event)
-
-    FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, deleted: true)).at_least_once
-
-    event.destroy
-  end
-
-  should 'trigger fapi if facet item is deleted' do
+  should 'create fapi cache job if facet item is deleted' do
     facet_item = create(:facet_item, title: 'New Category')
 
-    FapiClient.any_instance.expects(:request).at_least_once.with do |facet_item_to_delete|
-      assert_nil facet_item_to_delete[:area]
-      assert_equal 'facet_item', facet_item_to_delete[:type]
-      assert_equal facet_item.id, facet_item_to_delete[:id]
-      assert facet_item_to_delete[:deleted]
-    end
+    FapiCacheJob.any_instance.expects(:update_entry_translation).never
 
     facet_item.destroy
   end
 
-  should 'trigger fapi if navigation item is deleted' do
+  should 'create fapi cache job if navigation item is deleted' do
     navigation_item = create(:fe_navigation_item, title: 'New Entry')
 
-    FapiClient.any_instance.expects(:request).at_least_once.with do |navigation_item_to_delete|
-      assert_equal 'dresden', navigation_item_to_delete[:area]
-      assert_equal 'navigation_item', navigation_item_to_delete[:type]
-      assert_equal navigation_item.id, navigation_item_to_delete[:id]
-      assert navigation_item_to_delete[:deleted]
-    end
+    FapiCacheJob.any_instance.expects(:update_entry_translation).never
 
     navigation_item.destroy
   end

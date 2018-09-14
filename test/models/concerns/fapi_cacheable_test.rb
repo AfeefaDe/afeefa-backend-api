@@ -24,9 +24,17 @@ class FapiCacheableTest < ActiveSupport::TestCase
       entry = create(entry_factory)
       FapiCacheJob.delete_all
 
-      assert_difference -> { FapiCacheJob.count } do
+      assert_difference -> { FapiCacheJob.count }, 2 do
         entry.update!(title: 'neuer title')
       end
+
+      assert_fapi_cache_job(
+        job: FapiCacheJob.first,
+        entry: entry,
+        areaTitle: 'dresden',
+        translated: true,
+        language: 'de'
+      )
 
       assert_fapi_cache_job(
         job: FapiCacheJob.last,
@@ -153,9 +161,17 @@ class FapiCacheableTest < ActiveSupport::TestCase
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
-    assert_difference -> { FapiCacheJob.count } do
+    assert_difference -> { FapiCacheJob.count }, 2 do
       navigation_item.update(title: 'new title')
     end
+
+    assert_fapi_cache_job(
+      job: FapiCacheJob.first,
+      entry: navigation_item,
+      areaTitle: 'dresden',
+      translated: true,
+      language: 'de'
+    )
 
     assert_fapi_cache_job(
       job: FapiCacheJob.last,
@@ -205,8 +221,20 @@ class FapiCacheableTest < ActiveSupport::TestCase
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
-    assert_difference -> { FapiCacheJob.count } do
+    assert_difference -> { FapiCacheJob.count }, 4 do
       facet_item.update(title: 'new title')
+    end
+
+    jobs = FapiCacheJob.all
+
+    Translatable::AREAS.each_with_index do |areaTitle, index|
+      assert_fapi_cache_job(
+        job: jobs[index],
+        entry: facet_item,
+        areaTitle: areaTitle,
+        translated: true,
+        language: 'de'
+      )
     end
 
     assert_fapi_cache_job(

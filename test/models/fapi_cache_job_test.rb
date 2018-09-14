@@ -2,8 +2,49 @@ require "test_helper"
 
 class FapiCacheJobTest < ActiveSupport::TestCase
 
+  # FAPI integration
+
+  should 'trigger fapi on entries for area job created' do
+    FapiClient.any_instance.expects(:job_created)
+    FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+  end
+
+  should 'trigger fapi on all entries for all areas job created' do
+    FapiClient.any_instance.expects(:job_created).times(3)
+    FapiCacheJob.new.update_all_entries_for_all_areas
+  end
+
+  should 'trigger fapi on facet item translation job created' do
+    facet_item = create(:facet_item)
+    FapiCacheJob.delete_all
+
+    FapiClient.any_instance.expects(:job_created).times(3)
+
+    FapiCacheJob.new.update_entry_translation(facet_item, 'en')
+  end
+
+  should 'trigger fapi on facet item destroy job created' do
+    facet_item = create(:facet_item)
+    FapiCacheJob.delete_all
+
+    FapiClient.any_instance.expects(:job_created).times(4)
+
+    facet_item.destroy!
+  end
+
+  should 'trigger fapi on navigation item destroy job created' do
+    navigation_item = create(:fe_navigation_item, title: 'New Entry')
+    FapiCacheJob.delete_all
+
+    FapiClient.any_instance.expects(:job_created).times(2)
+
+    navigation_item.destroy
+  end
+
+  # Job handling
+
   should 'create a job to update all area entries' do
-    job = FapiCacheJob::update_all_entries_for_area(Area.find_by(title: 'dresden'))
+    job = FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
 
     assert_fapi_cache_job(
       job: job,
@@ -13,7 +54,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
   end
 
   should 'create a job to update all entries of all entries' do
-    jobs = FapiCacheJob::update_all_entries_for_all_areas
+    jobs = FapiCacheJob.new.update_all_entries_for_all_areas
 
     Translatable::AREAS.each_with_index do |area, index|
       job = jobs[index]
@@ -26,7 +67,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
   end
 
   should 'create a job to update all area translations' do
-    job = FapiCacheJob::update_all_area_translations(Area.find_by(title: 'dresden'))
+    job = FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
 
     assert_fapi_cache_job(
       job: job,
@@ -36,7 +77,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
   end
 
   should 'create a job to update a specific area translation' do
-    job = FapiCacheJob::update_area_translation(Area.find_by(title: 'dresden'), 'de')
+    job = FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
 
     assert_fapi_cache_job(
       job: job,
@@ -50,7 +91,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     orga = create(:orga)
     FapiCacheJob.delete_all
 
-    job = FapiCacheJob::update_entry(orga)
+    job = FapiCacheJob.new.update_entry(orga)
 
     assert_fapi_cache_job(
       job: job,
@@ -64,7 +105,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     orga = create(:orga)
     FapiCacheJob.delete_all
 
-    job = FapiCacheJob::update_entry_translation(orga, 'en')
+    job = FapiCacheJob.new.update_entry_translation(orga, 'en')
 
     assert_fapi_cache_job(
       job: job,
@@ -79,7 +120,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     orga = create(:orga)
     FapiCacheJob.delete_all
 
-    job = FapiCacheJob::delete_entry(orga)
+    job = FapiCacheJob.new.delete_entry(orga)
 
     assert_fapi_cache_job(
       job: job,
@@ -93,7 +134,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
-    job = FapiCacheJob::update_entry(navigation_item)
+    job = FapiCacheJob.new.update_entry(navigation_item)
 
     assert_fapi_cache_job(
       job: job,
@@ -107,7 +148,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
-    job = FapiCacheJob::update_entry_translation(navigation_item, 'en')
+    job = FapiCacheJob.new.update_entry_translation(navigation_item, 'en')
 
     assert_fapi_cache_job(
       job: job,
@@ -122,7 +163,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
-    job = FapiCacheJob::delete_entry(navigation_item)
+    job = FapiCacheJob.new.delete_entry(navigation_item)
 
     assert_fapi_cache_job(
       job: job,
@@ -136,7 +177,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
-    job = FapiCacheJob::update_entry(facet_item)
+    job = FapiCacheJob.new.update_entry(facet_item)
 
     assert_fapi_cache_job(
       job: job,
@@ -149,7 +190,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
-    jobs = FapiCacheJob::update_entry_translation(facet_item, 'en')
+    jobs = FapiCacheJob.new.update_entry_translation(facet_item, 'en')
 
     Translatable::AREAS.each_with_index do |area, index|
       job = jobs[index]
@@ -167,7 +208,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
-    job = FapiCacheJob::delete_entry(facet_item)
+    job = FapiCacheJob.new.delete_entry(facet_item)
 
     assert_fapi_cache_job(
       job: job,
@@ -179,65 +220,65 @@ class FapiCacheJobTest < ActiveSupport::TestCase
   should 'not create a job to update or translate an area multiple times' do
     # update all entries
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_all_entries_for_area(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_all_entries_for_area(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
     end
 
     # translate all languages
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_all_area_translations(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_all_area_translations(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
     end
 
     # translate specific language
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_area_translation(Area.find_by(title: 'dresden'), 'de')
+      FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_area_translation(Area.find_by(title: 'dresden'), 'de')
+      FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_area_translation(Area.find_by(title: 'dresden'), 'en')
+      FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'en')
     end
   end
 
   should 'create a job to update or translate an area multiple times if existing job has already been started' do
     # update all entries
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_all_entries_for_area(Area.find_by(title: 'dresden'))
+      job = FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_all_entries_for_area(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
     end
 
     # translate all languages
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_all_area_translations(Area.find_by(title: 'dresden'))
+      job = FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_all_area_translations(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
     end
 
     # translate specific language
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_area_translation(Area.find_by(title: 'dresden'), 'de')
+      job = FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_area_translation(Area.find_by(title: 'dresden'), 'de')
+      FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
     end
   end
 
@@ -247,33 +288,33 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
     # update entry
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_entry(orga)
+      FapiCacheJob.new.update_entry(orga)
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_entry(orga)
+      FapiCacheJob.new.update_entry(orga)
     end
 
     # delete entry
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::delete_entry(orga)
+      FapiCacheJob.new.delete_entry(orga)
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::delete_entry(orga)
+      FapiCacheJob.new.delete_entry(orga)
     end
 
     # translate entry
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_entry_translation(orga, 'de')
+      FapiCacheJob.new.update_entry_translation(orga, 'de')
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_entry_translation(orga, 'de')
+      FapiCacheJob.new.update_entry_translation(orga, 'de')
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_entry_translation(orga, 'en')
+      FapiCacheJob.new.update_entry_translation(orga, 'en')
     end
   end
 
@@ -283,32 +324,32 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
     # update entry
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_entry(orga)
+      job = FapiCacheJob.new.update_entry(orga)
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_entry(orga)
+      FapiCacheJob.new.update_entry(orga)
     end
 
     # delete entry
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::delete_entry(orga)
+      job = FapiCacheJob.new.delete_entry(orga)
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::delete_entry(orga)
+      FapiCacheJob.new.delete_entry(orga)
     end
 
     # translate entry
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_entry_translation(orga, 'de')
+      job = FapiCacheJob.new.update_entry_translation(orga, 'de')
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob::update_entry_translation(orga, 'de')
+      FapiCacheJob.new.update_entry_translation(orga, 'de')
     end
   end
 
@@ -320,7 +361,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
         FapiCacheJob.delete_all
 
         assert_difference -> { FapiCacheJob.count } do
-          job = FapiCacheJob::send("#{operation}_entry", orga)
+          job = FapiCacheJob.new.send("#{operation}_entry", orga)
 
           assert_fapi_cache_job(
             job: job,
@@ -331,7 +372,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
         end
 
         assert_no_difference -> { FapiCacheJob.count } do
-          job = FapiCacheJob::send("#{operation}_entry", orga2)
+          job = FapiCacheJob.new.send("#{operation}_entry", orga2)
 
           assert_fapi_cache_job(
             job: job,
@@ -353,7 +394,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
         FapiCacheJob.delete_all
 
         assert_difference -> { FapiCacheJob.count } do
-          job = FapiCacheJob::send("#{operation}_entry", navigation_item)
+          job = FapiCacheJob.new.send("#{operation}_entry", navigation_item)
 
           assert_fapi_cache_job(
             job: job,
@@ -364,7 +405,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
         end
 
         assert_no_difference -> { FapiCacheJob.count } do
-          job = FapiCacheJob::send("#{operation2}_entry", navigation_item2)
+          job = FapiCacheJob.new.send("#{operation2}_entry", navigation_item2)
 
           assert_fapi_cache_job(
             job: job,
@@ -387,7 +428,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
         FapiCacheJob.delete_all
 
         assert_difference -> { FapiCacheJob.count } do
-          job = FapiCacheJob::send("#{operation}_entry", facet_item)
+          job = FapiCacheJob.new.send("#{operation}_entry", facet_item)
 
           assert_fapi_cache_job(
             job: job,
@@ -397,7 +438,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
         end
 
         assert_no_difference -> { FapiCacheJob.count } do
-          job = FapiCacheJob::send("#{operation2}_entry", facet_item2)
+          job = FapiCacheJob.new.send("#{operation2}_entry", facet_item2)
 
           assert_fapi_cache_job(
             job: job,
@@ -415,7 +456,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiCacheJob.delete_all
 
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_entry_translation(orga, 'de')
+      job = FapiCacheJob.new.update_entry_translation(orga, 'de')
 
       assert_fapi_cache_job(
         job: job,
@@ -427,7 +468,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_entry_translation(orga2, 'de')
+      job = FapiCacheJob.new.update_entry_translation(orga2, 'de')
 
       assert_fapi_cache_job(
         job: job,
@@ -438,7 +479,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_entry_translation(orga, 'ar')
+      job = FapiCacheJob.new.update_entry_translation(orga, 'ar')
 
       assert_fapi_cache_job(
         job: job,
@@ -456,7 +497,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiCacheJob.delete_all
 
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_entry_translation(navigation_item, 'de')
+      job = FapiCacheJob.new.update_entry_translation(navigation_item, 'de')
 
       assert_fapi_cache_job(
         job: job,
@@ -468,7 +509,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_entry_translation(navigation_item2, 'de')
+      job = FapiCacheJob.new.update_entry_translation(navigation_item2, 'de')
 
       assert_fapi_cache_job(
         job: job,
@@ -479,7 +520,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob::update_entry_translation(navigation_item, 'fi')
+      job = FapiCacheJob.new.update_entry_translation(navigation_item, 'fi')
 
       assert_fapi_cache_job(
         job: job,
@@ -497,7 +538,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiCacheJob.delete_all
 
     assert_difference -> { FapiCacheJob.count }, 3 do
-      jobs = FapiCacheJob::update_entry_translation(facet_item, 'en')
+      jobs = FapiCacheJob.new.update_entry_translation(facet_item, 'en')
 
       Translatable::AREAS.each_with_index do |area, index|
         job = jobs[index]
@@ -512,7 +553,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      jobs = FapiCacheJob::update_entry_translation(facet_item2, 'en')
+      jobs = FapiCacheJob.new.update_entry_translation(facet_item2, 'en')
 
       Translatable::AREAS.each_with_index do |area, index|
         job = jobs[index]
@@ -526,7 +567,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
 
     assert_difference -> { FapiCacheJob.count }, 3 do
-      jobs = FapiCacheJob::update_entry_translation(facet_item, 'us')
+      jobs = FapiCacheJob.new.update_entry_translation(facet_item, 'us')
 
       Translatable::AREAS.each_with_index do |area, index|
         job = jobs[index]

@@ -7,7 +7,7 @@ module DataModules::FeNavigation
     belongs_to :owner, polymorphic: true
 
     def fapi_cacheable_on_save
-      FapiCacheJob.update_entry(owner)
+      FapiCacheJob.new.update_entry(owner)
     end
 
     def fapi_cacheable_on_destroy

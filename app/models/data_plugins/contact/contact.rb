@@ -38,7 +38,7 @@ module DataPlugins::Contact
 
     def fapi_cacheable_on_save
       linking_owners.each do |owner|
-        FapiCacheJob.update_entry(owner)
+        FapiCacheJob.new.update_entry(owner)
       end
     end
 
