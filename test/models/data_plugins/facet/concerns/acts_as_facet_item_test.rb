@@ -10,7 +10,9 @@ module ActsAsFacetItemTest
     end
 
     should 'create item triggers fapi cache' do
-      FapiClient.any_instance.expects(:entry_updated).with(instance_of(itemClass)).at_least_once
+      # note, navigation_item factory does two updates on create (create + order),
+      # so this method gets called twice
+      FapiCacheJob.any_instance.expects(:update_entry).with(instance_of(itemClass)).at_least_once
 
       create_item
     end
@@ -18,7 +20,7 @@ module ActsAsFacetItemTest
     should 'update item triggers fapi cache' do
       item = create_item
 
-      FapiClient.any_instance.expects(:entry_updated).with(item)
+      FapiCacheJob.any_instance.expects(:update_entry).with(item)
 
       item.update(title: 'new title')
     end
@@ -26,7 +28,7 @@ module ActsAsFacetItemTest
     should 'remove item triggers fapi cache' do
       item = create_item
 
-      FapiClient.any_instance.expects(:entry_deleted).with(item)
+      FapiCacheJob.any_instance.expects(:delete_entry).with(item)
 
       item.destroy
     end

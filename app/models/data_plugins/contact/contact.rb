@@ -46,20 +46,6 @@ module DataPlugins::Contact
       fapi_cacheable_on_save
     end
 
-    after_commit on: [:create, :update] do
-      if owner
-        fapi_client = FapiClient.new
-        fapi_client.entry_updated(owner)
-      end
-    end
-
-    after_destroy do
-      if owner
-        fapi_client = FapiClient.new
-        fapi_client.entry_updated(owner)
-      end
-    end
-
     def linking_owners
       linking_actors + linking_events + linking_offers
     end

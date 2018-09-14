@@ -74,16 +74,6 @@ module DataModules::FeNavigation
     # SAVE HOOKS
     after_save :move_owners_to_new_parent
 
-    after_commit on: [:create, :update] do
-      fapi_client = FapiClient.new
-      fapi_client.entry_updated(self)
-    end
-
-    after_destroy do
-      fapi_client = FapiClient.new
-      fapi_client.entry_deleted(self)
-    end
-
     def fapi_cacheable_on_destroy
       super
       areaModel = Area.find_by(title: area)

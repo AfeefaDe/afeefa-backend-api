@@ -47,7 +47,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
 
-      FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id, locale: 'en'))
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(orga, 'en')
 
       post :phraseapp_webhook
 
@@ -71,7 +71,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
 
-      FapiClient.any_instance.expects(:request).with(has_entries(type: 'offer', id: offer.id, locale: 'ar'))
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(offer, 'ar')
 
       post :phraseapp_webhook
 
@@ -103,7 +103,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
 
-      FapiClient.any_instance.expects(:request).with(has_entries(type: 'orga', id: orga.id, locale: 'ar'))
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(orga, 'ar')
 
       post :phraseapp_webhook
 
@@ -135,7 +135,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
 
-      FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, locale: 'ar'))
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(event, 'ar')
 
       post :phraseapp_webhook
 
@@ -167,7 +167,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
 
-      FapiClient.any_instance.expects(:request).with(has_entries(type: 'offer', id: offer.id, locale: 'ar'))
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(offer, 'ar')
 
       post :phraseapp_webhook
 
@@ -198,7 +198,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
 
-      FapiClient.any_instance.expects(:request).with(has_entries(type: 'facet_item', id: facet_item.id, locale: 'ar'))
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(facet_item, 'ar')
 
       post :phraseapp_webhook
 
@@ -229,7 +229,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
 
-      FapiClient.any_instance.expects(:request).with(has_entries(type: 'event', id: event.id, locale: 'en'))
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(event, 'en')
 
       assert_difference -> { TranslationCache.count }, -1 do
         post :phraseapp_webhook
@@ -260,7 +260,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       request.query_string = "token=#{Settings.phraseapp.webhook_api_token}"
       request.env['RAW_POST_DATA'] = json.to_json
 
-      FapiClient.any_instance.expects(:request).with(has_entries(type: 'navigation_item', id: navigation_item.id, locale: 'ar'))
+      FapiCacheJob.any_instance.expects(:update_entry_translation).with(navigation_item, 'ar')
 
       post :phraseapp_webhook
 
