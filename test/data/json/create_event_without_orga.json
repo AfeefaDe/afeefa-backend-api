@@ -7,24 +7,6 @@
       "date_start": "2016-12-12"
     },
     "relationships": {
-      //      "parent_orga":{
-      //        "data":{
-      //          "type":"orgas",
-      //          "id":"683"
-      //        }
-      //      },
-      "category": {
-        "data": {
-          "type": "categories",
-          "id": "<category_id>"
-        }
-      },
-      "sub_category": {
-        "data": {
-          "type": "categories",
-          "id": "<sub_category_id>"
-        }
-      },
       "annotations": {
         "data": [
           {

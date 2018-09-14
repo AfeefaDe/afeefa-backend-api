@@ -3,7 +3,6 @@
     "attributes": {
       "orga_type_id": <orga_type_id>,
       "title": "some title",
-      //      "active":true,
       "description": "iwefowihjf",
       "short_description": "short description",
       "created_at": null,
@@ -11,18 +10,6 @@
       "state_changed_at": null
     },
     "relationships": {
-      "category": {
-        "data": {
-          "type": "categories",
-          "id": "<category_id>"
-        }
-      },
-      "sub_category": {
-        "data": {
-          "type": "categories",
-          "id": "<sub_category_id>"
-        }
-      },
       "resource_items": {
         "data": [
           {

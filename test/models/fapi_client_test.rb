@@ -3,7 +3,13 @@ require 'test_helper'
 class FapiClientTest < ActiveSupport::TestCase
 
   setup do
+    Settings.afeefa.fapi_sync_active = true
+
     @client ||= FapiClient.new
+  end
+
+  teardown do
+    Settings.afeefa.fapi_sync_active = false
   end
 
   should 'trigger fapi on translation change' do

@@ -8,18 +8,6 @@
       "media_url": ""
     },
     "relationships": {
-      "category": {
-        "data": {
-          "type": "categories",
-          "id": "<category_id>"
-        }
-      },
-      "sub_category": {
-        "data": {
-          "type": "categories",
-          "id": "<sub_category_id>"
-        }
-      },
       "resource_items": {
         "data": [
           {
