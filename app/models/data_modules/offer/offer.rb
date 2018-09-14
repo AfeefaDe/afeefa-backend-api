@@ -4,6 +4,7 @@ module DataModules::Offer
     include Translatable
     include LazySerializable
     include HasCreatorAndEditor
+    include FapiCacheable
 
     # ASSOCIATIONS
     has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, dependent: :destroy

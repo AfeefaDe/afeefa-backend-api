@@ -6,6 +6,7 @@ module Able
     include StateMachine
     include Translatable
     include Inheritable
+    include FapiCacheable
 
     class << self
       def translatable_attributes
@@ -104,7 +105,7 @@ module Able
           else
             self.contact_id = nil
             save!(validate: false)
-            contact.update!(owner: nil)
+            contact.reload # clear contact.linking_actors to prevent restriction error
             contact.destroy
           end
         end

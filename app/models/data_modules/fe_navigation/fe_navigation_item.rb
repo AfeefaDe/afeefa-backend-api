@@ -3,6 +3,7 @@ module DataModules::FeNavigation
     include Jsonable
     include DataPlugins::Facet::Concerns::ActsAsFacetItem
     include Translatable
+    include FapiCacheable
 
     # ASSOCIATIONS
     belongs_to :navigation, class_name: DataModules::FeNavigation::FeNavigation
@@ -81,6 +82,12 @@ module DataModules::FeNavigation
     after_destroy do
       fapi_client = FapiClient.new
       fapi_client.entry_deleted(self)
+    end
+
+    def fapi_cacheable_on_destroy
+      super
+      areaModel = Area.find_by(title: area)
+      FapiCacheJob.update_all_entries_for_area(areaModel)
     end
 
     # CLASS METHODS

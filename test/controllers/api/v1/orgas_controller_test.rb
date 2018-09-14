@@ -429,6 +429,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         orga3.linked_contact.location = linked_location
         orga3.linked_contact.save!
 
+        linked_contact.reload
+
         assert orga2.linked_contact = linked_contact
         assert orga2.linked_contact.location = linked_location
         assert orga3.linked_contact.location = linked_location

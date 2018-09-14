@@ -3,6 +3,7 @@ module DataPlugins::Facet
     include Jsonable
     include DataPlugins::Facet::Concerns::ActsAsFacetItem
     include Translatable
+    include FapiCacheable
 
     # ASSOCIATIONS
     belongs_to :facet
@@ -42,6 +43,11 @@ module DataPlugins::Facet
     after_destroy do
       fapi_client = FapiClient.new
       fapi_client.entry_deleted(self)
+    end
+
+    def fapi_cacheable_on_destroy
+      super
+      FapiCacheJob.update_all_entries_for_all_areas
     end
 
     # CLASS METHODS
