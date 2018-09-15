@@ -14,7 +14,7 @@ class OrgaTest < ActiveSupport::TestCase
   end
 
   should 'create orga triggers fapi cache' do
-    FapiClient.any_instance.expects(:entry_updated).with(instance_of(Orga)).at_least_once
+    FapiCacheJob.any_instance.expects(:update_entry).with(instance_of(Orga)).at_least_once
 
     Orga.new.save(validate: false)
   end
@@ -22,7 +22,7 @@ class OrgaTest < ActiveSupport::TestCase
   should 'update orga triggers fapi cache' do
     orga = create(:orga)
 
-    FapiClient.any_instance.expects(:entry_updated).with(orga)
+    FapiCacheJob.any_instance.expects(:update_entry).with(orga)
 
     orga.update(certified_sfr: true)
   end
@@ -30,7 +30,7 @@ class OrgaTest < ActiveSupport::TestCase
   should 'remove orga triggers fapi cache' do
     orga = create(:orga)
 
-    FapiClient.any_instance.expects(:entry_deleted).with(orga)
+    FapiCacheJob.any_instance.expects(:delete_entry).with(orga)
 
     orga.destroy
   end

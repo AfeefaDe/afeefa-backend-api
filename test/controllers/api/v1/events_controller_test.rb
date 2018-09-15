@@ -208,8 +208,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'ensure creator for event on create' do
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
-        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
         payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
         payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
       end
@@ -222,8 +220,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'ignore given creator for event' do
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
-        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
         payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
         payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
       end
@@ -363,8 +359,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     should 'I want to create a new event' do
       orga = create(:orga)
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
-        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
         payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
         payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
       end
@@ -484,8 +478,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     should 'ignore given state on event create' do
       assert_difference 'Event.count' do
         params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
-          payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-          payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
           payload.gsub!('<annotation_category_id_1>', AnnotationCategory.first.id.to_s)
           payload.gsub!('<annotation_category_id_2>', AnnotationCategory.second.id.to_s)
         end
@@ -500,8 +492,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
 
     should 'set default orga on event create without orga relation' do
       params = parse_json_file(file: 'create_event_without_orga.json') do |payload|
-        payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-        payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
         payload.gsub!(/"annotations":.*"locations":/m, '"locations":')
       end
       post :create, params: params
@@ -557,8 +547,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                   file: 'update_event_without_sub_category.json'
                 ) do |payload|
                   payload.gsub!('<id>', event.id.to_s)
-                  payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
-                  # payload.gsub!('<sub_category_id>', Category.sub_categories.first.id.to_s)
                 end
               )
             assert_response :ok, response.body
@@ -610,7 +598,6 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
             ) do |payload|
               payload.gsub!('<id>', event.id.to_s)
               payload.gsub!('<annotation_id_1>', annotation.id.to_s)
-              payload.gsub!('<category_id>', Category.main_categories.first.id.to_s)
             end
           )
         assert_response :ok, response.body

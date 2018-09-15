@@ -6,6 +6,7 @@ module Able
     include StateMachine
     include Translatable
     include Inheritable
+    include FapiCacheable
 
     class << self
       def translatable_attributes
@@ -66,16 +67,6 @@ module Able
       self.facebook_id.present? || self.facebook_id = nil
     end
 
-    after_commit on: [:create, :update] do
-      fapi_client = FapiClient.new
-      fapi_client.entry_updated(self)
-    end
-
-    after_destroy do
-      fapi_client = FapiClient.new
-      fapi_client.entry_deleted(self)
-    end
-
     def create_entry!
       if is_a?(Orga) && root_orga?
         true
@@ -104,7 +95,7 @@ module Able
           else
             self.contact_id = nil
             save!(validate: false)
-            contact.update!(owner: nil)
+            contact.reload # clear contact.linking_actors to prevent restriction error
             contact.destroy
           end
         end

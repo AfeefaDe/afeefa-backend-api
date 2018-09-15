@@ -44,7 +44,7 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
         cache.destroy
       end
 
-      fapi_client.entry_translated(entry, language)
+      FapiCacheJob.new.update_entry_translation(entry, language)
     end
   end
 
@@ -55,10 +55,6 @@ class Api::V1::TranslationCacheController < Api::V1::BaseController
   end
 
   private
-
-  def fapi_client
-    @fapi_client ||= FapiClient.new
-  end
 
   def token_to_ensure
     Settings.phraseapp.webhook_api_token

@@ -9,41 +9,27 @@
 module Seeds
 
   def self.recreate_all
+    Settings.afeefa.fapi_sync_active = false
+
+    pp "Start seeding database (#{Time.current.to_s})."
+
     # clean up
+
+    pp 'delete events, orgas and entries'
+
     Orga.without_root.delete_all
-
-    unless Rails.env.production?
-      User.delete_all
-    end
-
     Event.delete_all
     Entry.delete_all
 
-    Location.delete_all
-    ContactInfo.delete_all
-
-    AnnotationCategory.delete_all
-    Annotation.delete_all
-
-    Category.delete_all
-
-    # categories and sub categories
-    Neos::Migration::SUB_CATEGORIES.each do |main_category, categories|
-      unless new_main_category = Category.find_by_title(main_category)
-        new_main_category =
-          Category.create!(title: main_category)
-      end
-
-      categories.each do |category|
-        Category.create!(title: category[:name], parent_id: new_main_category.id)
-      end
-    end
+    pp 'delete and create areas'
 
     # areas
     Area.delete_all
     Area.create!(title: 'dresden', lat_min: '50.811596', lat_max: '51.381457', lon_min: '12.983771', lon_max: '14.116620')
     Area.create!(title: 'leipzig', lat_min: '51.169806', lat_max: '51.455225', lon_min: '12.174588', lon_max: '12.659360')
     Area.create!(title: 'bautzen', lat_min: '51.001001', lat_max: '51.593835', lon_min: '13.710340', lon_max: '14.650444')
+
+    pp 'delete and create orga types'
 
     # orga types
     OrgaType.delete_all
@@ -52,6 +38,8 @@ module Seeds
     OrgaType.create!(name: 'Project')
     OrgaType.create!(name: 'Location')
     OrgaType.create!(name: 'Network')
+
+    pp 'create orgas'
 
     # orgas
     if Orga.root_orga
@@ -66,65 +54,27 @@ module Seeds
       orga0.save!(validate: false)
     end
 
+    pp 'delete and create users'
+
+    unless Rails.env.production?
+      User.delete_all
+    end
+
     # users
     unless Rails.env.production?
       User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'MapCat_050615')
-      User.create!(email: 'felix@afeefa.de', forename: 'Felix', surname: 'Schönfeld', password: 'MapCat_050615')
-      User.create!(email: 'joschka@afeefa.de', forename: 'Joschka', surname: 'Heinrich', password: 'MapCat_050615')
-      User.create!(email: 'steve@afeefa.de', forename: 'Steve', surname: 'Reinke', password: 'MapCat_050615')
-      User.create!(email: 'peter@afeefa.de', forename: 'Peter', surname: 'Hirsch', password: 'MapCat_050615')
-      User.create!(email: 'alex@afeefa.de', forename: 'Alex', surname: 'Weiß', password: 'MapCat_050615')
-      User.create!(email: 'friedrich@afeefa.de', forename: 'Friedrich', surname: 'Weise', password: 'MapCat_050615')
-      User.create!(email: 'hagen@afeefa.de', forename: 'Hagen', surname: 'Belitz', password: 'MapCat_050615')
     end
+
+    pp 'delete and create annotations'
+
+    AnnotationCategory.delete_all
+    Annotation.delete_all
 
     # annotations
     AnnotationCategory.create!(title: 'Kurzbeschreibung fehlt', generated_by_system: true)
-
     AnnotationCategory.create!(title: 'Kontaktdaten', generated_by_system: false)
-    AnnotationCategory.create!(title: 'Ort', generated_by_system: false)
-    AnnotationCategory.create!(title: 'Beschreibung', generated_by_system: false)
-    AnnotationCategory.create!(title: 'Bild', generated_by_system: false)
-    AnnotationCategory.create!(title: 'Kategorie', generated_by_system: false)
-    AnnotationCategory.create!(title: 'Zugehörigkeit', generated_by_system: false)
 
-    AnnotationCategory.create!(title: 'Sonstiges', generated_by_system: false)
-
-    AnnotationCategory.create!(title: 'ENTWURF', generated_by_system: false)
-    AnnotationCategory.create!(title: 'DRINGEND', generated_by_system: false)
-    AnnotationCategory.create!(title: 'EXTERNE EINTRAGUNG', generated_by_system: true)
-    AnnotationCategory.create!(title: 'EXTERNE ANMERKUNG', generated_by_system: true)
-
-    # TODO: Validierung einbauen und Migration handlen!
-    # AnnotationCategory.create!(title: 'Unterkategorie passt nicht zur Hauptkategorie',
-    #   generated_by_system: true)
-
-    # nice to have (for maintenance views):
-    # accessible media_url and correct media_type for entry
-    # no phone nor mail in contact_info
+    pp "Seeding database finished (#{Time.current.to_s})."
   end
 
 end
-
-pp "Start seeding database (#{Time.current.to_s})."
-Seeds.recreate_all
-pp "Seeding database finished (#{Time.current.to_s})."
-unless Rails.env.test?
-  begin
-    Neos::Migration.
-      migrate(
-        migrate_phraseapp: (Settings.phraseapp.active rescue false),
-        limit: {
-          orgas: Settings.try(:migration).try(:limit).try(:orgas),
-          events: Settings.try(:migration).try(:limit).try(:events) })
-  rescue ActiveRecord::NoDatabaseError => _exception
-    pp 'Migration of live db data could not be processed because the db configured in database.yml ' +
-      'could not be found. Is db connection \'afeefa\' defined correctly? ' +
-      'And did you import the db dump from repository?'
-  rescue ActiveRecord::AdapterNotSpecified => _exception
-    pp 'Migration of live db data could not be processed because no db is configured in database.yml. ' +
-      'Is db connection \'afeefa\' defined correctly? ' +
-      'And did you import the db dump from repository?'
-  end
-end
-# TODO: Discuss user logins for production!

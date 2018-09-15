@@ -2,10 +2,10 @@ require 'test_helper'
 
 class ContactTest < ActiveSupport::TestCase
 
-  should 'create contact triggers fapi cache' do
+  should 'create contact does not triggers fapi cache' do
     orga = create(:orga)
 
-    FapiClient.any_instance.expects(:entry_updated).with(orga)
+    FapiCacheJob.any_instance.expects(:update_entry).with(orga).never
 
     DataPlugins::Contact::Contact.new(owner: orga).save(validate: false)
   end
@@ -13,19 +13,23 @@ class ContactTest < ActiveSupport::TestCase
   should 'update contact triggers fapi cache' do
     orga = create(:orga)
     contact = DataPlugins::Contact::Contact.create!(owner: orga, location: nil, title: 'old title')
+    orga.update!(linked_contact: contact)
+    contact.reload
 
-    FapiClient.any_instance.expects(:entry_updated).with(orga)
+    FapiCacheJob.any_instance.expects(:update_entry).with(orga)
 
-    contact.update(title: 'new title')
+    contact.update!(title: 'new title')
   end
 
   should 'remove contact triggers fapi cache' do
     orga = create(:orga)
     contact = DataPlugins::Contact::Contact.create!(owner: orga, location: nil, title: 'title')
+    orga.update!(linked_contact: contact)
+    contact.reload
 
-    FapiClient.any_instance.expects(:entry_updated).with(orga)
+    FapiCacheJob.any_instance.expects(:update_entry).with(orga)
 
-    contact.destroy
+    contact.destroy!
   end
 
 end

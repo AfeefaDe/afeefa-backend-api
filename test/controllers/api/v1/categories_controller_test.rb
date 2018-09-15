@@ -8,6 +8,8 @@ class Api::V1::CategoriesControllerTest < ActionController::TestCase
     end
 
     should 'I want to get all categories' do
+      create(:category)
+
       area = @controller.current_api_v1_user.area
 
       other_category = Category.last

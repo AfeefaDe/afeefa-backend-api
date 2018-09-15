@@ -12,7 +12,6 @@ class PhraseappToBackendSyncJob < ActiveJob::Base
       Rails.logger.info "translation cache update succeeded, #{num} translations cached"
     end
 
-    fapi_client = FapiClient.new
-    fapi_client.all_updated
+    FapiCacheJob.new.update_all
   end
 end

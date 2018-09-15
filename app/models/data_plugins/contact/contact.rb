@@ -1,12 +1,15 @@
 module DataPlugins::Contact
   class Contact < ApplicationRecord
     include Jsonable
+    include FapiCacheable
 
     # ASSOCIATIONS
     belongs_to :owner, polymorphic: true
     has_many :contact_persons, class_name: ::DataPlugins::Contact::ContactPerson, dependent: :destroy
     belongs_to :location, class_name: ::DataPlugins::Location::Location
-    has_many :linking_actors, class_name: Orga, foreign_key: :contact_id, dependent: :restrict_with_exception
+    has_many :linking_actors, class_name: Orga, foreign_key: :contact_id
+    has_many :linking_events, class_name: Event, foreign_key: :contact_id
+    has_many :linking_offers, class_name: DataModules::Offer::Offer, foreign_key: :contact_id
 
     # VALIDATIONS
     validates :title, length: { maximum: 1000 }
@@ -33,18 +36,18 @@ module DataPlugins::Contact
       end
     end
 
-    after_commit on: [:create, :update] do
-      if owner
-        fapi_client = FapiClient.new
-        fapi_client.entry_updated(owner)
+    def fapi_cacheable_on_save
+      linking_owners.each do |owner|
+        FapiCacheJob.new.update_entry(owner)
       end
     end
 
-    after_destroy do
-      if owner
-        fapi_client = FapiClient.new
-        fapi_client.entry_updated(owner)
-      end
+    def fapi_cacheable_on_destroy
+      fapi_cacheable_on_save
+    end
+
+    def linking_owners
+      linking_actors + linking_events + linking_offers
     end
 
     def owner_to_hash(attributes: nil, relationships: nil)

@@ -87,6 +87,14 @@ class ActiveSupport::TestCase
     Settings.facebook.active rescue false
   end
 
+  def assert_equal_with_nil(val1, val2)
+    if val1.nil?
+      assert_nil val2
+    else
+      assert_equal val1, val2
+    end
+  end
+
   def assert_jsonable_hash(object, attributes: nil, relationships: nil)
     object_keys = %i(id type attributes)
     if (relationships.nil? || relationships.present?) && object.class.relation_whitelist_for_json.any?
@@ -123,6 +131,35 @@ class ActiveSupport::TestCase
 
       end
     end
+  end
+
+
+  def assert_fapi_cache_job(
+    job: nil,
+    entry: nil,
+    entry_id: nil,
+    entry_type: nil,
+    areaTitle: nil,
+    updated: false,
+    deleted: false,
+    translated: false,
+    language: nil
+    )
+
+    if entry_id # in case of removal we cannot fetch the entry association any longer
+      assert_equal entry_id, job.entry_id
+      assert_equal entry_type, job.entry_type
+    else
+      assert_equal_with_nil entry, job.entry
+    end
+    assert_equal_with_nil areaTitle, (job.area ? job.area.title : nil)
+    assert_equal updated, job.updated || false # updated is nil by default
+    assert_equal deleted, job.deleted || false # deleted is nil by default
+    assert_equal translated, job.translated || false # translated is nil by default
+    assert_equal_with_nil language, job.language
+    assert_equal Time.current.beginning_of_minute.as_json, job.created_at.beginning_of_minute.as_json
+    assert_nil job.started_at
+    assert_nil job.finished_at
   end
 
 end

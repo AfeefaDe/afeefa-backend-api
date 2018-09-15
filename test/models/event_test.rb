@@ -2,7 +2,7 @@ require 'test_helper'
 
 class EventTest < ActiveSupport::TestCase
   should 'create event triggers fapi cache' do
-    FapiClient.any_instance.expects(:entry_updated).with(instance_of(Event)).at_least_once
+    FapiCacheJob.any_instance.expects(:update_entry).with(instance_of(Event)).at_least_once
 
     Event.new.save(validate: false)
   end
@@ -10,7 +10,7 @@ class EventTest < ActiveSupport::TestCase
   should 'update event triggers fapi cache' do
     event = create(:event)
 
-    FapiClient.any_instance.expects(:entry_updated).with(event)
+    FapiCacheJob.any_instance.expects(:update_entry).with(event)
 
     event.update(certified_sfr: true)
   end
@@ -18,7 +18,7 @@ class EventTest < ActiveSupport::TestCase
   should 'remove event triggers fapi cache' do
     event = create(:event)
 
-    FapiClient.any_instance.expects(:entry_deleted).with(event)
+    FapiCacheJob.any_instance.expects(:delete_entry).with(event)
 
     event.destroy
   end

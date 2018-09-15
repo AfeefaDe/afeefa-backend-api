@@ -14,15 +14,6 @@
       "state_changed_at": "2016-12-14T19:10:00.000Z"
     },
     "relationships": {
-      "category": {
-        "data": {
-          "type": "categories",
-          "id": "<category_id>"
-        }
-      },
-      "sub_category": {
-        "data": null
-      }
     },
     "type": "events"
   }

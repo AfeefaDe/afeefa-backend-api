@@ -4,6 +4,7 @@ module DataModules::Offer
     include Translatable
     include LazySerializable
     include HasCreatorAndEditor
+    include FapiCacheable
 
     # ASSOCIATIONS
     has_many :offer_owners, class_name: DataModules::Offer::OfferOwner, dependent: :destroy
@@ -18,16 +19,6 @@ module DataModules::Offer
       includes(includes).
       where(id: ids)
     }
-
-    after_commit on: [:create, :update] do
-      fapi_client = FapiClient.new
-      fapi_client.entry_updated(self)
-    end
-
-    after_destroy do
-      fapi_client = FapiClient.new
-      fapi_client.entry_deleted(self)
-    end
 
     # CLASS METHODS
     class << self

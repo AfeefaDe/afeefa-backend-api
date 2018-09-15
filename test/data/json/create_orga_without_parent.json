@@ -2,7 +2,6 @@
   "data": {
     "attributes": {
       "title": "some title",
-      //      "active": true,
       "description": "iwefowihjf",
       "short_description": "short description",
       "created_at": null,
@@ -10,24 +9,6 @@
       "state_changed_at": null
     },
     "relationships": {
-      //      "parent_orga":{
-      //        "data":{
-      //          "type":"orgas",
-      //          "id":"683"
-      //        }
-      //      },
-      "category": {
-        "data": {
-          "type": "categories",
-          "id": "<category_id>"
-        }
-      },
-      "sub_category": {
-        "data": {
-          "type": "categories",
-          "id": "<sub_category_id>"
-        }
-      },
       "contact_infos": {
         "data": [
           {

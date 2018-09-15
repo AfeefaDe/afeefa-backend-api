@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180912112201) do
+ActiveRecord::Schema.define(version: 20180914064457) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "associating_actor_id"
@@ -251,6 +251,21 @@ ActiveRecord::Schema.define(version: 20180912112201) do
     t.boolean  "color_sub_items", default: true, null: false
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+  end
+
+  create_table "fapi_cache_jobs", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string   "entry_type"
+    t.integer  "entry_id"
+    t.integer  "area_id"
+    t.boolean  "updated"
+    t.boolean  "deleted"
+    t.boolean  "translated"
+    t.string   "language"
+    t.datetime "created_at"
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.index ["area_id"], name: "index_fapi_cache_jobs_on_area_id", using: :btree
+    t.index ["entry_type", "entry_id"], name: "index_fapi_cache_jobs_on_entry_type_and_entry_id", using: :btree
   end
 
   create_table "fe_navigation_item_facet_items", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|

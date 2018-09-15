@@ -17,18 +17,6 @@
           "type": "orgas",
           "id": "<parent_orga_id>"
         }
-      },
-      "category": {
-        "data": {
-          "type": "categories",
-          "id": "<category_id>"
-        }
-      },
-      "sub_category": {
-        "data": {
-          "type": "categories",
-          "id": "<sub_category_id>"
-        }
       }
     },
     "type": "orgas"

@@ -11,18 +11,6 @@
       "state_changed_at": null
     },
     "relationships": {
-      "category": {
-        "data": {
-          "type": "categories",
-          "id": "<category_id>"
-        }
-      },
-      "sub_category": {
-        "data": {
-          "type": "categories",
-          "id": "<sub_category_id>"
-        }
-      },
       "contact_infos": {
         "data": [
           {

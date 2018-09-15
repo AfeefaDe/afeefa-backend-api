@@ -19,7 +19,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 1, num_deletes
   end
 
-  should 'delete given keys by name' do
+  should 'delete given keys by name (Phraseapp Api Test with Network)' do
     orga = build(:orga)
     orga.force_translation_after_save = true
     orga.save(validate: false)
@@ -55,7 +55,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 7, num_deletes
   end
 
-  should 'tag given models' do
+  should 'tag given models (Phraseapp Api Test with Network)' do
     orga = build(:orga)
     orga.force_translation_after_save = true
     orga.save(validate: false)
@@ -87,7 +87,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 8, @client.get_count_keys_for_tag('hana_war_hier')
   end
 
-  should 'delete tag' do
+  should 'delete tag (Phraseapp Api Test with Network)' do
     orga = build(:orga)
     orga.area = 'leipzig'
     orga.force_translation_after_save = true
