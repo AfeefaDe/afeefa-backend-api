@@ -14,6 +14,17 @@ class DataModules::FeNavigation::V1::FeNavigationItemsController < Api::V1::Base
   # fe_navigation_items/:id
   def update
     navigation_item = DataModules::FeNavigation::FeNavigationItem.save_navigation_item(params)
+
+    if navigation_item.previous_changes.has_key?(:order)
+      new_order = navigation_item.previous_changes['order'][1]
+      # since the update of navigation item already created a fapi cache job
+      # we can use update_all here and bypass the on save hook
+      DataModules::FeNavigation::FeNavigationItem.
+        where.not(id: navigation_item.id).
+        where('`order` >= ?', new_order).
+        update_all('`order` = `order` + 1')
+    end
+
     render status: :ok, json: navigation_item
   end
 

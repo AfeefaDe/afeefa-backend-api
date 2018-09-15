@@ -8,7 +8,7 @@ module DataModules::FeNavigation
     # ASSOCIATIONS
     belongs_to :navigation, class_name: DataModules::FeNavigation::FeNavigation
     belongs_to :parent, class_name: FeNavigationItem
-    has_many :sub_items, class_name: FeNavigationItem, foreign_key: :parent_id, dependent: :destroy
+    has_many :sub_items, -> { ordered }, class_name: FeNavigationItem, foreign_key: :parent_id, dependent: :destroy
 
     has_many :navigation_item_owners,
       class_name: FeNavigationItemOwner, foreign_key: 'navigation_item_id', dependent: :destroy
@@ -107,7 +107,7 @@ module DataModules::FeNavigation
       end
 
       def navigation_item_params(params)
-        params.permit(:title, :color, :icon, :navigation_id, :parent_id)
+        params.permit(:title, :color, :icon, :navigation_id, :parent_id, :order)
       end
 
       def save_navigation_item(params)

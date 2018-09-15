@@ -36,6 +36,7 @@ de:
       events: Events
       sub_events: Unterevents
       annotation_category_id: Kategorie
+      parent_id: Oberkategorie
   activerecord:
     attributes:
       orga:
