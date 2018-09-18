@@ -10,7 +10,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
   end
 
   should 'trigger fapi on all entries for all areas job created' do
-    FapiClient.any_instance.expects(:job_created).times(3)
+    FapiClient.any_instance.expects(:job_created)
     FapiCacheJob.new.update_all_entries_for_all_areas
   end
 
@@ -18,7 +18,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
-    FapiClient.any_instance.expects(:job_created).times(3)
+    FapiClient.any_instance.expects(:job_created)
 
     FapiCacheJob.new.update_entry_translation(facet_item, 'en')
   end
@@ -27,7 +27,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
-    FapiClient.any_instance.expects(:job_created).times(4)
+    FapiClient.any_instance.expects(:job_created).times(2)
 
     facet_item.destroy!
   end
@@ -39,6 +39,87 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiClient.any_instance.expects(:job_created).times(2)
 
     navigation_item.destroy
+  end
+
+
+  should 'trigger fapi anyway, even if the same job has already been scheduled - update_all' do
+    # update_all_entries_for_area
+    FapiCacheJob.new.update_all
+
+    FapiClient.any_instance.expects(:job_created)
+
+    FapiCacheJob.new.update_all
+  end
+
+  should 'trigger fapi anyway, even if the same job has already been scheduled - update_all_entries_for_area' do
+    # update_all_entries_for_area
+    FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+
+    FapiClient.any_instance.expects(:job_created)
+
+    FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+  end
+
+  should 'trigger fapi anyway, even if the same job has already been scheduled - update_entry_translation' do
+    # update_entry_translation
+    facet_item = create(:facet_item)
+    FapiCacheJob.delete_all
+    FapiCacheJob.new.update_entry_translation(facet_item, 'en')
+
+    FapiClient.any_instance.expects(:job_created)
+
+    FapiCacheJob.new.update_entry_translation(facet_item, 'en')
+  end
+
+  should 'trigger fapi anyway, even if the same job has already been scheduled - update_all_entries_for_all_areas' do
+    # update_all_entries_for_all_areas
+    FapiCacheJob.new.update_all_entries_for_all_areas
+
+    FapiClient.any_instance.expects(:job_created)
+
+    FapiCacheJob.new.update_all_entries_for_all_areas
+  end
+
+  should 'trigger fapi anyway, even if the same job has already been scheduled - update_all_area_translations' do
+    # update_all_area_translations
+    FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+
+    FapiClient.any_instance.expects(:job_created)
+
+    FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+  end
+
+  should 'trigger fapi anyway, even if the same job has already been scheduled - update_area_translation' do
+    # update_area_translation
+    FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+
+    FapiClient.any_instance.expects(:job_created)
+
+    FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+  end
+
+  should 'trigger fapi anyway, even if the same job has already been scheduled - update_entry' do
+    # update_entry
+    orga = create(:orga)
+    FapiCacheJob.delete_all
+
+    FapiCacheJob.new.update_entry(orga)
+
+    FapiClient.any_instance.expects(:job_created)
+
+    FapiCacheJob.new.update_entry(orga)
+  end
+
+  should 'trigger fapi anyway, even if the same job has already been scheduled - delete_entry' do
+    # delete_entry
+    orga = create(:orga)
+    FapiCacheJob.delete_all
+
+    FapiCacheJob.new.delete_entry(orga)
+
+    FapiClient.any_instance.expects(:job_created)
+
+    FapiCacheJob.new.delete_entry(orga)
   end
 
   # Job handling

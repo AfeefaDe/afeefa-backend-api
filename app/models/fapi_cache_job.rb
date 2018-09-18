@@ -17,11 +17,6 @@ class FapiCacheJob < ApplicationRecord
       entry.class.name, entry.id)
   }
 
-  after_commit on: [:create] do
-    fapi_client = FapiClient.new
-    fapi_client.job_created
-  end
-
   def update_all
     existing_jobs = FapiCacheJob.
       not_started.
@@ -35,13 +30,19 @@ class FapiCacheJob < ApplicationRecord
     unless job
       job = FapiCacheJob.create!(updated: true, translated: true)
     end
+
+    FapiClient.new.job_created
     job
   end
 
-  def update_all_entries_for_area(area)
+  def update_all_entries_for_area(area, notifyFapi = true)
     job = FapiCacheJob.not_started.find_by(entry: nil, area: area, updated: true)
     unless job
       job = FapiCacheJob.create!(area: area, updated: true)
+    end
+
+    if notifyFapi
+      FapiClient.new.job_created
     end
     job
   end
@@ -50,8 +51,10 @@ class FapiCacheJob < ApplicationRecord
     jobs = []
     Translatable::AREAS.each do |areaTitle|
       area =  Area.find_by(title: areaTitle)
-      jobs << update_all_entries_for_area(area)
+      jobs << update_all_entries_for_area(area, false)
     end
+
+    FapiClient.new.job_created
     jobs
   end
 
@@ -60,6 +63,8 @@ class FapiCacheJob < ApplicationRecord
     unless job
       job = FapiCacheJob.create!(area: area, translated: true)
     end
+
+    FapiClient.new.job_created
     job
   end
 
@@ -68,6 +73,8 @@ class FapiCacheJob < ApplicationRecord
     unless job
       job = FapiCacheJob.create!(area: area, translated: true, language: language)
     end
+
+    FapiClient.new.job_created
     job
   end
 
@@ -95,6 +102,7 @@ class FapiCacheJob < ApplicationRecord
       end
     end
 
+    FapiClient.new.job_created
     job
   end
 
@@ -120,12 +128,15 @@ class FapiCacheJob < ApplicationRecord
       end
     end
 
+    FapiClient.new.job_created
     job
   end
 
   def update_entry_translation(entry, language)
     if entry.is_a? DataPlugins::Facet::FacetItem
-      return update_facet_item_translation(entry, language)
+      jobs = update_facet_item_translation(entry, language)
+      FapiClient.new.job_created
+      return jobs
     end
 
     job = nil
@@ -139,6 +150,8 @@ class FapiCacheJob < ApplicationRecord
         job = FapiCacheJob.create!(entry: entry, area: area, translated: true, language: language)
       end
     end
+
+    FapiClient.new.job_created
     job
   end
 
@@ -193,7 +206,7 @@ class FapiCacheJob < ApplicationRecord
 
     if existing_jobs.any?
       existing_jobs.delete_all
-      return update_all_entries_for_area(area)
+      return update_all_entries_for_area(area, false)
     end
   end
 
