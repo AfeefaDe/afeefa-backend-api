@@ -100,6 +100,7 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
         end
 
         actor = Orga.find(params[:actorId])
+        actor_updated_at = actor.updated_at
 
         # relink contact, location, navigation
         unless DataPlugins::Contact::Contact.where(owner: actor).update(owner: offer)
@@ -146,6 +147,11 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
           annotation.entry = offer
           annotation.save!(validate: false)
         end
+
+        offer.created_at = actor.created_at
+        offer.updated_at = actor_updated_at
+        offer.active = actor.state == 'active'
+        offer.save!
 
         actor.destroy!
 

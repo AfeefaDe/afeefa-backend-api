@@ -284,7 +284,8 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
     end
 
     should 'convert actor and its relations to offer' do
-      actor = create(:orga_without_contacts)
+      actor = create(:orga_without_contacts, state: 'active')
+
       assert actor.contacts.blank?
       assert actor.locations.blank?
 
@@ -345,6 +346,10 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
 
       new_offer_owner = create(:orga)
 
+      actor.created_at = 1.day.ago
+      actor.updated_at = 1.day.ago
+      actor.save!
+
       new_offer = nil
 
       assert_difference -> { Orga.count }, -1 do
@@ -383,6 +388,11 @@ class DataModules::Offer::V1::OffersControllerTest < ActionController::TestCase
       new_offer_owner.reload
       contact.reload
       location.reload
+
+      # active
+      assert new_offer.active
+      assert_in_delta 1.day.ago, new_offer.created_at, 3.seconds
+      assert_in_delta 1.day.ago, new_offer.updated_at, 3.seconds
 
       # owners
       assert_equal [actor_initiator1, new_offer_owner], new_offer.owners
