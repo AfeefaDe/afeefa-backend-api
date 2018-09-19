@@ -4,7 +4,7 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
   def show_actor
     area = params[:area]
 
-    orga = Orga.by_area(area).find(params[:id])
+    orga = Orga.where(state: 'active').by_area(area).find(params[:id])
     # put more details into the orga.project_intitators list @see orga#project_initiators_to_hash
     initiators_hash = orga.project_initiators.map { |i| i.to_hash }
     orga_hash = orga.as_json
@@ -16,14 +16,14 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
     area = params[:area]
 
     if params[:ids]
-      orgas = Orga.
+      orgas = Orga.where(state: 'active').
         by_area(area).
         all_for_ids(params[:ids].split(/,/)).
         map do |orga|
         orga.to_hash(attributes: Orga.default_attributes_for_json, relationships: Orga.default_relations_for_json)
       end
     else
-      orgas = Orga.includes(Orga.lazy_includes).
+      orgas = Orga.where(state: 'active').includes(Orga.lazy_includes).
         by_area(area).
         map do |orga|
         orga.serialize_lazy
@@ -36,7 +36,7 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
   def show_event
     area = params[:area]
 
-    event = Event.by_area(area).find(params[:id])
+    event = Event.where(state: 'active').upcoming.by_area(area).find(params[:id])
     # put more details into the event.hosts list @see event#hosts_to_hash
     hosts_hash = event.hosts.map { |h| h.to_hash }
     event_hash = event.as_json
@@ -48,14 +48,14 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
     area = params[:area]
 
     if params[:ids]
-      events = Event.
+      events = Event.where(state: 'active').upcoming.
         by_area(area).
         all_for_ids(params[:ids].split(/,/)).
         map do |event|
         event.to_hash(attributes: Event.default_attributes_for_json, relationships: Event.default_relations_for_json)
       end
     else
-      events = filter_objects.
+      events = Event.where(state: 'active').upcoming.
         includes(Event.lazy_includes).
         by_area(area).
         map do |event|
@@ -69,7 +69,7 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
   def show_offer
     # put more details into the offer.owners list @see offer#owners_to_hash
     area = params[:area]
-    offer = DataModules::Offer::Offer.by_area(area).find(params[:id])
+    offer = DataModules::Offer::Offer.where(state: 'active').by_area(area).find(params[:id])
     owners_hash = offer.owners.map { |o| o.to_hash }
     offer_hash = offer.as_json
     offer_hash[:relationships][:owners] = { data: owners_hash }
@@ -81,19 +81,21 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
 
     if params[:ids]
       offers = DataModules::Offer::Offer.
+        where(state: 'active').
         by_area(area).
         all_for_ids(params[:ids].split(/,/)).
         map do |offer|
-        offer.to_hash(
-          attributes: DataModules::Offer::Offer.default_attributes_for_json,
-          relationships: DataModules::Offer::Offer.default_relations_for_json)
+          offer.to_hash(
+            attributes: DataModules::Offer::Offer.default_attributes_for_json,
+            relationships: DataModules::Offer::Offer.default_relations_for_json)
       end
     else
       offers = DataModules::Offer::Offer.includes(DataModules::Offer::Offer.lazy_includes).
+        where(state: 'active').
         by_area(area).
         map do |offer|
-        offer.serialize_lazy
-      end
+          offer.serialize_lazy
+        end
     end
 
     render status: :ok, json: { data: offers }
@@ -124,14 +126,14 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
   def index_facets
     area = params[:area]
 
-    objects = DataModule::Facet::Facet.by_area(area)
+    objects = DataPlugins::Facet::Facet.all
     render_objects_to_json(objects)
   end
 
   def show_facet
     area = params[:area]
 
-    objects = DataModule::Facet::Facet.by_area(area)
+    objects = DataModule::Facet::Facet.all
     object = objects.find(params[:id])
     render_single_object_to_json(object)
   end
@@ -162,5 +164,9 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
 
   def to_hash_method
     :to_hash
+  end
+
+  def default_filter
+    { area: params[:area] }
   end
 end
