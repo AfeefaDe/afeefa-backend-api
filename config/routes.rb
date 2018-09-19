@@ -22,6 +22,11 @@ Rails.application.routes.draw do
   #
   # }
 
+  post '/graphql', to: 'graphql#execute'
+  if Rails.env.development?
+    mount GraphiQL::Rails::Engine, at: '/graphql/explore', graphql_path: '/graphql'
+  end
+
   scope format: false, defaults: { format: :json } do
     scope :api do
       scope :v1 do
