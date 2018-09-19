@@ -23,8 +23,38 @@ Rails.application.routes.draw do
   # }
 
   scope format: false, defaults: { format: :json } do
-    scope :api do
-      scope :v1 do
+    namespace :api do
+      namespace :v1 do
+        # TODO: Should we move them to frontend api?
+        get 'facebook_events', to: 'facebook_events#index'
+        get 'geocoding', to: 'geocodings#index'
+
+        get 'translations', to: 'translation_cache#index'
+        post 'translations', to: 'translation_cache#update'
+        post 'translations/phraseapp_webhook', to: 'translation_cache#phraseapp_webhook'
+
+        #routes.call, generates /sign_in and /sign_out and probably more ;-)
+        mount_devise_token_auth_for 'User',
+          at: 'users',
+          controllers: {
+            sessions: 'api/v1/sessions',
+            token_validations: 'api/v1/token_validations'
+          }
+
+        # public stuff
+        scope :public do
+          get ':area/actors', to: 'public#index_actors'
+          get ':area/actors/:id', to: 'public#show_actor'
+          get ':area/events', to: 'public#index_events'
+          get ':area/events/:id', to: 'public#show_event'
+          get ':area/offers', to: 'public#index_offers'
+          get ':area/offers/:id', to: 'public#show_offer'
+          get ':area/navigation/:id', to: 'public#show_navigation'
+          get ':area/facets', to: 'public#index_facets'
+          get ':area/facets/:id', to: 'public#show_facet'
+        end
+        # public stuff end
+
         get ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#index'
         post ':owner_type/:owner_id/contacts', to: 'data_plugins/contact/v1/contacts#create'
         patch ':owner_type/:owner_id/contacts/:id', to: 'data_plugins/contact/v1/contacts#update'
@@ -65,26 +95,6 @@ Rails.application.routes.draw do
         end
         get ':owner_type/:owner_id/fe_navigation_items', to: 'data_modules/fe_navigation/v1/fe_navigation_items#get_linked_navigation_items'
         post ':owner_type/:owner_id/fe_navigation_items', to: 'data_modules/fe_navigation/v1/fe_navigation_items#link_navigation_items'
-      end
-    end
-
-    namespace :api do
-      namespace :v1 do
-        # TODO: Should we move them to frontend api?
-        get 'facebook_events', to: 'facebook_events#index'
-        get 'geocoding', to: 'geocodings#index'
-
-        get 'translations', to: 'translation_cache#index'
-        post 'translations', to: 'translation_cache#update'
-        post 'translations/phraseapp_webhook', to: 'translation_cache#phraseapp_webhook'
-
-        #routes.call, generates /sign_in and /sign_out and probably more ;-)
-        mount_devise_token_auth_for 'User',
-          at: 'users',
-          controllers: {
-            sessions: 'api/v1/sessions',
-            token_validations: 'api/v1/token_validations'
-          }
 
         get 'meta', to: 'metas#index'
         get ':related_type/:id/events', to: 'events#get_related_resources'

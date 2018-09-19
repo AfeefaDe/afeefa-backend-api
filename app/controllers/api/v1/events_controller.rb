@@ -1,6 +1,7 @@
 class Api::V1::EventsController < Api::V1::EntriesBaseController
   def show
-    event = Event.find(params[:id])
+    area = current_api_v1_user.area
+    event = Event.by_area(area).find(params[:id])
     # put more details into the event.hosts list @see event#hosts_to_hash
     hosts_hash = event.hosts.map { |h| h.to_hash }
     event_hash = event.as_json
@@ -13,6 +14,7 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
 
     if params[:ids]
       events = Event.
+        by_area(area).
         all_for_ids(params[:ids].split(/,/)).
         map do |event|
           event.to_hash(attributes: Event.default_attributes_for_json, relationships: Event.default_relations_for_json)
@@ -54,12 +56,14 @@ class Api::V1::EventsController < Api::V1::EntriesBaseController
   end
 
   def get_hosts
-    event = Event.find(params[:id])
+    area = current_api_v1_user.area
+    event = Event.by_area(area).find(params[:id])
     render status: :ok, json: event.hosts_to_hash
   end
 
   def link_hosts
-    event = Event.find(params[:id])
+    area = current_api_v1_user.area
+    event = Event.by_area(area).find(params[:id])
     begin
       ActiveRecord::Base.transaction do # fail if one fails
         event.hosts.destroy_all

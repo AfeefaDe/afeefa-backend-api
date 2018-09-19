@@ -115,7 +115,7 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
         end
         unless DataModules::FeNavigation::FeNavigationItemOwner.where(owner: actor).update(owner: offer)
           raise ActiveRecord::RecordInvalid, 'could not convert fe_navigation_items owner'
-        end
+       end
 
         # move actor events to all specfied offer owners
         events = actor.events
@@ -171,7 +171,8 @@ class DataModules::Offer::V1::OffersController < Api::V1::BaseController
   end
 
   def find_offer
-    @offer = DataModules::Offer::Offer.find(params[:id])
+    area = current_api_v1_user.area
+    @offer = DataModules::Offer::Offer.by_area(area).find(params[:id])
   end
 
 end

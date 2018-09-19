@@ -2,7 +2,9 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
   include DataModules::Actor::Concerns::HasActorRelationsController
 
   def show
-    orga = Orga.find(params[:id])
+    area = current_api_v1_user.area
+
+    orga = Orga.by_area(area).find(params[:id])
     # put more details into the orga.project_intitators list @see orga#project_initiators_to_hash
     initiators_hash = orga.project_initiators.map { |i| i.to_hash }
     orga_hash = orga.as_json
@@ -15,6 +17,7 @@ class Api::V1::OrgasController < Api::V1::EntriesBaseController
 
     if params[:ids]
       orgas = Orga.
+        by_area(area).
         all_for_ids(params[:ids].split(/,/)).
         map do |orga|
           orga.to_hash(attributes: Orga.default_attributes_for_json, relationships: Orga.default_relations_for_json)
