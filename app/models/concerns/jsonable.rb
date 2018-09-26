@@ -15,7 +15,7 @@ module Jsonable
       relationships: self.class.default_relations_for_json,
       dependent_relationships: {},
       dependent_attributes: {},
-      type: nil)
+      type: nil, public: false)
 
       default_hash(type: type).tap do |hash|
 
@@ -24,7 +24,13 @@ module Jsonable
         json_attributes = {}
         [attributes].flatten.each do |attribute|
           attribute = attribute.to_sym
-          next unless attribute.in?(self.class.attribute_whitelist_for_json)
+          whitelist =
+            if public
+              self.class.public_attribute_whitelist_for_json
+            else
+              self.class.attribute_whitelist_for_json
+            end
+          next unless attribute.in?(whitelist)
 
           # count relation attribute
           is_count_relation_attribute = false
@@ -55,7 +61,13 @@ module Jsonable
         json_relations = {}
         [relationships].flatten.each do |relation|
           relation = relation.to_sym
-          next unless relation.in?(self.class.relation_whitelist_for_json)
+          whitelist =
+            if public
+              self.class.public_relation_whitelist_for_json
+            else
+              self.class.relation_whitelist_for_json
+            end
+          next unless relation.in?(whitelist)
 
           to_hash_params = {}
           if dependent_relationships.has_key?(relation)
@@ -96,10 +108,20 @@ module Jsonable
   def as_json(options = {})
     to_hash(
       attributes: options[:attributes] || self.class.attribute_whitelist_for_json,
-      relationships: options[:relationships] || self.class.relation_whitelist_for_json)
+      relationships: options[:relationships] || self.class.relation_whitelist_for_json,
+      public: options[:public] || false
+    )
   end
 
   module ClassMethods
+    def public_attribute_whitelist_for_json
+      default_attributes_for_json - %i(created_at updated_at active)
+    end
+
+    def public_relation_whitelist_for_json
+      default_relations_for_json - %i(creator last_editor annotations)
+    end
+
     def attribute_whitelist_for_json
       # raise NotImplementedError, "attribute_whitelist_for_json must be defined for class #{self}"
       []

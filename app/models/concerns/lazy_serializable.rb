@@ -2,8 +2,8 @@ module LazySerializable
 
   extend ActiveSupport::Concern
 
-  def serialize_lazy(annotations: false, facets: true)
-    params = {params: {facet_items:facets, navigation_items:facets}}
+  def serialize_lazy(annotations: false, facets: true, public: false)
+    params = { params: { facet_items: facets, navigation_items: facets, public: public } }
     hash = lazy_serializer.new(self, params).serializable_hash[:data]
     if annotations
       annotations = AnnotationSerializer.new(self.annotations).serializable_hash[:data]

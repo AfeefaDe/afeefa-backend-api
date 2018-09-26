@@ -1,5 +1,9 @@
 class AnnotationSerializer
   include FastJsonapi::ObjectSerializer
   set_type :annotations
-  attributes :detail, :annotation_category_id, :created_at, :updated_at
+
+  attribute :detail
+  attribute :annotation_category_id
+  attribute :created_at, if: Proc.new { |record, params| !params[:public] == true }
+  attribute :updated_at, if: Proc.new { |record, params| !params[:public] == true }
 end
