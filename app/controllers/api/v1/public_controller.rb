@@ -146,13 +146,6 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
     render_objects_to_json(objects)
   end
 
-  def show_facet
-    area = params[:area]
-    objects = DataModule::Facet::Facet.all
-    object = objects.find(params[:id])
-    render_single_object_to_json(object)
-  end
-
   private
 
   def render_objects_to_json(objects)
@@ -163,20 +156,6 @@ class Api::V1::PublicController < Api::V1::EntriesBaseController
         end
       end || []
     render json: { data: json_hash }
-  end
-
-  def render_single_object_to_json(object, status: nil)
-    render(
-      status: status || 200,
-      json: {
-        data:
-          object.send(to_hash_method,
-            attributes: object.class.attribute_whitelist_for_json,
-            relationships: object.class.relation_whitelist_for_json,
-            public: true
-          )
-      }
-    )
   end
 
   def to_hash_method

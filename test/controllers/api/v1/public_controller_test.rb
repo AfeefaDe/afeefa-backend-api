@@ -155,6 +155,46 @@ class Api::V1::PublicControllerTest < ActionController::TestCase
         ensure_not_wanted_data(relationships, not_wanted_relationships)
       end
     end
+
+    context 'with dresden navigation' do
+      setup do
+        options = { area: 'dresden' }
+        @navigation = create(:fe_navigation_with_items_and_sub_items, options)
+      end
+
+      should 'get show navigation' do
+        get :show_navigation, params: { area: 'dresden', id: @navigation.id }
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_kind_of Hash, json
+        assert !json.key?('attributes')
+
+        relationships = json['relationships']
+        not_wanted_relationships = ['creator', 'last_editor', 'annotations']
+        ensure_not_wanted_data(relationships, not_wanted_relationships)
+      end
+    end
+
+    context 'with dresden facets' do
+      setup do
+        create(:facet_with_items)
+      end
+
+      should 'get index facets' do
+        get :index_facets, params: { area: 'dresden' }
+        assert_response :ok, response.body
+        json = JSON.parse(response.body)
+        assert_kind_of Array, json['data']
+
+        attributes = json['data'].last['attributes']
+        not_wanted_attributes = ['created_at', 'updated_at', 'active']
+        ensure_not_wanted_data(attributes, not_wanted_attributes)
+
+        relationships = json['data'].last['relationships']
+        not_wanted_relationships = ['creator', 'last_editor', 'annotations']
+        ensure_not_wanted_data(relationships, not_wanted_relationships)
+      end
+    end
   end
 
   private

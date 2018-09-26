@@ -49,7 +49,7 @@ Rails.application.routes.draw do
           get ':area/events/:id', to: 'public#show_event'
           get ':area/offers', to: 'public#index_offers'
           get ':area/offers/:id', to: 'public#show_offer'
-          get ':area/navigation/:id', to: 'public#show_navigation'
+          get ':area/navigation', to: 'public#show_navigation'
           get ':area/facets', to: 'public#index_facets'
           get ':area/facets/:id', to: 'public#show_facet'
         end
