@@ -70,6 +70,9 @@ gem 'auto_strip_attributes', '~> 2.1'
 # geocoding
 gem 'geocoder'
 
+# geocoding nominatim (openstreetmap)
+gem 'nominatim' # see https://rubygems.org/gems/nominatim/versions/0.0.6
+
 # pagination
 # gem 'kaminari'
 
