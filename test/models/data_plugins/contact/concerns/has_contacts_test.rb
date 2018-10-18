@@ -221,6 +221,34 @@ module DataPlugins::Contact
       assert_equal contact3, contact.location.contact
     end
 
+    should 'update (contact with linked location) with no location' do
+      orga2 = create(:another_orga)
+      contact2 = create(:contact)
+      location2 = create(:afeefa_office, contact: contact2, owner: orga2)
+
+      orga = create(:orga)
+      contact = create(:contact, owner: orga, location: location2)
+
+      contact3 = create(:contact)
+      location3 = create(:afeefa_montagscafe, contact: contact3, owner: orga2)
+
+      assert_equal orga, contact.owner
+      assert_equal location2, contact.location
+      assert_equal orga2, contact.location.owner
+      assert_equal contact2, contact.location.contact
+
+      orga.update!(linked_contact: contact)
+      orga.reload
+
+      assert_no_difference -> { DataPlugins::Location::Location.count } do
+        save_contact(orga, {action: 'update', id: contact.id, location_id: nil})
+      end
+
+      contact.reload
+
+      assert_nil contact.location
+    end
+
     should 'update (contact with linked location) with own location' do
       orga2 = create(:another_orga)
       contact2 = create(:contact)

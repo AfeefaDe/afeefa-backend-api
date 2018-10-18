@@ -80,6 +80,9 @@ module DataPlugins::Contact::Concerns::HasContacts
           if contact.location && contact.location.contact == contact
             contact.location.delete
           end
+          contact.update!(
+            location_id: nil
+          )
         end
 
         # set location reference
