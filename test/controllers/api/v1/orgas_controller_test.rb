@@ -265,7 +265,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
       should 'update should fail for invalid' do
         assert_no_difference 'Orga.count' do
           assert_no_difference 'AnnotationCategory.count' do
-            assert_no_difference 'ContactInfo.count' do
+            # ContactInfo was removed, migrate this to Contact!
+            # assert_no_difference 'ContactInfo.count' do
               assert_no_difference 'Location.count' do
                 post :create, params: {
                   data: {
@@ -286,7 +287,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                   json['errors'].map { |x| x['detail'] }
                 )
               end
-            end
+            # end
           end
         end
       end
@@ -339,7 +340,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert orga.save(validate: false)
 
         assert_no_difference 'Orga.count' do
-          assert_no_difference 'ContactInfo.count' do
+          # ContactInfo was removed, migrate this to Contact!
+          # assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
               post :update,
                 params: {
@@ -353,7 +355,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 )
               assert_response :ok, response.body
             end
-          end
+          # end
         end
         assert orga.reload.inactive?
         assert orga.title.blank?
@@ -368,7 +370,8 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert orga.reload.active?
 
         assert_no_difference 'Orga.count' do
-          assert_no_difference 'ContactInfo.count' do
+          # ContactInfo was removed, migrate this to Contact!
+          # assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
               post :update,
                 params: {
@@ -382,7 +385,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
                 )
               assert_response :ok, response.body
            end
-          end
+          # end
         end
         assert orga.reload.inactive?
         assert orga.title.blank?

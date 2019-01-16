@@ -36,10 +36,11 @@ module Import
 
             orga.save!
 
-            contact_info_attributes =
-              attributes.slice(*%i(mail phone fax contact_person web social_media spoken_languages opening_hours))
-            contact_info = ContactInfo.new(contact_info_attributes.merge(contactable: orga))
-            contact_info.save!
+            # ContactInfo was removed, migrate this to Contact!
+            # contact_info_attributes =
+            #   attributes.slice(*%i(mail phone fax contact_person web social_media spoken_languages opening_hours))
+            # contact_info = ContactInfo.new(contact_info_attributes.merge(contactable: orga))
+            # contact_info.save!
 
             location_attributes =
               attributes.slice(*%i(placename street zip city lat lon))

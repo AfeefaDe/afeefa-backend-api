@@ -487,34 +487,35 @@ module Neos
 
           new_entry.save(validate: false)
         else
-          new_contact_info =
-            ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
+          # ContactInfo was removed, migrate this to Contact!
+          # new_contact_info =
+          #   ContactInfo.new(contactable: new_entry, migrated_from_neos: true)
 
-          set_attribute!(new_contact_info, entry, :web, by_recursion: true) do |entry|
-            entry.web.try(:strip)
-          end
-          set_attribute!(new_contact_info, entry, :social_media, by_recursion: true) do |entry|
-            entry.facebook.try(:strip)
-          end
-          set_attribute!(new_contact_info, entry, :spoken_languages, by_recursion: true) do |entry|
-            entry.spokenlanguages.try(:strip)
-          end
-          set_attribute!(new_contact_info, entry, :mail, by_recursion: true) do |entry|
-            entry.mail.try(:strip)
-          end
-          set_attribute!(new_contact_info, entry, :phone, by_recursion: true) do |entry|
-            entry.phone.try(:strip)
-          end
-          set_attribute!(new_contact_info, entry, :contact_person, by_recursion: true) do |entry|
-            entry.speakerpublic.try(:strip)
-          end
-          set_attribute!(new_contact_info, entry, :opening_hours, by_recursion: true) do |entry|
-            entry.locations.first.try(:openinghours).try(:strip)
-          end
+          # set_attribute!(new_contact_info, entry, :web, by_recursion: true) do |entry|
+          #   entry.web.try(:strip)
+          # end
+          # set_attribute!(new_contact_info, entry, :social_media, by_recursion: true) do |entry|
+          #   entry.facebook.try(:strip)
+          # end
+          # set_attribute!(new_contact_info, entry, :spoken_languages, by_recursion: true) do |entry|
+          #   entry.spokenlanguages.try(:strip)
+          # end
+          # set_attribute!(new_contact_info, entry, :mail, by_recursion: true) do |entry|
+          #   entry.mail.try(:strip)
+          # end
+          # set_attribute!(new_contact_info, entry, :phone, by_recursion: true) do |entry|
+          #   entry.phone.try(:strip)
+          # end
+          # set_attribute!(new_contact_info, entry, :contact_person, by_recursion: true) do |entry|
+          #   entry.speakerpublic.try(:strip)
+          # end
+          # set_attribute!(new_contact_info, entry, :opening_hours, by_recursion: true) do |entry|
+          #   entry.locations.first.try(:openinghours).try(:strip)
+          # end
 
-          unless new_contact_info.save
-            create_annotations(new_entry, new_contact_info.errors.full_messages)
-          end
+          # unless new_contact_info.save
+          #   create_annotations(new_entry, new_contact_info.errors.full_messages)
+          # end
         end
       end
 

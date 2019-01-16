@@ -503,7 +503,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
     should 'fail for invalid' do
       assert_no_difference 'Event.count' do
         assert_no_difference 'AnnotationCategory.count' do
-          assert_no_difference 'ContactInfo.count' do
+          # ContactInfo was removed, migrate this to Contact!
+          # assert_no_difference 'ContactInfo.count' do
             assert_no_difference 'Location.count' do
               post :create, params: {
                 data: {
@@ -528,7 +529,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
                 json['errors']
               )
             end
-          end
+          # end
         end
       end
     end
@@ -537,7 +538,8 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       event = create(:event, title: 'foobar', creator: nil)
 
       assert_no_difference 'Event.count' do
-        assert_no_difference 'ContactInfo.count' do
+        # ContactInfo was removed, migrate this to Contact!
+        # assert_no_difference 'ContactInfo.count' do
           assert_no_difference 'Location.count' do
             patch :update,
               params: {
@@ -551,7 +553,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
               )
             assert_response :ok, response.body
           end
-        end
+        # end
       end
       event.reload
       assert_equal 'Street Store', event.title
