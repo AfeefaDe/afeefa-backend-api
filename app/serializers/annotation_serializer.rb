@@ -4,6 +4,6 @@ class AnnotationSerializer
 
   attribute :detail
   attribute :annotation_category_id
-  attribute :created_at, if: Proc.new { |record, params| !params[:public] == true }
-  attribute :updated_at, if: Proc.new { |record, params| !params[:public] == true }
+  attribute :created_at, if: Proc.new { |record, params| params.blank? || !params[:public] == true }
+  attribute :updated_at, if: Proc.new { |record, params| params.blank? || !params[:public] == true }
 end
