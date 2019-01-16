@@ -11,7 +11,7 @@ module Import
     end
 
     should 'import complete list' do
-      skip
+      skip 'Do we need this anymore?'
 
       config = {
         dresden: {

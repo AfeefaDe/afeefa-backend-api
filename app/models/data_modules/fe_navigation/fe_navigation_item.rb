@@ -53,9 +53,9 @@ module DataModules::FeNavigation
 
       #   left join orgas o on fo.owner_id = o.id and fo.owner_type = 'Orga'
       #   left join events e on fo.owner_id = e.id and fo.owner_type = 'Event'
-      #   left join offers of on fo.owner_id = of.id and fo.owner_type = 'DataModules::Offer::Offer'
+      #   left join offers x on fo.owner_id = x.id and fo.owner_type = 'DataModules::Offer::Offer'
 
-      #   where (o.area = 'leipzig' or e.area = 'leipzig'	or of.area = 'leipzig')
+      #   where (o.area = 'leipzig' or e.area = 'leipzig'	or x.area = 'leipzig')
 
       #   group by no.navigation_item_id, fo.owner_id, fo.owner_type
       # ) groups group by id
@@ -178,11 +178,11 @@ module DataModules::FeNavigation
 
         left join orgas o on fo.owner_id = o.id and fo.owner_type = 'Orga'
         left join events e on fo.owner_id = e.id and fo.owner_type = 'Event'
-        left join offers of on fo.owner_id = of.id and fo.owner_type = 'DataModules::Offer::Offer'
+        left join offers x on fo.owner_id = x.id and fo.owner_type = 'DataModules::Offer::Offer'
 
         where no.navigation_item_id = #{id}
 
-        and (o.area = '#{area}' or e.area = '#{area}'	or of.area = '#{area}')
+        and (o.area = '#{area}' or e.area = '#{area}'	or x.area = '#{area}')
 
         group by fo.owner_id, fo.owner_type
       eos
