@@ -43,8 +43,8 @@ module Import
             # contact_info.save!
 
             location_attributes =
-              attributes.slice(*%i(placename street zip city lat lon))
-            location = Location.new(location_attributes.merge(locatable: orga))
+              attributes.slice(*%i(title street zip city lat lon))
+            location = DataPlugins::Location::Location.new(location_attributes.merge(owner: orga))
             location.save!
 
             imported = imported + 1

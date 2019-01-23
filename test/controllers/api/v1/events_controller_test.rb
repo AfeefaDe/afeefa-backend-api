@@ -505,7 +505,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
         assert_no_difference 'AnnotationCategory.count' do
           # ContactInfo was removed, migrate this to Contact!
           # assert_no_difference 'ContactInfo.count' do
-            assert_no_difference 'Location.count' do
+            assert_no_difference 'DataPlugins::Location::Location.count' do
               post :create, params: {
                 data: {
                   type: 'events',
@@ -540,7 +540,7 @@ class Api::V1::EventsControllerTest < ActionController::TestCase
       assert_no_difference 'Event.count' do
         # ContactInfo was removed, migrate this to Contact!
         # assert_no_difference 'ContactInfo.count' do
-          assert_no_difference 'Location.count' do
+          assert_no_difference 'DataPlugins::Location::Location.count' do
             patch :update,
               params: {
                 id: event.id,

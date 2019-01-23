@@ -3,14 +3,14 @@ class Api::V1::GeocodingsController < ApplicationController
   include Cors
 
   def index
-    location = Location.new(geocoding_params)
+    location = DataPlugins::Location::Location.new(geocoding_params)
 
     # address search using nominatim (openstreetmap) geocoder
     # see https://www.rubydoc.info/gems/nominatim
     # see https://www.rubydoc.info/gems/nominatim/Nominatim/Place
     # see https://www.rubydoc.info/gems/nominatim/Nominatim/Address
     places = Nominatim.search(location.address_for_geocoding).limit(1).address_details(true)
-    if places && places.any? && place = places.first
+    if places&.any? && (place = places.first)
       street = [place.address.road, place.address.house_number].compact.join(' ')
       city = [place.address.postcode, place.address.city].compact.join(' ')
 
@@ -25,6 +25,7 @@ class Api::V1::GeocodingsController < ApplicationController
       render json: 'geocoding failed for address', status: :unprocessable_entity
     end
   rescue => exception
+    Rails.logger.error "#{exception}\n#{exception.backtrace.join("\n")}"
     render json: "error of type #{exception.class.to_s} occured, please try again", status: :internal_server_error
   end
 

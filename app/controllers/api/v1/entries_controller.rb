@@ -31,8 +31,8 @@ class Api::V1::EntriesController < Api::V1::EntriesBaseController
         # build allowed attributes
         allowed_attributes = %w(orgas.title orgas.short_description orgas.description events.title events.short_description events.description)
         # join locations
-        table_name = :locations
-        association_name = :locatable
+        table_name = :addresses
+        association_name = :owner
         objects =
           objects.joins(
             "LEFT JOIN #{table_name} ON " +
@@ -50,8 +50,8 @@ class Api::V1::EntriesController < Api::V1::EntriesBaseController
 
   def apply_address_filter!(objects, filter_criterion)
     allowed_attributes =
-      %w(locations.street locations.placename locations.city locations.district)
-    apply_nested_objects_filter!(objects, filter_criterion, 'locations', 'locatable', allowed_attributes)
+      %w(addresses.street addresses.title addresses.city addresses.district)
+    apply_nested_objects_filter!(objects, filter_criterion, 'addresses', 'owner', allowed_attributes)
   end
 
   def apply_nested_objects_filter!(objects, filter_criterion, table_name, association_name, allowed_attributes)

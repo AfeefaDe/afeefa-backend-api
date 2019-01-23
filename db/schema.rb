@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190123095413) do
+ActiveRecord::Schema.define(version: 20190123105414) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -287,27 +287,6 @@ ActiveRecord::Schema.define(version: 20190123095413) do
     t.string   "area"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "locations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string   "lat"
-    t.string   "lon"
-    t.string   "street"
-    t.string   "placename"
-    t.string   "zip"
-    t.string   "city"
-    t.string   "district"
-    t.string   "state"
-    t.string   "country"
-    t.boolean  "displayed"
-    t.string   "locatable_type"
-    t.integer  "locatable_id"
-    t.datetime "created_at",                                       null: false
-    t.datetime "updated_at",                                       null: false
-    t.string   "internal_id"
-    t.boolean  "migrated_from_neos",               default: false
-    t.text     "directions",         limit: 65535
-    t.index ["locatable_type", "locatable_id"], name: "index_locations_on_locatable_type_and_locatable_id", using: :btree
   end
 
   create_table "offer_owners", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|

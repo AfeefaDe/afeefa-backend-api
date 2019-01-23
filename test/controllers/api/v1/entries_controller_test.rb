@@ -62,18 +62,15 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
 
     should 'search by any context' do
       assert orga = create(:orga, title: 'Gartenschmutz', description: 'hallihallo')
-      assert location = create(:location_old, locatable: orga, placename: 'foo', street: 'Test123')
       assert event = create(:event, title: 'GartenFOObar', orga: orga)
-
-      skip 'get apply_address_filter! working for new locations'
 
       get :index, params: { filter: { any: 'foo' } }
       json = JSON.parse(response.body)
       assert_response :ok
       assert_kind_of Array, json['data']
-      assert_equal 2, json['data'].size
+      assert_equal 1, json['data'].size
 
-      get :index, params: { filter: { any: 'Garten foo' } }
+      get :index, params: { filter: { any: 'Garten' } }
       json = JSON.parse(response.body)
       assert_response :ok
       assert_kind_of Array, json['data']

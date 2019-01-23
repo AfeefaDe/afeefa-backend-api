@@ -438,8 +438,7 @@ module Neos
 
         unless lat.blank? && lon.blank? && street.blank? &&
           placename.blank? && zip.blank? && city.blank? && directions.blank?
-          new_location =
-            ::Location.new(locatable: new_entry, migrated_from_neos: true)
+          new_location = DataPlugins::Location::Location.new(owner: new_entry, migrated_from_neos: true)
 
           set_attribute!(new_location, location.entry, :lat) do |entry|
             entry.locations.order('updated desc').first.try(:lat).try(:strip)

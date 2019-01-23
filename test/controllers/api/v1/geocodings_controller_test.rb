@@ -13,7 +13,7 @@ class Api::V1::GeocodingsControllerTest < ActionController::TestCase
       assert_response :unauthorized
 
       get :index, params: { token: Settings.geocoding.api_token }
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Hash, json
       assert_equal '52.9301625', json['latitude'].to_s
@@ -21,9 +21,9 @@ class Api::V1::GeocodingsControllerTest < ActionController::TestCase
       assert_equal 'Unit 6', json['street'].to_s
       assert_equal 'City of Nottingham', json['city'].to_s
 
-      address_string = build(:location_old_dresden).address_for_geocoding
+      address_string = build(:location_dresden).address_for_geocoding
       get :index, params: { token: Settings.geocoding.api_token, address: address_string }
-      assert_response :ok
+      assert_response :ok, response.body
       json = JSON.parse(response.body)
       assert_kind_of Hash, json
       assert_equal '51.0435614', json['latitude'].to_s

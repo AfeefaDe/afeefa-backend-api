@@ -267,7 +267,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
           assert_no_difference 'AnnotationCategory.count' do
             # ContactInfo was removed, migrate this to Contact!
             # assert_no_difference 'ContactInfo.count' do
-              assert_no_difference 'Location.count' do
+              assert_no_difference 'DataPlugins::Location::Location.count' do
                 post :create, params: {
                   data: {
                     type: 'orgas',
@@ -342,7 +342,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_no_difference 'Orga.count' do
           # ContactInfo was removed, migrate this to Contact!
           # assert_no_difference 'ContactInfo.count' do
-            assert_no_difference 'Location.count' do
+            assert_no_difference 'DataPlugins::Location::Location.count' do
               post :update,
                 params: {
                   id: orga.id,
@@ -372,7 +372,7 @@ class Api::V1::OrgasControllerTest < ActionController::TestCase
         assert_no_difference 'Orga.count' do
           # ContactInfo was removed, migrate this to Contact!
           # assert_no_difference 'ContactInfo.count' do
-            assert_no_difference 'Location.count' do
+            assert_no_difference 'DataPlugins::Location::Location.count' do
               post :update,
                 params: {
                   id: orga.id,
