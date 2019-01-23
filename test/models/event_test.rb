@@ -135,14 +135,6 @@ class EventTest < ActiveSupport::TestCase
       assert_nil event.inheritance
     end
 
-    should 'have contact_informations' do
-      event = build(:event, orga: @orga, creator: @user, contact_infos: [])
-      assert event.contact_infos.blank?
-      assert event.save
-      assert contact_info = create(:contact_info, contactable: event), contact_info.errors
-      assert_includes event.reload.contact_infos, contact_info
-    end
-
     should 'have categories' do
       @event = build(:event, category: nil, sub_category: nil, orga: @orga)
       @event.category.blank?

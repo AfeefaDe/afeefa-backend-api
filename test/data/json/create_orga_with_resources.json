@@ -11,18 +11,6 @@
       "state_changed_at": null
     },
     "relationships": {
-      "contact_infos": {
-        "data": [
-          {
-            "attributes": {
-              "mail": "test@example.com",
-              "phone": "01234567",
-              "contact_person": "Friedrich Weise"
-            },
-            "type": "contact_infos"
-          }
-        ]
-      },
       "annotations": {
         "data": []
       },

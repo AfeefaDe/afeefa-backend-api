@@ -137,7 +137,6 @@ Rails.application.routes.draw do
         resources :annotations, only: %i(index show)
         resources :resource_items, only: %i(index show)
         resources :categories, only: %i(index show)
-        resources :contact_infos, only: %i(index show)
 
         resources :entries, only: %i(index show)
         resources :todos, only: %i(index show)

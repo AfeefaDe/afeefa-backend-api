@@ -16,8 +16,6 @@ de:
       sub_category: Unterkategorie
       location: Ort
       locations: Ortsangaben
-      contact_info: Kontaktinformation
-      contact_infos: Kontaktinformationen
       orga_type_id: Orga Typ
       title: Titel
       description: Beschreibung
@@ -42,8 +40,6 @@ de:
       orga:
         <<: *attributes
       event:
-        <<: *attributes
-      contact_info:
         <<: *attributes
     errors:
       models:

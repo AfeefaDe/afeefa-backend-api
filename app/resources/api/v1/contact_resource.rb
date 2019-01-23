@@ -1,4 +1,4 @@
-class Api::V1::ContactInfoResource < Api::V1::BaseResource
+class Api::V1::ContactResource < Api::V1::BaseResource
 
   model_name 'DataPlugins::Contact::Contact'
 

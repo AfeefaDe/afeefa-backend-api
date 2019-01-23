@@ -19,16 +19,6 @@ class StateMachineTest < ActiveSupport::TestCase
     end
   end
 
-  should 'have contact_informations' do
-    user = create(:user)
-    orga = create(:orga)
-    event = build(:event, creator: user, orga: orga, contact_infos: [])
-    event.save
-    assert event.contact_infos.blank?
-    assert contact_info = create(:contact_info, contactable: event), contact_info.errors
-    assert_includes event.reload.contact_infos, contact_info
-  end
-
   should 'have categories' do
     user = create(:user)
     orga = create(:orga)

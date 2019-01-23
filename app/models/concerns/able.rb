@@ -20,7 +20,6 @@ module Able
     # ATTRIBUTES AND ASSOCIATIONS
     # ensure nothing will be deleted, should not occur because we move them to root orga before destroy
     has_many :locations, as: :locatable, dependent: :destroy
-    has_many :contact_infos, as: :contactable, dependent: :destroy
 
     belongs_to :category, optional: true
     belongs_to :sub_category, class_name: 'Category', optional: true

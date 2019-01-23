@@ -159,14 +159,6 @@ class OrgaTest < ActiveSupport::TestCase
       assert_equal ['Can not be the parent of itself!'], @orga.errors[:parent_id]
     end
 
-    should 'have contact_informations' do
-      orga = build(:orga, contact_infos: [])
-      assert orga.contact_infos.blank?
-      assert orga.save
-      assert contact_info = create(:contact_info, contactable: orga)
-      assert_includes orga.reload.contact_infos, contact_info
-    end
-
     should 'have categories' do
       orga = build(:orga, category: nil, sub_category: nil)
       orga.category.blank?
