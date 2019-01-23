@@ -59,29 +59,6 @@ class Api::V1::EntriesControllerTest < ActionController::TestCase
       assert_kind_of Array, json['data']
       assert_equal 2, json['data'].size
     end
-
-    should 'search by any context' do
-      assert orga = create(:orga, title: 'Gartenschmutz', description: 'hallihallo')
-      assert event = create(:event, title: 'GartenFOObar', orga: orga)
-
-      get :index, params: { filter: { any: 'foo' } }
-      json = JSON.parse(response.body)
-      assert_response :ok
-      assert_kind_of Array, json['data']
-      assert_equal 1, json['data'].size
-
-      get :index, params: { filter: { any: 'Garten' } }
-      json = JSON.parse(response.body)
-      assert_response :ok
-      assert_kind_of Array, json['data']
-      assert_equal 2, json['data'].size
-
-      get :index, params: { filter: { title: 'Garten Garten' } }
-      json = JSON.parse(response.body)
-      assert_response :ok
-      assert_kind_of Array, json['data']
-      assert_equal 2, json['data'].size
-    end
   end
 
 end

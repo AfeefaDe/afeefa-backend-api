@@ -1,7 +1,5 @@
 class Api::V1::EntriesController < Api::V1::EntriesBaseController
 
-  include Search
-
   private
 
   def base_for_find_objects
@@ -28,18 +26,7 @@ class Api::V1::EntriesController < Api::V1::EntriesBaseController
       when :address
         apply_address_filter!(objects, filter_criterion)
       when :any
-        # build allowed attributes
-        allowed_attributes = %w(orgas.title orgas.short_description orgas.description events.title events.short_description events.description)
-        # join locations
-        table_name = :addresses
-        association_name = :owner
-        objects =
-          objects.joins(
-            "LEFT JOIN #{table_name} ON " +
-              "entry_id = #{table_name}.#{association_name}_id AND entry_type = #{table_name}.#{association_name}_type")
-        # do search
-        objects = search(filter_criterion, allowed_attributes, objects)
-        objects.distinct(:id)
+        raise 'We should no longer come here.'
       when :annotation_category_id
         objects.where(annotation_category_id: filter_criterion)
       else
