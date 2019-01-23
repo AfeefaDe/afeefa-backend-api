@@ -1,37 +1,17 @@
-class Api::V1::BaseController < ApplicationController
-
+class Api::V1::BaseController < Api::V1::ApiBasicsController
   include DeviseTokenAuth::Concerns::SetUserByToken
   include JSONAPI::ActsAsResourceController
   include NoCaching
   include Filter
 
-  respond_to :json
-
-  before_action :authenticate_api_v1_user!
-  around_action :set_current_user
   before_action :permit_params
-
-  # https://stackoverflow.com/questions/27673352/how-access-to-helper-current-user-in-model-rails/43271062#43271062
-  # necessary to allow facet items to be filtered depending on the current user's area
-  def set_current_user
-    Current.user = current_api_v1_user
-    yield
-  ensure
-    Current.user = nil
-  end
-
-  rescue_from ActiveRecord::RecordNotFound do
-    head :not_found
-  end
 
   rescue_from ActiveRecord::RecordInvalid do |error|
     messages = error.record.errors.messages.map do |key, value|
       I18n.t("api.attributes.#{key}", default: key) + ' - ' + value.first
     end
 
-    render status: :unprocessable_entity, json: {
-      errors: messages
-    }
+    render status: :unprocessable_entity, json: { errors: messages }
   end
 
   # on_server_error do |error|
@@ -224,5 +204,4 @@ class Api::V1::BaseController < ApplicationController
       include_linkage_whitelist: %i(create update show index),
       action: params[:action].to_sym)
   end
-
 end

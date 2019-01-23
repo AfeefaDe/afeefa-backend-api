@@ -1,26 +1,12 @@
 require 'http'
 
-class Api::V1::ChaptersController < Api::V1::BaseController
+class Api::V1::ChaptersController < Api::V1::ApiBasicsController
 
   include DeviseTokenAuth::Concerns::SetUserByToken
   include NoCaching
   include ChaptersApi
 
   skip_before_action :authenticate_api_v1_user!, only: :show
-
-  respond_to :json
-
-  rescue_from ActiveRecord::RecordNotFound do
-    head :not_found
-  end
-
-  rescue_from ActiveRecord::RecordInvalid do
-    head :unprocessable_entity
-  end
-
-  def initialize
-    super
-  end
 
   def index
     chapter_ids =

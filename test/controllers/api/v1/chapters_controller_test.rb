@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class Api::V1::ChaptersControllerTest < ActionController::TestCase
-
   context 'as authorized user' do
     setup do
       @user = valid_user
@@ -165,5 +164,4 @@ class Api::V1::ChaptersControllerTest < ActionController::TestCase
     AreaChapterConfig.create!(chapter_config_id: c2.id, area: @user.area)
     AreaChapterConfig.create!(chapter_config_id: c3.id, area: @user.area)
   end
-
 end
