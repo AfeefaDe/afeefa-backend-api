@@ -80,11 +80,4 @@ class Api::V1::ChaptersController < Api::V1::ApiBasicsController
     # TODO: Handle errors!
     render status: :unprocessable_entity
   end
-
-  private
-
-  def base_for_find_objects
-    []
-  end
-
 end
