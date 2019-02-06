@@ -1,8 +1,7 @@
 require 'test_helper'
 
 class AnnotationTest < ActiveSupport::TestCase
-
-  should 'render json' do
+  test 'render json' do
     object_keys = [:id, :type, :attributes, :relationships]
     attribute_keys = [:annotation_category_id, :detail, :created_at, :updated_at]
     annotation = Annotation.new(entry: create(:orga), annotation_category: AnnotationCategory.first, detail: 'FooBar')
@@ -13,7 +12,7 @@ class AnnotationTest < ActiveSupport::TestCase
     assert json.key?(:relationships)
   end
 
-  # should 'render todos json' do
+  # test 'render todos json' do
   #   object_keys = [:id, :type, :relationships]
   #   relationships = [:entry]
   #   todo = Annotation.new(entry: create(:orga), annotation_category: AnnotationCategory.first, detail: 'FooBar')
@@ -40,5 +39,4 @@ class AnnotationTest < ActiveSupport::TestCase
   #     end
   #   end
   # end
-
 end

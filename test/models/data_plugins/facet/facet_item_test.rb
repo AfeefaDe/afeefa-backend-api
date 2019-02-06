@@ -77,7 +77,7 @@ module DataPlugins::Facet
 
     # FacetItemTest
 
-    should 'update facet item with new parent and facet' do
+    test 'update facet item with new parent and facet' do
       facet = create(:facet)
       facet2 = create(:facet)
       parent = create(:facet_item, facet: facet)
@@ -96,7 +96,7 @@ module DataPlugins::Facet
       assert_equal [facet_item], parent2.sub_items
     end
 
-    should 'update sub_items facet on update facet_item facet' do
+    test 'update sub_items facet on update facet_item facet' do
       facet = create(:facet_with_items_and_sub_items)
       parent = facet.facet_items.select { |item| item.sub_items.count > 0 }.first
       sub_item = parent.sub_items.first
@@ -118,7 +118,7 @@ module DataPlugins::Facet
       assert_equal facet2.id, sub_item2.facet_id
     end
 
-    should 'should only allow to add owners of allowed types' do
+    test 'should only allow to add owners of allowed types' do
       facet = create(:facet_with_items, owner_types: ['Orga'])
       item = facet.facet_items.first
 

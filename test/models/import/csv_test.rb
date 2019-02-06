@@ -2,13 +2,12 @@ require 'test_helper'
 
 module Import
   class CsvTest < ActiveSupport::TestCase
-
     setup do
       # Import::Csv.stubs(:puts).returns(nil)
       @area = 'bautzen'
     end
 
-    should 'import first element of csv file' do
+    test 'import first element of csv file' do
       assert_difference 'Orga.count' do
         # ContactInfo was removed, migrate this to Contact!
         # assert_difference 'ContactInfo.count' do
@@ -24,7 +23,7 @@ module Import
       assert orga.active?
     end
 
-    should 'import complete csv file' do
+    test 'import complete csv file' do
       file = Rails.root.join('test', 'data', 'csv', 'entries_de.csv').to_s
       csv = CSV.parse(File.read(file), headers: true)
       rows = csv.count
@@ -48,6 +47,5 @@ module Import
       # import again, should not import same title orgas if flag is set
       assert_equal 0, Import::Csv.import(file: file, area: @area, handle_title_duplicates: false)
     end
-
   end
 end

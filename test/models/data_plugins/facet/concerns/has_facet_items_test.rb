@@ -2,14 +2,13 @@ require 'test_helper'
 
 module DataPlugins::Facet
   class HasFacetItemsTest < ActiveSupport::TestCase
-
     setup do
       @facet = create(:facet, owner_types: ['Orga', 'Event', 'Offer'])
       @facet_item = create(:facet_item, facet: @facet)
       @facet_item2 = create(:facet_item, facet: @facet)
     end
 
-    should 'deliver facet items for orga' do
+    test 'deliver facet items for orga' do
       orga = create(:orga)
 
       assert_equal [], orga.facet_items.all
@@ -20,7 +19,7 @@ module DataPlugins::Facet
       assert_equal [@facet_item, @facet_item2], orga.facet_items.all
     end
 
-    should 'deliver facet items for event' do
+    test 'deliver facet items for event' do
       event = create(:event)
 
       assert_equal [], event.facet_items.all
@@ -31,7 +30,7 @@ module DataPlugins::Facet
       assert_equal [@facet_item, @facet_item2], event.facet_items.all
     end
 
-    should 'remove facet_item owner links on remove orga' do
+    test 'remove facet_item owner links on remove orga' do
       orga = create(:orga)
       @facet_item.link_owner(orga)
       @facet_item2.link_owner(orga)
@@ -45,7 +44,7 @@ module DataPlugins::Facet
       end
     end
 
-    should 'remove facet_item owner links on remove offer' do
+    test 'remove facet_item owner links on remove offer' do
       offer = create(:offer)
       @facet_item.link_owner(offer)
       @facet_item2.link_owner(offer)
@@ -60,7 +59,7 @@ module DataPlugins::Facet
     end
 
 
-    should 'remove facet_item owner links on remove event' do
+    test 'remove facet_item owner links on remove event' do
       event = create(:event)
       @facet_item.link_owner(event)
       @facet_item2.link_owner(event)
@@ -73,6 +72,5 @@ module DataPlugins::Facet
         end
       end
     end
-
   end
 end

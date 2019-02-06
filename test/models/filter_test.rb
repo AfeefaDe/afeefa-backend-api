@@ -6,7 +6,7 @@ class FilterTest < ActiveSupport::TestCase
     include Filter
   end
 
-  should 'apply filter including multiple keywords in different formats' do
+  test 'apply filter including multiple keywords in different formats' do
     assert orga = create(:orga, title: 'Garten schmutz', description: 'hallihallo')
     assert orga2 = create(:orga, title: 'Garten FOObar schmutz')
 

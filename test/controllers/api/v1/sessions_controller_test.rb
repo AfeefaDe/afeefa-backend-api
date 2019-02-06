@@ -1,10 +1,9 @@
 require 'test_helper'
 
 class Api::V1::SessionsControllerTest < ActionController::TestCase
-
   include Devise::Test::ControllerHelpers
 
-  should 'handle unauthorized login' do
+  test 'handle unauthorized login' do
     @request.env['devise.mapping'] = Devise.mappings[:api_v1_user]
 
     post :create, params: { user: 'foo', password: 'bar' }
@@ -20,5 +19,4 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
       }.to_json
     assert_equal expected, response.body
   end
-
 end

@@ -2,12 +2,12 @@ require 'test_helper'
 
 module DataModules::FeNavigation
   class FeNavigationTest < ActiveSupport::TestCase
-    should 'validate navigation' do
+    test 'validate navigation' do
       navigation = DataModules::FeNavigation::FeNavigation.new
       assert navigation.valid?
     end
 
-    should 'create navigation with items' do
+    test 'create navigation with items' do
       navigation = create(:fe_navigation)
       assert_equal [], navigation.navigation_items
 
@@ -26,7 +26,7 @@ module DataModules::FeNavigation
       end
     end
 
-    should 'remove all navigation items on delete' do
+    test 'remove all navigation items on delete' do
       navigation = create(:fe_navigation)
       assert_no_difference -> { FeNavigationItem.count } do
         navigation.destroy

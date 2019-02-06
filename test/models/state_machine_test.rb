@@ -1,13 +1,12 @@
 require 'test_helper'
 
 class StateMachineTest < ActiveSupport::TestCase
-
-  should 'set initial state for event' do
+  test 'set initial state for event' do
     assert Event.new.inactive?
     assert_equal StateMachine::INACTIVE, Event.new.state.to_sym
   end
 
-  should 'create event' do
+  test 'create event' do
     assert_difference 'Event.count' do
       user = Current.user
       orga = create(:orga)
@@ -19,12 +18,11 @@ class StateMachineTest < ActiveSupport::TestCase
     end
   end
 
-  should 'have categories' do
+  test 'have categories' do
     user = create(:user)
     orga = create(:orga)
     event = build(:event, creator: user, orga: orga)
     event.category = Category.main_categories.first
     assert event.category.present?
   end
-
 end

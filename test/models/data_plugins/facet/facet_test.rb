@@ -2,15 +2,14 @@ require 'test_helper'
 
 module DataPlugins::Facet
   class FacetTest < ActiveSupport::TestCase
-
-    should 'validate facet' do
+    test 'validate facet' do
       facet = create(:facet_with_items, facet_items_count: 2)
       assert_equal 2, facet.facet_items.count
       assert_equal facet.facet_items.first.title,
         JSON.parse(facet.to_json)['relationships']['facet_items']['data'].first['attributes']['title']
     end
 
-    should 'remove facet items when removing facet' do
+    test 'remove facet items when removing facet' do
       facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
       parent = facet.facet_items.select { |item| item.parent == nil }.first
 
@@ -19,7 +18,7 @@ module DataPlugins::Facet
       end
     end
 
-    should 'remove owners when removing facet' do
+    test 'remove owners when removing facet' do
       facet = create(:facet_with_items_and_sub_items, owner_types: ['Orga'])
 
       parent = facet.facet_items.select { |item| item.parent == nil }.first
@@ -40,7 +39,7 @@ module DataPlugins::Facet
       end
     end
 
-    should 'deliver main facet of' do
+    test 'deliver main facet of' do
       facet = create(:facet_with_items_and_sub_items, owner_types: [{type: 'Orga', isMain: true}, 'Event', {type: 'Offer', isMain: true}])
       assert_equal ['Orga', 'Event', 'Offer'], facet.owner_types.map { |owner_type| owner_type.owner_type }
       assert_equal 'Orga', facet.main_facet_of_to_hash
@@ -53,6 +52,5 @@ module DataPlugins::Facet
       assert_equal ['Orga', 'Event', 'Offer'], facet.owner_types.map { |owner_type| owner_type.owner_type }
       assert_nil facet.main_facet_of_to_hash
     end
-
   end
 end
