@@ -90,7 +90,7 @@ class User < ApplicationRecord
   end
 
   def initialize_available_areas_by_area!
-    return false if available_areas.present?
+    return false if available_areas.present? && available_areas.any?
     areas = 
         if area == 'leipzig'
           ['leipzig', 'leipzig-landkreis', 'nordsachsen']
@@ -98,7 +98,7 @@ class User < ApplicationRecord
           [area]
         end
     self.available_areas = areas
-    save(validate: false)
+    save!(validate: false)
   end
 
   def area_available?(given_area)
