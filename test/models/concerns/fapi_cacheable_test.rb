@@ -94,6 +94,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
       entry = create(entry_factory)
       contact = create(:contact, owner: entry)
       entry.update!(contact_id: contact.id)
+      entry.reload
       FapiCacheJob.delete_all
 
       assert_difference -> { FapiCacheJob.count } do

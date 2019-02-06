@@ -111,7 +111,7 @@ group :test do
   gem 'factory_bot_rails'
   gem 'timecop'
   gem 'minitest-rails-capybara'
-  gem 'minitest-reporters'
+  gem 'minitest', '5.10.2'
   gem 'mocha'
   gem 'shoulda-context'
 
