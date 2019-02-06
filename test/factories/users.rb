@@ -5,6 +5,8 @@ FactoryBot.define do
     surname { 'Mustermann' }
     # TODO: Think about removeing required password from device...
     password { 'abc12346' }
+    available_areas { ['dresden'] }
+    area { 'dresden' }
 
     factory :another_user do
       email { 'bar@afeefa.de' }

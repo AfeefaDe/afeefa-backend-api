@@ -62,7 +62,10 @@ module Seeds
 
     # users
     unless Rails.env.production?
-      User.create!(email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'MapCat_050615')
+      User.create!(
+        email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'MapCat_050615', 
+        area: 'dresden', available_areas: ['dresden', 'leipzig', 'bautzen'].to_json
+        )
     end
 
     pp 'delete and create annotations'

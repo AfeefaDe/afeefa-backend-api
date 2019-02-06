@@ -17,6 +17,8 @@ class User < ApplicationRecord
 
   has_many :created_events, class_name: 'Event', foreign_key: :creator_id
 
+  validate :validate_area_in_available_areas
+
   def can!(ability, subject, message)
     unless abilities.can? ability, subject
       raise CanCan::AccessDenied.new(message, caller_locations(1, 1)[0].label)
@@ -87,6 +89,22 @@ class User < ApplicationRecord
     orgas.pluck(:id).include?(orga.id)
   end
 
+  def initialize_available_areas_by_area!
+    return false if available_areas.present?
+    areas = 
+        if area == 'leipzig'
+          ['leipzig', 'leipzig-landkreis', 'nordsachsen']
+        else
+          [area]
+        end
+    self.available_areas = areas
+    save(validate: false)
+  end
+
+  def area_available?(given_area)
+    (available_areas || []).include?(given_area)
+  end
+
   private
 
   def abilities
@@ -99,6 +117,10 @@ class User < ApplicationRecord
     else
       false
     end
+  end
+
+  def validate_area_in_available_areas
+    errors.add(:area) unless area_available?(area)
   end
 
   # def update_role_for_member(member:, orga:, role:)

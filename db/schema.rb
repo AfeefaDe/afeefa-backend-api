@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190123105414) do
+ActiveRecord::Schema.define(version: 20190206150750) do
 
   create_table "actor_relations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer  "associating_actor_id"
@@ -447,6 +447,7 @@ ActiveRecord::Schema.define(version: 20190123105414) do
     t.text     "tokens",                 limit: 65535
     t.string   "area"
     t.string   "organization"
+    t.json     "available_areas"
     t.index ["area"], name: "index_users_on_area", using: :btree
     t.index ["email"], name: "index_users_on_email", using: :btree
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
