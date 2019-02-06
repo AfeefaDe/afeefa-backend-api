@@ -67,7 +67,7 @@ module DataModules::FeNavigation
     validates :title, length: { maximum: 255 }
     validates :color, length: { maximum: 255 }
 
-    validates :navigation_id, presence: true
+    validates :navigation, presence: true
     validates :parent_id, presence: true, allow_nil: true
     validate :validate_navigation_and_parent
 
@@ -204,7 +204,7 @@ module DataModules::FeNavigation
         return errors.add(:navigation_id, 'Navigation kann nicht geändert werden.')
       end
 
-      unless FeNavigation.exists?(navigation_id)
+      unless FeNavigation.exists?(navigation&.id)
         return errors.add(:navigation_id, 'Navigation existiert nicht.')
       end
 

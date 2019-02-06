@@ -27,7 +27,7 @@ module DataPlugins::Facet
     validates :title, length: { maximum: 255 }
     validates :color, length: { maximum: 255 }
 
-    validates :facet_id, presence: true
+    validates :facet, presence: true
     validates :parent_id, presence: true, allow_nil: true
     validate :validate_facet_and_parent
 
@@ -128,7 +128,7 @@ module DataPlugins::Facet
     private
 
     def validate_facet_and_parent
-      unless Facet.exists?(facet_id)
+      unless Facet.exists?(facet&.id)
         return errors.add(:facet_id, 'Kategorie existiert nicht.')
       end
 

@@ -3,8 +3,8 @@ module Dev
 
     class << self
       def setup
-        include FactoryGirl::Syntax::Methods
-        FactoryGirl.reload
+        include FactoryBot::Syntax::Methods
+        FactoryBot.reload
         Current.user = User.where(area: 'dresden').last
 
         title_key = Time.now.strftime("%d.%m.%Y %H:%M:%S")

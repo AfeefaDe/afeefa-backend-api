@@ -96,7 +96,7 @@ gem 'paperclip', '~> 5.1'
 # http requests
 gem 'http'
 
-group :development, :test do
+group :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   # gem 'byebug', platform: :mri
 
@@ -106,18 +106,14 @@ group :development, :test do
 
   # test framework
   gem 'minitest-rails'
-  gem 'minitest-reporters'
 
   # for tests
+  gem 'factory_bot_rails'
+  gem 'timecop'
+  gem 'minitest-rails-capybara'
+  gem 'minitest-reporters'
   gem 'mocha'
   gem 'shoulda-context'
-  gem 'capybara'
-  gem 'minitest-rails-capybara'
-  gem 'timecop'
-  gem 'factory_girl_rails'
-
-  gem 'rails_best_practices'
-  gem 'bullet'
 
   # code coverage
   gem 'ruby-prof'
@@ -130,6 +126,11 @@ group :development, :test do
 
   # We do not longer use sqlite3:
   # gem 'sqlite3'
+end
+
+group :test, :development do
+  gem 'rails_best_practices'
+  gem 'bullet'
 end
 
 group :development do

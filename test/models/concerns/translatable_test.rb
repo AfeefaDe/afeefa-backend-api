@@ -2,7 +2,7 @@ require 'test_helper'
 
 class TranslatableTest < ActiveSupport::TestCase
 
-  should 'not update phraseapp translation if force flag is not set' do
+  test 'not update phraseapp translation if force flag is not set' do
     orga = build(:orga)
 
     orga.expects(:update_or_create_translations).never
@@ -10,7 +10,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.save
   end
 
-  should 'not upload translation if no attributes are changed' do
+  test 'not upload translation if no attributes are changed' do
     orga = create(:orga)
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).never
@@ -18,7 +18,7 @@ class TranslatableTest < ActiveSupport::TestCase
     orga.update_or_create_translations
   end
 
-  should 'build json for phraseapp' do
+  test 'build json for phraseapp' do
     VCR.use_cassette('generate_json_for_phraseapp') do
       orga = create(:orga)
       Orga::translatable_attributes.each do |attribute|
@@ -44,7 +44,7 @@ class TranslatableTest < ActiveSupport::TestCase
     end
   end
 
-  should 'create translation on entry create' do
+  test 'create translation on entry create' do
     orga = build(:orga, title: 'testorga')
     orga.force_translation_after_save = true
 
@@ -66,9 +66,10 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save
   end
 
-  should 'create translation on facet_item create' do
+  test 'create translation on facet_item create' do
     facet_item = build(:facet_item, title: 'New Category')
     facet_item.force_translation_after_save = true
+    facet_item.facet.save!
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       facet_item_id = DataPlugins::Facet::FacetItem.last.id.to_s
@@ -84,12 +85,13 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_nil tags_hash
     end
 
-    assert facet_item.save
+    facet_item.save!
   end
 
-  should 'create translation on navigation_item create' do
+  test 'create translation on navigation_item create' do
     navigation_item = build(:fe_navigation_item, title: 'New Navigation Item')
     navigation_item.force_translation_after_save = true
+    navigation_item.navigation.save!
 
     PhraseAppClient.any_instance.expects(:upload_translation_file_for_locale).with do |file, phraseapp_locale_id, tags_hash|
       navigation_item_id = DataModules::FeNavigation::FeNavigationItem.last.id.to_s
@@ -105,10 +107,10 @@ class TranslatableTest < ActiveSupport::TestCase
       assert_equal 'dresden', tags_hash[:tags]
     end
 
-    assert navigation_item.save
+    navigation_item.save!
   end
 
-  should 'not create translation on entry create if related attributes are empty' do
+  test 'not create translation on entry create if related attributes are empty' do
     orga = build(:orga)
     orga.force_translation_after_save = true
     orga.title = ''
@@ -119,7 +121,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save(validate: false)
   end
 
-  should 'only create translation for nonempty attributes on entry create' do
+  test 'only create translation for nonempty attributes on entry create' do
     orga = build(:orga)
     orga.force_translation_after_save = true
     orga.title = ''
@@ -142,7 +144,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save(validate: false)
   end
 
-  should 'set area tag on create translation' do
+  test 'set area tag on create translation' do
     orga = build(:orga)
     orga.area = 'heinz_landkreis'
     orga.force_translation_after_save = true
@@ -154,7 +156,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save
   end
 
-  should 'update translation on entry update' do
+  test 'update translation on entry update' do
     orga = create(:orga)
     orga_id = orga.id.to_s
     orga.force_translation_after_save = true
@@ -175,7 +177,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
   end
 
-  should 'update translation on facet_item update' do
+  test 'update translation on facet_item update' do
     facet_item = create(:facet_item, title: 'New Category')
     facet_item_id = facet_item.id.to_s
     facet_item.force_translation_after_save = true
@@ -195,7 +197,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert facet_item.update(title: 'Super Category')
   end
 
-  should 'update translation on navigation_item update' do
+  test 'update translation on navigation_item update' do
     navigation_item = create(:fe_navigation_item, title: 'New Navigation Entry')
     navigation_item_id = navigation_item.id.to_s
     navigation_item.force_translation_after_save = true
@@ -215,7 +217,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert navigation_item.update(title: 'Homepage')
   end
 
-  should 'set area tag on update translation' do
+  test 'set area tag on update translation' do
     orga = create(:orga)
     orga.area = 'heinz_landkreis'
     orga.force_translation_after_save = true
@@ -227,7 +229,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
   end
 
-  should 'update translation on entry update only once' do
+  test 'update translation on entry update only once' do
     orga = create(:orga)
     orga.force_translation_after_save = true
 
@@ -239,7 +241,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.update(title: 'foo-bar', short_description: 'short-fo-ba')
   end
 
-  should 'not update translation on entry update if all related attributes are empty' do
+  test 'not update translation on entry update if all related attributes are empty' do
     orga = create(:orga)
     orga.force_translation_after_save = true
 
@@ -249,7 +251,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save(validate: false)
   end
 
-  should 'only update translation for nonempty attributes on entry update' do
+  test 'only update translation for nonempty attributes on entry update' do
     orga = create(:orga)
     orga.force_translation_after_save = true
 
@@ -272,7 +274,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.save(validate: false)
   end
 
-  should 'remove translations of all attributes on entry delete' do
+  test 'remove translations of all attributes on entry delete' do
     orga = create(:orga)
     orga.force_translation_after_save = true
 
@@ -283,7 +285,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert orga.destroy
   end
 
-  should 'remove translations of all attributes on facet_item delete' do
+  test 'remove translations of all attributes on facet_item delete' do
     facet_item = create(:facet_item, title: 'New Category')
     facet_item.force_translation_after_save = true
 
@@ -294,7 +296,7 @@ class TranslatableTest < ActiveSupport::TestCase
     assert facet_item.destroy
   end
 
-  should 'remove translations of all attributes on navigation_item delete' do
+  test 'remove translations of all attributes on navigation_item delete' do
     navigation_item = create(:fe_navigation_item, title: 'Best Page')
     navigation_item.force_translation_after_save = true
 
@@ -317,16 +319,18 @@ class TranslatableTest < ActiveSupport::TestCase
     end
   end
 
-  should 'create fapi cache job if facet item is created' do
+  test 'create fapi cache job if facet item is created' do
     facet_item = build(:facet_item, title: 'New Category')
+    facet_item.facet.save!
 
     FapiCacheJob.any_instance.expects(:update_entry_translation).never
 
     facet_item.save!
   end
 
-  should 'create fapi cache job if navigation item is created' do
+  test 'create fapi cache job if navigation item is created' do
     navigation_item = build(:fe_navigation_item, title: 'New Entry')
+    navigation_item.navigation.save!
 
     FapiCacheJob.any_instance.expects(:update_entry_translation).never
 
@@ -343,7 +347,7 @@ class TranslatableTest < ActiveSupport::TestCase
     end
   end
 
-  should 'create fapi cache job if facet item is updated' do
+  test 'create fapi cache job if facet item is updated' do
     facet_item = create(:facet_item, title: 'New Category')
 
     FapiCacheJob.any_instance.expects(:update_entry_translation).with(facet_item, 'de')
@@ -351,7 +355,7 @@ class TranslatableTest < ActiveSupport::TestCase
     facet_item.update!(title: 'new title')
   end
 
-  should 'create fapi cache job if navigation item is updated' do
+  test 'create fapi cache job if navigation item is updated' do
     navigation_item = create(:fe_navigation_item, title: 'New Entry')
 
     FapiCacheJob.any_instance.expects(:update_entry_translation).with(navigation_item, 'de')
@@ -369,7 +373,7 @@ class TranslatableTest < ActiveSupport::TestCase
     end
   end
 
-  should 'create fapi cache job if facet item is deleted' do
+  test 'create fapi cache job if facet item is deleted' do
     facet_item = create(:facet_item, title: 'New Category')
 
     FapiCacheJob.any_instance.expects(:update_entry_translation).never
@@ -377,7 +381,7 @@ class TranslatableTest < ActiveSupport::TestCase
     facet_item.destroy
   end
 
-  should 'create fapi cache job if navigation item is deleted' do
+  test 'create fapi cache job if navigation item is deleted' do
     navigation_item = create(:fe_navigation_item, title: 'New Entry')
 
     FapiCacheJob.any_instance.expects(:update_entry_translation).never

@@ -1,5 +1,5 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :orga_type do
-    type 'new orga type'
+    type { 'new orga type' }
   end
 end

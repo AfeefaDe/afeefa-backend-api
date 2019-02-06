@@ -104,11 +104,11 @@ GEM
     domain_name (0.5.20170404)
       unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
-    factory_girl (4.7.0)
-      activesupport (>= 3.0.0)
-    factory_girl_rails (4.7.0)
-      factory_girl (~> 4.7.0)
-      railties (>= 3.0.0)
+    factory_bot (5.0.0)
+      activesupport (>= 4.2.0)
+    factory_bot_rails (5.0.0)
+      factory_bot (~> 5.0.0)
+      railties (>= 4.2.0)
     faraday (0.14.0)
       multipart-post (>= 1.2, < 3)
     fast_jsonapi (1.3)
@@ -151,7 +151,7 @@ GEM
     mime-types-data (3.2016.0521)
     mimemagic (0.3.2)
     mini_portile2 (2.1.0)
-    minitest (5.11.1)
+    minitest (5.11.3)
     minitest-capybara (0.8.2)
       capybara (~> 2.2)
       minitest (~> 5.0)
@@ -166,7 +166,7 @@ GEM
       minitest-capybara (~> 0.8)
       minitest-metadata (~> 0.6)
       minitest-rails (~> 3.0)
-    minitest-reporters (1.1.19)
+    minitest-reporters (1.3.6)
       ansi
       builder
       minitest (>= 5.0)
@@ -261,7 +261,7 @@ GEM
     ruby-progressbar (1.9.0)
     safe_yaml (1.0.4)
     sexp_processor (4.7.0)
-    shoulda-context (1.2.1)
+    shoulda-context (1.2.2)
     simplecov (0.12.0)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -319,11 +319,10 @@ DEPENDENCIES
   bullet
   capistrano-rails
   capistrano-rbenv (~> 2.1)
-  capybara
   config
   devise
   devise_token_auth
-  factory_girl_rails
+  factory_bot_rails
   fast_jsonapi
   geocoder
   http
@@ -359,4 +358,4 @@ DEPENDENCIES
   whenever (~> 0.9.7)
 
 BUNDLED WITH
-   1.16.1
+   1.17.2

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :fe_navigation_item, class: DataModules::FeNavigation::FeNavigationItem do
     title { "title#{rand(0..1000)}" }
     association :navigation, factory: :fe_navigation
@@ -9,7 +9,7 @@ FactoryGirl.define do
 
     factory :fe_navigation_item_with_sub_items do
       transient do
-        sub_items_count 2
+        sub_items_count { 2 }
       end
 
       after(:create) do |navigation_item, evaluator|

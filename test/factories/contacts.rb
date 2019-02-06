@@ -1,7 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :contact, class: DataPlugins::Contact::Contact do
-    title 'Titel des Kontaktes'
+    title { 'Titel des Kontaktes' }
   end
 
 end
