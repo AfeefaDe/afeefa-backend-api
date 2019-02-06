@@ -9,7 +9,7 @@ module DataPlugins::Annotation
 
     [:orga, :event, :offer].each do |entry_factory|
 
-      should "deliver annotations for #{entry_factory}" do
+      test "deliver annotations for #{entry_factory}" do
         entry = create(entry_factory)
         assert_equal [], entry.annotations.all
 
@@ -22,7 +22,7 @@ module DataPlugins::Annotation
         assert_equal [annotation], entry.annotations.all
       end
 
-      should "deliver annotations by updated_at for #{entry_factory}" do
+      test "deliver annotations by updated_at for #{entry_factory}" do
         entry = create(entry_factory)
         assert_equal [], entry.annotations.all
 
@@ -50,7 +50,7 @@ module DataPlugins::Annotation
         assert_equal [annotation2, annotation3, annotation], entry.annotations.all
       end
 
-      should "add annotation for #{entry_factory}" do
+      test "add annotation for #{entry_factory}" do
         entry = create(entry_factory)
 
         annotation = entry.save_annotation(ActionController::Parameters.new(
@@ -61,7 +61,7 @@ module DataPlugins::Annotation
         assert_equal [annotation], entry.annotations.all
       end
 
-      should "set creator on add annotation for #{entry_factory}" do
+      test "set creator on add annotation for #{entry_factory}" do
         entry = create(entry_factory)
 
         annotation = entry.save_annotation(ActionController::Parameters.new(
@@ -73,7 +73,7 @@ module DataPlugins::Annotation
         assert_equal Current.user, annotation.last_editor
       end
 
-      should "fail adding with wrong category for #{entry_factory}" do
+      test "fail adding with wrong category for #{entry_factory}" do
         entry = create(entry_factory)
 
         exception = assert_raises(ActiveRecord::RecordInvalid) {
@@ -85,7 +85,7 @@ module DataPlugins::Annotation
         assert_match 'Kategorie existiert nicht.', exception.message
       end
 
-      should "fail adding without category for #{entry_factory}" do
+      test "fail adding without category for #{entry_factory}" do
         entry = create(entry_factory)
 
         exception = assert_raises(ActiveRecord::RecordInvalid) {
@@ -96,7 +96,7 @@ module DataPlugins::Annotation
         assert_match 'Kategorie fehlt.', exception.message
       end
 
-      should "update annotation for #{entry_factory}" do
+      test "update annotation for #{entry_factory}" do
         entry = create(entry_factory)
         annotation_category2 = AnnotationCategory.create(title: 'Kategorie2')
 
@@ -127,7 +127,7 @@ module DataPlugins::Annotation
         assert_equal 'Mache das jetzt doch nicht so', annotation.detail
       end
 
-      should "set editor on update annotation for #{entry_factory}" do
+      test "set editor on update annotation for #{entry_factory}" do
         entry = create(entry_factory)
 
         annotation = Annotation.create(
@@ -145,7 +145,7 @@ module DataPlugins::Annotation
         assert_equal user2, annotation.last_editor
       end
 
-      should "fail update if annotation does not exist for #{entry_factory}" do
+      test "fail update if annotation does not exist for #{entry_factory}" do
         entry = create(entry_factory)
         exception = assert_raises(ActiveRecord::RecordNotFound) {
           entry.save_annotation(ActionController::Parameters.new(
@@ -155,7 +155,7 @@ module DataPlugins::Annotation
         }
       end
 
-      should "fail update if annotation belongs to different entry for #{entry_factory}" do
+      test "fail update if annotation belongs to different entry for #{entry_factory}" do
         entry = create(entry_factory)
         entry2 = create(entry_factory)
         entry3 = create(:event)
@@ -183,7 +183,7 @@ module DataPlugins::Annotation
         assert_match 'Eigentümer kann nicht geändert werden.', exception.message
       end
 
-      should "remove annotation for #{entry_factory}" do
+      test "remove annotation for #{entry_factory}" do
         entry = create(entry_factory)
 
         annotation = Annotation.create(
@@ -197,7 +197,7 @@ module DataPlugins::Annotation
         end
       end
 
-      should "fail remove annotation if annotation not found for #{entry_factory}" do
+      test "fail remove annotation if annotation not found for #{entry_factory}" do
         entry = create(entry_factory)
 
         annotation = Annotation.create(
@@ -214,7 +214,7 @@ module DataPlugins::Annotation
 
       end
 
-      should "remove annotation if entry gets removed for #{entry_factory}" do
+      test "remove annotation if entry gets removed for #{entry_factory}" do
         entry = create(entry_factory)
 
         annotation = Annotation.create(

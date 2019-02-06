@@ -6,7 +6,7 @@ module DataModules::Offer
     include FapiCacheable
 
     def fapi_cacheable_on_save
-      area = Area.find_by(title: actor.area)
+      area = Area[actor.area]
       FapiCacheJob.new.update_all_entries_for_area(area)
     end
 

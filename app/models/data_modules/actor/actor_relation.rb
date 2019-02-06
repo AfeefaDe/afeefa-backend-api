@@ -20,7 +20,7 @@ module DataModules::Actor
     scope :partner, -> { where(type: PARTNER) }
 
     def fapi_cacheable_on_save
-      area = Area.find_by(title: associating_actor.area)
+      area = Area[associating_actor.area]
       FapiCacheJob.new.update_all_entries_for_area(area)
     end
 

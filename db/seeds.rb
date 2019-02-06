@@ -24,6 +24,7 @@ module Seeds
     pp 'delete and create areas'
 
     # areas
+    # TODO: Do we need this any longer?
     Area.delete_all
     Area.create!(title: 'dresden', lat_min: '50.811596', lat_max: '51.381457', lon_min: '12.983771', lon_max: '14.116620')
     Area.create!(title: 'leipzig', lat_min: '51.169806', lat_max: '51.455225', lon_min: '12.174588', lon_max: '12.659360')
@@ -47,9 +48,10 @@ module Seeds
       orga0.orga_type_id = OrgaType.where(name: 'Root').first['id']
       orga0.title = Orga::ROOT_ORGA_TITLE
       orga0.description = Orga::ROOT_ORGA_DESCRIPTION
+      orga0.area = 'dresden'
       orga0.save!(validate: false)
     else
-      orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE, description: Orga::ROOT_ORGA_DESCRIPTION)
+      orga0 = Orga.new(title: Orga::ROOT_ORGA_TITLE, description: Orga::ROOT_ORGA_DESCRIPTION, area: 'dresden')
       orga0.orga_type_id = OrgaType.where(name: 'Root').first['id']
       orga0.save!(validate: false)
     end

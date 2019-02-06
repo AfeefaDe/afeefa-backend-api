@@ -2,7 +2,7 @@ require 'test_helper'
 
 module DataPlugins::Contact
   class HasContactsTest < ActiveSupport::TestCase
-    should 'create contact with own location' do
+    test 'create contact with own location' do
       orga = create(:orga_without_contacts)
       assert orga.linked_contact.blank?
       assert orga.contacts.blank?
@@ -35,7 +35,7 @@ module DataPlugins::Contact
       assert_equal 'Claudia Schantall', contact_persons[1].name
     end
 
-    should 'create contact with linked location' do
+    test 'create contact with linked location' do
       contact = nil
       orga = create(:orga_without_contacts)
 
@@ -63,7 +63,7 @@ module DataPlugins::Contact
       assert_equal 'Afeefa Büro', location.title
     end
 
-    should "link location should reset contacts location_spec" do
+    test "link location should reset contacts location_spec" do
       orga = create(:orga)
       contact = orga.contacts.first
       contact.update!(location_spec: 'Im Hinterhaus')
@@ -83,7 +83,7 @@ module DataPlugins::Contact
       assert_nil contact.location_spec
     end
 
-    should 'not allow linking contacts from other owners than actors' do
+    test 'not allow linking contacts from other owners than actors' do
       assert orga_editing = create(:orga_without_contacts, title: 'editor')
       assert event_owning = create(:event, title: 'owner')
       assert location = create(:afeefa_office)
@@ -100,7 +100,7 @@ module DataPlugins::Contact
     end
 
     [:orga, :event, :offer].each do |entry_factory|
-      should "link contact should reset owners contact_spec #{entry_factory}" do
+      test "link contact should reset owners contact_spec #{entry_factory}" do
         entry = create(entry_factory, contacts: [], contact_spec: 'Mein Kontakt')
         assert_equal 'Mein Kontakt', entry.contact_spec
 
@@ -123,7 +123,7 @@ module DataPlugins::Contact
       end
     end
 
-    should 'update (contact with own location) with own location' do
+    test 'update (contact with own location) with own location' do
       orga = create(:orga)
       location = create(:afeefa_office, owner: orga)
       id = location.id
@@ -157,7 +157,7 @@ module DataPlugins::Contact
       assert_equal contact, location.contact
     end
 
-    should 'update (contact with own location) with linked location and delete own location' do
+    test 'update (contact with own location) with linked location and delete own location' do
       orga = create(:orga)
       location = create(:afeefa_office, owner: orga)
       contact = create(:contact, owner: orga, location: location)
@@ -189,7 +189,7 @@ module DataPlugins::Contact
       assert_equal contact2, contact.location.contact
     end
 
-    should 'update (contact with linked location) with linked location' do
+    test 'update (contact with linked location) with linked location' do
       orga2 = create(:another_orga)
       contact2 = create(:contact)
       location2 = create(:afeefa_office, contact: contact2, owner: orga2)
@@ -221,7 +221,7 @@ module DataPlugins::Contact
       assert_equal contact3, contact.location.contact
     end
 
-    should 'update (contact with linked location) with no location' do
+    test 'update (contact with linked location) with no location' do
       orga2 = create(:another_orga)
       contact2 = create(:contact)
       location2 = create(:afeefa_office, contact: contact2, owner: orga2)
@@ -249,7 +249,7 @@ module DataPlugins::Contact
       assert_nil contact.location
     end
 
-    should 'update (contact with linked location) with own location' do
+    test 'update (contact with linked location) with own location' do
       orga2 = create(:another_orga)
       contact2 = create(:contact)
       location2 = create(:afeefa_office, contact: contact2, owner: orga2)
@@ -281,7 +281,7 @@ module DataPlugins::Contact
       assert_equal contact, contact.location.contact
     end
 
-    should 'update (contact with own location) with no location and delete own location' do
+    test 'update (contact with own location) with no location and delete own location' do
       orga = create(:orga)
       location = create(:afeefa_office, owner: orga)
       contact = create(:contact, owner: orga, location: location)
@@ -306,7 +306,7 @@ module DataPlugins::Contact
       assert_nil contact.location
     end
 
-    should 'remove (contact with own location) and delete own location' do
+    test 'remove (contact with own location) and delete own location' do
       orga = create(:orga)
       location = create(:afeefa_office, owner: orga)
       contact = create(:contact, owner: orga, location: location)
@@ -322,7 +322,7 @@ module DataPlugins::Contact
       end
     end
 
-    should 'remove (contact with linked location) and not delete linked location' do
+    test 'remove (contact with linked location) and not delete linked location' do
       orga2 = create(:another_orga)
       contact2 = create(:contact)
       location2 = create(:afeefa_office, contact: contact2, owner: orga2)

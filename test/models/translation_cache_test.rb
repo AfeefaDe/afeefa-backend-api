@@ -10,7 +10,7 @@ class TranslationCacheTest < ActiveSupport::TestCase
     WebMock.disable_net_connect!(allow_localhost: false)
   end
 
-  should 'rebuild cache' do
+  test 'rebuild cache' do
     Settings.phraseapp.stubs(:active).returns(true)
 
     # create couple of entries that will be translated in order to get the correct timestamp updated_at below

@@ -10,7 +10,7 @@ class FapiClientTest < ActiveSupport::TestCase
     Settings.afeefa.fapi_sync_active = false
   end
 
-  should 'trigger fapi on cache job created' do
+  test 'trigger fapi on cache job created' do
     Settings.afeefa.fapi_sync_active = true
 
     result = mock()
@@ -26,7 +26,7 @@ class FapiClientTest < ActiveSupport::TestCase
     assert_equal 'ok', JSON.parse(status)['status']
   end
 
-  should 'trigger fapi on translation change' do
+  test 'trigger fapi on translation change' do
     orga = create(:orga)
     Settings.afeefa.fapi_sync_active = true
 
@@ -45,7 +45,7 @@ class FapiClientTest < ActiveSupport::TestCase
     assert_equal 'ok', JSON.parse(status)['status']
   end
 
-  should 'trigger fapi on entry update' do
+  test 'trigger fapi on entry update' do
     orga = create(:orga)
     Settings.afeefa.fapi_sync_active = true
 
@@ -64,7 +64,7 @@ class FapiClientTest < ActiveSupport::TestCase
     assert_equal 'ok', JSON.parse(status)['status']
   end
 
-  should 'trigger fapi on update all' do
+  test 'trigger fapi on update all' do
     orga = create(:orga)
     Settings.afeefa.fapi_sync_active = true
 
@@ -83,7 +83,7 @@ class FapiClientTest < ActiveSupport::TestCase
     assert_equal 'ok', JSON.parse(status)['status']
   end
 
-  should 'trigger fapi on delete entry' do
+  test 'trigger fapi on delete entry' do
     orga = create(:orga)
     Settings.afeefa.fapi_sync_active = true
 
@@ -104,7 +104,7 @@ class FapiClientTest < ActiveSupport::TestCase
     assert_equal 'ok', JSON.parse(status)['status']
   end
 
-  should 'build correct url' do
+  test 'build correct url' do
     Settings.afeefa.fapi_sync_active = true
 
     params = { test: 'xyz', foo: 'bar', token: Settings.afeefa.fapi_webhook_api_token }

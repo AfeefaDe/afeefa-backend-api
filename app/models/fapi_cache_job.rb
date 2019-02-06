@@ -50,7 +50,7 @@ class FapiCacheJob < ApplicationRecord
   def update_all_entries_for_all_areas
     jobs = []
     Translatable::AREAS.each do |areaTitle|
-      area =  Area.find_by(title: areaTitle)
+      area =  Area[areaTitle]
       jobs << update_all_entries_for_area(area, false)
     end
 
@@ -80,7 +80,7 @@ class FapiCacheJob < ApplicationRecord
 
   def update_entry(entry)
     job = nil
-    area = entry.respond_to?(:area) ? Area.find_by(title: entry.area) : nil
+    area = entry.respond_to?(:area) ? Area[entry.area] : nil
 
     if entry.is_a? DataModules::FeNavigation::FeNavigationItem
       # do not allow more than one update/delete job at a time
@@ -115,7 +115,7 @@ class FapiCacheJob < ApplicationRecord
       return update_entry(entry)
     end
 
-    area = Area.find_by(title: entry.area)
+    area = Area[entry.area]
 
     # do not allow more than one update/delete job at a time
     job = ensure_not_more_than_one_entry_update_job_per_area(area, entry)
@@ -123,7 +123,7 @@ class FapiCacheJob < ApplicationRecord
     unless job
       job = FapiCacheJob.not_started.find_by(entry: entry, deleted: true)
       unless job
-        area = Area.find_by(title: entry.area)
+        area = Area[entry.area]
         job = FapiCacheJob.create!(entry: entry, area: area, deleted: true)
       end
     end
@@ -140,7 +140,7 @@ class FapiCacheJob < ApplicationRecord
     end
 
     job = nil
-    area = Area.find_by(title: entry.area)
+    area = Area[entry.area]
 
     job = ensure_not_more_than_one_entry_translation_per_area_and_language(area, entry, language)
 
@@ -160,7 +160,7 @@ class FapiCacheJob < ApplicationRecord
   def update_facet_item_translation(entry, language)
     jobs = []
     Translatable::AREAS.each do |areaTitle|
-      area =  Area.find_by(title: areaTitle)
+      area =  Area[areaTitle]
       job = update_entry_translation_for_area(area, entry, language)
       jobs << job unless jobs.include?(job)
     end

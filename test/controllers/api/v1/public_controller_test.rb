@@ -1,200 +1,168 @@
 require 'test_helper'
 
 class Api::V1::PublicControllerTest < ActionController::TestCase
-  context 'as authorized user' do
-    setup do
-      stub_current_user
-    end
+  test 'get index actors' do
+    generate_dresden_orgas
 
-    context 'with dresden orgas' do
-      setup do
-        options = { area: 'dresden', state: 'active' }
-        @orga = create(:orga, options)
-        @orga.sub_orgas.create(attributes_for(:another_orga, parent_orga: @orga, **options))
+    get :index_actors, params: { area: 'dresden' }
+    assert_response :ok, response.body
+    json = JSON.parse(response.body)
+    assert_kind_of Array, json['data']
+    orgas = Orga.by_area('dresden').active
+    assert_equal orgas.count, json['data'].size
+    assert_equal(
+      orgas.last.to_hash(
+        attributes: Orga.lazy_attributes_for_json,
+        relationships: Orga.lazy_relations_for_json,
+        public: true
+      ).deep_stringify_keys,
+      json['data'].last
+    )
 
-        Annotation.create!(
-          detail: 'dummy annotation',
-          entry: @orga,
-          annotation_category_id: AnnotationCategory.last.id,
-          creator_id: User.first,
-          last_editor_id: User.second
-        )
-      end
+    assert_not json['data'].last['attributes'].key?('support_wanted_detail')
+    assert_not json['data'].last['relationships'].key?('resources')
 
-      should 'get index actors' do
-        get :index_actors, params: { area: 'dresden' }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Array, json['data']
-        orgas = Orga.by_area('dresden').active
-        assert_equal orgas.count, json['data'].size
-        assert_equal(
-          orgas.last.to_hash(
-            attributes: Orga.lazy_attributes_for_json,
-            relationships: Orga.lazy_relations_for_json,
-            public: true
-          ).deep_stringify_keys,
-          json['data'].last
-        )
+    attributes = json['data'].last['attributes']
+    not_wanted_attributes = ['created_at', 'updated_at', 'active']
+    ensure_not_wanted_data(attributes, not_wanted_attributes)
+  end
 
-        assert_not json['data'].last['attributes'].key?('support_wanted_detail')
-        assert_not json['data'].last['relationships'].key?('resources')
+  test 'get show actor' do
+    generate_dresden_orgas
+    
+    get :show_actor, params: { area: 'dresden', id: @orga.id }
+    assert_response :ok, response.body
+    json = JSON.parse(response.body)
+    assert_kind_of Hash, json['data']
+    assert_equal @orga.title, json['data']['attributes']['title']
 
-        attributes = json['data'].last['attributes']
-        not_wanted_attributes = ['created_at', 'updated_at', 'active']
-        ensure_not_wanted_data(attributes, not_wanted_attributes)
-      end
+    attributes = json['data']['attributes']
+    not_wanted_attributes = ['created_at', 'updated_at', 'active']
+    ensure_not_wanted_data(attributes, not_wanted_attributes)
 
-      should 'get show actor' do
-        get :show_actor, params: { area: 'dresden', id: @orga.id }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Hash, json['data']
-        assert_equal @orga.title, json['data']['attributes']['title']
+    relationships = json['data']['relationships']
+    not_wanted_relationships = ['creator', 'last_editor', 'annotations']
+    ensure_not_wanted_data(relationships, not_wanted_relationships)
+  end
 
-        attributes = json['data']['attributes']
-        not_wanted_attributes = ['created_at', 'updated_at', 'active']
-        ensure_not_wanted_data(attributes, not_wanted_attributes)
+  test 'get index events' do
+    generate_dresden_event
 
-        relationships = json['data']['relationships']
-        not_wanted_relationships = ['creator', 'last_editor', 'annotations']
-        ensure_not_wanted_data(relationships, not_wanted_relationships)
-      end
-    end
+    get :index_events, params: { area: 'dresden' }
+    assert_response :ok, response.body
+    json = JSON.parse(response.body)
+    assert_kind_of Array, json['data']
+    events = Event.by_area('dresden').active
+    assert_equal events.count, json['data'].size
+    assert_equal(
+      events.last.to_hash(
+        attributes: Event.lazy_attributes_for_json,
+        relationships: Event.lazy_relations_for_json,
+        public: true
+      ).deep_stringify_keys,
+      json['data'].last
+    )
 
-    context 'with dresden events' do
-      setup do
-        options = { area: 'dresden', state: 'active' }
-        @event = create(:event, options)
-      end
+    assert_not json['data'].last['attributes'].key?('support_wanted_detail')
+    assert_not json['data'].last['relationships'].key?('resources')
 
-      should 'get index events' do
-        get :index_events, params: { area: 'dresden' }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Array, json['data']
-        events = Event.by_area('dresden').active
-        assert_equal events.count, json['data'].size
-        assert_equal(
-          events.last.to_hash(
-            attributes: Event.lazy_attributes_for_json,
-            relationships: Event.lazy_relations_for_json,
-            public: true
-          ).deep_stringify_keys,
-          json['data'].last
-        )
+    attributes = json['data'].last['attributes']
+    not_wanted_attributes = ['created_at', 'updated_at', 'active']
+    ensure_not_wanted_data(attributes, not_wanted_attributes)
+  end
 
-        assert_not json['data'].last['attributes'].key?('support_wanted_detail')
-        assert_not json['data'].last['relationships'].key?('resources')
+  test 'get show event' do
+    generate_dresden_event
 
-        attributes = json['data'].last['attributes']
-        not_wanted_attributes = ['created_at', 'updated_at', 'active']
-        ensure_not_wanted_data(attributes, not_wanted_attributes)
-      end
+    get :show_event, params: { area: 'dresden', id: @event.id }
+    assert_response :ok, response.body
+    json = JSON.parse(response.body)
+    assert_kind_of Hash, json['data']
+    assert_equal @event.title, json['data']['attributes']['title']
 
-      should 'get show event' do
-        get :show_event, params: { area: 'dresden', id: @event.id }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Hash, json['data']
-        assert_equal @event.title, json['data']['attributes']['title']
+    attributes = json['data']['attributes']
+    not_wanted_attributes = ['created_at', 'updated_at', 'active']
+    ensure_not_wanted_data(attributes, not_wanted_attributes)
 
-        attributes = json['data']['attributes']
-        not_wanted_attributes = ['created_at', 'updated_at', 'active']
-        ensure_not_wanted_data(attributes, not_wanted_attributes)
+    relationships = json['data']['relationships']
+    not_wanted_relationships = ['creator', 'last_editor', 'annotations']
+    ensure_not_wanted_data(relationships, not_wanted_relationships)
+  end
 
-        relationships = json['data']['relationships']
-        not_wanted_relationships = ['creator', 'last_editor', 'annotations']
-        ensure_not_wanted_data(relationships, not_wanted_relationships)
-      end
-    end
+  test 'get index offers' do
+    generate_dresden_offer
 
-    context 'with dresden offers' do
-      setup do
-        options = { area: 'dresden', active: true }
-        @offer = create(:offer, options)
-      end
+    get :index_offers, params: { area: 'dresden' }
+    assert_response :ok, response.body
+    json = JSON.parse(response.body)
+    assert_kind_of Array, json['data']
+    offers = DataModules::Offer::Offer.by_area('dresden').where(active: true)
+    assert_equal offers.count, json['data'].size
+    assert_equal(
+      offers.last.to_hash(
+        attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
+        relationships: DataModules::Offer::Offer.lazy_relations_for_json,
+        public: true
+      ).deep_stringify_keys,
+      json['data'].last
+    )
 
-      should 'get index offers' do
-        get :index_offers, params: { area: 'dresden' }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Array, json['data']
-        offers = DataModules::Offer::Offer.by_area('dresden').where(active: true)
-        assert_equal offers.count, json['data'].size
-        assert_equal(
-          offers.last.to_hash(
-            attributes: DataModules::Offer::Offer.lazy_attributes_for_json,
-            relationships: DataModules::Offer::Offer.lazy_relations_for_json,
-            public: true
-          ).deep_stringify_keys,
-          json['data'].last
-        )
+    assert_not json['data'].last['attributes'].key?('support_wanted_detail')
+    assert_not json['data'].last['relationships'].key?('resources')
 
-        assert_not json['data'].last['attributes'].key?('support_wanted_detail')
-        assert_not json['data'].last['relationships'].key?('resources')
+    attributes = json['data'].last['attributes']
+    not_wanted_attributes = ['created_at', 'updated_at', 'active']
+    ensure_not_wanted_data(attributes, not_wanted_attributes)
+  end
 
-        attributes = json['data'].last['attributes']
-        not_wanted_attributes = ['created_at', 'updated_at', 'active']
-        ensure_not_wanted_data(attributes, not_wanted_attributes)
-      end
+  test 'get show offer' do
+    generate_dresden_offer
 
-      should 'get show offer' do
-        get :show_offer, params: { area: 'dresden', id: @offer.id }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Hash, json['data']
-        assert_equal @offer.title, json['data']['attributes']['title']
+    get :show_offer, params: { area: 'dresden', id: @offer.id }
+    assert_response :ok, response.body
+    json = JSON.parse(response.body)
+    assert_kind_of Hash, json['data']
+    assert_equal @offer.title, json['data']['attributes']['title']
 
-        attributes = json['data']['attributes']
-        not_wanted_attributes = ['created_at', 'updated_at', 'active']
-        ensure_not_wanted_data(attributes, not_wanted_attributes)
+    attributes = json['data']['attributes']
+    not_wanted_attributes = ['created_at', 'updated_at', 'active']
+    ensure_not_wanted_data(attributes, not_wanted_attributes)
 
-        relationships = json['data']['relationships']
-        not_wanted_relationships = ['creator', 'last_editor', 'annotations']
-        ensure_not_wanted_data(relationships, not_wanted_relationships)
-      end
-    end
+    relationships = json['data']['relationships']
+    not_wanted_relationships = ['creator', 'last_editor', 'annotations']
+    ensure_not_wanted_data(relationships, not_wanted_relationships)
+  end
 
-    context 'with dresden navigation' do
-      setup do
-        options = { area: 'dresden' }
-        @navigation = create(:fe_navigation_with_items_and_sub_items, options)
-      end
+  test 'get show navigation' do
+    options = { area: 'dresden' }
+    navigation = create(:fe_navigation_with_items_and_sub_items, options)
+    
+    get :show_navigation, params: { area: 'dresden', id: navigation.id }
+    assert_response :ok, response.body
+    json = JSON.parse(response.body)
+    assert_kind_of Hash, json
+    assert !json.key?('attributes')
 
-      should 'get show navigation' do
-        get :show_navigation, params: { area: 'dresden', id: @navigation.id }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Hash, json
-        assert !json.key?('attributes')
+    relationships = json['relationships']
+    not_wanted_relationships = ['creator', 'last_editor', 'annotations']
+    ensure_not_wanted_data(relationships, not_wanted_relationships)
+  end
 
-        relationships = json['relationships']
-        not_wanted_relationships = ['creator', 'last_editor', 'annotations']
-        ensure_not_wanted_data(relationships, not_wanted_relationships)
-      end
-    end
+  test 'get index facets' do
+    create(:facet_with_items)
 
-    context 'with dresden facets' do
-      setup do
-        create(:facet_with_items)
-      end
+    get :index_facets, params: { area: 'dresden' }
+    assert_response :ok, response.body
+    json = JSON.parse(response.body)
+    assert_kind_of Array, json['data']
 
-      should 'get index facets' do
-        get :index_facets, params: { area: 'dresden' }
-        assert_response :ok, response.body
-        json = JSON.parse(response.body)
-        assert_kind_of Array, json['data']
+    attributes = json['data'].last['attributes']
+    not_wanted_attributes = ['created_at', 'updated_at', 'active']
+    ensure_not_wanted_data(attributes, not_wanted_attributes)
 
-        attributes = json['data'].last['attributes']
-        not_wanted_attributes = ['created_at', 'updated_at', 'active']
-        ensure_not_wanted_data(attributes, not_wanted_attributes)
-
-        relationships = json['data'].last['relationships']
-        not_wanted_relationships = ['creator', 'last_editor', 'annotations']
-        ensure_not_wanted_data(relationships, not_wanted_relationships)
-      end
-    end
+    relationships = json['data'].last['relationships']
+    not_wanted_relationships = ['creator', 'last_editor', 'annotations']
+    ensure_not_wanted_data(relationships, not_wanted_relationships)
   end
 
   private
@@ -204,4 +172,29 @@ class Api::V1::PublicControllerTest < ActionController::TestCase
       assert !data.key?(attribute), "#{key} #{attribute} should not be present"
     end
   end
+
+  def generate_dresden_orgas
+    options = { area: 'dresden', state: 'active' }
+    @orga = create(:orga, options)
+    @orga.sub_orgas.create(attributes_for(:another_orga, parent_orga: @orga, **options))
+
+    Annotation.create!(
+      detail: 'dummy annotation',
+      entry: @orga,
+      annotation_category_id: AnnotationCategory.last.id,
+      creator_id: User.first,
+      last_editor_id: User.second
+    )
+  end
+
+  def generate_dresden_event
+    options = { area: 'dresden', state: 'active' }
+    @event = create(:event, options)
+  end
+
+  def generate_dresden_offer
+    options = { area: 'dresden', active: true }
+    @offer = create(:offer, options)
+  end
+
 end

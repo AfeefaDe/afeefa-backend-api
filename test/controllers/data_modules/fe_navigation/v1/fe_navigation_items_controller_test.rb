@@ -4,6 +4,235 @@ class DataModules::FeNavigation::V1::FeNavigationItemsControllerTest < ActionCon
 
   include ActsAsFacetItemControllerTest
 
+  setup do
+    stub_current_user
+  end
+
+  test 'link facet items' do
+    facet = create(:facet_with_items, owner_types: ['Offer'])
+    facet_item = facet.facet_items.first
+
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+
+    offer = create(:offer)
+    facet_item.link_owner(offer)
+
+    assert_difference -> { ownerClass.count } do
+      post :link_owners, params: { id: navigation_item.id, owner_type: 'facet_items', owner_id: facet_item.id }
+      assert_response :created
+      assert response.body.blank?
+
+      assert_equal offer, navigation_item.owners.first
+      assert_equal facet_item, navigation_item.facet_items.first
+    end
+  end
+
+  test 'link multiple owners' do
+    facet = create(:facet_with_items, owner_types: ['Offer', 'Event', 'Orga'])
+    facet_item = facet.facet_items.first
+    facet_item2 = facet.facet_items.last
+
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+
+    event = create(:event)
+    offer = create(:offer)
+    facet_item.link_owner(offer)
+    facet_item.link_owner(event)
+
+    orga2 = create(:orga_with_random_title)
+    facet_item2.link_owner(orga2)
+
+    orga = create(:orga)
+
+    assert_difference -> { ownerClass.count }, 3 do
+      post :link_owners, params: {
+        id: navigation_item.id,
+        owners: [
+          { owner_type: 'orgas', owner_id: orga.id },
+          { owner_type: 'facet_items', owner_id: facet_item.id },
+          { owner_type: 'facet_items', owner_id: facet_item2.id }
+        ]
+      }
+      assert_response :created
+      assert response.body.blank?
+
+      assert_same_elements [orga, offer, event, orga2], navigation_item.owners
+      assert_same_elements [facet_item, facet_item2], navigation_item.facet_items
+    end
+  end
+
+  test 'get owners with owners from linked facet items' do
+    facet = create(:facet_with_items, owner_types: ['Offer', 'Event', 'Orga'])
+    facet_item = facet.facet_items.first
+    facet_item2 = facet.facet_items.last
+
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+
+    event = create(:event)
+    offer = create(:offer)
+    facet_item.link_owner(offer)
+    facet_item.link_owner(event)
+
+    orga2 = create(:orga_with_random_title)
+    facet_item2.link_owner(orga2)
+
+    orga = create(:orga)
+    navigation_item.link_owner(orga)
+    navigation_item.link_owner(facet_item)
+    navigation_item.link_owner(facet_item2)
+
+    get :get_linked_owners, params: { id: navigation_item.id }
+    assert_response :ok
+
+    json = JSON.parse(response.body)
+    assert_equal 4, json.count
+
+    assert_same_elements [
+      orga.to_hash.as_json, # converts dates to json
+      event.to_hash.as_json,
+      offer.to_hash.as_json,
+      orga2.to_hash.as_json
+    ], json
+  end
+
+  test 'link multiple facet items with navigation item' do
+    facet = create(:facet_with_items)
+    facet_item = facet.facet_items.first
+    facet_item2 = facet.facet_items.last
+
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+
+    post :link_facet_items, params: {
+      id: navigation_item.id,
+      facet_items: [facet_item.id, facet_item2.id]
+    }
+    assert_response :created
+
+    assert_equal facet_item, navigation_item.facet_items.first
+    assert_equal facet_item2, navigation_item.facet_items.second
+  end
+
+  test 'unlink all facet items from navigation item' do
+    facet = create(:facet_with_items)
+    facet_item = facet.facet_items.first
+    facet_item2 = facet.facet_items.last
+
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+
+    navigation_item.link_owner(facet_item)
+    navigation_item.link_owner(facet_item2)
+    assert_equal facet_item, navigation_item.facet_items.first
+    assert_equal facet_item2, navigation_item.facet_items.second
+
+    post :link_facet_items, params: {
+      id: navigation_item.id,
+      facet_items: []
+    }
+    assert_response :created
+
+    assert_nil navigation_item.facet_items.first
+    assert_nil navigation_item.facet_items.second
+  end
+
+  test 'fail if linking multiple facet items with navigation item where one does not exist' do
+    facet = create(:facet_with_items)
+    facet_item = facet.facet_items.first
+
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+
+    post :link_facet_items, params: {
+      id: navigation_item.id,
+      facet_items: [facet_item.id, 85555555]
+    }
+    assert_response :unprocessable_entity
+
+    assert_nil navigation_item.facet_items.first
+    assert_nil navigation_item.facet_items.second
+  end
+
+  # linking owners with navigation items
+
+  test 'get linked navigation items' do
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+    navigation_item2 = navigation.navigation_items.last
+    orga = create(:orga)
+
+    navigation_item.link_owner(orga)
+    navigation_item2.link_owner(orga)
+
+    get :get_linked_navigation_items, params: { owner_type: 'orgas', owner_id: orga.id }
+    assert_response :ok
+
+    json = JSON.parse(response.body)
+    assert_equal 2, json.count
+    assert_equal JSON.parse(navigation_item.to_json), json.first
+    assert_equal JSON.parse(navigation_item2.to_json), json[1]
+  end
+
+  test 'link multiple navigation items with owner' do
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+    navigation_item2 = navigation.navigation_items.last
+    orga = create(:orga)
+
+    post :link_navigation_items, params: {
+      owner_type: 'orgas',
+      owner_id: orga.id,
+      navigation_items: [navigation_item.id, navigation_item2.id]
+    }
+    assert_response :created
+
+    assert_equal navigation_item, orga.navigation_items.first
+    assert_equal navigation_item2, orga.navigation_items.second
+  end
+
+  test 'unlink all navigation items from owner' do
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+    navigation_item2 = navigation.navigation_items.last
+    orga = create(:orga)
+
+    navigation_item.link_owner(orga)
+    navigation_item2.link_owner(orga)
+    assert_equal navigation_item, orga.navigation_items.first
+    assert_equal navigation_item2, orga.navigation_items.second
+
+    post :link_navigation_items, params: {
+      owner_type: 'orgas',
+      owner_id: orga.id,
+      navigation_items: []
+    }
+    assert_response :created
+
+    assert_nil orga.navigation_items.first
+    assert_nil orga.navigation_items.second
+  end
+
+  test 'fail if linking multiple navigation items with owner where one does not exist' do
+    navigation = create(:fe_navigation_with_items)
+    navigation_item = navigation.navigation_items.first
+    orga = create(:orga)
+
+    post :link_navigation_items, params: {
+      owner_type: 'orgas',
+      owner_id: orga.id,
+      navigation_items: [navigation_item.id, 85555555]
+    }
+    assert_response :unprocessable_entity
+
+    assert_nil orga.navigation_items.first
+    assert_nil orga.navigation_items.second
+  end
+
+  private
+
   def create_root
     create(:fe_navigation)
   end
@@ -40,234 +269,4 @@ class DataModules::FeNavigation::V1::FeNavigationItemsControllerTest < ActionCon
     params
   end
 
-
-  context 'as authorized user' do
-    setup do
-      stub_current_user
-    end
-
-    should 'link facet items' do
-      facet = create(:facet_with_items, owner_types: ['Offer'])
-      facet_item = facet.facet_items.first
-
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-
-      offer = create(:offer)
-      facet_item.link_owner(offer)
-
-      assert_difference -> { ownerClass.count } do
-        post :link_owners, params: { id: navigation_item.id, owner_type: 'facet_items', owner_id: facet_item.id }
-        assert_response :created
-        assert response.body.blank?
-
-        assert_equal offer, navigation_item.owners.first
-        assert_equal facet_item, navigation_item.facet_items.first
-      end
-    end
-
-    should 'link multiple owners' do
-      facet = create(:facet_with_items, owner_types: ['Offer', 'Event', 'Orga'])
-      facet_item = facet.facet_items.first
-      facet_item2 = facet.facet_items.last
-
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-
-      event = create(:event)
-      offer = create(:offer)
-      facet_item.link_owner(offer)
-      facet_item.link_owner(event)
-
-      orga2 = create(:orga_with_random_title)
-      facet_item2.link_owner(orga2)
-
-      orga = create(:orga)
-
-      assert_difference -> { ownerClass.count }, 3 do
-        post :link_owners, params: {
-          id: navigation_item.id,
-          owners: [
-            { owner_type: 'orgas', owner_id: orga.id },
-            { owner_type: 'facet_items', owner_id: facet_item.id },
-            { owner_type: 'facet_items', owner_id: facet_item2.id }
-          ]
-        }
-        assert_response :created
-        assert response.body.blank?
-
-        assert_same_elements [orga, offer, event, orga2], navigation_item.owners
-        assert_same_elements [facet_item, facet_item2], navigation_item.facet_items
-      end
-    end
-
-    should 'get owners with owners from linked facet items' do
-      facet = create(:facet_with_items, owner_types: ['Offer', 'Event', 'Orga'])
-      facet_item = facet.facet_items.first
-      facet_item2 = facet.facet_items.last
-
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-
-      event = create(:event)
-      offer = create(:offer)
-      facet_item.link_owner(offer)
-      facet_item.link_owner(event)
-
-      orga2 = create(:orga_with_random_title)
-      facet_item2.link_owner(orga2)
-
-      orga = create(:orga)
-      navigation_item.link_owner(orga)
-      navigation_item.link_owner(facet_item)
-      navigation_item.link_owner(facet_item2)
-
-      get :get_linked_owners, params: { id: navigation_item.id }
-      assert_response :ok
-
-      json = JSON.parse(response.body)
-      assert_equal 4, json.count
-
-      assert_same_elements [
-        orga.to_hash.as_json, # converts dates to json
-        event.to_hash.as_json,
-        offer.to_hash.as_json,
-        orga2.to_hash.as_json
-      ], json
-    end
-
-    should 'link multiple facet items with navigation item' do
-      facet = create(:facet_with_items)
-      facet_item = facet.facet_items.first
-      facet_item2 = facet.facet_items.last
-
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-
-      post :link_facet_items, params: {
-        id: navigation_item.id,
-        facet_items: [facet_item.id, facet_item2.id]
-      }
-      assert_response :created
-
-      assert_equal facet_item, navigation_item.facet_items.first
-      assert_equal facet_item2, navigation_item.facet_items.second
-    end
-
-    should 'unlink all facet items from navigation item' do
-      facet = create(:facet_with_items)
-      facet_item = facet.facet_items.first
-      facet_item2 = facet.facet_items.last
-
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-
-      navigation_item.link_owner(facet_item)
-      navigation_item.link_owner(facet_item2)
-      assert_equal facet_item, navigation_item.facet_items.first
-      assert_equal facet_item2, navigation_item.facet_items.second
-
-      post :link_facet_items, params: {
-        id: navigation_item.id,
-        facet_items: []
-      }
-      assert_response :created
-
-      assert_nil navigation_item.facet_items.first
-      assert_nil navigation_item.facet_items.second
-    end
-
-    should 'fail if linking multiple facet items with navigation item where one does not exist' do
-      facet = create(:facet_with_items)
-      facet_item = facet.facet_items.first
-
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-
-      post :link_facet_items, params: {
-        id: navigation_item.id,
-        facet_items: [facet_item.id, 85555555]
-      }
-      assert_response :unprocessable_entity
-
-      assert_nil navigation_item.facet_items.first
-      assert_nil navigation_item.facet_items.second
-    end
-
-    # linking owners with navigation items
-
-    should 'get linked navigation items' do
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-      navigation_item2 = navigation.navigation_items.last
-      orga = create(:orga)
-
-      navigation_item.link_owner(orga)
-      navigation_item2.link_owner(orga)
-
-      get :get_linked_navigation_items, params: { owner_type: 'orgas', owner_id: orga.id }
-      assert_response :ok
-
-      json = JSON.parse(response.body)
-      assert_equal 2, json.count
-      assert_equal JSON.parse(navigation_item.to_json), json.first
-      assert_equal JSON.parse(navigation_item2.to_json), json[1]
-    end
-
-    should 'link multiple navigation items with owner' do
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-      navigation_item2 = navigation.navigation_items.last
-      orga = create(:orga)
-
-      post :link_navigation_items, params: {
-        owner_type: 'orgas',
-        owner_id: orga.id,
-        navigation_items: [navigation_item.id, navigation_item2.id]
-      }
-      assert_response :created
-
-      assert_equal navigation_item, orga.navigation_items.first
-      assert_equal navigation_item2, orga.navigation_items.second
-    end
-
-    should 'unlink all navigation items from owner' do
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-      navigation_item2 = navigation.navigation_items.last
-      orga = create(:orga)
-
-      navigation_item.link_owner(orga)
-      navigation_item2.link_owner(orga)
-      assert_equal navigation_item, orga.navigation_items.first
-      assert_equal navigation_item2, orga.navigation_items.second
-
-      post :link_navigation_items, params: {
-        owner_type: 'orgas',
-        owner_id: orga.id,
-        navigation_items: []
-      }
-      assert_response :created
-
-      assert_nil orga.navigation_items.first
-      assert_nil orga.navigation_items.second
-    end
-
-    should 'fail if linking multiple navigation items with owner where one does not exist' do
-      navigation = create(:fe_navigation_with_items)
-      navigation_item = navigation.navigation_items.first
-      orga = create(:orga)
-
-      post :link_navigation_items, params: {
-        owner_type: 'orgas',
-        owner_id: orga.id,
-        navigation_items: [navigation_item.id, 85555555]
-      }
-      assert_response :unprocessable_entity
-
-      assert_nil orga.navigation_items.first
-      assert_nil orga.navigation_items.second
-    end
-
-  end
 end

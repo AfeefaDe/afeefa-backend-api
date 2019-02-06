@@ -6,17 +6,12 @@ end
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+
 require 'minitest/rails'
-require 'mocha/mini_test'
-require 'minitest/reporters'
-Minitest::Reporters.use!
 
-# To add Capybara feature tests add `gem "minitest-rails-capybara"`
-# to the test group in the Gemfile and uncomment the following:
-require 'minitest/rails/capybara'
-
-# Uncomment for awesome colorful output
-# require "minitest/pride"
+require 'mocha/minitest'
+require 'capybara/rails'
+require 'capybara/minitest'
 
 require 'pp'
 
@@ -70,7 +65,7 @@ class ActiveSupport::TestCase
 
   # Add more helper methods to be used by all tests here...
 
-  include FactoryGirl::Syntax::Methods
+  include FactoryBot::Syntax::Methods
 
   def valid_user
     User.create!(
@@ -133,7 +128,6 @@ class ActiveSupport::TestCase
     end
   end
 
-
   def assert_fapi_cache_job(
     job: nil,
     entry: nil,
@@ -160,6 +154,11 @@ class ActiveSupport::TestCase
     assert_equal Time.current.beginning_of_minute.as_json, job.created_at.beginning_of_minute.as_json
     assert_nil job.started_at
     assert_nil job.finished_at
+  end
+
+  def assert_same_elements(expected, given)
+    assert (expected - given).blank?, 'The given array misses some expected elements.'
+    assert (given - expected).blank?, 'The given array contains unexpected elements.'
   end
 
 end

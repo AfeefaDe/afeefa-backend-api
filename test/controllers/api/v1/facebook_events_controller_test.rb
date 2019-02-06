@@ -6,7 +6,7 @@ class Api::V1::FacebookEventsControllerTest < ActionController::TestCase
     skip 'facebook deactivated' unless facebook_active?
   end
 
-  should 'get facebook events' do
+  test 'get facebook events' do
     # TODO: stub facebook api
     get :index
     assert_response :unauthorized
@@ -45,14 +45,14 @@ class Api::V1::FacebookEventsControllerTest < ActionController::TestCase
     end
   end
 
-  should 'not have cross origin header on unauthorized request' do
+  test 'not have cross origin header on unauthorized request' do
     get :index
     assert_response :unauthorized
     assert_nil response.headers['Access-Control-Allow-Origin']
     assert_nil response.headers['Access-Control-Request-Method']
   end
 
-  should 'not have cross origin header on authorized request' do
+  test 'not have cross origin header on authorized request' do
     get :index, params: { token: Settings.facebook.api_token_for_event_request }
     assert_response :ok
     # assert_equal 'https://afeefa.de', response.headers['Access-Control-Allow-Origin']

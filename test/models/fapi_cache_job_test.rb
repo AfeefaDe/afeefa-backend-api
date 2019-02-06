@@ -4,17 +4,17 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
   # FAPI integration
 
-  should 'trigger fapi on entries for area job created' do
+  test 'trigger fapi on entries for area job created' do
     FapiClient.any_instance.expects(:job_created)
-    FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+    FapiCacheJob.new.update_all_entries_for_area(Area['dresden'])
   end
 
-  should 'trigger fapi on all entries for all areas job created' do
+  test 'trigger fapi on all entries for all areas job created' do
     FapiClient.any_instance.expects(:job_created)
     FapiCacheJob.new.update_all_entries_for_all_areas
   end
 
-  should 'trigger fapi on facet item translation job created' do
+  test 'trigger fapi on facet item translation job created' do
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
@@ -23,7 +23,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiCacheJob.new.update_entry_translation(facet_item, 'en')
   end
 
-  should 'trigger fapi on facet item destroy job created' do
+  test 'trigger fapi on facet item destroy job created' do
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
@@ -32,7 +32,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     facet_item.destroy!
   end
 
-  should 'trigger fapi on navigation item destroy job created' do
+  test 'trigger fapi on navigation item destroy job created' do
     navigation_item = create(:fe_navigation_item, title: 'New Entry')
     FapiCacheJob.delete_all
 
@@ -42,7 +42,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
   end
 
 
-  should 'trigger fapi anyway, even if the same job has already been scheduled - update_all' do
+  test 'trigger fapi anyway, even if the same job has already been scheduled - update_all' do
     # update_all_entries_for_area
     FapiCacheJob.new.update_all
 
@@ -51,16 +51,16 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiCacheJob.new.update_all
   end
 
-  should 'trigger fapi anyway, even if the same job has already been scheduled - update_all_entries_for_area' do
+  test 'trigger fapi anyway, even if the same job has already been scheduled - update_all_entries_for_area' do
     # update_all_entries_for_area
-    FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+    FapiCacheJob.new.update_all_entries_for_area(Area['dresden'])
 
     FapiClient.any_instance.expects(:job_created)
 
-    FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+    FapiCacheJob.new.update_all_entries_for_area(Area['dresden'])
   end
 
-  should 'trigger fapi anyway, even if the same job has already been scheduled - update_entry_translation' do
+  test 'trigger fapi anyway, even if the same job has already been scheduled - update_entry_translation' do
     # update_entry_translation
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
@@ -71,7 +71,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiCacheJob.new.update_entry_translation(facet_item, 'en')
   end
 
-  should 'trigger fapi anyway, even if the same job has already been scheduled - update_all_entries_for_all_areas' do
+  test 'trigger fapi anyway, even if the same job has already been scheduled - update_all_entries_for_all_areas' do
     # update_all_entries_for_all_areas
     FapiCacheJob.new.update_all_entries_for_all_areas
 
@@ -80,25 +80,25 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiCacheJob.new.update_all_entries_for_all_areas
   end
 
-  should 'trigger fapi anyway, even if the same job has already been scheduled - update_all_area_translations' do
+  test 'trigger fapi anyway, even if the same job has already been scheduled - update_all_area_translations' do
     # update_all_area_translations
-    FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+    FapiCacheJob.new.update_all_area_translations(Area['dresden'])
 
     FapiClient.any_instance.expects(:job_created)
 
-    FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+    FapiCacheJob.new.update_all_area_translations(Area['dresden'])
   end
 
-  should 'trigger fapi anyway, even if the same job has already been scheduled - update_area_translation' do
+  test 'trigger fapi anyway, even if the same job has already been scheduled - update_area_translation' do
     # update_area_translation
-    FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+    FapiCacheJob.new.update_area_translation(Area['dresden'], 'de')
 
     FapiClient.any_instance.expects(:job_created)
 
-    FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+    FapiCacheJob.new.update_area_translation(Area['dresden'], 'de')
   end
 
-  should 'trigger fapi anyway, even if the same job has already been scheduled - update_entry' do
+  test 'trigger fapi anyway, even if the same job has already been scheduled - update_entry' do
     # update_entry
     orga = create(:orga)
     FapiCacheJob.delete_all
@@ -110,7 +110,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     FapiCacheJob.new.update_entry(orga)
   end
 
-  should 'trigger fapi anyway, even if the same job has already been scheduled - delete_entry' do
+  test 'trigger fapi anyway, even if the same job has already been scheduled - delete_entry' do
     # delete_entry
     orga = create(:orga)
     FapiCacheJob.delete_all
@@ -124,7 +124,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
   # Job handling
 
-  should 'create a job to update all' do
+  test 'create a job to update all' do
     job = FapiCacheJob.new.update_all
 
     assert_fapi_cache_job(
@@ -134,7 +134,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'not create a job to update all multiple times' do
+  test 'not create a job to update all multiple times' do
     job = FapiCacheJob.new.update_all
 
     assert_fapi_cache_job(
@@ -150,7 +150,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
   end
 
-  should 'remove all other jobs if update all is scheduled' do
+  test 'remove all other jobs if update all is scheduled' do
     orga = create(:orga)
     FapiCacheJob.delete_all
 
@@ -175,8 +175,8 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to update all area entries' do
-    job = FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+  test 'create a job to update all area entries' do
+    job = FapiCacheJob.new.update_all_entries_for_area(Area['dresden'])
 
     assert_fapi_cache_job(
       job: job,
@@ -185,7 +185,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to update all entries of all entries' do
+  test 'create a job to update all entries of all entries' do
     jobs = FapiCacheJob.new.update_all_entries_for_all_areas
 
     Translatable::AREAS.each_with_index do |area, index|
@@ -198,8 +198,8 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
   end
 
-  should 'create a job to update all area translations' do
-    job = FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+  test 'create a job to update all area translations' do
+    job = FapiCacheJob.new.update_all_area_translations(Area['dresden'])
 
     assert_fapi_cache_job(
       job: job,
@@ -208,8 +208,8 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to update a specific area translation' do
-    job = FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+  test 'create a job to update a specific area translation' do
+    job = FapiCacheJob.new.update_area_translation(Area['dresden'], 'de')
 
     assert_fapi_cache_job(
       job: job,
@@ -219,7 +219,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to update a specific entry' do
+  test 'create a job to update a specific entry' do
     orga = create(:orga)
     FapiCacheJob.delete_all
 
@@ -233,7 +233,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to translate a specific entry' do
+  test 'create a job to translate a specific entry' do
     orga = create(:orga)
     FapiCacheJob.delete_all
 
@@ -248,7 +248,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to delete a specific entry' do
+  test 'create a job to delete a specific entry' do
     orga = create(:orga)
     FapiCacheJob.delete_all
 
@@ -262,7 +262,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to update a specific navigation item' do
+  test 'create a job to update a specific navigation item' do
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
@@ -276,7 +276,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to translate a specific navigation item' do
+  test 'create a job to translate a specific navigation item' do
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
@@ -291,7 +291,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to delete a specific navigation item' do
+  test 'create a job to delete a specific navigation item' do
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
@@ -305,7 +305,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to update a specific facet item' do
+  test 'create a job to update a specific facet item' do
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
@@ -318,7 +318,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'create a job to translate a specific facet item' do
+  test 'create a job to translate a specific facet item' do
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
@@ -336,7 +336,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
   end
 
-  should 'create a job to delete a specific facet item' do
+  test 'create a job to delete a specific facet item' do
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
@@ -349,72 +349,72 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     )
   end
 
-  should 'not create a job to update or translate an area multiple times' do
+  test 'not create a job to update or translate an area multiple times' do
     # update all entries
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_entries_for_area(Area['dresden'])
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_entries_for_area(Area['dresden'])
     end
 
     # translate all languages
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_area_translations(Area['dresden'])
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_area_translations(Area['dresden'])
     end
 
     # translate specific language
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+      FapiCacheJob.new.update_area_translation(Area['dresden'], 'de')
     end
 
     assert_no_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+      FapiCacheJob.new.update_area_translation(Area['dresden'], 'de')
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'en')
+      FapiCacheJob.new.update_area_translation(Area['dresden'], 'en')
     end
   end
 
-  should 'create a job to update or translate an area multiple times if existing job has already been started' do
+  test 'create a job to update or translate an area multiple times if existing job has already been started' do
     # update all entries
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+      job = FapiCacheJob.new.update_all_entries_for_area(Area['dresden'])
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_all_entries_for_area(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_entries_for_area(Area['dresden'])
     end
 
     # translate all languages
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+      job = FapiCacheJob.new.update_all_area_translations(Area['dresden'])
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_all_area_translations(Area.find_by(title: 'dresden'))
+      FapiCacheJob.new.update_all_area_translations(Area['dresden'])
     end
 
     # translate specific language
     assert_difference -> { FapiCacheJob.count } do
-      job = FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+      job = FapiCacheJob.new.update_area_translation(Area['dresden'], 'de')
       job.update!(started_at: Time.now)
     end
 
     assert_difference -> { FapiCacheJob.count } do
-      FapiCacheJob.new.update_area_translation(Area.find_by(title: 'dresden'), 'de')
+      FapiCacheJob.new.update_area_translation(Area['dresden'], 'de')
     end
   end
 
-  should 'not create a job to update, delete or translate an entry multiple times' do
+  test 'not create a job to update, delete or translate an entry multiple times' do
     orga = create(:orga)
     FapiCacheJob.delete_all
 
@@ -450,7 +450,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
   end
 
-  should 'create a job to update, delete or translate an entry multiple times if existing job has already been started' do
+  test 'create a job to update, delete or translate an entry multiple times if existing job has already been started' do
     orga = create(:orga)
     FapiCacheJob.delete_all
 
@@ -487,7 +487,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
   [:update, :delete].each do |operation|
     [:update, :delete].each do |operation2|
-      should "merge all entry #{operation} #{operation2} jobs to an area job if another entry update job is present" do
+      test "merge all entry #{operation} #{operation2} jobs to an area job if another entry update job is present" do
         orga = create(:orga)
         orga2 = create(:orga)
         FapiCacheJob.delete_all
@@ -518,7 +518,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
   [:update, :delete].each do |operation|
     [:update, :delete].each do |operation2|
-      should "merge all navigation #{operation} #{operation2} jobs to an area job if another navigation update job is present" do
+      test "merge all navigation #{operation} #{operation2} jobs to an area job if another navigation update job is present" do
         navigation = create(:fe_navigation_with_items)
         navigation_item = navigation.navigation_items.first
         navigation2 = create(:fe_navigation_with_items)
@@ -552,7 +552,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
 
   [:update, :delete].each do |operation|
     [:update, :delete].each do |operation2|
-      should "merge all facet #{operation} #{operation2} jobs to an area job if another facet update job is present" do
+      test "merge all facet #{operation} #{operation2} jobs to an area job if another facet update job is present" do
         facet = create(:facet_with_items)
         facet_item = facet.facet_items.first
         facet2 = create(:facet_with_items)
@@ -582,7 +582,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
   end
 
-  should "merge all entry translation jobs to an area job if another entry translation job is present" do
+  test "merge all entry translation jobs to an area job if another entry translation job is present" do
     orga = create(:orga)
     orga2 = create(:orga)
     FapiCacheJob.delete_all
@@ -623,7 +623,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
   end
 
-  should "merge all navigation translation jobs to an area job if another navigation translation job is present" do
+  test "merge all navigation translation jobs to an area job if another navigation translation job is present" do
     navigation_item = create(:fe_navigation_item)
     navigation_item2 = create(:fe_navigation_item)
     FapiCacheJob.delete_all
@@ -664,7 +664,7 @@ class FapiCacheJobTest < ActiveSupport::TestCase
     end
   end
 
-  should "merge all facet translation jobs to an area job if another facet translation job is present" do
+  test "merge all facet translation jobs to an area job if another facet translation job is present" do
     facet_item = create(:facet_item)
     facet_item2 = create(:facet_item)
     FapiCacheJob.delete_all

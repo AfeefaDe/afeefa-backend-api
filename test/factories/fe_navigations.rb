@@ -1,10 +1,10 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :fe_navigation, class: DataModules::FeNavigation::FeNavigation do
-    area 'dresden'
+    area { 'dresden' }
 
     factory :fe_navigation_with_items, class: DataModules::FeNavigation::FeNavigation do
       transient do
-        entry_count 2
+        entry_count { 2 }
       end
       after(:create) do |navigation, evaluator|
         create_list(:fe_navigation_item, evaluator.entry_count, navigation: navigation)
@@ -13,8 +13,8 @@ FactoryGirl.define do
 
     factory :fe_navigation_with_items_and_sub_items do
       transient do
-        items_count 2
-        sub_items_count 2
+        items_count { 2 }
+        sub_items_count { 2 }
       end
 
       after(:create) do |navigation, evaluator|

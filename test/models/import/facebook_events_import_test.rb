@@ -3,14 +3,14 @@ require 'test_helper'
 module Import
   class FacebookEventsImportTest < ActiveSupport::TestCase
 
-    should 'check element for coordinates in area coordinates' do
+    test 'check element for coordinates in area coordinates' do
       element = { place: { location: { latitude: '0', longitude: '0' } } }.deep_stringify_keys
       Translatable::AREAS.each do |area|
         assert_equal false, FacebookEventsImport.element_in_area?(element: element, area: area)
       end
     end
 
-    should 'import complete list' do
+    test 'import complete list' do
       skip 'Do we need this anymore?'
 
       config = {

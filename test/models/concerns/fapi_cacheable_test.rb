@@ -3,7 +3,7 @@ require 'test_helper'
 class FapiCacheableTest < ActiveSupport::TestCase
 
   [:orga, :event, :offer].each do |entry_factory|
-    should "add cache job on entry create for #{entry_factory}" do
+    test "add cache job on entry create for #{entry_factory}" do
       entry = nil
 
       assert_difference -> { FapiCacheJob.count } do
@@ -20,7 +20,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
   end
 
   [:orga, :event, :offer].each do |entry_factory|
-    should "add cache job on entry update for #{entry_factory}" do
+    test "add cache job on entry update for #{entry_factory}" do
       entry = create(entry_factory)
       FapiCacheJob.delete_all
 
@@ -46,7 +46,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
   end
 
   [:orga, :event, :offer].each do |entry_factory|
-    should "add cache job on entry delete for #{entry_factory}" do
+    test "add cache job on entry delete for #{entry_factory}" do
       entry = create(entry_factory)
       FapiCacheJob.delete_all
 
@@ -65,7 +65,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
   end
 
   [:orga, :event, :offer].each do |entry_factory|
-    should "add cache job on contact create #{entry_factory}" do
+    test "add cache job on contact create #{entry_factory}" do
       entry = create(entry_factory, contacts: [])
       FapiCacheJob.delete_all
 
@@ -90,10 +90,11 @@ class FapiCacheableTest < ActiveSupport::TestCase
   end
 
   [:orga, :event, :offer].each do |entry_factory|
-    should "add cache job on contact update #{entry_factory}" do
+    test "add cache job on contact update #{entry_factory}" do
       entry = create(entry_factory)
       contact = create(:contact, owner: entry)
       entry.update!(contact_id: contact.id)
+      entry.reload
       FapiCacheJob.delete_all
 
       assert_difference -> { FapiCacheJob.count } do
@@ -117,7 +118,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
   end
 
   [:orga, :event, :offer].each do |entry_factory|
-    should "add cache job on contact destroy #{entry_factory}" do
+    test "add cache job on contact destroy #{entry_factory}" do
       entry = create(entry_factory)
       contact = create(:contact, owner: entry)
       entry.update!(contact_id: contact.id)
@@ -142,7 +143,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     end
   end
 
-  should "add cache job on navigation item create" do
+  test "add cache job on navigation item create" do
     navigation_item = nil
 
     assert_difference -> { FapiCacheJob.count } do
@@ -157,7 +158,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     )
   end
 
-  should "add cache job on navigation item update" do
+  test "add cache job on navigation item update" do
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
@@ -181,7 +182,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     )
   end
 
-  should "add cache job on navigation item destroy" do
+  test "add cache job on navigation item destroy" do
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
 
@@ -203,7 +204,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     )
   end
 
-  should "add cache job on facet item create" do
+  test "add cache job on facet item create" do
     facet_item = nil
 
     assert_difference -> { FapiCacheJob.count } do
@@ -217,7 +218,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     )
   end
 
-  should "add cache job on facet item update" do
+  test "add cache job on facet item update" do
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
@@ -244,7 +245,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     )
   end
 
-  should "add cache job on facet item destroy" do
+  test "add cache job on facet item destroy" do
     facet_item = create(:facet_item)
     FapiCacheJob.delete_all
 
@@ -270,7 +271,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
 
   end
 
-  should "add cache job on owner link facet_item" do
+  test "add cache job on owner link facet_item" do
     orga = create(:orga)
     facet = create(:facet, owner_types: ['Orga'])
     facet_item = create(:facet_item, facet: facet)
@@ -288,7 +289,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     )
   end
 
-  should "add cache job on owner unlink facet_item" do
+  test "add cache job on owner unlink facet_item" do
     orga = create(:orga)
     facet = create(:facet, owner_types: ['Orga'])
     facet_item = create(:facet_item, facet: facet)
@@ -307,7 +308,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     )
   end
 
-  should "add cache job on owner link navigation_item" do
+  test "add cache job on owner link navigation_item" do
     orga = create(:orga)
     navigation_item = create(:fe_navigation_item)
     FapiCacheJob.delete_all
@@ -324,7 +325,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
     )
   end
 
-  should "add cache job on owner unlink navigation_item" do
+  test "add cache job on owner unlink navigation_item" do
     orga = create(:orga)
     navigation_item = create(:fe_navigation_item)
     navigation_item.link_owner(orga)
@@ -343,7 +344,7 @@ class FapiCacheableTest < ActiveSupport::TestCase
   end
 
   DataModules::Actor::ActorRelation::ASSOCIATION_TYPES.each do |association_type|
-    should "add cache job on actor relation #{association_type} created" do
+    test "add cache job on actor relation #{association_type} created" do
       orga = create(:orga)
       orga2 = create(:orga)
       FapiCacheJob.delete_all

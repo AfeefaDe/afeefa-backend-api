@@ -76,7 +76,7 @@ module DataModules::FeNavigation
 
     # FeNavigationItemTest
 
-    should 'throw error on trying to update navigation' do
+    test 'throw error on trying to update navigation' do
       navigation = create(:fe_navigation_with_items)
       navigation2 = create(:fe_navigation_with_items)
       parent = navigation.navigation_items.first
@@ -92,7 +92,7 @@ module DataModules::FeNavigation
       assert_equal navigation.id, navigation_item.navigation_id
     end
 
-    should 'disallow linking facet' do
+    test 'disallow linking facet' do
       navigation = create(:fe_navigation_with_items)
       navigation_item = navigation.navigation_items.first
 
@@ -102,7 +102,7 @@ module DataModules::FeNavigation
       assert_equal [], navigation_item.owners
     end
 
-    should 'link facet item' do
+    test 'link facet item' do
       navigation = create(:fe_navigation_with_items)
       navigation_item = navigation.navigation_items.first
 
@@ -116,7 +116,7 @@ module DataModules::FeNavigation
       assert_equal [facet_item], navigation_item.facet_items
     end
 
-    should 'unlink facet item' do
+    test 'unlink facet item' do
       navigation = create(:fe_navigation_with_items)
       navigation_item = navigation.navigation_items.first
 
@@ -136,7 +136,7 @@ module DataModules::FeNavigation
       assert_equal [], navigation_item.facet_items
     end
 
-    should 'not duplicate owners when linked directly and linked through facet_item' do
+    test 'not duplicate owners when linked directly and linked through facet_item' do
       orga = create(:orga)
 
       navigation = create(:fe_navigation_with_items)
@@ -152,7 +152,7 @@ module DataModules::FeNavigation
       assert_equal [facet_item], navigation_item.facet_items
     end
 
-    should 'relink facet_item with new/old parent when setting a new parent' do
+    test 'relink facet_item with new/old parent when setting a new parent' do
       navigation = create(:fe_navigation_with_items_and_sub_items)
 
       parent = navigation.navigation_items.select { |item| item.parent == nil }.first
@@ -186,7 +186,7 @@ module DataModules::FeNavigation
       assert_equal orgas + [orga2], sub_item.owners
     end
 
-    should 'deliver and count owners only of current area' do
+    test 'deliver and count owners only of current area' do
       orga1 = create(:orga_with_random_title, area: 'dresden')
       orga1b = create(:orga_with_random_title, area: 'dresden')
       orga2 = create(:orga_with_random_title, area: 'leipzig')

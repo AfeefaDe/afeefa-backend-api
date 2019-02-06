@@ -3,7 +3,7 @@ require 'test_helper'
 module DataModules::Actor
   class HasActorRelationsTest < ActiveSupport::TestCase
 
-    should 'remove actor relations on remove actor' do
+    test 'remove actor relations on remove actor' do
       actor = create(:orga)
       partner = create(:orga_with_random_title)
       partner2 = create(:orga_with_random_title)
@@ -26,7 +26,7 @@ module DataModules::Actor
       end
     end
 
-    should 'remove actor relations on remove related actor' do
+    test 'remove actor relations on remove related actor' do
       actor = create(:orga)
       partner = create(:orga_with_random_title)
       partner2 = create(:orga_with_random_title)
@@ -44,7 +44,7 @@ module DataModules::Actor
       end
     end
 
-    should 'do not remove projects on initiator removal' do
+    test 'do not remove projects on initiator removal' do
       actor = create(:orga)
       partner = create(:orga_with_random_title)
       partner2 = create(:orga_with_random_title)
@@ -59,7 +59,7 @@ module DataModules::Actor
       end
     end
 
-    should 'deliver partner is associated from right or from left' do
+    test 'deliver partner is associated from right or from left' do
       actor = create(:orga)
       partner = create(:orga_with_random_title)
       partner2 = create(:orga_with_random_title)

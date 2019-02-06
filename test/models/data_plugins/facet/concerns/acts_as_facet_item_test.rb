@@ -3,13 +3,13 @@ module ActsAsFacetItemTest
 
   included do
 
-    should 'validate facet' do
+    test 'validate facet' do
       item = itemClass.new
       assert_not item.valid?
       assert item.errors[root_id_field].present?
     end
 
-    should 'create item triggers fapi cache' do
+    test 'create item triggers fapi cache' do
       # note, navigation_item factory does two updates on create (create + order),
       # so this method gets called twice
       FapiCacheJob.any_instance.expects(:update_entry).with(instance_of(itemClass)).at_least_once
@@ -17,7 +17,7 @@ module ActsAsFacetItemTest
       create_item
     end
 
-    should 'update item triggers fapi cache' do
+    test 'update item triggers fapi cache' do
       item = create_item
 
       FapiCacheJob.any_instance.expects(:update_entry).with(item)
@@ -25,7 +25,7 @@ module ActsAsFacetItemTest
       item.update(title: 'new title')
     end
 
-    should 'remove item triggers fapi cache' do
+    test 'remove item triggers fapi cache' do
       item = create_item
 
       FapiCacheJob.any_instance.expects(:delete_entry).with(item)
@@ -33,7 +33,7 @@ module ActsAsFacetItemTest
       item.destroy
     end
 
-    should 'create item with parent_id' do
+    test 'create item with parent_id' do
       root = create_root_with_items
       parent = get_root_items(root).first
 
@@ -44,7 +44,7 @@ module ActsAsFacetItemTest
       assert_equal 'new item', item.title
     end
 
-    should 'throw error on create item with wrong root id' do
+    test 'throw error on create item with wrong root id' do
       exception = assert_raises(ActiveRecord::RecordInvalid) {
         item = save_item(root_id_field => '', title: 'new item')
       }
@@ -56,7 +56,7 @@ module ActsAsFacetItemTest
       assert_match message_root_nonexisting, exception.message
     end
 
-    should 'throw error on create item with wrong parent_id' do
+    test 'throw error on create item with wrong parent_id' do
       root = create_root_with_items_and_sub_items
       parent = get_root_items(root).first
       root2 = create_root_with_items_and_sub_items
@@ -88,7 +88,7 @@ module ActsAsFacetItemTest
       assert_match message_sub_cannot_be_nested, exception.message
     end
 
-    should 'update item with new parent_id' do
+    test 'update item with new parent_id' do
       root = create_root_with_items_and_sub_items
       parent = get_root_items(root).select { |item| item.sub_items.count > 0 }.first
       sub_item = parent.sub_items.first
@@ -103,7 +103,7 @@ module ActsAsFacetItemTest
       assert_same_elements [sub_item2_1, sub_item2_2, sub_item], parent2.sub_items
     end
 
-    should 'throw error on update item with wrong parent_id' do
+    test 'throw error on update item with wrong parent_id' do
       root = create_root_with_items_and_sub_items
       root2 = create_root_with_items
       parent = get_root_items(root).first
@@ -141,7 +141,7 @@ module ActsAsFacetItemTest
       assert_match message_sub_cannot_be_nested, exception.message
     end
 
-    should 'remove all sub items on remove item' do
+    test 'remove all sub items on remove item' do
       root = create_root_with_items_and_sub_items
       parent = get_root_items(root).select { |item| item.sub_items.count > 0 }.first
       sub_item = parent.sub_items.first
@@ -154,7 +154,7 @@ module ActsAsFacetItemTest
       assert itemClass.where(id: sub_item.id).blank?
     end
 
-    should 'link and get owners of mixed types' do
+    test 'link and get owners of mixed types' do
       root = create_root_with_items
       item = get_root_items(root).first
 
@@ -172,7 +172,7 @@ module ActsAsFacetItemTest
     end
 
 
-    should 'relink owners with new/old parent when setting a new parent' do
+    test 'relink owners with new/old parent when setting a new parent' do
       root = create_root_with_items_and_sub_items
 
       parent = get_root_items(root).select { |item| item.parent == nil }.first
@@ -200,7 +200,7 @@ module ActsAsFacetItemTest
       assert_equal orgas, sub_item.owners
     end
 
-    should 'keep other owners when relinking on setting a new parent' do
+    test 'keep other owners when relinking on setting a new parent' do
       root = create_root_with_items_and_sub_items
 
       parent = get_root_items(root).select { |item| item.parent == nil }.first
@@ -232,7 +232,7 @@ module ActsAsFacetItemTest
       assert_equal orgas, parent2.orgas
     end
 
-    should 'also link parent item if linking a sub item' do
+    test 'also link parent item if linking a sub item' do
       root = create_root_with_items_and_sub_items
 
       parent = get_root_items(root).select { |item| item.parent == nil }.first
@@ -248,7 +248,7 @@ module ActsAsFacetItemTest
       end
     end
 
-    should 'not link parent twice when linking a sub item' do
+    test 'not link parent twice when linking a sub item' do
       root = create_root_with_items_and_sub_items
 
       parent = get_root_items(root).select { |item| item.parent == nil }.first
@@ -263,7 +263,7 @@ module ActsAsFacetItemTest
       assert_equal [orga], sub_item.owners
     end
 
-    should 'should also unlink sub items if unlinking parent item' do
+    test 'should also unlink sub items if unlinking parent item' do
       root = create_root_with_items_and_sub_items
 
       parent = get_root_items(root).select { |item| item.parent == nil }.first
@@ -287,7 +287,7 @@ module ActsAsFacetItemTest
       end
     end
 
-    should 'remove owners when removing parent item' do
+    test 'remove owners when removing parent item' do
       root = create_root_with_items_and_sub_items
 
       parent = get_root_items(root).select { |item| item.parent == nil }.first
@@ -305,7 +305,7 @@ module ActsAsFacetItemTest
       end
     end
 
-    should 'remove owners when removing sub item' do
+    test 'remove owners when removing sub item' do
       root = create_root_with_items_and_sub_items
 
       parent = get_root_items(root).select { |item| item.parent == nil }.first

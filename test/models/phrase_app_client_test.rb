@@ -12,7 +12,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     WebMock.disable_net_connect!(allow_localhost: false)
   end
 
-  should 'delete all keys' do
+  test 'delete all keys' do
     expect_deletes_key("*")
 
     num_deletes = @client.send(:delete_all_keys)
@@ -20,7 +20,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 1, num_deletes
   end
 
-  should 'delete given keys by name (Phraseapp Api Test with Network)' do
+  test 'delete given keys by name (Phraseapp Api Test with Network)' do
     orga = build(:orga)
     orga.force_translation_after_save = true
     orga.save(validate: false)
@@ -56,7 +56,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 7, num_deletes
   end
 
-  should 'tag given models (Phraseapp Api Test with Network)' do
+  test 'tag given models (Phraseapp Api Test with Network)' do
     orga = build(:orga)
     orga.force_translation_after_save = true
     orga.save(validate: false)
@@ -88,7 +88,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 8, @client.get_count_keys_for_tag('hana_war_hier')
   end
 
-  should 'delete tag (Phraseapp Api Test with Network)' do
+  test 'delete tag (Phraseapp Api Test with Network)' do
     orga = build(:orga)
     orga.area = 'leipzig'
     orga.force_translation_after_save = true
@@ -110,7 +110,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     @client.delete_tag('leipzig')
   end
 
-  should 'delete all area tags' do
+  test 'delete all area tags' do
     PhraseAppClient.any_instance.expects(:delete_tag).with('leipzig')
     PhraseAppClient.any_instance.expects(:delete_tag).with('bautzen')
     PhraseAppClient.any_instance.expects(:delete_tag).with('dresden')
@@ -118,7 +118,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     @client.delete_all_area_tags
   end
 
-  should 'tag all models with area' do
+  test 'tag all models with area' do
     orga = build(:orga)
     orga.area = 'leipzig'
     orga.save(validate: false)
@@ -186,7 +186,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 8, num_tagged
   end
 
-  should 'delete translations of the given model' do
+  test 'delete translations of the given model' do
     orga = create(:orga)
 
     expect_deletes_key("orga.#{orga.id}.title")
@@ -197,7 +197,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 2, num_deletes
   end
 
-  should 'sync all translations' do
+  test 'sync all translations' do
     json = '{test:ok}'
 
     PhraseAppClient.any_instance.expects(:download_locale).returns(json)
@@ -209,7 +209,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     @client.sync_all_translations
   end
 
-  should 'delete all unused keys' do
+  test 'delete all unused keys' do
     existing_orga = create(:orga)
 
     orga_whithout_title = build(:orga)
@@ -279,7 +279,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 6, num_deletes
   end
 
-  should 'add missing keys' do
+  test 'add missing keys' do
     existing_orga = create(:orga)
 
     orga_whithout_title = build(:orga)
@@ -356,7 +356,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     assert_equal 4, num_added
   end
 
-  should 'download locale file' do
+  test 'download locale file' do
     VCR.use_cassette('download_locale_en') do
       json = @client.send(:download_locale, 'en')
       assert_equal ['event', 'orga'], json.keys

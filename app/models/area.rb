@@ -1,7 +1,7 @@
 class Area < ApplicationRecord
 
   def self.[](area)
-    Area.where(title: area).last
+    Area.find_by(title: area)
   end
 
 end

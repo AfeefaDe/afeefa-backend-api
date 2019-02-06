@@ -67,7 +67,7 @@ module DataModules::FeNavigation
     validates :title, length: { maximum: 255 }
     validates :color, length: { maximum: 255 }
 
-    validates :navigation_id, presence: true
+    validates :navigation, presence: true
     validates :parent_id, presence: true, allow_nil: true
     validate :validate_navigation_and_parent
 
@@ -76,7 +76,7 @@ module DataModules::FeNavigation
 
     def fapi_cacheable_on_destroy
       super
-      areaModel = Area.find_by(title: area)
+      areaModel = Area[area]
       FapiCacheJob.new.update_all_entries_for_area(areaModel)
     end
 
@@ -94,12 +94,12 @@ module DataModules::FeNavigation
         default_attributes_for_json.freeze
       end
 
-      def default_attributes_for_json
-        %i(title color icon parent_id order).freeze
+      def default_attributes_for_jsonnavigation_id
+        %i(title color icon parent_idnavigation_ider).freeze
       end
 
-      def relation_whitelist_for_json
-        default_relations_for_json.freeze
+      def relation_whitelist_for_jsonnavigation_id
+        default_relations_for_json.frnavigation_id
       end
 
       def default_relations_for_json
@@ -204,7 +204,7 @@ module DataModules::FeNavigation
         return errors.add(:navigation_id, 'Navigation kann nicht geändert werden.')
       end
 
-      unless FeNavigation.exists?(navigation_id)
+      unless FeNavigation.exists?(navigation&.id)
         return errors.add(:navigation_id, 'Navigation existiert nicht.')
       end
 

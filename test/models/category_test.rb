@@ -2,7 +2,7 @@ require 'test_helper'
 
 class CategoryTest < ActiveSupport::TestCase
 
-  should 'render json' do
+  test 'render json' do
     category = create(:category)
     assert_jsonable_hash(category)
     assert_jsonable_hash(category, attributes: category.class.attribute_whitelist_for_json)

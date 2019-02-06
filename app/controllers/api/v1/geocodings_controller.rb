@@ -25,6 +25,10 @@ class Api::V1::GeocodingsController < ApplicationController
       render json: 'geocoding failed for address', status: :unprocessable_entity
     end
   rescue => exception
+    if Rails.env.test?
+      pp exception 
+      pp exception.backtrace
+    end
     Rails.logger.error "#{exception}\n#{exception.backtrace.join("\n")}"
     render json: "error of type #{exception.class.to_s} occured, please try again", status: :internal_server_error
   end

@@ -9,7 +9,7 @@ module DataPlugins::FeNavigationItem
       @navigation_item2 = create(:fe_navigation_item, navigation: @navigation)
     end
 
-    should 'deliver navigation items for orga' do
+    test 'deliver navigation items for orga' do
       orga = create(:orga)
 
       assert_equal [], orga.navigation_items.all
@@ -20,7 +20,7 @@ module DataPlugins::FeNavigationItem
       assert_equal [@navigation_item, @navigation_item2], orga.navigation_items.all
     end
 
-    should 'deliver navigation items for event' do
+    test 'deliver navigation items for event' do
       event = create(:event)
 
       assert_equal [], event.navigation_items.all
@@ -31,7 +31,7 @@ module DataPlugins::FeNavigationItem
       assert_equal [@navigation_item, @navigation_item2], event.navigation_items.all
     end
 
-    should 'remove navigation_item owner links on remove orga' do
+    test 'remove navigation_item owner links on remove orga' do
       orga = create(:orga)
       @navigation_item.link_owner(orga)
       @navigation_item2.link_owner(orga)
@@ -45,7 +45,7 @@ module DataPlugins::FeNavigationItem
       end
     end
 
-    should 'remove navigation_item owner links on remove offer' do
+    test 'remove navigation_item owner links on remove offer' do
       offer = create(:offer)
       @navigation_item.link_owner(offer)
       @navigation_item2.link_owner(offer)
@@ -59,7 +59,7 @@ module DataPlugins::FeNavigationItem
       end
     end
 
-    should 'remove navigation_item owner links on remove event' do
+    test 'remove navigation_item owner links on remove event' do
       event = create(:event)
       @navigation_item.link_owner(event)
       @navigation_item2.link_owner(event)
@@ -73,7 +73,7 @@ module DataPlugins::FeNavigationItem
       end
     end
 
-    should 'remove navigation_item owner links on remove facet item' do
+    test 'remove navigation_item owner links on remove facet item' do
       facet = create(:facet_with_items)
       facet_item = facet.facet_items.first
       @navigation_item.link_owner(facet_item)
