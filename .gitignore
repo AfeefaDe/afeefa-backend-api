@@ -43,3 +43,8 @@ config/database.yml
 
 # local bundled gems
 /vendor/bundle
+
+# docker
+docker/.docker-sync/
+*.log
+*.pid

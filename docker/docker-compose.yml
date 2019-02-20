@@ -1,0 +1,32 @@
+version: '3'
+
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: afeefa_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: afeefa_dev
+      MYSQL_USER: devuser
+      MYSQL_PASSWORD: devpass
+    command: --default-authentication-plugin=mysql_native_password --sql_mode=""
+    ports:
+      - "9907:3306"
+  ruby:
+    image: afeefa_backend_api
+    container_name: afeefa_backend_api
+    depends_on:
+      - mysql
+    volumes:
+      - backend-api:/usr/src/app/:nocopy
+    build: 
+      context: '../'
+      dockerfile: 'docker/ruby/Dockerfile'
+    entrypoint: docker/ruby/entrypoint.sh
+    ports:
+      - "${PORT_EXTERN}:${PORT_INTERN}"
+
+volumes:
+  backend-api:
+    external: true
