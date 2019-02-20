@@ -10,7 +10,7 @@ module Import
     end
 
     test 'import complete list' do
-      skip 'Do we need this anymore?'
+      skip 'Do we need this anymore? This is not in use...'
 
       config = {
         dresden: {

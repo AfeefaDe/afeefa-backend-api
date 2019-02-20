@@ -282,8 +282,6 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
       # create at least one orga that will be translated in order to get the correct timestamp updated_at below
       create(:orga, id: 1690) # @see vcr cassette ids
 
-      # TODO: Check cassette and write tests for other responses
-      skip 'Fix this test, it seems to be broken'
       VCR.use_cassette('translation_cache_controller_test_trigger_cache_rebuild') do
         get :index
         assert_response :ok
@@ -291,6 +289,7 @@ class Api::V1::TranslationCacheControllerTest < ActionController::TestCase
 
         FapiCacheJob.any_instance.expects(:update_all).with()
 
+        skip 'Fix this: Performing this test occurs a NotFound error at phraseapp api'
         perform_enqueued_jobs do
           post :update
         end

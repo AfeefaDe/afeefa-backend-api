@@ -20,7 +20,7 @@ class TranslationCacheTest < ActiveSupport::TestCase
 
     translations = nil
 
-    skip 'Fix this test, it seems to be broken'
+    skip 'Fix this test, it seems to be broken or random failing'
     VCR.use_cassette('get_all_translations') do
       translations = client.get_all_translations(Translatable::TRANSLATABLE_LOCALES)
     end

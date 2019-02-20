@@ -3,7 +3,6 @@ require 'test_helper'
 class PhraseAppClientTest < ActiveSupport::TestCase
 
   setup do
-    skip 'Fix this tests, they seem to be broken'
     @client ||= PhraseAppClient.new
     WebMock.allow_net_connect!(allow_localhost: false)
   end
@@ -33,6 +32,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     orga3.force_translation_after_save = true
     orga3.save(validate: false)
 
+    skip 'Fix this: Performing this test occurs a NotFound error at phraseapp api'
     orga4 = build(:orga)
     orga4.force_translation_after_save = true
     orga4.save(validate: false)
@@ -69,6 +69,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     orga3 = build(:orga)
     orga3.force_translation_after_save = true
     orga3.save(validate: false)
+    skip 'Fix this: Performing this test occurs a NotFound error at phraseapp api'
 
     orga4 = build(:orga)
     orga4.short_description = '' # won't get tagged
@@ -98,6 +99,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
     orga2.area = 'leipzig'
     orga2.force_translation_after_save = true
     orga2.save(validate: false)
+    skip 'Fix this: Performing this test occurs a NotFound error at phraseapp api'
 
     assert @client.get_count_keys_for_tag('leipzig') > 0
 
@@ -357,6 +359,7 @@ class PhraseAppClientTest < ActiveSupport::TestCase
   end
 
   should 'download locale file' do
+    skip 'Fix this: Performing this test occurs a NotFound error at phraseapp api'
     VCR.use_cassette('download_locale_en') do
       json = @client.send(:download_locale, 'en')
       assert_equal ['event', 'orga'], json.keys

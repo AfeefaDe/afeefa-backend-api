@@ -5,13 +5,15 @@ class DataPlugins::Location::V1::LocationsController < Api::V1::BaseController
   def index
     area = current_api_v1_user.area
 
-    locations = DataPlugins::Location::Location.includes(DataPlugins::Location::Location.default_includes).
-    selectable_in_area(area).
-    map do |location|
-      location.to_hash(
-        attributes: %i(title street zip city),
-        relationships: [:linking_actors])
-    end
+    locations = 
+      DataPlugins::Location::Location.
+        includes(DataPlugins::Location::Location.default_includes).
+        selectable_in_area(area).
+        map do |location|
+          location.to_hash(
+            attributes: %i(title street zip city),
+            relationships: [:linking_actors])
+        end
 
     render status: :ok, json: { data: locations }
   end

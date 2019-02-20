@@ -13,6 +13,7 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 
     expected =
       {
+        success: false, 
         errors: [
           'Ungültige Anmeldeinformationen. Bitte versuchen Sie es erneut.'
         ]
