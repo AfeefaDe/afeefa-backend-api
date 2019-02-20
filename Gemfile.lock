@@ -173,7 +173,7 @@ GEM
       metaclass (~> 0.0.1)
     multi_json (1.13.1)
     multipart-post (2.0.0)
-    mysql2 (0.4.4)
+    mysql2 (0.5.2)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
