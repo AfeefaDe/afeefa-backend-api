@@ -30,7 +30,7 @@ class UserTest < ActiveSupport::TestCase
     user = User.new(available_areas: ['a', 'b', 'c'])
     assert user.area_available?('a')
     assert !user.area_available?('z')
-    user.available_areas << 'z'
+    user.available_areas = user.available_areas << 'z'
     assert user.area_available?('z')
   end
 end

@@ -101,6 +101,15 @@ class User < ApplicationRecord
     save!(validate: false)
   end
 
+  # ATTENTION: This returns a new array everytime!
+  def available_areas
+    JSON.parse(super) rescue []
+  end
+
+  def available_areas=(value)
+    super(value.to_json)
+  end
+
   def area_available?(given_area)
     (available_areas || []).include?(given_area)
   end
