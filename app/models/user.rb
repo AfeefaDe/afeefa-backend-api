@@ -81,7 +81,7 @@ class User < ApplicationRecord
     end
 
     def default_attributes_for_json
-      %i(forename surname area organization email).freeze
+      %i(forename surname area available_areas organization email).freeze
     end
   end
 
