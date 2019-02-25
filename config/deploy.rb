@@ -14,7 +14,7 @@ set :repo_url, 'https://github.com/AfeefaDe/afeefa-backend-api.git'
 
 # Default deploy_to directory is /var/www/my_app_name
 # set :deploy_to, '/var/www/my_app_name'
-set :deploy_to, '/home/ruby/afeefa-backend-api'
+set :deploy_to, '/home/afeefa/rails/afeefa-backend-api'
 
 # Default value for :scm is :git
 # set :scm, :git
@@ -55,7 +55,7 @@ namespace :translation do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       # Here we can do anything such as:
       within release_path do
-        execute "cd #{release_path} && ~/.rbenv/bin/rbenv exec bundle exec rails runner -e production 'PhraseappToBackendSyncJob.perform_now'"
+        execute "source ~/.bash_profile && cd #{release_path} && bundle exec rails runner -e production 'PhraseappToBackendSyncJob.perform_now'"
       end
     end
   end
@@ -64,7 +64,7 @@ namespace :translation do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       # Here we can do anything such as:
       within release_path do
-        execute "cd #{release_path} && ~/.rbenv/bin/rbenv exec bundle exec rails runner -e production 'BackendToPhraseappSyncJob.perform_now'"
+        execute "source ~/.bash_profile && cd #{release_path} && bundle exec rails runner -e production 'BackendToPhraseappSyncJob.perform_now'"
       end
     end
   end
@@ -77,11 +77,11 @@ namespace :deploy do
       within release_path do
         api =
             if fetch(:stage).to_s == 'production'
-              'backend-api'
+              'api'
             else
-              'backend-api-dev'
+              'dev-api'
             end
-        execute "sudo /bin/systemctl restart #{api}.service" # maybe we can use -h instead of -du
+        execute "svc -du ~/service/#{api}" # maybe we can use -h instead of -du
       end
     end
   end
@@ -92,11 +92,11 @@ namespace :deploy do
       within release_path do
         api =
             if fetch(:stage).to_s == 'production'
-              'backend-api'
+              'api'
             else
-              'backend-api-dev'
+              'dev-api'
             end
-        execute "sudo /bin/systemctl stop #{api}.service" # maybe we can use -h instead of -du
+        execute "svc -d ~/service/#{api}" # maybe we can use -h instead of -du
       end
     end
   end
@@ -107,11 +107,11 @@ namespace :deploy do
       within release_path do
         api =
             if fetch(:stage).to_s == 'production'
-              'backend-api'
+              'api'
             else
-              'backend-api-dev'
+              'dev-api'
             end
-        execute "sudo /bin/systemctl start #{api}.service" # maybe we can use -h instead of -du
+        execute "svc -u ~/service/#{api}" # maybe we can use -h instead of -du
       end
     end
   end
@@ -122,7 +122,7 @@ namespace :deploy do
         if fetch(:stage).to_s == 'production'
           execute 'echo seed job is skipped for stage production'
         else
-          execute "cd #{current_path} && RAILS_ENV=production ~/.rbenv/bin/rbenv exec bundle exec rake db:seed"
+          execute "cd #{current_path} && RAILS_ENV=production bundle exec rake db:seed"
         end
       end
     end
