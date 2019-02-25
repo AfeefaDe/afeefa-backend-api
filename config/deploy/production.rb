@@ -6,6 +6,7 @@
 server '178.238.229.190', user: 'ruby', roles: %w{app db web}, port: 54321 #, my_property: :my_value
 # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
 # server 'db.example.com', user: 'deploy', roles: %w{db}
+# server 'db.example.com', user: 'deploy', roles: %w{db}
 
 set :deploy_to, '/home/afeefa/rails/afeefa-backend-api'
 set :branch, 'master'
