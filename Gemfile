@@ -66,13 +66,6 @@ gem 'paperclip'
 gem 'http'
 
 group :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  # gem 'byebug', platform: :mri
-
-  # documentation
-  gem 'railroady'
-  gem 'rails-erd'
-
   # test framework
   gem 'minitest-rails'
 
@@ -101,6 +94,8 @@ group :test, :development do
   gem 'rails_best_practices'
   gem 'bullet'
 
+  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  # gem 'byebug', platform: :mri
   # comfortable rails console and debugger, also useful in production:
   gem 'pry'
   gem 'pry-rails'
@@ -108,6 +103,10 @@ group :test, :development do
 end
 
 group :development do
+  # documentation
+  gem 'railroady'
+  gem 'rails-erd'
+
   gem 'listen'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
