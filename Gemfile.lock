@@ -317,7 +317,7 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.5)
-    unicorn (5.5.0)
+    unicorn (5.4.1)
       kgio (~> 2.6)
       raindrops (~> 0.7)
     uniform_notifier (1.12.1)
@@ -379,7 +379,7 @@ DEPENDENCIES
   spring-watcher-listen
   timecop
   tzinfo-data
-  unicorn
+  unicorn (~> 5.4.1)
   vcr
   webmock
   whenever
