@@ -13,6 +13,9 @@ class Api::V1::GeocodingsControllerTest < ActionController::TestCase
       assert_response :unauthorized
 
       skip 'TODO: Fix this api call tests!'
+      # do not check tokens here
+      @controller.class.any_instance.stubs(:ensure_token).returns(true)
+
       get :index, params: { token: Settings.geocoding.api_token }
       assert_response :ok, response.body
       json = JSON.parse(response.body)
