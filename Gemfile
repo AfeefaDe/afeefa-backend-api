@@ -87,8 +87,8 @@ group :test do
   # mock requests in tests, needed by vcr
   gem 'webmock'
 
-  # We do not longer use sqlite3:
-  # gem 'sqlite3'
+  # take care of security issues
+  gem 'bundler-audit'
 end
 
 group :test, :development do
