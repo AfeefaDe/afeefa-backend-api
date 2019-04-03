@@ -2,7 +2,7 @@
 lock '3.11.0'
 
 set :rbenv_type, :user # or :system, depends on your rbenv setup
-set :rbenv_ruby, '2.4.2'
+set :rbenv_ruby, '2.6.1'
 
 # set :application, 'my_app_name'
 # set :repo_url, 'git@example.com:me/my_repo.git'
