@@ -48,3 +48,5 @@ config/database.yml
 docker/.docker-sync/
 *.log
 *.pid
+
+configs.txt
