@@ -1,5 +1,5 @@
 # Important: To get this file used add the following param to your start script:
-# bundle exec unicorn_rails -c /home/afeefa/rails/afeefa-backend-api/current/config/unicorn-production.rb
+# bundle exec unicorn_rails -c /home/ruby/afeefa-backend-api/current/config/unicorn-production.rb
 
 # Sample verbose configuration file for Unicorn (not Rack)
 #
@@ -22,7 +22,7 @@ worker_processes 2
 # user, do this to switch euid/egid in the workers (also chowns logs):
 # user "unprivileged_user", "unprivileged_group"
 
-APP_ROOT = '/home/afeefa/rails/afeefa-backend-api/current'
+APP_ROOT = '/home/ruby/afeefa-backend-api/current'
 APP_PORT = 63259
 
 # Help ensure your application will always spawn in the symlinked

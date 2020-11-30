@@ -10,7 +10,7 @@ export HOME=/home/afeefa
 source $HOME/.bash_profile
 
 # Now let's go!
-cd /home/afeefa/rails/afeefa-backend-api/current
+cd /home/ruby/afeefa-backend-api/current
 exec /package/host/localhost/ruby-2.3.1/bin/bundle exec unicorn_rails --port 63259 2>&1
 # exec /package/host/localhost/ruby-2.3.1/bin/bundle exec RAILS_ENV=production rails s --port 63259 2>&1
 
@@ -28,5 +28,5 @@ export HOME=/home/afeefa
 source $HOME/.bash_profile
 
 # Now let's go!
-cd /home/afeefa/rails/afeefa-backend-api-dev/current
+cd /home/ruby/afeefa-backend-api-dev/current
 exec /package/host/localhost/ruby-2.3.1/bin/bundle exec unicorn_rails --port 65413 2>&1

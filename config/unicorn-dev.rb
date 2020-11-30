@@ -1,5 +1,5 @@
 # Important: To get this file used add the following param to your start script:
-# bundle exec unicorn_rails -c /home/afeefa/rails/afeefa-backend-api-dev/current/config/unicorn-dev.rb
+# bundle exec unicorn_rails -c /home/ruby/afeefa-backend-api-dev/current/config/unicorn-dev.rb
 
 # Sample verbose configuration file for Unicorn (not Rack)
 #
