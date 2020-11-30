@@ -1,8 +1,0 @@
-version: "2"
-
-syncs:
-  backend-api:
-    src: '../'
-    host_disk_mount_mode: 'cached'
-    notify_terminal: true
-    #sync_excludes: ['.git', 'node_modules']
