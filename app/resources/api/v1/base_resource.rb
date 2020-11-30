@@ -75,7 +75,7 @@ class Api::V1::BaseResource < JSONAPI::Resource
   private
 
   def handle_associated_object_creation(association_type, relationship_type, values)
-    if values.is_a?(Fixnum)
+    if values.is_a?(Integer)
       values = { id: values }
     end
     sanitized_attributes = sanitize_attributes(values)

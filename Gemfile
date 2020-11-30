@@ -68,8 +68,8 @@ gem 'http'
 
 group :test do
   # test framework
-  gem 'minitest-rails'
-
+  # gem 'minitest-rails'
+  gem 'minitest-rails', '~> 3.0'
   # for tests
   gem 'factory_bot_rails'
   gem 'timecop'
