@@ -63,7 +63,7 @@ module Seeds
     # users
     unless Rails.env.production?
       User.create!(
-        email: 'anna@afeefa.de', forename: 'Anna', surname: 'Neumann', password: 'MapCat_050615', 
+        email: 'maier@afeefa.de', forename: 'Anna', surname: 'Maier', password: 'MapCat_050615',
         area: 'dresden', available_areas: ['dresden', 'leipzig', 'bautzen'].to_json
         )
     end
